@@ -103,12 +103,12 @@
         <!-- Main Success Card -->
         <div class="bg-white rounded-3xl card-shadow glow-effect animate-scale-in">
             <!-- Header Section -->
-            <div class="success-gradient rounded-t-3xl p-8 text-center text-white">
-                <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-slow">
-                    <i class="fas fa-check text-white text-5xl"></i>
+            <div class="success-gradient rounded-t-3xl p-6 text-center text-white">
+                <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-slow">
+                    <i class="fas fa-check text-white text-4xl"></i>
                 </div>
-                <h1 class="text-4xl font-bold mb-3 animate-slide-up">Registration Confirmed!</h1>
-                <p class="text-xl text-green-100 animate-slide-up delay-100">You're all set for the event</p>
+                <h1 class="text-4xl font-black mb-2 animate-slide-up">Registration Confirmed!</h1>
+                <p class="text-2xl font-black text-white animate-slide-up delay-100 drop-shadow-2xl bg-green-800/30 px-4 py-2 rounded-lg backdrop-blur-sm">You're all set for the event</p>
             </div>
 
             <!-- Content Section -->
@@ -176,6 +176,27 @@
                             <p class="text-sm text-gray-500 mb-1">Phone</p>
                             <p class="font-semibold text-gray-900">{{ registration.attendee_phone }}</p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- QR Code Section -->
+                <div class="bg-blue-50 rounded-xl p-6 mb-8 animate-slide-up delay-400">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-qrcode text-blue-600 mr-2"></i>
+                        Check-in QR Code
+                    </h3>
+                    <div class="text-center">
+                        <div class="bg-white p-4 rounded-lg inline-block mb-4 shadow-md">
+                            {% if registration.generate_qr_code_image %}
+                                <img src="data:image/png;base64,{{ registration.generate_qr_code_image }}" alt="Check-in QR Code" class="w-32 h-32">
+                            {% else %}
+                                <div class="w-32 h-32 bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-qrcode text-gray-400 text-4xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">QR Code: {{ registration.qr_code }}</p>
+                        <p class="text-xs text-gray-500">Present this QR code at the event entrance for quick check-in</p>
                     </div>
                 </div>
 

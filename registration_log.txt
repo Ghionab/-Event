@@ -70,21 +70,36 @@
 [2026-02-16 19:10:02] SUCCESS | event_id=5 | name=Debug Test | email=debug.test@example.com | status=pending | reg#=REG-B5DC09D7
 [2026-02-16 19:14:05] TEST: This is a test line
 [2026-02-16 19:21:04] TEST2: Manual test
-[2026-03-03 22:53:04] RAW_DATA: <QueryDict: {'event_id': ['2'], 'full_name': ['ABRAHAM MULUALEM TSEHAY'], 'email': ['abrahammulualem@gmail.com'], 'phone': ['0952613736'], 'special_requests': ['Lemme join']}>
-[2026-03-03 22:53:04] PARSED: event_id=2 (type=str), email=abrahammulualem@gmail.com, name=ABRAHAM MULUALEM TSEHAY
-[2026-03-03 22:53:04] SUCCESS | event_id=2 | name=ABRAHAM MULUALEM TSEHAY | email=abrahammulualem@gmail.com | status=confirmed | reg#=REG-393E19D7
-[2026-03-06 12:47:05] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['FnUooZ5els4Xge1FkF7pd3X6e4BfuyFBnvG7YLUO9G468EnzZAZjAwkVFi9Lu0Pl'], 'event_id': ['1'], 'full_name': ['Abraham Mulualem'], 'email': ['abrahammulualem69@gmail.com']
-[2026-03-06 12:47:05] PARSED: event_id=1 (type=str), email=abrahammulualem69@gmail.com, name=Abraham Mulualem
-[2026-03-06 12:47:05] SUCCESS | event_id=1 | name=Abraham Mulualem | email=abrahammulualem69@gmail.com | status=confirmed | reg#=REG-90FA9429
-[2026-03-06 12:47:34] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['FnUooZ5els4Xge1FkF7pd3X6e4BfuyFBnvG7YLUO9G468EnzZAZjAwkVFi9Lu0Pl'], 'event_id': ['1'], 'full_name': ['Aron T'], 'email': ['abr@gmail.com'], 'phone': ['+1 (555) 00
-[2026-03-06 12:47:34] PARSED: event_id=1 (type=str), email=abr@gmail.com, name=Aron T
-[2026-03-06 12:47:34] SUCCESS | event_id=1 | name=Aron T | email=abr@gmail.com | status=confirmed | reg#=REG-2B1C185B
-[2026-03-06 12:49:50] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['PmGyBiSQ3zLdkUdUk0jeXAmhGl8DBigaxushb4HqRNLmckzOZVb8k3J67zG9BKqU'], 'event_id': ['1'], 'full_name': ['nati'], 'email': ['nati@mail.com'], 'phone': ['0989890987'],
-[2026-03-06 12:49:50] PARSED: event_id=1 (type=str), email=nati@mail.com, name=nati
-[2026-03-06 12:49:50] SUCCESS | event_id=1 | name=nati | email=nati@mail.com | status=confirmed | reg#=REG-75593A70
-[2026-03-06 13:15:23] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['PWUqPSNsmSAH8A1oUE5kwRxdGbFvJP3yx4G9pEC2a6AQ00nizzXeTkU27pd1Jhdi'], 'event_id': ['5'], 'full_name': ['nik'], 'email': ['nik@gmail.com'], 'phone': ['0945473434'], 
-[2026-03-06 13:15:23] PARSED: event_id=5 (type=str), email=nik@gmail.com, name=nik
-[2026-03-06 13:15:23] SUCCESS | event_id=5 | name=nik | email=nik@gmail.com | status=confirmed | reg#=REG-5D07B1A7
-[2026-03-06 13:41:08] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['2E4E50nfuSD3QD0uXlJsCqEZujPal2aOKMQnFMcPi6DcI3moCgBmZT1OVxnGluky'], 'event_id': ['5'], 'full_name': ['NAt'], 'email': ['ab@gmail.com'], 'phone': ['+1 (555) 000 00
-[2026-03-06 13:41:08] PARSED: event_id=5 (type=str), email=ab@gmail.com, name=NAt
-[2026-03-06 13:41:08] SUCCESS | event_id=5 | name=NAt | email=ab@gmail.com | status=confirmed | reg#=REG-AECAA3C5
+[2026-03-07 21:24:04] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['abebe kebede'], 'email': ['abe@gmail.com'], 'phone': ['+15550000000'], 'special_requests': ['']}>
+[2026-03-07 21:24:04] PARSED: event_id=1 (type=str), email=abe@gmail.com, name=abebe kebede
+[2026-03-07 21:24:04] SUCCESS | event_id=1 | name=abebe kebede | email=abe@gmail.com | status=confirmed | reg#=REG-384FBB2A
+[2026-03-07 21:28:19] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['lemesa feysa'], 'email': ['leme@gmail.com'], 'phone': ['12345'], 'special_requests': ['gjklas']}>
+[2026-03-07 21:28:19] PARSED: event_id=1 (type=str), email=leme@gmail.com, name=lemesa feysa
+[2026-03-07 21:28:19] SUCCESS | event_id=1 | name=lemesa feysa | email=leme@gmail.com | status=confirmed | reg#=REG-BCDF0B8F
+[2026-03-07 21:29:18] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['lemesa feysa'], 'email': ['leme@gmail.com'], 'phone': ['12345'], 'special_requests': ['gjklas']}>
+[2026-03-07 21:29:18] PARSED: event_id=1 (type=str), email=leme@gmail.com, name=lemesa feysa
+[2026-03-07 21:29:18] SUCCESS | event_id=1 | name=lemesa feysa | email=leme@gmail.com | status=confirmed | reg#=REG-E761E8AE
+[2026-03-07 21:37:09] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['abebe lemesa'], 'email': ['ab@gmail.com'], 'phone': ['12345'], 'special_requests': ['anljdbjksa']}>
+[2026-03-07 21:37:09] PARSED: event_id=1 (type=str), email=ab@gmail.com, name=abebe lemesa
+[2026-03-07 21:37:09] SUCCESS | event_id=1 | name=abebe lemesa | email=ab@gmail.com | status=confirmed | reg#=REG-7071E9F4
+[2026-03-07 21:39:05] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['abebe lemesa'], 'email': ['ab@gmail.com'], 'phone': ['12345'], 'special_requests': ['anljdbjksa']}>
+[2026-03-07 21:39:05] PARSED: event_id=1 (type=str), email=ab@gmail.com, name=abebe lemesa
+[2026-03-07 21:39:05] SUCCESS | event_id=1 | name=abebe lemesa | email=ab@gmail.com | status=confirmed | reg#=REG-4052E2C6
+[2026-03-07 21:40:04] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['abrham kebede'], 'email': ['abr@gmail.com'], 'phone': ['853902'], 'special_requests': ['aklhuqei']}>
+[2026-03-07 21:40:04] PARSED: event_id=1 (type=str), email=abr@gmail.com, name=abrham kebede
+[2026-03-07 21:40:04] SUCCESS | event_id=1 | name=abrham kebede | email=abr@gmail.com | status=confirmed | reg#=REG-6B4C2D0E
+[2026-03-07 21:44:57] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['attendee trial'], 'email': ['attendee@demo.com'], 'phone': ['649289618'], 'special_requests': ['agufowlih']}>
+[2026-03-07 21:44:57] PARSED: event_id=1 (type=str), email=attendee@demo.com, name=attendee trial
+[2026-03-07 21:44:57] SUCCESS | event_id=1 | name=attendee trial | email=attendee@demo.com | status=confirmed | reg#=REG-17910B7C
+[2026-03-07 21:49:02] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['abe lemesa'], 'email': ['abee@gmail.com'], 'phone': ['437298o'], 'special_requests': ['agdulkj']}>
+[2026-03-07 21:49:02] PARSED: event_id=1 (type=str), email=abee@gmail.com, name=abe lemesa
+[2026-03-07 21:49:02] SUCCESS | event_id=1 | name=abe lemesa | email=abee@gmail.com | status=confirmed | reg#=REG-3C0072C7
+[2026-03-07 21:55:50] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['abebe feysa'], 'email': ['abebe@gmail.com'], 'phone': ['6241987p'], 'special_requests': ['faw;jfjka;']}>
+[2026-03-07 21:55:50] PARSED: event_id=1 (type=str), email=abebe@gmail.com, name=abebe feysa
+[2026-03-07 21:55:50] SUCCESS | event_id=1 | name=abebe feysa | email=abebe@gmail.com | status=confirmed | reg#=REG-EDD131BF
+[2026-03-07 22:07:49] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['alemu abebe'], 'email': ['al@gmail.com'], 'phone': ['659281'], 'special_requests': ['asho;lkj']}>
+[2026-03-07 22:07:49] PARSED: event_id=1 (type=str), email=al@gmail.com, name=alemu abebe
+[2026-03-07 22:07:49] SUCCESS | event_id=1 | name=alemu abebe | email=al@gmail.com | status=confirmed | reg#=REG-8A6707A9
+[2026-03-08 18:33:25] RAW_DATA: <QueryDict: {'event_id': ['1'], 'full_name': ['alene kebede'], 'email': ['ale@gmail.com'], 'phone': ['719048012'], 'special_requests': ['wh;ielfkns.am,dc']}>
+[2026-03-08 18:33:25] PARSED: event_id=1 (type=str), email=ale@gmail.com, name=alene kebede
+[2026-03-08 18:33:25] SUCCESS | event_id=1 | name=alene kebede | email=ale@gmail.com | status=confirmed | reg#=REG-6574B79D

@@ -242,11 +242,6 @@ class Task(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='todo')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
     
-    # Progress tracking
-    progress_percentage = models.IntegerField(default=0, help_text='0-100')
-    estimated_hours = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    actual_hours = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    
     # Due date
     due_date = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -257,67 +252,16 @@ class Task(models.Model):
         related_name='dependents'
     )
     
-    # Tags for categorization
-    tags = models.CharField(max_length=255, blank=True, help_text='Comma-separated tags')
-    
-    # Attachments
-    attachment = models.FileField(upload_to='task_attachments/', blank=True, null=True)
-    
     # Notes
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-priority', 'due_date', 'created_at']
-        indexes = [
-            models.Index(fields=['event', 'status']),
-            models.Index(fields=['assigned_to', 'status']),
-            models.Index(fields=['due_date']),
-        ]
+        ordering = ['due_date', 'priority']
     
     def __str__(self):
         return self.title
-    
-    def is_overdue(self):
-        """Check if task is overdue"""
-        if self.due_date and self.status not in ['completed', 'cancelled']:
-            return timezone.now() > self.due_date
-        return False
-    
-    def get_priority_color(self):
-        """Get color for priority badge"""
-        colors = {
-            'low': 'secondary',
-            'medium': 'info',
-            'high': 'warning',
-            'urgent': 'danger'
-        }
-        return colors.get(self.priority, 'secondary')
-    
-    def get_status_color(self):
-        """Get color for status badge"""
-        colors = {
-            'todo': 'secondary',
-            'in_progress': 'primary',
-            'review': 'info',
-            'completed': 'success',
-            'cancelled': 'danger'
-        }
-        return colors.get(self.status, 'secondary')
-    
-    def can_start(self):
-        """Check if task can be started (dependencies met)"""
-        if self.depends_on:
-            return self.depends_on.status == 'completed'
-        return True
-    
-    def mark_completed(self):
-        """Mark task as completed"""
-        self.status = 'completed'
-        self.completed_at = timezone.now()
-        self.progress_percentage = 100
-        self.save()
 
 
 class TaskComment(models.Model):

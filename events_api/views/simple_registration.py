@@ -124,6 +124,12 @@ def simple_register(request):
         )
         registration = reg
         registration_numbers.append(reg.registration_number)
+        
+        # Update analytics
+        from organizers.models import EventAnalytics
+        analytics, created = EventAnalytics.objects.get_or_create(event=event)
+        analytics.total_registrations += 1
+        analytics.save()
     else:
         # Paid registration
         for ticket_data in tickets:
@@ -162,6 +168,15 @@ def simple_register(request):
             registration_numbers.append(reg.registration_number)
             ticket_type.quantity_sold += quantity
             ticket_type.save()
+            
+            # Update analytics
+            from organizers.models import EventAnalytics
+            analytics, created = EventAnalytics.objects.get_or_create(event=event)
+            analytics.total_registrations += 1
+            analytics.total_revenue += float(ticket_total)
+            if reg.status == 'confirmed':
+                analytics.checked_in_count += 1
+            analytics.save()
 
             if registration is None:
                 registration = reg

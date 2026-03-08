@@ -1,125 +1,44 @@
-{% extends 'organizers/base.html' %}
+{% extends 'events/base.html' %}
 
-{% block title %}Reports - EventHub{% endblock %}
-{% block header %}Reports{% endblock %}
-{% block subtitle %}Generate and export event reports{% endblock %}
+{% block title %}Reports{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex justify-end">
-    <a href="{% url 'business:report_create' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-        <i class="bi bi-plus-circle mr-2"></i>
-        Create Report
-    </a>
-</div>
-
-{% if reports %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for report in reports %}
-            <div class="card hover:shadow-lg transition">
-                <div class="card-header">
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900">{{ report.name }}</h3>
-                            <p class="text-sm text-gray-500 mt-1">{{ report.get_report_type_display }}</p>
-                        </div>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                            {{ report.get_export_format_display }}
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="space-y-3">
-                        <div class="flex items-center text-sm text-gray-600">
-                            <i class="bi bi-calendar-event mr-2 text-gray-400"></i>
-                            {{ report.event.title }}
-                        </div>
-                        {% if report.last_generated %}
-                            <div class="flex items-center text-sm text-gray-600">
-                                <i class="bi bi-clock-history mr-2 text-gray-400"></i>
-                                Last generated: {{ report.last_generated|date:"M d, Y g:i A" }}
-                            </div>
-                        {% else %}
-                            <div class="flex items-center text-sm text-gray-400">
-                                <i class="bi bi-clock-history mr-2"></i>
-                                Not yet generated
-                            </div>
-                        {% endif %}
-                        {% if report.is_scheduled %}
-                            <div class="flex items-center text-sm text-green-600">
-                                <i class="bi bi-arrow-repeat mr-2"></i>
-                                Scheduled: {{ report.get_schedule_frequency_display }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-200 flex gap-2">
-                        <a href="{% url 'business:report_detail' report.id %}" class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm">
-                            <i class="bi bi-eye mr-1"></i>
-                            View
-                        </a>
-                        <a href="{% url 'business:report_generate' report.id %}" class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition text-sm">
-                            <i class="bi bi-arrow-clockwise mr-1"></i>
-                            Generate
-                        </a>
-                        <div class="relative">
-                            <button onclick="toggleExportMenu({{ report.id }})" class="inline-flex items-center justify-center px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition text-sm">
-                                <i class="bi bi-download mr-1"></i>
-                                Export
-                                <i class="bi bi-chevron-down ml-1"></i>
-                            </button>
-                            <div id="export-menu-{{ report.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                                <a href="{% url 'business:report_export' report.id %}?format=csv" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg">
-                                    <i class="bi bi-filetype-csv mr-2"></i>
-                                    Export as CSV
-                                </a>
-                                <a href="{% url 'business:report_export' report.id %}?format=xlsx" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="bi bi-filetype-xlsx mr-2"></i>
-                                    Export as Excel
-                                </a>
-                                <a href="{% url 'business:report_export' report.id %}?format=pdf" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-lg">
-                                    <i class="bi bi-filetype-pdf mr-2"></i>
-                                    Export as PDF
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Reports</h2>
+        <a href="{% url 'business:report_create' %}" class="btn btn-primary">Create Report</a>
     </div>
-{% else %}
-    <div class="card">
-        <div class="card-body text-center py-12">
-            <i class="bi bi-file-earmark-bar-graph text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No reports yet</h3>
-            <p class="text-gray-500 mb-6">Create your first report to start analyzing your event data</p>
-            <a href="{% url 'business:report_create' %}" class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                <i class="bi bi-plus-circle mr-2"></i>
-                Create Your First Report
-            </a>
+    
+    {% if reports %}
+        <div class="row">
+            {% for report in reports %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ report.name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ report.get_report_type_display }}</h6>
+                            <p class="card-text">
+                                <small class="text-muted">Event: {{ report.event.title }}</small><br>
+                                {% if report.last_generated %}
+                                    <small class="text-muted">Last generated: {{ report.last_generated }}</small>
+                                {% else %}
+                                    <small class="text-muted">Not yet generated</small>
+                                {% endif %}
+                            </p>
+                            <div class="btn-group">
+                                <a href="{% url 'business:report_detail' report.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                <a href="{% url 'business:report_generate' report.id %}" class="btn btn-sm btn-outline-success">Generate</a>
+                                <a href="{% url 'business:report_export' report.id %}" class="btn btn-sm btn-outline-secondary">Export</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-    </div>
-{% endif %}
-
-<script>
-function toggleExportMenu(reportId) {
-    const menu = document.getElementById(`export-menu-${reportId}`);
-    // Close all other menus
-    document.querySelectorAll('[id^="export-menu-"]').forEach(m => {
-        if (m.id !== `export-menu-${reportId}`) {
-            m.classList.add('hidden');
-        }
-    });
-    menu.classList.toggle('hidden');
-}
-
-// Close menus when clicking outside
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('button[onclick^="toggleExportMenu"]')) {
-        document.querySelectorAll('[id^="export-menu-"]').forEach(m => {
-            m.classList.add('hidden');
-        });
-    }
-});
-</script>
+    {% else %}
+        <div class="alert alert-info">
+            No reports found. <a href="{% url 'business:report_create' %}">Create your first report</a>.
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

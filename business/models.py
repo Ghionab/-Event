@@ -415,12 +415,6 @@ class Report(models.Model):
         ('custom', 'Custom Report'),
     ]
     
-    EXPORT_FORMATS = [
-        ('csv', 'CSV'),
-        ('xlsx', 'Excel'),
-        ('pdf', 'PDF'),
-    ]
-    
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='reports')
     name = models.CharField(max_length=100)
     report_type = models.CharField(max_length=20, choices=REPORT_TYPES)
@@ -429,29 +423,13 @@ class Report(models.Model):
     filters = models.JSONField(default=dict, blank=True)
     columns = models.JSONField(default=list, blank=True)
     
-    # Export format preference
-    export_format = models.CharField(max_length=10, choices=EXPORT_FORMATS, default='csv')
-    
     # Schedule
     is_scheduled = models.BooleanField(default=False)
-    schedule_frequency = models.CharField(
-        max_length=20,
-        choices=[
-            ('daily', 'Daily'),
-            ('weekly', 'Weekly'),
-            ('monthly', 'Monthly'),
-        ],
-        blank=True
-    )
+    schedule_frequency = models.CharField(max_length=20, blank=True)
     last_generated = models.DateTimeField(null=True, blank=True)
-    next_scheduled = models.DateTimeField(null=True, blank=True)
-    
-    # Cached report data
-    report_data = models.JSONField(default=dict, blank=True)
     
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.name} ({self.get_report_type_display()})"

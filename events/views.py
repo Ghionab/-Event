@@ -30,73 +30,11 @@ def event_create(request):
         if form.is_valid():
             event = form.save(commit=False)
             event.organizer = request.user
-            event.status = 'draft'  # Auto-assign draft status
             event.save()
-            
-            # Send email invitations if provided
-            invite_emails = form.cleaned_data.get('invite_emails', [])
-            if invite_emails:
-                sent_count = send_event_invitations(event, invite_emails, request.user)
-                if sent_count > 0:
-                    messages.success(request, f'Event created! Sent {sent_count} invitation(s).')
-                else:
-                    messages.warning(request, 'Event created, but failed to send invitations.')
-            else:
-                messages.success(request, 'Event created successfully!')
-            
             return redirect('event_detail', event_id=event.id)
     else:
         form = EventForm()
     return render(request, 'events/event_form.html', {'form': form})
-
-
-def send_event_invitations(event, email_list, organizer):
-    """Send invitation emails for an event"""
-    from django.core.mail import send_mail
-    from django.conf import settings
-    
-    sent_count = 0
-    
-    # Build registration URL
-    registration_url = f"http://localhost:8001/events/{event.id}/"
-    
-    for email in email_list:
-        subject = f"You're Invited: {event.title}"
-        
-        message = f"""
-Dear Guest,
-
-You have been invited to attend {event.title}!
-
-Event Details:
-- Event: {event.title}
-- Date: {event.start_date.strftime('%B %d, %Y at %I:%M %p')}
-- Venue: {event.venue_name or 'TBA'}
-- Location: {event.city}, {event.country}
-
-{event.description[:200]}...
-
-Register now: {registration_url}
-
-Best regards,
-{organizer.get_full_name() or organizer.username}
-{event.contact_email or ''}
-        """
-        
-        try:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
-            sent_count += 1
-        except Exception as e:
-            # Log error but continue with other emails
-            print(f"Failed to send invitation to {email}: {str(e)}")
-    
-    return sent_count
 
 def event_detail(request, event_id):
     from registration.forms import RegistrationForm

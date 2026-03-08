@@ -25,25 +25,7 @@ SECRET_KEY = 'django-insecure-0011ux95rc)db*1kjscoqm&!!49%f^z)nn-)711wel)8psg=cp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
-# CSRF settings for browser preview proxies
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://127.0.0.1:8001',
-    'http://127.0.0.1:7282',
-    'http://127.0.0.1:7286',
-    'http://127.0.0.1:14928',
-    'http://127.0.0.1:14929',
-    'http://localhost:8000',
-    'http://localhost:8001',
-]
-
-# For development - disable CSRF on all local origins
-CSRF_COOKIE_SECURE = False
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+ALLOWED_HOSTS = []
 
 
 # Application definition

@@ -1,123 +1,74 @@
-{% extends 'organizers/base.html' %}
+{% extends 'events/base.html' %}
 
-{% block title %}Audit Log - EventHub{% endblock %}
-{% block header %}Audit Log{% endblock %}
-{% block subtitle %}Track all system activities and changes{% endblock %}
+{% block title %}Audit Log - Event Management{% endblock %}
 
 {% block content %}
-<!-- Filters -->
-<div class="card mb-6">
-    <div class="card-header">
-        <h3 class="card-title">Filter Audit Logs</h3>
-    </div>
+<h1>Audit Log</h1>
+
+<div class="card mb-4">
     <div class="card-body">
-        <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
-                <select name="action" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <select name="action" class="form-select">
                     <option value="">All Actions</option>
-                    <option value="create">Created</option>
-                    <option value="update">Updated</option>
-                    <option value="delete">Deleted</option>
-                    <option value="view">Viewed</option>
-                    <option value="login">Login</option>
-                    <option value="logout">Logout</option>
-                    <option value="export">Exported</option>
+                    {% for value, label in form.fields.action.choices %}
+                        <option value="{{ value }}" {% if request.GET.action == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
                 </select>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
-                <select name="user" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <div class="col-md-3">
+                <select name="user" class="form-select">
                     <option value="">All Users</option>
                     {% for user in users %}
                         <option value="{{ user.pk }}" {% if request.GET.user == user.pk|stringformat:"s" %}selected{% endif %}>{{ user.email }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                <input type="date" name="start_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" value="{{ request.GET.start_date|default:'' }}">
+            <div class="col-md-2">
+                <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date|default:'' }}" placeholder="Start Date">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                <input type="date" name="end_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" value="{{ request.GET.end_date|default:'' }}">
+            <div class="col-md-2">
+                <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date|default:'' }}" placeholder="End Date">
             </div>
-            <div class="flex items-end">
-                <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                    <i class="bi bi-funnel mr-2"></i>
-                    Filter
-                </button>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Audit Log Table -->
-<div class="card">
-    <div class="card-header">
-        <div class="flex justify-between items-center">
-            <h3 class="card-title">Activity Log</h3>
-            <span class="text-sm text-gray-500">Showing last 100 entries</span>
-        </div>
-    </div>
-    <div class="card-body p-0">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    {% for log in logs %}
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 text-sm text-gray-900">
-                            <div>{{ log.created_at|date:"M d, Y" }}</div>
-                            <div class="text-gray-500">{{ log.created_at|time:"g:i A" }}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                            {% if log.user %}
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-xs mr-2">
-                                        {{ log.user.email|slice:":2"|upper }}
-                                    </div>
-                                    <span class="text-sm text-gray-900">{{ log.user.email }}</span>
-                                </div>
-                            {% else %}
-                                <span class="text-sm text-gray-500">System</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {% if log.action == 'create' %}bg-green-100 text-green-800
-                                {% elif log.action == 'update' %}bg-blue-100 text-blue-800
-                                {% elif log.action == 'delete' %}bg-red-100 text-red-800
-                                {% elif log.action == 'login' %}bg-indigo-100 text-indigo-800
-                                {% elif log.action == 'export' %}bg-purple-100 text-purple-800
-                                {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                {{ log.get_action_display }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ log.content_type }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">{{ log.description|truncatewords:15 }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-500">{{ log.ip_address|default:'-' }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                            <i class="bi bi-shield-check text-4xl mb-2"></i>
-                            <p>No audit logs found.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Content Type</th>
+                <th>Description</th>
+                <th>IP Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.created_at|date:"M d, Y H:i:s" }}</td>
+                <td>{{ log.user|default:"System" }}</td>
+                <td>
+                    <span class="badge {% if log.action == 'create' %}bg-success{% elif log.action == 'update' %}bg-info{% elif log.action == 'delete' %}bg-danger{% elif log.action == 'login' %}bg-primary{% else %}bg-secondary{% endif %}">
+                        {{ log.get_action_display }}
+                    </span>
+                </td>
+                <td>{{ log.content_type }}</td>
+                <td>{{ log.description|truncatewords:20 }}</td>
+                <td>{{ log.ip_address|default:'-' }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center py-4">No audit logs found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

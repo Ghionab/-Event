@@ -94,46 +94,18 @@ class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = [
-            'event', 'title', 'description', 'assigned_to', 'status',
-            'priority', 'due_date', 'depends_on', 'tags',
-            'progress_percentage', 'estimated_hours', 'actual_hours',
-            'attachment', 'notes'
+            'title', 'description', 'assigned_to', 'status',
+            'priority', 'due_date', 'depends_on'
         ]
         widgets = {
-            'event': forms.Select(attrs={'class': 'form-control'}),
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Task title'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'assigned_to': forms.Select(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'priority': forms.Select(attrs={'class': 'form-control'}),
             'due_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'depends_on': forms.Select(attrs={'class': 'form-control'}),
-            'tags': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Comma-separated tags'}),
-            'progress_percentage': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100}),
-            'estimated_hours': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'}),
-            'actual_hours': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'}),
-            'attachment': forms.FileInput(attrs={'class': 'form-control'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
-    
-    def __init__(self, *args, **kwargs):
-        event = kwargs.pop('event', None)
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        
-        # Filter events by organizer
-        if user and not user.is_staff:
-            self.fields['event'].queryset = Event.objects.filter(organizer=user)
-        
-        if event:
-            # Filter assigned_to by event team members
-            self.fields['assigned_to'].queryset = TeamMember.objects.filter(event=event, is_active=True)
-            # Filter depends_on by event tasks
-            self.fields['depends_on'].queryset = Task.objects.filter(event=event).exclude(
-                pk=self.instance.pk if self.instance.pk else None
-            )
-            # Set event as initial value
-            self.fields['event'].initial = event
 
 
 class TaskCommentForm(forms.ModelForm):

@@ -204,7 +204,7 @@
     function renderTicketCard(ticket) {
         const price = parseFloat(ticket.price);
         const isFree = price === 0;
-        const available = ticket.available;
+        const available = ticket.available_quantity || 0;
 
         return `
             <div class="border rounded-lg p-4 ${isFree ? '' : 'border-indigo-200'}">

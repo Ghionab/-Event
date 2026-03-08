@@ -1,67 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Event Portal{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .hero-gradient {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-
         .card-hover:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
-
-        .toast-container {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 9999;
-        }
-
-        .toast {
-            animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 4.7s;
-            animation-fill-mode: forwards;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-            }
-        }
-
-            {
-            % block extra_css %
-        }
-
-            {
-            % endblock %
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
         }
     </style>
 </head>
-
 <body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
     <nav class="bg-white shadow-sm sticky top-0 z-50">
@@ -72,155 +26,28 @@
                         <i class="fas fa-calendar-alt text-indigo-600 text-2xl mr-2"></i>
                         <span class="font-bold text-xl text-gray-800">EventPortal</span>
                     </a>
-                    <div class="hidden md:flex ml-10 space-x-1">
+                    <div class="hidden md:flex ml-10 space-x-8">
+                        <a href="/events/" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md font-medium">Browse Events</a>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'attendee:dashboard' %}"
-                            class="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md font-medium transition">
-                            <i class="bi bi-grid-1x2 mr-1"></i> Dashboard
-                        </a>
-                        <a href="{% url 'attendee:my_tickets' %}"
-                            class="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md font-medium transition">
-                            <i class="bi bi-ticket-perforated mr-1"></i> My Tickets
-                        </a>
-                        <a href="{% url 'attendee:my_schedule' %}"
-                            class="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md font-medium transition">
-                            <i class="bi bi-calendar3 mr-1"></i> My Schedule
-                        </a>
-                        <a href="/events/"
-                            class="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md font-medium transition">
-                            <i class="bi bi-search mr-1"></i> Browse Events
-                        </a>
-                        {% else %}
-                        <a href="/events/"
-                            class="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md font-medium transition">Browse
-                            Events</a>
+                        <a href="/my-registrations/" class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md font-medium">My Registrations</a>
                         {% endif %}
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-4">
                     {% if user.is_authenticated %}
-                    <!-- Notifications -->
-                    <a href="{% url 'attendee:notifications' %}"
-                        class="relative text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-indigo-50 transition">
-                        <i class="bi bi-bell text-xl"></i>
-                        {% if unread_notifications_count %}
-                        <span
-                            class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                            {{ unread_notifications_count }}
-                        </span>
-                        {% endif %}
-                    </a>
-                    <!-- Messages -->
-                    <a href="{% url 'attendee:messages' %}"
-                        class="relative text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-indigo-50 transition">
-                        <i class="bi bi-chat-dots text-xl"></i>
-                        {% if unread_messages_count %}
-                        <span
-                            class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                            {{ unread_messages_count }}
-                        </span>
-                        {% endif %}
-                    </a>
-                    <!-- User menu -->
-                    <div class="relative" x-data="{ open: false }">
-                        <span class="text-gray-600 text-sm hidden lg:inline">{{ user.first_name|default:user.email
-                            }}</span>
-                        <a href="{% url 'attendee:settings' %}"
-                            class="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-indigo-50 transition">
+                        <span class="text-gray-600">Welcome, {{ user.first_name|default:user.email }}</span>
+                        <a href="/profile/" class="text-gray-600 hover:text-indigo-600">
                             <i class="fas fa-user-circle text-xl"></i>
                         </a>
-                        <a href="/logout/"
-                            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">Logout</a>
-                    </div>
+                        <a href="/logout/" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Logout</a>
                     {% else %}
-                    <a href="/login/" class="text-gray-600 hover:text-indigo-600 font-medium">Login</a>
-                    <a href="/register/"
-                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Sign Up</a>
+                        <a href="/login/" class="text-gray-600 hover:text-indigo-600 font-medium">Login</a>
+                        <a href="/register/" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Sign Up</a>
                     {% endif %}
                 </div>
-                <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center">
-                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
-                        class="text-gray-600 hover:text-indigo-600 p-2">
-                        <i class="bi bi-list text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Mobile menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
-            <div class="px-4 py-3 space-y-2">
-                {% if user.is_authenticated %}
-                <a href="{% url 'attendee:dashboard' %}"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">
-                    <i class="bi bi-grid-1x2 mr-2"></i> Dashboard
-                </a>
-                <a href="{% url 'attendee:my_tickets' %}"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">
-                    <i class="bi bi-ticket-perforated mr-2"></i> My Tickets
-                </a>
-                <a href="{% url 'attendee:my_schedule' %}"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">
-                    <i class="bi bi-calendar3 mr-2"></i> My Schedule
-                </a>
-                <a href="{% url 'attendee:notifications' %}"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">
-                    <i class="bi bi-bell mr-2"></i> Notifications
-                    {% if unread_notifications_count %}<span
-                        class="bg-red-500 text-white text-xs rounded-full px-2 py-0.5 ml-1">{{
-                        unread_notifications_count }}</span>{% endif %}
-                </a>
-                <a href="{% url 'attendee:messages' %}"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">
-                    <i class="bi bi-chat-dots mr-2"></i> Messages
-                    {% if unread_messages_count %}<span
-                        class="bg-red-500 text-white text-xs rounded-full px-2 py-0.5 ml-1">{{ unread_messages_count
-                        }}</span>{% endif %}
-                </a>
-                <a href="/events/"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">
-                    <i class="bi bi-search mr-2"></i> Browse Events
-                </a>
-                <a href="{% url 'attendee:networking_hub' %}"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">
-                    <i class="bi bi-people mr-2"></i> Networking
-                </a>
-                <hr class="my-2">
-                <a href="{% url 'attendee:settings' %}"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">
-                    <i class="bi bi-gear mr-2"></i> Settings
-                </a>
-                <a href="/logout/" class="block px-3 py-2 text-red-600 hover:bg-red-50 rounded-md font-medium">
-                    <i class="bi bi-box-arrow-right mr-2"></i> Logout
-                </a>
-                {% else %}
-                <a href="/events/"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">Browse Events</a>
-                <a href="/login/"
-                    class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-md font-medium">Login</a>
-                <a href="/register/"
-                    class="block px-3 py-2 bg-indigo-600 text-white rounded-md font-medium text-center">Sign Up</a>
-                {% endif %}
             </div>
         </div>
     </nav>
-
-    <!-- Toast Notifications -->
-    <div class="toast-container" id="toast-container">
-        {% if messages %}
-        {% for message in messages %}
-        <div
-            class="toast mb-2 p-4 rounded-lg shadow-lg max-w-sm {% if message.tags == 'success' %}bg-green-500 text-white{% elif message.tags == 'error' %}bg-red-500 text-white{% elif message.tags == 'warning' %}bg-yellow-500 text-white{% else %}bg-indigo-500 text-white{% endif %}">
-            <div class="flex items-center gap-2">
-                {% if message.tags == 'success' %}<i class="bi bi-check-circle"></i>
-                {% elif message.tags == 'error' %}<i class="bi bi-exclamation-circle"></i>
-                {% else %}<i class="bi bi-info-circle"></i>{% endif %}
-                <span class="text-sm font-medium">{{ message }}</span>
-            </div>
-        </div>
-        {% endfor %}
-        {% endif %}
-    </div>
 
     <!-- Main Content -->
     <main>
@@ -239,16 +66,15 @@
                     <h4 class="font-bold mb-4">Quick Links</h4>
                     <ul class="space-y-2 text-gray-400">
                         <li><a href="/events/" class="hover:text-white">Browse Events</a></li>
-                        {% if user.is_authenticated %}
-                        <li><a href="{% url 'attendee:dashboard' %}" class="hover:text-white">Dashboard</a></li>
-                        <li><a href="{% url 'attendee:my_registrations' %}" class="hover:text-white">My
-                                Registrations</a></li>
-                        {% endif %}
+                        <li><a href="/about/" class="hover:text-white">About Us</a></li>
+                        <li><a href="/contact/" class="hover:text-white">Contact</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-bold mb-4">Support</h4>
                     <ul class="space-y-2 text-gray-400">
+                        <li><a href="/faq/" class="hover:text-white">FAQ</a></li>
+                        <li><a href="/help/" class="hover:text-white">Help Center</a></li>
                         <li><a href="/api/docs/" class="hover:text-white">API Docs</a></li>
                     </ul>
                 </div>
@@ -262,25 +88,9 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2026 EventPortal. All rights reserved.</p>
+                <p>&copy; 2024 EventPortal. All rights reserved.</p>
             </div>
         </div>
     </footer>
-
-    <script>
-        // Auto-remove toasts after 5 seconds
-        setTimeout(() => {
-            const toasts = document.querySelectorAll('.toast');
-            toasts.forEach(t => t.remove());
-        }, 5000);
-
-        // CSRF token helper for AJAX
-        function getCsrfToken() {
-            return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-                document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='))?.split('=')[1] || '';
-        }
-    </script>
-    {% block extra_js %}{% endblock %}
 </body>
-
 </html>

@@ -2,21 +2,10 @@ from django import forms
 from .models import Event, EventSession, Speaker, Track, Room, Sponsor
 
 class EventForm(forms.ModelForm):
-    # Email invitation field (not part of the model)
-    invite_emails = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={
-            'rows': 3,
-            'placeholder': 'Enter email addresses separated by commas or new lines'
-        }),
-        help_text='Optional: Send event invitations to these email addresses',
-        label='Invite via Email'
-    )
-    
     class Meta:
         model = Event
         fields = [
-            'title', 'description', 'event_type', 'start_date', 'end_date',
+            'title', 'description', 'event_type', 'status', 'start_date', 'end_date',
             'registration_deadline', 'venue_name', 'address', 'city', 'country',
             'virtual_meeting_url', 'virtual_platform', 'logo', 'banner_image',
             'primary_color', 'secondary_color', 'max_attendees', 'is_public',
@@ -31,32 +20,6 @@ class EventForm(forms.ModelForm):
             'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'registration_deadline': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
-    
-    def clean_invite_emails(self):
-        """Validate and parse email addresses"""
-        emails_text = self.cleaned_data.get('invite_emails', '').strip()
-        if not emails_text:
-            return []
-        
-        # Split by comma or newline
-        import re
-        email_list = re.split(r'[,\n]+', emails_text)
-        
-        # Clean and validate each email
-        cleaned_emails = []
-        from django.core.validators import validate_email
-        from django.core.exceptions import ValidationError as DjangoValidationError
-        
-        for email in email_list:
-            email = email.strip()
-            if email:
-                try:
-                    validate_email(email)
-                    cleaned_emails.append(email)
-                except DjangoValidationError:
-                    raise forms.ValidationError(f'Invalid email address: {email}')
-        
-        return cleaned_emails
 
 class EventSessionForm(forms.ModelForm):
     class Meta:

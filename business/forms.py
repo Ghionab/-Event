@@ -79,11 +79,20 @@ class QuoteForm(forms.ModelForm):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        fields = ['name', 'report_type', 'filters', 'is_scheduled', 'schedule_frequency']
+        fields = ['event', 'name', 'report_type', 'export_format', 'filters', 'is_scheduled', 'schedule_frequency']
         widgets = {
-            'filters': forms.Textarea(attrs={'rows': 3, 'placeholder': '{"status": "confirmed"}'}),
+            'event': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Report name'}),
+            'report_type': forms.Select(attrs={'class': 'form-control'}),
+            'export_format': forms.Select(attrs={'class': 'form-control'}),
+            'filters': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': '{"status": "confirmed"}'}),
+            'is_scheduled': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'schedule_frequency': forms.Select(attrs={'class': 'form-control'}),
         }
 
 
 class ReportExportForm(forms.Form):
-    format = forms.ChoiceField(choices=[('csv', 'CSV'), ('xlsx', 'Excel'), ('pdf', 'PDF')])
+    format = forms.ChoiceField(
+        choices=[('csv', 'CSV'), ('xlsx', 'Excel'), ('pdf', 'PDF')],
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )

@@ -24,15 +24,6 @@ def participant_register(request, event_id):
     )(request, event_id=event_id)
 
 
-def participant_registration_success(request, registration_id):
-    """Show registration success page"""
-    from django.shortcuts import get_object_or_404, render
-    from registration.models import Registration
-    
-    registration = get_object_or_404(Registration, id=registration_id)
-    return render(request, 'participant/registration_success.html', {'registration': registration})
-
-
 def participant_logout(request):
     """Simple logout view that logs out and redirects to login"""
     from django.contrib.auth import logout
@@ -40,7 +31,6 @@ def participant_logout(request):
     return RedirectView.as_view(url='/login/')(request)
 
 
-@csrf_exempt
 def participant_signup(request):
     """Simple signup view for participants"""
     from django.contrib.auth import get_user_model
@@ -88,6 +78,7 @@ def participant_signup(request):
             password=password1,
             first_name=first_name,
             last_name=last_name,
+            role='attendee',  # Set role to attendee
         )
 
         # Log the user in
@@ -115,9 +106,6 @@ urlpatterns = [
 
     # Registration flow - MUST come before event detail
     path('events/<int:event_id>/register/', participant_register, name='participant_register'),
-    
-    # Registration success page
-    path('registration-success/<int:registration_id>/', participant_registration_success, name='participant_registration_success'),
 
     # Event detail (public view - no registration)
     path('events/<int:event_id>/', TemplateView.as_view(template_name='participant/event_detail.html'), name='participant_event_detail'),
@@ -200,6 +188,12 @@ urlpatterns = [
 
     # API Documentation (read-only for participants)
     path('api/docs/', TemplateView.as_view(template_name='participant/api_docs.html'), name='participant_api_docs'),
+
+    # Attendee portal routes (authenticated)
+    path('attendee/', include('registration.urls_attendee')),
+
+    # Attendee API endpoints
+    path('api/attendee/', include('registration.urls_api_attendee')),
 ]
 
 # Static and media files

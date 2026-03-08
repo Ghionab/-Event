@@ -34,6 +34,8 @@ urlpatterns = [
     path('tasks/<int:pk>/update/', views.task_update, name='task_update'),
     path('tasks/<int:pk>/delete/', views.task_delete, name='task_delete'),
     path('tasks/<int:pk>/comment/', views.task_add_comment, name='task_add_comment'),
+    path('tasks/export/', views.task_export, name='task_export'),
+    path('tasks/bulk-update/', views.task_bulk_update, name='task_bulk_update'),
     
     # Audit URLs
     path('audit/', views.audit_log, name='audit_log'),

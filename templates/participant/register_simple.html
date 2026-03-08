@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Register for Event</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-gray-50 min-h-screen py-12">
     <div class="max-w-xl mx-auto px-4">
         <a href="/events/{{ event_id }}/" class="text-indigo-600 hover:text-indigo-800 mb-6 inline-block">
@@ -14,18 +15,21 @@
         <div class="bg-white rounded-2xl shadow-xl p-8">
             <h1 class="text-2xl font-bold mb-6">Register for Event</h1>
 
-            <!-- Simple HTML Form - No CSRF token needed -->
-            <form id="registrationForm" action="/api/v1/register/" method="POST">
+            <!-- Simple HTML Form - Now with CSRF token -->
+            <form action="/api/v1/register/" method="POST">
+                {% csrf_token %}
                 <input type="hidden" name="event_id" value="{{ event_id }}">
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">Full Name *</label>
-                    <input type="text" name="full_name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    <input type="text" name="full_name" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">Email *</label>
-                    <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                    <input type="email" name="email" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
                 </div>
 
                 <div class="mb-4">
@@ -35,52 +39,17 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">Special Requests</label>
-                    <textarea name="special_requests" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                    <textarea name="special_requests" rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
                 </div>
 
-                <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-lg font-bold hover:bg-indigo-700">
+                <button type="submit"
+                    class="w-full bg-indigo-600 text-white py-4 rounded-lg font-bold hover:bg-indigo-700">
                     Complete Registration
                 </button>
             </form>
         </div>
     </div>
-
-    <script>
-        document.getElementById('registrationForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const form = e.target;
-            const formData = new FormData(form);
-            const submitButton = form.querySelector('button[type="submit"]');
-            
-            // Show loading state
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
-            submitButton.disabled = true;
-            
-            // Submit the form
-            fetch('/api/v1/register/', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success' || data.status === 'confirmed') {
-                    // Redirect to success page with registration ID
-                    window.location.href = `/registration-success/${data.id}/`;
-                } else {
-                    // Show error message
-                    alert('Registration failed: ' + (data.message || 'Unknown error'));
-                    submitButton.innerHTML = 'Complete Registration';
-                    submitButton.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Registration failed. Please try again.');
-                submitButton.innerHTML = 'Complete Registration';
-                submitButton.disabled = false;
-            });
-        });
-    </script>
 </body>
+
 </html>

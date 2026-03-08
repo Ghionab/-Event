@@ -312,8 +312,15 @@ def team_member_delete(request, pk):
 @login_required
 @permission_required('advanced.view_task', raise_exception=True)
 def task_list(request):
-    tasks = Task.objects.all()
+    # Get user's events (organizer only sees their events)
+    if request.user.is_staff:
+        tasks = Task.objects.all()
+        events = Event.objects.all()
+    else:
+        events = Event.objects.filter(organizer=request.user)
+        tasks = Task.objects.filter(event__in=events)
     
+    # Filtering
     event_id = request.GET.get('event')
     if event_id:
         tasks = tasks.filter(event_id=event_id)
@@ -326,28 +333,76 @@ def task_list(request):
     if priority:
         tasks = tasks.filter(priority=priority)
     
-    events = Event.objects.all()
+    assigned_to = request.GET.get('assigned_to')
+    if assigned_to:
+        tasks = tasks.filter(assigned_to_id=assigned_to)
+    
+    # Search
+    search = request.GET.get('search')
+    if search:
+        tasks = tasks.filter(
+            Q(title__icontains=search) |
+            Q(description__icontains=search) |
+            Q(tags__icontains=search)
+        )
+    
+    # Sorting
+    sort_by = request.GET.get('sort', '-created_at')
+    tasks = tasks.order_by(sort_by)
+    
+    # Pass status and priority choices to template
+    statuses = Task.STATUS_CHOICES
+    priorities = Task.PRIORITY_CHOICES
+    
+    # Get team members for filter
+    team_members = TeamMember.objects.filter(event__in=events, is_active=True).distinct()
+    
+    # Task statistics
+    stats = {
+        'total': tasks.count(),
+        'todo': tasks.filter(status='todo').count(),
+        'in_progress': tasks.filter(status='in_progress').count(),
+        'completed': tasks.filter(status='completed').count(),
+        'overdue': sum(1 for task in tasks if task.is_overdue()),
+    }
+    
     return render(request, 'advanced/task_list.html', {
         'tasks': tasks,
-        'events': events
+        'events': events,
+        'statuses': statuses,
+        'priorities': priorities,
+        'team_members': team_members,
+        'stats': stats,
     })
 
 
 @login_required
 @permission_required('advanced.add_task', raise_exception=True)
 def task_create(request):
+    # Get event from query parameter
+    event_id = request.GET.get('event')
+    event = None
+    if event_id:
+        event = get_object_or_404(Event, pk=event_id)
+    
     if request.method == 'POST':
-        form = TaskForm(request.POST)
+        form = TaskForm(request.POST, request.FILES, event=event, user=request.user)
         if form.is_valid():
             task = form.save(commit=False)
             task.created_by = request.user
+            # Set event if not already set
+            if not task.event and event:
+                task.event = event
             task.save()
             messages.success(request, 'Task created successfully.')
             return redirect('advanced:task_detail', pk=task.pk)
     else:
-        form = TaskForm()
+        initial = {}
+        if event:
+            initial['event'] = event
+        form = TaskForm(initial=initial, event=event, user=request.user)
     
-    return render(request, 'advanced/task_form.html', {'form': form, 'action': 'Create'})
+    return render(request, 'advanced/task_form.html', {'form': form, 'action': 'Create', 'event': event})
 
 
 @login_required
@@ -381,13 +436,13 @@ def task_update(request, pk):
     task = get_object_or_404(Task, pk=pk)
     
     if request.method == 'POST':
-        form = TaskForm(request.POST, instance=task)
+        form = TaskForm(request.POST, request.FILES, instance=task, event=task.event, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Task updated successfully.')
             return redirect('advanced:task_detail', pk=task.pk)
     else:
-        form = TaskForm(instance=task)
+        form = TaskForm(instance=task, event=task.event, user=request.user)
     
     return render(request, 'advanced/task_form.html', {'form': form, 'action': 'Update', 'task': task})
 
@@ -419,6 +474,110 @@ def task_add_comment(request, pk):
             messages.success(request, 'Comment added.')
     
     return redirect('advanced:task_detail', pk=task.pk)
+
+
+@login_required
+@permission_required('advanced.view_task', raise_exception=True)
+def task_export(request):
+    """Export tasks to CSV"""
+    import csv
+    from django.http import HttpResponse
+    
+    # Get user's events (organizer only sees their events)
+    if request.user.is_staff:
+        tasks = Task.objects.all()
+    else:
+        events = Event.objects.filter(organizer=request.user)
+        tasks = Task.objects.filter(event__in=events)
+    
+    # Apply filters from query parameters
+    event_id = request.GET.get('event')
+    if event_id:
+        tasks = tasks.filter(event_id=event_id)
+    
+    status = request.GET.get('status')
+    if status:
+        tasks = tasks.filter(status=status)
+    
+    priority = request.GET.get('priority')
+    if priority:
+        tasks = tasks.filter(priority=priority)
+    
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="tasks_export.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow([
+        'Event', 'Title', 'Description', 'Status', 'Priority',
+        'Assigned To', 'Due Date', 'Progress %', 'Estimated Hours',
+        'Actual Hours', 'Tags', 'Created At', 'Completed At'
+    ])
+    
+    for task in tasks.select_related('event', 'assigned_to', 'assigned_to__user'):
+        writer.writerow([
+            task.event.title,
+            task.title,
+            task.description,
+            task.get_status_display(),
+            task.get_priority_display(),
+            task.assigned_to.user.email if task.assigned_to else '',
+            task.due_date.strftime('%Y-%m-%d %H:%M') if task.due_date else '',
+            task.progress_percentage,
+            task.estimated_hours or '',
+            task.actual_hours or '',
+            task.tags,
+            task.created_at.strftime('%Y-%m-%d %H:%M'),
+            task.completed_at.strftime('%Y-%m-%d %H:%M') if task.completed_at else ''
+        ])
+    
+    return response
+
+
+@login_required
+@permission_required('advanced.change_task', raise_exception=True)
+def task_bulk_update(request):
+    """Bulk update task status or priority"""
+    if request.method == 'POST':
+        task_ids = request.POST.getlist('task_ids')
+        action = request.POST.get('action')
+        
+        if not task_ids:
+            messages.error(request, 'No tasks selected.')
+            return redirect('advanced:task_list')
+        
+        # Get user's events (organizer only sees their events)
+        if request.user.is_staff:
+            tasks = Task.objects.filter(id__in=task_ids)
+        else:
+            events = Event.objects.filter(organizer=request.user)
+            tasks = Task.objects.filter(id__in=task_ids, event__in=events)
+        
+        if action == 'mark_completed':
+            for task in tasks:
+                task.mark_completed()
+            messages.success(request, f'{tasks.count()} tasks marked as completed.')
+        
+        elif action == 'change_status':
+            new_status = request.POST.get('new_status')
+            if new_status:
+                tasks.update(status=new_status)
+                messages.success(request, f'{tasks.count()} tasks updated to {new_status}.')
+        
+        elif action == 'change_priority':
+            new_priority = request.POST.get('new_priority')
+            if new_priority:
+                tasks.update(priority=new_priority)
+                messages.success(request, f'{tasks.count()} tasks updated to {new_priority} priority.')
+        
+        elif action == 'delete':
+            count = tasks.count()
+            tasks.delete()
+            messages.success(request, f'{count} tasks deleted.')
+        
+        return redirect('advanced:task_list')
+    
+    return redirect('advanced:task_list')
 
 
 # ============ Audit Views ============

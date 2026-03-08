@@ -587,21 +587,201 @@ def report_generate(request, report_id):
 
 @user_passes_test(lambda u: u.is_staff or u.is_organizer)
 def report_export(request, report_id):
-    """Export report"""
+    """Export report in multiple formats"""
     report = get_object_or_404(Report, id=report_id)
-    format_type = request.GET.get('format', 'csv')
+    format_type = request.GET.get('format', report.export_format)
     
-    content = f"Report: {report.name}\nGenerated: {timezone.now()}\n\n"
+    # Generate report data
+    data = []
+    headers = []
     
     if report.report_type == 'registration':
         regs = Registration.objects.filter(event=report.event)
-        content += "Registration Number,Name,Email,Status,Date\n"
+        headers = ['Registration Number', 'Name', 'Email', 'Status', 'Ticket Type', 'Amount', 'Date']
         for r in regs:
-            content += f"{r.registration_number},{r.attendee_name},{r.attendee_email},{r.status},{r.created_at}\n"
+            data.append([
+                r.registration_number,
+                r.attendee_name,
+                r.attendee_email,
+                r.get_status_display(),
+                r.ticket_type.name if r.ticket_type else 'N/A',
+                f"${r.total_amount}",
+                r.created_at.strftime('%Y-%m-%d %H:%M')
+            ])
     
-    response = FileResponse(content.encode(), content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{report.name.replace(" ", "_")}.csv"'
-    return response
+    elif report.report_type == 'revenue':
+        regs = Registration.objects.filter(event=report.event, status='confirmed')
+        headers = ['Ticket Type', 'Quantity', 'Total Revenue']
+        ticket_data = {}
+        for r in regs:
+            ticket_name = r.ticket_type.name if r.ticket_type else 'N/A'
+            if ticket_name not in ticket_data:
+                ticket_data[ticket_name] = {'count': 0, 'revenue': 0}
+            ticket_data[ticket_name]['count'] += 1
+            ticket_data[ticket_name]['revenue'] += r.total_amount
+        
+        for ticket_name, stats in ticket_data.items():
+            data.append([ticket_name, stats['count'], f"${stats['revenue']}"])
+    
+    elif report.report_type == 'attendance':
+        regs = Registration.objects.filter(event=report.event)
+        headers = ['Status', 'Count', 'Percentage']
+        total = regs.count()
+        status_counts = {}
+        for r in regs:
+            status = r.get_status_display()
+            status_counts[status] = status_counts.get(status, 0) + 1
+        
+        for status, count in status_counts.items():
+            percentage = (count / total * 100) if total > 0 else 0
+            data.append([status, count, f"{percentage:.1f}%"])
+    
+    # Export based on format
+    if format_type == 'csv':
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{report.name.replace(" ", "_")}.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(headers)
+        writer.writerows(data)
+        
+        return response
+    
+    elif format_type == 'xlsx':
+        try:
+            import openpyxl
+            from openpyxl.styles import Font, PatternFill
+            from django.http import HttpResponse
+            from io import BytesIO
+            
+            # Create workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = report.name[:31]  # Excel sheet name limit
+            
+            # Add headers with styling
+            header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+            header_font = Font(bold=True, color="FFFFFF")
+            
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col_num, value=header)
+                cell.fill = header_fill
+                cell.font = header_font
+            
+            # Add data
+            for row_num, row_data in enumerate(data, 2):
+                for col_num, value in enumerate(row_data, 1):
+                    ws.cell(row=row_num, column=col_num, value=value)
+            
+            # Auto-adjust column widths
+            for column in ws.columns:
+                max_length = 0
+                column_letter = column[0].column_letter
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                ws.column_dimensions[column_letter].width = adjusted_width
+            
+            # Save to BytesIO
+            output = BytesIO()
+            wb.save(output)
+            output.seek(0)
+            
+            response = HttpResponse(
+                output.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="{report.name.replace(" ", "_")}.xlsx"'
+            
+            return response
+        
+        except ImportError:
+            messages.error(request, 'Excel export requires openpyxl package. Install with: pip install openpyxl')
+            return redirect('business:report_detail', report_id=report.id)
+    
+    elif format_type == 'pdf':
+        try:
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import letter, A4
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.units import inch
+            from django.http import HttpResponse
+            from io import BytesIO
+            
+            # Create PDF
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            elements = []
+            
+            # Styles
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                textColor=colors.HexColor('#366092'),
+                spaceAfter=30,
+            )
+            
+            # Add title
+            elements.append(Paragraph(report.name, title_style))
+            elements.append(Spacer(1, 0.2*inch))
+            
+            # Add event info
+            info_style = styles['Normal']
+            elements.append(Paragraph(f"<b>Event:</b> {report.event.title}", info_style))
+            elements.append(Paragraph(f"<b>Generated:</b> {timezone.now().strftime('%Y-%m-%d %H:%M')}", info_style))
+            elements.append(Spacer(1, 0.3*inch))
+            
+            # Add table
+            table_data = [headers] + data
+            table = Table(table_data)
+            
+            # Table styling
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+            ]))
+            
+            elements.append(table)
+            
+            # Build PDF
+            doc.build(elements)
+            
+            # Get PDF value
+            pdf = buffer.getvalue()
+            buffer.close()
+            
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{report.name.replace(" ", "_")}.pdf"'
+            response.write(pdf)
+            
+            return response
+        
+        except ImportError:
+            messages.error(request, 'PDF export requires reportlab package. Install with: pip install reportlab')
+            return redirect('business:report_detail', report_id=report.id)
+    
+    # Default to CSV if format not recognized
+    messages.error(request, f'Unsupported format: {format_type}')
+    return redirect('business:report_detail', report_id=report.id)
 
 
 # ============ Dashboard ============

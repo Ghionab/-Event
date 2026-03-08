@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from datetime import timedelta
 from django.utils import timezone
-from .models import Event, EventSession, EventType, EventStatus
+from .models import Event, EventSession, EventType, EventStatus, Speaker, Track, Room, Sponsor
 
 User = get_user_model()
 
@@ -165,6 +165,48 @@ class EventViewsTest(TestCase):
         self.client.login(email='test@example.com', password='testpass123')
         response = self.client.get(reverse('event_create'))
         self.assertEqual(response.status_code, 200)
+    
+    def test_event_create_auto_draft_status(self):
+        """Test that new events are automatically set to draft status"""
+        self.client.login(email='test@example.com', password='testpass123')
+        response = self.client.post(reverse('event_create'), {
+            'title': 'New Event',
+            'description': 'Test description',
+            'event_type': 'in_person',
+            'start_date': (timezone.now() + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M'),
+            'end_date': (timezone.now() + timedelta(days=8)).strftime('%Y-%m-%dT%H:%M'),
+            'venue_name': 'Test Venue',
+            'city': 'Test City',
+            'country': 'Test Country',
+        })
+        # Should redirect after successful creation
+        self.assertEqual(response.status_code, 302)
+        
+        # Check that event was created with draft status
+        event = Event.objects.get(title='New Event')
+        self.assertEqual(event.status, 'draft')
+        self.assertEqual(event.organizer, self.user)
+    
+    def test_event_create_with_email_invitations(self):
+        """Test event creation with email invitations"""
+        self.client.login(email='test@example.com', password='testpass123')
+        response = self.client.post(reverse('event_create'), {
+            'title': 'Event with Invites',
+            'description': 'Test description',
+            'event_type': 'in_person',
+            'start_date': (timezone.now() + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M'),
+            'end_date': (timezone.now() + timedelta(days=8)).strftime('%Y-%m-%dT%H:%M'),
+            'venue_name': 'Test Venue',
+            'city': 'Test City',
+            'country': 'Test Country',
+            'invite_emails': 'guest1@example.com, guest2@example.com',
+        })
+        # Should redirect after successful creation
+        self.assertEqual(response.status_code, 302)
+        
+        # Check that event was created
+        event = Event.objects.get(title='Event with Invites')
+        self.assertEqual(event.status, 'draft')
     
     def test_event_edit_requires_permission(self):
         """Test event edit requires owner or staff"""

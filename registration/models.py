@@ -785,3 +785,40 @@ Best regards,
             return True
         except Exception:
             return False
+
+
+class AttendeeNotification(models.Model):
+    """System notifications for attendees"""
+    NOTIFICATION_TYPES = [
+        ('event_update', 'Event Update'),
+        ('registration_confirmation', 'Registration Confirmation'),
+        ('checkin_reminder', 'Check-in Reminder'),
+        ('session_alert', 'Session Starting Alert'),
+        ('new_message', 'New Message'),
+        ('announcement', 'System Announcement'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='attendee_notifications')
+    notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES, default='announcement')
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    related_event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, null=True, blank=True,
+        related_name='attendee_notifications'
+    )
+    link = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.user.email}"
+
+    def mark_read(self):
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save()

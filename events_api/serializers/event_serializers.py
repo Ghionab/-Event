@@ -47,7 +47,7 @@ class EventSerializer(serializers.ModelSerializer):
 class EventCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ['title', 'description', 'event_type', 'status',
+        fields = ['title', 'description', 'event_type',
                   'start_date', 'end_date', 'registration_deadline',
                   'venue_name', 'address', 'city', 'country',
                   'virtual_meeting_url', 'virtual_platform',
@@ -57,6 +57,7 @@ class EventCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['organizer'] = self.context['request'].user
+        validated_data['status'] = 'draft'  # Auto-assign draft status
         return super().create(validated_data)
 
 

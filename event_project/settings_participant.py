@@ -13,6 +13,18 @@ SECRET_KEY = 'participant-secret-key-change-in-production'
 # Allow all hosts for participant portal
 ALLOWED_HOSTS = ['*']
 
+# CSRF settings for browser preview proxies
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://127.0.0.1:8001',
+    'http://127.0.0.1:7282',
+    'http://127.0.0.1:7286',
+    'http://127.0.0.1:14928',
+    'http://127.0.0.1:14929',
+    'http://localhost:8000',
+    'http://localhost:8001',
+]
+
 # Simplified apps for participants
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -36,19 +48,17 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # Custom middleware to disable CSRF for registration API
-    'event_project.middleware.DisableCSRFMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',  # Enable CSRF protection
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Enable CSRF for participant portal (except for API endpoints handled by middleware)
-CSRF_USE_SESSIONS = False
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_AGE = 31449600  # 1 year
+# CSRF settings for participant portal
+CSRF_USE_SESSIONS = True  # Store CSRF token in session
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF cookie if needed
+CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
-CSRF_TRUSTED_ORIGINS = []
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Template directories
@@ -59,9 +69,12 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.csrf',  # Add CSRF context processor
+                'registration.context_processors.attendee_context',
             ],
         },
     },

@@ -23,7 +23,7 @@ def organizer_login(request):
         email = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = authenticate(request, username=email, password=password)
+        user = authenticate(request, email=email, password=password)
 
         if user is not None:
             # Check if user has organizer profile

@@ -1,0 +1,376 @@
+{% extends 'participant/base.html' %}
+
+{% block title %}Event Details - EventPortal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" id="eventContainer">
+    <!-- Loading State -->
+    <div class="text-center py-12">
+        <i class="fas fa-spinner fa-spin text-indigo-600 text-4xl"></i>
+        <p class="text-gray-500 mt-4">Loading event...</p>
+    </div>
+</div>
+
+<script>
+    const eventId = {{ event_id }};
+    let eventData = null;
+    let ticketsData = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadEventAndTickets();
+    });
+
+    function loadEventAndTickets() {
+        // Fetch event and tickets in parallel
+        Promise.all([
+            fetch(`/api/v1/public/events/${eventId}/`).then(r => r.json()),
+            fetch(`/api/v1/public/events/${eventId}/tickets/`).then(r => r.json())
+        ])
+        .then(([event, tickets]) => {
+            eventData = event;
+            ticketsData = tickets;
+            renderEvent(event, tickets);
+        })
+        .catch(error => {
+            console.error(error);
+            showError();
+        });
+    }
+
+    function renderEvent(event, tickets) {
+        const container = document.getElementById('eventContainer');
+        const gradient = getRandomGradient();
+
+        // Determine if there are paid tickets
+        const hasPaidTickets = tickets.some(t => parseFloat(t.price) > 0);
+        const allFree = tickets.length === 0 || tickets.every(t => parseFloat(t.price) === 0);
+
+        container.innerHTML = `
+            <!-- Event Header -->
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
+                <div class="h-64 bg-gradient-to-br ${gradient} flex items-center justify-center relative">
+                    <i class="fas fa-calendar-alt text-white text-8xl opacity-50"></i>
+                    <div class="absolute top-4 left-4">
+                        <a href="/events/" class="bg-white/90 text-gray-800 px-3 py-1 rounded-lg text-sm hover:bg-white transition">
+                            <i class="fas fa-arrow-left mr-1"></i> Back
+                        </a>
+                    </div>
+                    <span class="absolute top-4 right-4 bg-white/90 text-gray-800 text-sm font-semibold px-3 py-1 rounded">
+                        ${formatEventType(event.event_type)}
+                    </span>
+                </div>
+                <div class="p-8">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 mt-3">${event.title}</h1>
+                            <p class="text-gray-500 mt-2">${event.description || 'No description available'}</p>
+                            ${event.city || event.country ? `
+                            <p class="text-gray-400 mt-2">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                ${event.venue_name || ''} ${event.city ? ', ' + event.city : ''} ${event.country ? ', ' + event.country : ''}
+                            </p>
+                            ` : ''}
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            ${tickets.length > 0 ? `
+                                <button onclick="scrollToTickets()" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                                    Get Tickets
+                                </button>
+                            ` : `
+                                <a href="/events/${eventId}/register/" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                                    Register Now
+                                </a>
+                            `}
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 mt-8 pt-8 border-t">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-calendar text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Start Date</p>
+                                <p class="font-semibold">${formatDate(event.start_date)}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-calendar-check text-indigo-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">End Date</p>
+                                <p class="font-semibold">${formatDate(event.end_date)}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-tag text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Status</p>
+                                <p class="font-semibold capitalize">${event.status || 'Open'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Details -->
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="md:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm p-8">
+                        <h2 class="text-xl font-bold mb-4">About This Event</h2>
+                        <div class="prose max-w-none text-gray-600">
+                            <p>${event.description || 'No description available for this event.'}</p>
+                        </div>
+
+                        ${event.virtual_meeting_url ? `
+                        <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h3 class="font-semibold text-blue-800 mb-2">
+                                <i class="fas fa-video mr-2"></i>Virtual Event
+                            </h3>
+                            <p class="text-blue-600">This event has a virtual component.</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <div id="ticketsSection">
+                    <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+                        <h3 class="text-lg font-bold mb-4">
+                            <i class="fas fa-ticket-alt mr-2"></i>Tickets
+                        </h3>
+
+                        ${tickets.length > 0 ? `
+                        <div class="space-y-4" id="ticketsList">
+                            ${tickets.map(ticket => renderTicketCard(ticket)).join('')}
+                        </div>
+
+                        <!-- Promo Code Section -->
+                        <div class="mt-6 pt-6 border-t">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Promo Code</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="promoCode" placeholder="Enter code" class="flex-1 px-3 py-2 border rounded-lg text-sm">
+                                <button onclick="applyPromoCode()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition">
+                                    Apply
+                                </button>
+                            </div>
+                            <p id="promoMessage" class="text-sm mt-2 hidden"></p>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="font-semibold">Total:</span>
+                                <span class="text-2xl font-bold" id="totalPrice">$${calculateTotal()}</span>
+                            </div>
+                            <button onclick="proceedToCheckout()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                                ${hasPaidTickets ? 'Buy Now' : 'Register Free'}
+                            </button>
+                        </div>
+                        ` : `
+                        <div class="text-center py-6 text-gray-500">
+                            <i class="fas fa-ticket-alt text-gray-300 text-4xl mb-3"></i>
+                            <p>No tickets available yet</p>
+                            <a href="/events/${eventId}/register/" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800">
+                                Register for updates
+                            </a>
+                        </div>
+                        `}
+
+                        <div class="mt-6 pt-6 border-t">
+                            <h4 class="font-semibold mb-3">Share This Event</h4>
+                            <div class="flex space-x-3">
+                                <button onclick="shareEvent('twitter')" class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition">
+                                    <i class="fab fa-twitter"></i>
+                                </button>
+                                <button onclick="shareEvent('facebook')" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition">
+                                    <i class="fab fa-facebook-f"></i>
+                                </button>
+                                <button onclick="shareEvent('linkedin')" class="w-10 h-10 bg-blue-700 text-white rounded-full flex items-center justify-center hover:bg-blue-800 transition">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </button>
+                                <button onclick="shareEvent('copy')" class="w-10 h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-300 transition" title="Copy link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderTicketCard(ticket) {
+        const price = parseFloat(ticket.price);
+        const isFree = price === 0;
+        const available = ticket.available;
+
+        return `
+            <div class="border rounded-lg p-4 ${isFree ? '' : 'border-indigo-200'}">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h4 class="font-semibold">${ticket.name}</h4>
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 capitalize">${ticket.ticket_category || 'general'}</span>
+                    </div>
+                    <span class="text-lg font-bold ${isFree ? 'text-green-600' : 'text-indigo-600'}">
+                        ${isFree ? 'FREE' : '$' + price.toFixed(2)}
+                    </span>
+                </div>
+                ${ticket.description ? `<p class="text-sm text-gray-500 mb-3">${ticket.description}</p>` : ''}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-500">
+                        <i class="fas fa-chair mr-1"></i>${available} left
+                    </span>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="ticket-checkbox rounded text-indigo-600" data-ticketid="${ticket.id}" data-price="${price}" ${available <= 0 ? 'disabled' : ''} onchange="updateTotal()">
+                        <span class="${available <= 0 ? 'text-gray-400' : ''}">${available <= 0 ? 'Sold out' : 'Select'}</span>
+                    </label>
+                </div>
+            </div>
+        `;
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('.ticket-checkbox:checked').forEach(checkbox => {
+            total += parseFloat(checkbox.dataset.price);
+        });
+        return total.toFixed(2);
+    }
+
+    function updateTotal() {
+        const totalEl = document.getElementById('totalPrice');
+        if (totalEl) {
+            totalEl.textContent = '$' + calculateTotal();
+        }
+    }
+
+    function scrollToTickets() {
+        document.getElementById('ticketsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    let appliedPromo = null;
+
+    function applyPromoCode() {
+        const code = document.getElementById('promoCode').value.trim();
+        if (!code) return;
+
+        fetch(`/api/v1/public/events/${eventId}/validate_promo/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code })
+        })
+        .then(r => r.json())
+        .then(data => {
+            const msgEl = document.getElementById('promoMessage');
+            msgEl.classList.remove('hidden', 'text-green-600', 'text-red-600');
+
+            if (data.valid) {
+                appliedPromo = data;
+                msgEl.classList.add('text-green-600');
+                msgEl.textContent = `Promo applied! ${data.discount_type === 'percentage' ? data.discount_value + '%' : '$' + data.discount_value} off`;
+            } else {
+                appliedPromo = null;
+                msgEl.classList.add('text-red-600');
+                msgEl.textContent = data.error || 'Invalid promo code';
+            }
+        })
+        .catch(() => {
+            const msgEl = document.getElementById('promoMessage');
+            msgEl.classList.remove('hidden');
+            msgEl.classList.add('text-red-600');
+            msgEl.textContent = 'Error validating promo code';
+        });
+    }
+
+    function proceedToCheckout() {
+        // Get selected tickets
+        const selectedTickets = [];
+        document.querySelectorAll('.ticket-checkbox:checked').forEach(checkbox => {
+            selectedTickets.push({
+                ticket_id: parseInt(checkbox.dataset.ticketId),
+                quantity: 1
+            });
+        });
+
+        if (selectedTickets.length === 0) {
+            alert('Please select at least one ticket');
+            return;
+        }
+
+        // Store selection in sessionStorage and redirect to registration
+        sessionStorage.setItem('selectedTickets', JSON.stringify(selectedTickets));
+        sessionStorage.setItem('eventId', eventId);
+
+        // Redirect to registration page
+        window.location.href = `/events/${eventId}/register/`;
+    }
+
+    function showError() {
+        const container = document.getElementById('eventContainer');
+        container.innerHTML = `
+            <div class="bg-white rounded-xl shadow-sm p-12 text-center">
+                <i class="fas fa-exclamation-circle text-gray-300 text-6xl mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
+                <p class="text-gray-500 mb-6">The event you're looking for doesn't exist or has been removed.</p>
+                <a href="/events/" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                    Browse Events
+                </a>
+            </div>
+        `;
+    }
+
+    function getRandomGradient() {
+        const gradients = [
+            'from-indigo-500 to-purple-600',
+            'from-blue-500 to-indigo-600',
+            'from-green-500 to-teal-600',
+            'from-orange-500 to-red-600',
+            'from-pink-500 to-rose-600',
+            'from-cyan-500 to-blue-600'
+        ];
+        return gradients[Math.floor(Math.random() * gradients.length)];
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'TBD';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function formatEventType(type) {
+        if (!type) return 'Event';
+        return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+
+    function shareEvent(platform) {
+        const url = window.location.href;
+        const title = document.querySelector('h1')?.textContent || 'Event';
+
+        switch(platform) {
+            case 'twitter':
+                window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+                break;
+            case 'facebook':
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                break;
+            case 'linkedin':
+                window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+                break;
+            case 'copy':
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link copied to clipboard!');
+                });
+                break;
+        }
+    }
+</script>
+{% endblock %}

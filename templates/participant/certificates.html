@@ -1,0 +1,53 @@
+{% extends 'participant/base.html' %}
+{% block title %}Certificates - EventHub{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">My Certificates</h1>
+        <p class="mt-1 text-gray-600">Download certificates for events you have attended</p>
+    </div>
+
+    {% if registrations %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for reg in registrations %}
+        <div
+            class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full">
+            <div class="h-32 bg-gray-50 flex items-center justify-center border-b p-4 relative">
+                <!-- Certificate Graphic -->
+                <div class="absolute inset-0 opacity-10 flex items-center justify-center">
+                    <i class="bi bi-award-fill text-9xl text-indigo-600"></i>
+                </div>
+                <div class="relative z-10 text-center">
+                    <i class="bi bi-award text-4xl text-indigo-600 mb-2"></i>
+                    <h3 class="text-sm font-bold tracking-widest text-gray-500 uppercase">Certificate of Attendance</h3>
+                </div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+                <h2 class="text-xl font-bold text-gray-900 mb-2 !leading-snug">{{ reg.event.title }}</h2>
+                <div class="text-sm text-gray-600 mb-6 space-y-1 mt-auto">
+                    <p><i class="bi bi-calendar-event mr-2 text-indigo-400"></i>{{ reg.event.start_date|date:"F d, Y" }}
+                    </p>
+                    <p><i class="bi bi-geo-alt mr-2 text-indigo-400"></i>{{ reg.event.venue_name|default:"Virtual" }}
+                    </p>
+                </div>
+                <a href="{% url 'attendee:download_certificate' reg.id %}" target="_blank"
+                    class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 font-medium transition mt-auto">
+                    <i class="bi bi-box-arrow-down"></i> Download PDF
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow p-12 text-center">
+        <i class="bi bi-award text-gray-300 text-6xl mb-4 block"></i>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No certificates yet</h3>
+        <p class="text-gray-500 mb-6">Certificates are automatically generated after you check in to an event.</p>
+        <a href="{% url 'attendee:my_registrations' %}"
+            class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium transition">
+            View My Upcoming Events
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

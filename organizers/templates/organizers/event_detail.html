@@ -1,0 +1,282 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ event.title }} - Event Details{% endblock %}
+
+{% block header %}{{ event.title }}{% endblock %}
+
+{% block subtitle %}Manage your event{% endblock %}
+
+{% block content %}
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <i class="bi bi-eye"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ analytics.total_views|default:0 }}</h3>
+            <p>Total Views</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+            <i class="bi bi-person-check"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_registrations }}</h3>
+            <p>Registrations</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <i class="bi bi-ticket"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_tickets_sold }}</h3>
+            <p>Tickets Sold</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <i class="bi bi-currency-dollar"></i>
+        </div>
+        <div class="stat-content">
+            <h3>${{ total_revenue|floatformat:2 }}</h3>
+            <p>Revenue</p>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="flex flex-wrap gap-3 mb-8">
+    <a href="{% url 'organizer_event_edit' event.id %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+        <i class="bi bi-pencil mr-2"></i>Edit Event
+    </a>
+    <a href="{% url 'organizer_analytics_event' event.id %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+        <i class="bi bi-bar-chart-line mr-2"></i>Analytics
+    </a>
+    <a href="{% url 'organizer_event_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Events
+    </a>
+</div>
+
+<!-- Event Details Card -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <div class="lg:col-span-2 card">
+        <div class="card-header">
+            <h3 class="card-title">Event Details</h3>
+            <span class="px-3 py-1 text-xs font-medium rounded-full
+                {% if event.status == 'published' %}bg-green-100 text-green-700
+                {% elif event.status == 'draft' %}bg-yellow-100 text-yellow-700
+                {% elif event.status == 'cancelled' %}bg-red-100 text-red-700
+                {% else %}bg-gray-100 text-gray-700{% endif %}">
+                {{ event.status|title }}
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">Type</h4>
+                    <p class="text-gray-800">{{ event.get_event_type_display|default:"Not specified" }}</p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">Max Attendees</h4>
+                    <p class="text-gray-800">{{ event.max_attendees|default:"Unlimited" }}</p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">Start Date</h4>
+                    <p class="text-gray-800">{{ event.start_date|date:"F d, Y \a\t g:i A" }}</p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">End Date</h4>
+                    <p class="text-gray-800">{{ event.end_date|date:"F d, Y \a\t g:i A" }}</p>
+                </div>
+                <div class="md:col-span-2">
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">Venue</h4>
+                    <p class="text-gray-800">{{ event.venue_name|default:"Not specified" }}
+                        {% if event.city %}, {{ event.city }}{% endif %}
+                        {% if event.country %}, {{ event.country }}{% endif %}
+                    </p>
+                </div>
+                {% if event.description %}
+                <div class="md:col-span-2">
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">Description</h4>
+                    <p class="text-gray-800">{{ event.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Info -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Quick Info</h3>
+        </div>
+        <div class="card-body space-y-4">
+            <div class="flex items-center justify-between">
+                <span class="text-gray-500">Registrations</span>
+                <span class="font-semibold text-indigo-600">{{ analytics.total_registrations|default:0 }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-gray-500">Checked In</span>
+                <span class="font-semibold text-green-600">{{ analytics.checked_in_count|default:0 }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-gray-500">Revenue</span>
+                <span class="font-semibold text-green-600">${{ analytics.total_revenue|default:"0.00" }}</span>
+            </div>
+            <hr class="border-gray-200">
+            <a href="#" class="block text-center text-indigo-600 hover:text-indigo-800 font-medium">
+                <i class="bi bi-envelope mr-1"></i>Send Announcement
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Registrations Table -->
+<div class="card mb-8">
+    <div class="card-header">
+        <h3 class="card-title">Recent Registrations</h3>
+        <span class="text-sm text-gray-500">{{ registrations|length }} total</span>
+    </div>
+    <div class="overflow-x-auto">
+        {% if registrations %}
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Attendee</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for reg in registrations %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="bi bi-person text-gray-500"></i>
+                            </div>
+                            <span class="font-medium text-gray-800">{{ reg.attendee_name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ reg.attendee_email }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if reg.status == 'confirmed' %}bg-green-100 text-green-700
+                            {% elif reg.status == 'pending' %}bg-yellow-100 text-yellow-700
+                            {% elif reg.status == 'cancelled' %}bg-red-100 text-red-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ reg.status|title }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ reg.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-8 text-center">
+            <i class="bi bi-people text-gray-300 text-4xl mb-3"></i>
+            <p class="text-gray-500">No registrations yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Ticket Sales Summary -->
+<div class="card mb-8">
+    <div class="card-header">
+        <h3 class="card-title">Ticket Sales Summary</h3>
+    </div>
+    <div class="overflow-x-auto">
+        {% if ticket_sales %}
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Ticket Type</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sold</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Revenue</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for sale in ticket_sales %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 font-medium text-gray-800">{{ sale.name }}</td>
+                    <td class="px-6 py-4 text-gray-600">${{ sale.price|default:"0.00" }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ sale.sold }}</td>
+                    <td class="px-6 py-4 font-semibold text-green-600">${{ sale.revenue|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot class="bg-gray-50">
+                <tr>
+                    <td class="px-6 py-4 font-bold text-gray-800">Total</td>
+                    <td class="px-6 py-4"></td>
+                    <td class="px-6 py-4 font-bold text-gray-800">{{ total_tickets_sold }}</td>
+                    <td class="px-6 py-4 font-bold text-green-600">${{ total_revenue|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        {% else %}
+        <div class="p-8 text-center">
+            <i class="bi bi-ticket text-gray-300 text-4xl mb-3"></i>
+            <p class="text-gray-500">No tickets sold yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Ticket Types -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Ticket Types</h3>
+        <button class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+            <i class="bi bi-plus mr-1"></i>Add Ticket Type
+        </button>
+    </div>
+    <div class="overflow-x-auto">
+        {% if ticket_types %}
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sold</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Available</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for ticket in ticket_types %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 font-medium text-gray-800">{{ ticket.name }}</td>
+                    <td class="px-6 py-4 text-gray-600">${{ ticket.price|default:"0.00" }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ ticket.quantity_sold|default:0 }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ ticket.quantity_available|default:"Unlimited" }}</td>
+                    <td class="px-6 py-4">
+                        {% if ticket.is_active %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Inactive</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-8 text-center">
+            <i class="bi bi-ticket text-gray-300 text-4xl mb-3"></i>
+            <p class="text-gray-500">No ticket types configured</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

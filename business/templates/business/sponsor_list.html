@@ -1,0 +1,48 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Sponsors{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Sponsors</h2>
+        <a href="{% url 'business:sponsor_create' %}" class="btn btn-primary">Add Sponsor</a>
+    </div>
+    
+    {% if sponsors %}
+        <div class="row">
+            {% for sponsor in sponsors %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title">{{ sponsor.company_name }}</h5>
+                                <span class="badge bg-{% if sponsor.tier == 'platinum' %}dark{% elif sponsor.tier == 'gold' %}warning{% elif sponsor.tier == 'silver' %}secondary{% elif sponsor.tier == 'bronze' %}brown{% else %}info{% endif %}">
+                                    {{ sponsor.get_tier_display }}
+                                </span>
+                            </div>
+                            <p class="card-text">{{ sponsor.description|truncatechars:100 }}</p>
+                            <p>
+                                <strong>Sponsorship:</strong> ${{ sponsor.sponsorship_amount }}<br>
+                                <strong>Payment:</strong> 
+                                <span class="badge bg-{% if sponsor.payment_status == 'paid' %}success{% elif sponsor.payment_status == 'partial' %}warning{% else %}secondary{% endif %}">
+                                    {{ sponsor.get_payment_status_display }}
+                                </span>
+                            </p>
+                            <div class="btn-group">
+                                <a href="{% url 'business:sponsor_detail' sponsor.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                <a href="{% url 'business:sponsor_edit' sponsor.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a href="{% url 'business:sponsor_leads' sponsor.id %}" class="btn btn-sm btn-outline-info">Leads ({{ sponsor.leads.count }})</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No sponsors found. <a href="{% url 'business:sponsor_create' %}">Add your first sponsor</a>.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

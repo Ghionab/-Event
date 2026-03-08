@@ -1,0 +1,103 @@
+{% extends 'events/base.html' %}
+
+{% block title %}{{ vendor.name }} - Event Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>{{ vendor.name }}</h1>
+        <span class="badge bg-info">{{ vendor.get_category_display }}</span>
+        {% if vendor.is_preferred %}
+            <span class="badge bg-success">Preferred Vendor</span>
+        {% endif %}
+    </div>
+    <div>
+        <a href="{% url 'advanced:vendor_update' vendor.pk %}" class="btn btn-outline-primary">Edit</a>
+        <a href="{% url 'advanced:vendor_delete' vendor.pk %}" class="btn btn-outline-danger">Delete</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Contact Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Contact Name:</strong> {{ vendor.contact_name|default:'-' }}</p>
+                        <p><strong>Email:</strong> {{ vendor.email }}</p>
+                        <p><strong>Phone:</strong> {{ vendor.phone|default:'-' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Website:</strong> {% if vendor.website %}<a href="{{ vendor.website }}" target="_blank">{{ vendor.website }}</a>{% else %}-{% endif %}</p>
+                        <p><strong>Hourly Rate:</strong> {% if vendor.hourly_rate %}${{ vendor.hourly_rate }}{% else %}-{% endif %}</p>
+                        <p><strong>Flat Rate:</strong> {% if vendor.flat_rate %}${{ vendor.flat_rate }}{% else %}-{% endif %}</p>
+                    </div>
+                </div>
+                {% if vendor.address %}
+                    <p><strong>Address:</strong> {{ vendor.address }}</p>
+                {% endif %}
+                {% if vendor.description %}
+                    <p><strong>Description:</strong> {{ vendor.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Recent Contacts</h5>
+                <a href="{% url 'advanced:vendor_contacts' vendor.pk %}" class="btn btn-sm btn-outline-primary">Add Contact</a>
+            </div>
+            <div class="card-body">
+                {% if contacts %}
+                    <ul class="list-group list-group-flush">
+                        {% for contact in contacts %}
+                            <li class="list-group-item">
+                                <strong>{{ contact.get_contact_type_display }}</strong> - {{ contact.contact_date|date:"M d, Y" }}
+                                <br><small>{{ contact.notes|truncatewords:30 }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No contacts recorded.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Rating</h5>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="display-4">{{ vendor.rating|floatformat:1 }}</h2>
+                <p class="text-muted">{{ vendor.review_count }} reviews</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Contracts</h5>
+                <a href="{% url 'advanced:vendor_contracts' vendor.pk %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if contracts %}
+                    <ul class="list-group list-group-flush">
+                        {% for contract in contracts %}
+                            <li class="list-group-item">
+                                <strong>{{ contract.title }}</strong>
+                                <br><small class="text-muted">{{ contract.event }} - ${{ contract.amount }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No contracts.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

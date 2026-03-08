@@ -1,0 +1,99 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Registration Detail - {{ registration.registration_number }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">Registration Details</h2>
+                <p class="text-sm text-gray-500">Registration #: {{ registration.registration_number }}</p>
+            </div>
+            <span class="px-4 py-2 text-sm font-medium rounded-full {% if registration.status == 'confirmed' %}bg-green-100 text-green-700{% elif registration.status == 'cancelled' %}bg-red-100 text-red-700{% elif registration.status == 'pending' %}bg-yellow-100 text-yellow-700{% elif registration.status == 'refunded' %}bg-blue-100 text-blue-700{% else %}bg-gray-100 text-gray-700{% endif %}">
+                {{ registration.get_status_display }}
+            </span>
+        </div>
+
+        <div class="p-6">
+            <!-- Event Info -->
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ registration.event.title }}</h3>
+                <p class="text-gray-500">{{ registration.event.start_date|date:"F d, Y" }}</p>
+            </div>
+
+            <!-- Registration Info Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-500 mb-1">Attendee Name</p>
+                    <p class="font-semibold text-gray-800">{{ registration.attendee_name }}</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-500 mb-1">Email</p>
+                    <p class="font-semibold text-gray-800">{{ registration.attendee_email }}</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-500 mb-1">Ticket Type</p>
+                    <p class="font-semibold text-gray-800">{{ registration.ticket_type.name }}</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-500 mb-1">Ticket Price</p>
+                    <p class="font-semibold text-gray-800">${{ registration.ticket_type.price }}</p>
+                </div>
+            </div>
+
+            {% if registration.promo_code %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-500 mb-1">Promo Code Used</p>
+                    <p class="font-semibold text-gray-800">{{ registration.promo_code.code }}</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-500 mb-1">Discount Applied</p>
+                    <p class="font-semibold text-green-600">-${{ registration.discount_amount }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="p-4 bg-indigo-50 rounded-xl">
+                    <p class="text-sm text-indigo-600 mb-1">Total Amount Paid</p>
+                    <p class="text-2xl font-bold text-indigo-700">${{ registration.total_amount }}</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <p class="text-sm text-gray-500 mb-1">Registration Date</p>
+                    <p class="font-semibold text-gray-800">{{ registration.created_at|date:"F j, Y, g:i a" }}</p>
+                </div>
+            </div>
+
+            {% if registration.special_requests %}
+            <div class="p-4 bg-yellow-50 rounded-xl mb-8">
+                <p class="text-sm text-yellow-600 mb-2 font-medium">Special Requests</p>
+                <p class="text-gray-700">{{ registration.special_requests }}</p>
+            </div>
+            {% endif %}
+
+            {% if registration.qr_code %}
+            <div class="text-center mb-8 p-6 bg-blue-50 rounded-xl">
+                <p class="text-sm text-blue-600 mb-2 font-medium">Check-in QR Code</p>
+                <code class="bg-white px-4 py-2 rounded border border-blue-200">{{ registration.qr_code }}</code>
+            </div>
+            {% endif %}
+
+            {% if registration.status == 'confirmed' %}
+            <div class="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t border-gray-100">
+                <a href="{% url 'event_detail' registration.event.id %}" class="inline-flex items-center justify-center px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-primary hover:text-primary transition font-medium">
+                    <i class="bi bi-arrow-left mr-2"></i> View Event
+                </a>
+                <form action="{% url 'cancel_registration' registration.id %}" method="post" onsubmit="return confirm('Are you sure you want to cancel this registration?');">
+                    {% csrf_token %}
+                    <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium shadow-sm">
+                        <i class="bi bi-x-circle mr-2"></i> Cancel Registration
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

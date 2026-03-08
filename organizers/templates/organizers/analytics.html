@@ -1,0 +1,141 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Analytics - Event Organizer{% endblock %}
+
+{% block header %}Analytics{% endblock %}
+
+{% block subtitle %}Track your event performance{% endblock %}
+
+{% block content %}
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <i class="bi bi-eye"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_views|default:0 }}</h3>
+            <p>Total Views</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+            <i class="bi bi-person-check"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_registrations|default:0 }}</h3>
+            <p>Registrations</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ checked_in|default:0 }}</h3>
+            <p>Checked In</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <i class="bi bi-currency-dollar"></i>
+        </div>
+        <div class="stat-content">
+            <h3>${{ total_revenue|default:"0.00" }}</h3>
+            <p>Total Revenue</p>
+        </div>
+    </div>
+</div>
+
+<!-- Registration Trends -->
+<div class="card mb-8">
+    <div class="card-header">
+        <h3 class="card-title">Registration Trends</h3>
+    </div>
+    <div class="card-body">
+        {% if registrations %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Registrations</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Revenue</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for reg in registrations %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-gray-800">{{ reg.date }}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                                {{ reg.count }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-800">${{ reg.revenue|default:"0.00" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center">
+            <i class="bi bi-bar-chart text-gray-300 text-4xl mb-3"></i>
+            <p class="text-gray-500">No registration data available yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Event Analytics Table -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Event Performance</h3>
+    </div>
+    <div class="overflow-x-auto">
+        {% if events %}
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Event</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Views</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Registrations</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Revenue</th>
+                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for event in events %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background-color: {{ event.primary_color|default:'#667eea' }}20;">
+                                <i class="bi bi-calendar-event" style="color: {{ event.primary_color|default:'#667eea' }};"></i>
+                            </div>
+                            <span class="font-medium text-gray-800">{{ event.title }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">{{ event.analytics.total_views|default:0 }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ event.analytics.total_registrations|default:0 }}</td>
+                    <td class="px-6 py-4 text-gray-800 font-medium">${{ event.analytics.total_revenue|default:"0.00" }}</td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'organizer_analytics_event' event.id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                            View Details <i class="bi bi-arrow-right ml-1"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-8 text-center">
+            <i class="bi bi-calendar-x text-gray-300 text-4xl mb-3"></i>
+            <p class="text-gray-500">No events found</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

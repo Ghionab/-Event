@@ -1,0 +1,163 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Create Report - EventHub{% endblock %}
+{% block header %}Create Report{% endblock %}
+{% block subtitle %}Generate custom reports for your events{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Report Configuration</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="space-y-6">
+                    <!-- Event -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Event <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.event }}
+                        {% if form.event.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.event.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Select the event for this report</p>
+                    </div>
+
+                    <!-- Report Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Report Name <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Give your report a descriptive name</p>
+                    </div>
+
+                    <!-- Report Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Report Type <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.report_type }}
+                        {% if form.report_type.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.report_type.errors.0 }}</p>
+                        {% endif %}
+                        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <p class="font-medium text-blue-900 text-sm">Registration Report</p>
+                                <p class="text-xs text-blue-700 mt-1">All registrations with details</p>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="font-medium text-green-900 text-sm">Revenue Report</p>
+                                <p class="text-xs text-green-700 mt-1">Revenue breakdown by ticket type</p>
+                            </div>
+                            <div class="bg-purple-50 p-3 rounded-lg">
+                                <p class="font-medium text-purple-900 text-sm">Attendance Report</p>
+                                <p class="text-xs text-purple-700 mt-1">Status distribution with percentages</p>
+                            </div>
+                            <div class="bg-yellow-50 p-3 rounded-lg">
+                                <p class="font-medium text-yellow-900 text-sm">More Coming Soon</p>
+                                <p class="text-xs text-yellow-700 mt-1">Engagement, Sponsor, Expense reports</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Format -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Default Export Format <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.export_format }}
+                        {% if form.export_format.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.export_format.errors.0 }}</p>
+                        {% endif %}
+                        <div class="mt-2 grid grid-cols-3 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg text-center">
+                                <i class="bi bi-filetype-csv text-3xl text-green-600"></i>
+                                <p class="text-xs font-medium text-gray-900 mt-1">CSV</p>
+                                <p class="text-xs text-gray-500">Universal</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg text-center">
+                                <i class="bi bi-filetype-xlsx text-3xl text-green-600"></i>
+                                <p class="text-xs font-medium text-gray-900 mt-1">Excel</p>
+                                <p class="text-xs text-gray-500">Professional</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg text-center">
+                                <i class="bi bi-filetype-pdf text-3xl text-red-600"></i>
+                                <p class="text-xs font-medium text-gray-900 mt-1">PDF</p>
+                                <p class="text-xs text-gray-500">Print-ready</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Filters (Optional)
+                        </label>
+                        {{ form.filters }}
+                        {% if form.filters.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.filters.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">JSON format, e.g., {"status": "confirmed"}</p>
+                    </div>
+
+                    <!-- Scheduling -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-sm font-medium text-gray-900 mb-4">Scheduling (Optional)</h4>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                {{ form.is_scheduled }}
+                                <label for="{{ form.is_scheduled.id_for_label }}" class="ml-2 text-sm text-gray-700">
+                                    Enable scheduled reports
+                                </label>
+                            </div>
+
+                            <div id="scheduleOptions" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Frequency
+                                </label>
+                                {{ form.schedule_frequency }}
+                                {% if form.schedule_frequency.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.schedule_frequency.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                    <a href="{% url 'business:report_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition">
+                        <i class="bi bi-arrow-left mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        <i class="bi bi-check-circle mr-2"></i>
+                        Create Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide schedule options
+document.getElementById('{{ form.is_scheduled.id_for_label }}').addEventListener('change', function() {
+    document.getElementById('scheduleOptions').classList.toggle('hidden', !this.checked);
+});
+
+// Initialize on page load
+if (document.getElementById('{{ form.is_scheduled.id_for_label }}').checked) {
+    document.getElementById('scheduleOptions').classList.remove('hidden');
+}
+</script>
+{% endblock %}

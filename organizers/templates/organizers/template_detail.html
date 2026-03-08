@@ -1,0 +1,154 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ template.name }} - Event Template{% endblock %}
+
+{% block header %}{{ template.name }}{% endblock %}
+
+{% block subtitle %}Template details and configuration{% endblock %}
+
+{% block content %}
+<!-- Back Button -->
+<div class="mb-6">
+    <a href="{% url 'organizer_templates' %}" class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Templates
+    </a>
+</div>
+
+<!-- Template Preview -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- Main Info -->
+    <div class="lg:col-span-2">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-file-earmark-text mr-2"></i>Template Information
+                </h3>
+                <span class="px-3 py-1 text-xs font-medium rounded-full
+                    {% if template.is_public %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %}">
+                    {% if template.is_public %}Public{% else %}Private{% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Template Name</p>
+                        <p class="font-medium text-gray-800">{{ template.name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Event Type</p>
+                        <p class="font-medium text-gray-800">{{ template.event_type|title|default:"Not specified" }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-gray-500 mb-1">Description</p>
+                        <p class="text-gray-700">{{ template.description|default:"No description" }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-gray-500 mb-1">Default Description</p>
+                        <div class="bg-gray-50 p-4 rounded-lg text-gray-700">
+                            {{ template.default_description|default:"No default description"|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Colors Preview -->
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-palette mr-2"></i>Color Scheme
+                </h3>
+            </div>
+            <div class="card-body space-y-4">
+                <div>
+                    <p class="text-sm text-gray-500 mb-2">Primary Color</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg shadow-sm" style="background-color: {{ template.default_primary_color|default:'#667eea' }};"></div>
+                        <div>
+                            <p class="font-medium text-gray-800">{{ template.default_primary_color|default:"#667eea" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-2">Secondary Color</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-lg shadow-sm" style="background-color: {{ template.default_secondary_color|default:'#764ba2' }};"></div>
+                        <div>
+                            <p class="font-medium text-gray-800">{{ template.default_secondary_color|default:"#764ba2" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-4 border-t">
+                    <p class="text-sm text-gray-500 mb-2">Preview</p>
+                    <div class="rounded-lg p-4" style="background: linear-gradient(135deg, {{ template.default_primary_color|default:'#667eea' }} 0%, {{ template.default_secondary_color|default:'#764ba2' }} 100%);">
+                        <p class="text-white font-bold">Sample Event Title</p>
+                        <p class="text-white/80 text-sm">This is how your event will look</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Session Template -->
+{% if template.session_template %}
+<div class="card mb-8">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="bi bi-calendar-check mr-2"></i>Session Template
+        </h3>
+    </div>
+    <div class="card-body">
+        <pre class="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm text-gray-700">{{ template.session_template }}</pre>
+    </div>
+</div>
+{% endif %}
+
+<!-- Timestamps & Actions -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Timestamps -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="bi bi-clock mr-2"></i>Timestamps
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-500">Created</span>
+                    <span class="font-medium text-gray-800">{{ template.created_at|date:"F d, Y \a\t g:i A" }}</span>
+                </div>
+                <div class="flex items-center justify-between py-2">
+                    <span class="text-gray-500">Last Updated</span>
+                    <span class="font-medium text-gray-800">{{ template.updated_at|date:"F d, Y \a\t g:i A" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="bi bi-gear mr-2"></i>Actions
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="space-y-3">
+                <a href="#" class="w-full flex items-center justify-center px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    <i class="bi bi-plus-circle mr-2"></i>Create Event from Template
+                </a>
+                <a href="#" class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    <i class="bi bi-pencil mr-2"></i>Edit Template
+                </a>
+                <a href="#" class="w-full flex items-center justify-center px-4 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition">
+                    <i class="bi bi-trash mr-2"></i>Delete Template
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

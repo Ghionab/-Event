@@ -1,0 +1,224 @@
+{% extends 'participant/base.html' %}
+
+{% block title %}Register for Event - EventPortal{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-8">
+        <a href="/events/{{ event_id }}/" class="text-indigo-600 hover:text-indigo-800">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Event
+        </a>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="hidden mb-6">
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-600 text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-green-800 mb-2">Registration Successful!</h2>
+            <p class="text-green-700 mb-2" id="successText">Your registration has been confirmed.</p>
+            <p class="text-sm text-green-600 mb-4" id="regNumber"></p>
+            <a href="/my-registrations/"
+                class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition">
+                View My Registrations
+            </a>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="hidden mb-6">
+        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exclamation text-red-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-red-800">Registration Failed</h3>
+            </div>
+            <p class="text-red-700 mb-3" id="errorText">An error occurred during registration.</p>
+            <button onclick="location.reload()" class="text-red-600 hover:text-red-800 font-medium">
+                Try Again
+            </button>
+        </div>
+    </div>
+
+    <!-- Registration Form -->
+    <div id="registrationFormContainer" class="bg-white rounded-2xl shadow-xl p-8">
+        <h1 class="text-2xl font-bold mb-2">Register for Event</h1>
+        <p class="text-gray-500 mb-6" id="eventInfo">Loading event details...</p>
+
+        <form onsubmit="return doRegister(event)">
+            {% csrf_token %}
+            <input type="hidden" id="eventId" value="{{ event_id }}">
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" id="fullName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                        placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email <span
+                            class="text-red-500">*</span></label>
+                    <input type="email" id="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                        placeholder="john@example.com">
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input type="tel" id="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                    placeholder="+1 234 567 8900">
+            </div>
+
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Special Requests</label>
+                <textarea id="specialRequests" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                    placeholder="Any special requirements?"></textarea>
+            </div>
+
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <p class="font-semibold">Your Tickets:</p>
+                <div id="ticketInfo" class="mt-2 text-gray-600">Loading...</div>
+                <p class="mt-2 font-bold text-lg" id="totalInfo">Total: FREE</p>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full bg-indigo-600 text-white py-4 rounded-lg font-bold mt-6 hover:bg-indigo-700">
+                Complete Registration
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Get event_id from template or URL
+    var eventId = {{ event_id }};
+    if (!eventId) {
+        var match = window.location.pathname.match(/\/events\/(\d+)\/register/);
+        eventId = match ? parseInt(match[1]) : null;
+    }
+
+    console.log('Event ID:', eventId);
+
+    // Load event details
+    fetch('/api/v1/public/events/' + eventId + '/')
+        .then(r => r.json())
+        .then(function (event) {
+            document.getElementById('eventInfo').textContent = event.title + ' - ' +
+                new Date(event.start_date).toLocaleDateString();
+            document.getElementById('eventId').value = eventId;
+        })
+        .catch(function (err) {
+            console.error('Error loading event:', err);
+        });
+
+    // Load tickets
+    var storedTickets = sessionStorage.getItem('selectedTickets');
+    var selectedTickets = storedTickets ? JSON.parse(storedTickets) : [];
+
+    fetch('/api/v1/public/events/' + eventId + '/tickets/')
+        .then(r => r.json())
+        .then(function (tickets) {
+            var html = '';
+            var total = 0;
+
+            if (selectedTickets.length > 0) {
+                selectedTickets.forEach(function (st) {
+                    var ticket = tickets.find(function (t) { return t.id === st.ticket_id; });
+                    if (ticket) {
+                        var price = parseFloat(ticket.price) || 0;
+                        total += price * st.quantity;
+                        html += '<p>' + ticket.name + ' x ' + st.quantity + ' - ' +
+                            (price === 0 ? 'FREE' : '$' + price.toFixed(2)) + '</p>';
+                    }
+                });
+            } else {
+                html = '<p>General Admission - FREE</p>';
+            }
+
+            document.getElementById('ticketInfo').innerHTML = html || '<p>General Admission - FREE</p>';
+            document.getElementById('totalInfo').textContent = 'Total: ' +
+                (total === 0 ? 'FREE' : '$' + total.toFixed(2));
+        })
+        .catch(function (err) {
+            document.getElementById('ticketInfo').textContent = 'General Admission - FREE';
+        });
+
+    function doRegister(e) {
+        e.preventDefault();
+
+        var fullName = document.getElementById('fullName').value.trim();
+        var email = document.getElementById('email').value.trim();
+        var phone = document.getElementById('phone').value;
+        var specialRequests = document.getElementById('specialRequests').value;
+
+        if (!fullName) {
+            alert('Please enter your full name.');
+            return false;
+        }
+        if (!email) {
+            alert('Please enter your email address.');
+            return false;
+        }
+        // Basic email format check
+        if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
+            alert('Please enter a valid email address.');
+            return false;
+        }
+
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Processing...';
+
+        var payload = {
+            event_id: eventId,
+            full_name: fullName,
+            email: email,
+            phone: phone,
+            special_requests: specialRequests,
+            tickets: selectedTickets
+        };
+
+        console.log('Sending:', JSON.stringify(payload));
+
+        fetch('/api/v1/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(r => r.json())
+            .then(function (data) {
+                console.log('Response:', data);
+                if (data.id || data.registration_number) {
+                    // Success
+                    sessionStorage.removeItem('selectedTickets');
+                    document.getElementById('registrationFormContainer').style.display = 'none';
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    document.getElementById('regNumber').textContent = 'Registration Number: ' + data.registration_number;
+
+                    var statusMsg = data.status === 'pending'
+                        ? 'Your registration is pending payment confirmation.'
+                        : 'Your registration has been confirmed!';
+                    document.getElementById('successText').textContent = statusMsg;
+                } else {
+                    alert('Error: ' + (data.error || 'Registration failed'));
+                    btn.disabled = false;
+                    btn.textContent = 'Complete Registration';
+                }
+            })
+            .catch(function (err) {
+                console.error(err);
+                alert('Network error: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = 'Complete Registration';
+            });
+
+        return false;
+    }
+</script>
+{% endblock %}

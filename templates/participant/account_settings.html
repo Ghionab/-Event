@@ -1,0 +1,145 @@
+{% extends 'participant/base.html' %}
+{% block title %}Account Settings - EventHub{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Account Settings</h1>
+        <p class="mt-1 text-gray-600">Manage your profile and account details</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-6 space-y-2">
+        {% for message in messages %}
+        <div
+            class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800 border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border-red-200{% else %}bg-blue-50 text-blue-800 border-blue-200{% endif %} border">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Settings Nav (Desktop) -->
+        <div class="hidden md:block">
+            <nav class="space-y-1 bg-white rounded-xl shadow-sm p-2 border border-gray-100">
+                <a href="#profile"
+                    class="bg-indigo-50 text-indigo-700 hover:text-indigo-700 hover:bg-white group rounded-md px-3 py-2 flex items-center text-sm font-medium">
+                    <i
+                        class="bi bi-person-circle text-indigo-400 group-hover:text-indigo-500 flex-shrink-0 -ml-1 mr-3 text-lg"></i>
+                    <span class="truncate">Profile</span>
+                </a>
+                <a href="#contact"
+                    class="text-gray-900 hover:text-gray-900 hover:bg-gray-50 group rounded-md px-3 py-2 flex items-center text-sm font-medium">
+                    <i
+                        class="bi bi-envelope text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 text-lg"></i>
+                    <span class="truncate">Contact Info</span>
+                </a>
+                <a href="#social"
+                    class="text-gray-900 hover:text-gray-900 hover:bg-gray-50 group rounded-md px-3 py-2 flex items-center text-sm font-medium">
+                    <i class="bi bi-share text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 text-lg"></i>
+                    <span class="truncate">Social Profiles</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Forms -->
+        <div class="md:col-span-2 space-y-8">
+            <form method="post" enctype="multipart/form-data"
+                class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+                {% csrf_token %}
+
+                <h2 id="profile" class="text-xl font-bold text-gray-900 mb-6">Profile Information</h2>
+
+                <div class="flex items-center gap-6 mb-8">
+                    <div class="flex-shrink-0">
+                        {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}"
+                            class="w-24 h-24 rounded-full object-cover border border-gray-200">
+                        {% else %}
+                        <div
+                            class="w-24 h-24 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-3xl">
+                            {{ user.first_name|first|default:user.email|first|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
+                        <input type="file" name="profile_picture" accept="image/*"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input type="text" name="first_name" value="{{ form.first_name.value|default:user.first_name }}"
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input type="text" name="last_name" value="{{ form.last_name.value|default:user.last_name }}"
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                        <input type="text" name="job_title" value="{{ form.job_title.value|default:user.job_title }}"
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                        <input type="text" name="company" value="{{ form.company.value|default:user.company }}"
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
+                    </div>
+                </div>
+
+                <div class="mb-8 border-b border-gray-100 pb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                    <textarea name="bio" rows="4"
+                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">{{ form.bio.value|default:user.bio }}</textarea>
+                    <p class="mt-2 text-sm text-gray-500">A brief description of yourself that will be visible to other
+                        attendees.</p>
+                </div>
+
+                <h2 id="contact" class="text-xl font-bold text-gray-900 mb-6">Contact Info</h2>
+                <div class="mb-8 border-b border-gray-100 pb-8">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="text" name="phone_number"
+                        value="{{ form.phone_number.value|default:user.phone_number }}"
+                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
+                </div>
+
+                <h2 id="social" class="text-xl font-bold text-gray-900 mb-6">Social Profiles</h2>
+                <div class="space-y-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-1"><i
+                                class="bi bi-linkedin text-[#0077b5]"></i> LinkedIn URL</label>
+                        <input type="url" name="linkedin_url"
+                            value="{{ form.linkedin_url.value|default:user.linkedin_url }}"
+                            placeholder="https://linkedin.com/in/..."
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-1"><i
+                                class="bi bi-twitter text-[#1DA1F2]"></i> Twitter URL</label>
+                        <input type="url" name="twitter_url"
+                            value="{{ form.twitter_url.value|default:user.twitter_url }}"
+                            placeholder="https://twitter.com/..."
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t border-gray-100">
+                    <button type="submit"
+                        class="bg-indigo-600 text-white px-8 py-2.5 rounded-lg hover:bg-indigo-700 font-medium shadow transition">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

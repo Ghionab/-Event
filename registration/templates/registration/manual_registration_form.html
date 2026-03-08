@@ -1,0 +1,108 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Manual Registration - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Manual Registration</h1>
+        <a href="{% url 'registration:manual_registration_list' event.id %}" class="btn btn-secondary">
+            Back to List
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">{% if manual_reg %}Edit{% else %}Add{% endif %} Attendee</h2>
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Full Name *</label>
+                    <input type="text" name="attendee_name" value="{{ form.attendee_name.value|default:'' }}" required
+                           class="w-full border rounded px-3 py-2" placeholder="John Doe">
+                    {% if form.attendee_name.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.attendee_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Email Address *</label>
+                    <input type="email" name="attendee_email" value="{{ form.attendee_email.value|default:'' }}" required
+                           class="w-full border rounded px-3 py-2" placeholder="john@example.com">
+                    {% if form.attendee_email.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.attendee_email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Phone Number</label>
+                    <input type="text" name="attendee_phone" value="{{ form.attendee_phone.value|default:'' }}"
+                           class="w-full border rounded px-3 py-2" placeholder="+1 234 567 8900">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Company</label>
+                    <input type="text" name="company" value="{{ form.company.value|default:'' }}"
+                           class="w-full border rounded px-3 py-2" placeholder="Acme Inc">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Job Title</label>
+                    <input type="text" name="job_title" value="{{ form.job_title.value|default:'' }}"
+                           class="w-full border rounded px-3 py-2" placeholder="Developer">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Ticket Type *</label>
+                    <select name="ticket_type" required class="w-full border rounded px-3 py-2">
+                        <option value="">Select Ticket Type</option>
+                        {% for ticket in event.ticket_types.all %}
+                        {% if ticket.is_active %}
+                        <option value="{{ ticket.id }}" {% if form.ticket_type.value == ticket.id %}selected{% endif %}>
+                            {{ ticket.name }} - ${{ ticket.price }}
+                        </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.ticket_type.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.ticket_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Notes</label>
+                    <textarea name="notes" rows="3" class="w-full border rounded px-3 py-2"
+                              placeholder="Additional notes...">{{ form.notes.value|default:'' }}</textarea>
+                </div>
+
+                <div class="flex items-center gap-4 pt-4">
+                    <button type="submit" name="create_registration" value="1" class="btn btn-primary">
+                        Save & Create Registration
+                    </button>
+                    <button type="submit" class="btn btn-secondary">
+                        Save Only
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div>
+            <div class="bg-blue-50 rounded-lg p-6">
+                <h3 class="font-semibold mb-3">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="{% url 'registration:bulk_registration_upload' event.id %}" class="block p-3 bg-white rounded border hover:bg-gray-50">
+                        <strong>Bulk Upload</strong>
+                        <p class="text-sm text-gray-600">Import attendees from Excel/CSV file</p>
+                    </a>
+                    <a href="{% url 'registration:manual_registration_list' event.id %}" class="block p-3 bg-white rounded border hover:bg-gray-50">
+                        <strong>View All</strong>
+                        <p class="text-sm text-gray-600">See all manual registrations</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

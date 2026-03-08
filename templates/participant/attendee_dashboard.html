@@ -1,0 +1,222 @@
+{% extends 'participant/base.html' %}
+
+{% block title %}My Dashboard - EventHub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Welcome back, {{ user.first_name|default:user.email }}!</h1>
+        <p class="mt-2 text-gray-600">Manage your events, schedule, and networking</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
+                    <i class="bi bi-calendar-event text-indigo-600 text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Events</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.total_events }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <i class="bi bi-calendar-check text-green-600 text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Upcoming</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.upcoming_events }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <i class="bi bi-check-circle text-blue-600 text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Attended</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.past_events }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                    <i class="bi bi-bookmark text-yellow-600 text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Saved Sessions</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.saved_sessions }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+                    <i class="bi bi-envelope text-purple-600 text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Messages</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stats.unread_messages }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Upcoming Events -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-900">Upcoming Events</h2>
+                    <a href="{% url 'attendee:my_registrations' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                        View All <i class="bi bi-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                <div class="p-6">
+                    {% if upcoming_registrations %}
+                        <div class="space-y-4">
+                            {% for registration in upcoming_registrations %}
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <h3 class="text-lg font-semibold text-gray-900">
+                                            <a href="{% url 'attendee:registration_detail' registration.id %}" class="hover:text-indigo-600">
+                                                {{ registration.event.title }}
+                                            </a>
+                                        </h3>
+                                        <div class="mt-2 space-y-1 text-sm text-gray-600">
+                                            <p><i class="bi bi-calendar mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }}</p>
+                                            <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual Event" }}</p>
+                                            <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                            {% if registration.status == 'confirmed' %}bg-green-100 text-green-800
+                                            {% elif registration.status == 'checked_in' %}bg-blue-100 text-blue-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ registration.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex gap-2">
+                                    <a href="{% url 'attendee:registration_detail' registration.id %}" 
+                                       class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                        <i class="bi bi-eye mr-1"></i> View Details
+                                    </a>
+                                    <a href="{% url 'attendee:event_schedule' registration.event.id %}" 
+                                       class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                        <i class="bi bi-calendar3 mr-1"></i> Schedule
+                                    </a>
+                                    <a href="{% url 'attendee:download_ticket' registration.id %}" 
+                                       class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                        <i class="bi bi-download mr-1"></i> Ticket
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-12">
+                            <i class="bi bi-calendar-x text-gray-400 text-5xl mb-4"></i>
+                            <p class="text-gray-500 mb-4">No upcoming events</p>
+                            <a href="/events/" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                                <i class="bi bi-search mr-2"></i> Browse Events
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Past Events -->
+            {% if past_registrations %}
+            <div class="bg-white rounded-lg shadow mt-8">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-900">Past Events</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        {% for registration in past_registrations %}
+                        <div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+                            <div>
+                                <h4 class="font-medium text-gray-900">{{ registration.event.title }}</h4>
+                                <p class="text-sm text-gray-500">{{ registration.event.start_date|date:"F d, Y" }}</p>
+                            </div>
+                            <a href="{% url 'attendee:registration_detail' registration.id %}" 
+                               class="text-indigo-600 hover:text-indigo-800 text-sm">
+                                View <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="/events/" 
+                       class="block w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-center font-medium">
+                        <i class="bi bi-search mr-2"></i> Browse Events
+                    </a>
+                    <a href="{% url 'attendee:my_schedule' %}" 
+                       class="block w-full px-4 py-3 bg-white border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 text-center font-medium">
+                        <i class="bi bi-calendar3 mr-2"></i> My Schedule
+                    </a>
+                    <a href="{% url 'attendee:networking_hub' %}" 
+                       class="block w-full px-4 py-3 bg-white border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 text-center font-medium">
+                        <i class="bi bi-people mr-2"></i> Networking
+                    </a>
+                    <a href="{% url 'attendee:saved_events' %}" 
+                       class="block w-full px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-center font-medium">
+                        <i class="bi bi-bookmark mr-2"></i> Saved Events
+                    </a>
+                </div>
+            </div>
+
+            <!-- Messages Preview -->
+            {% if stats.unread_messages > 0 %}
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Messages</h3>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        {{ stats.unread_messages }} new
+                    </span>
+                </div>
+                <a href="{% url 'attendee:messages' %}" 
+                   class="block w-full px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 text-center font-medium">
+                    View Messages
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Profile Completion -->
+            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow p-6 text-white">
+                <h3 class="text-lg font-semibold mb-2">Complete Your Profile</h3>
+                <p class="text-sm text-indigo-100 mb-4">Add more details to enhance your networking experience</p>
+                <a href="{% url 'attendee:settings' %}" 
+                   class="inline-flex items-center px-4 py-2 bg-white text-indigo-600 rounded-lg hover:bg-indigo-50 font-medium text-sm">
+                    Update Profile <i class="bi bi-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

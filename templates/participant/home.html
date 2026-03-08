@@ -1,0 +1,84 @@
+{% extends 'participant/base.html' %}
+
+{% block title %}Home - EventPortal{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-gradient text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">Discover Amazing Events</h1>
+        <p class="text-xl md:text-2xl mb-8 text-indigo-100">Find and register for conferences, workshops, and meetups</p>
+        <a href="/events/" class="bg-white text-indigo-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-indigo-50 transition shadow-lg">
+            Browse Events <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12">Why Use EventPortal?</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-8 rounded-xl shadow-sm card-hover transition">
+            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-search text-indigo-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4">Easy Discovery</h3>
+            <p class="text-gray-600">Find events that match your interests with our powerful search and filters.</p>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-sm card-hover transition">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-ticket-alt text-green-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4">Simple Registration</h3>
+            <p class="text-gray-600">Register for events in just a few clicks with instant confirmation.</p>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-sm card-hover transition">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-qrcode text-purple-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4">QR Check-in</h3>
+            <p class="text-gray-600">Get instant QR codes for seamless check-in at event venues.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Events Section -->
+<div class="bg-gray-100 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold">Upcoming Events</h2>
+            <a href="/events/" class="text-indigo-600 hover:text-indigo-800 font-medium">View All <i class="fas fa-arrow-right ml-1"></i></a>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+            <i class="fas fa-calendar-check text-gray-300 text-6xl mb-4"></i>
+            <p class="text-gray-500 text-lg">No upcoming events at the moment</p>
+            <p class="text-gray-400 mb-6">Check back soon or browse all events</p>
+            <a href="/events/" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                Browse All Events
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="bg-indigo-600 rounded-2xl p-8 md:p-12 text-center text-white">
+        <h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+        <p class="text-indigo-100 text-lg mb-8">Create an account and start discovering amazing events today!</p>
+        {% if not user.is_authenticated %}
+        <div class="flex justify-center space-x-4">
+            <a href="/register/" class="bg-white text-indigo-600 px-8 py-3 rounded-lg font-bold hover:bg-indigo-50 transition">
+                Sign Up Free
+            </a>
+            <a href="/login/" class="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-indigo-600 transition">
+                Login
+            </a>
+        </div>
+        {% else %}
+        <a href="/events/" class="inline-block bg-white text-indigo-600 px-8 py-3 rounded-lg font-bold hover:bg-indigo-50 transition">
+            Browse Events
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'participant/base.html' %}
+
+{% block title %}My Registrations - EventHub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">My Registrations</h1>
+            <p class="mt-1 text-gray-600">Manage all your event registrations</p>
+        </div>
+        <a href="/events/"
+            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+            <i class="bi bi-search mr-2"></i>Browse Events
+        </a>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="bg-white rounded-lg shadow mb-6">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px">
+                <a href="?filter=all"
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'all' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    All
+                </a>
+                <a href="?filter=upcoming"
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'upcoming' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    Upcoming
+                </a>
+                <a href="?filter=past"
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'past' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    Past
+                </a>
+                <a href="?filter=cancelled"
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'cancelled' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    Cancelled
+                </a>
+            </nav>
+        </div>
+
+        <!-- Search -->
+        <div class="p-4">
+            <form method="get" class="flex gap-3">
+                <input type="hidden" name="filter" value="{{ filter_type }}">
+                <input type="text" name="search" value="{{ search_query }}"
+                    placeholder="Search by event name or registration number..."
+                    class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Registration Cards -->
+    {% if page_obj %}
+    <div class="space-y-4">
+        {% for registration in page_obj %}
+        <div class="bg-white rounded-lg shadow hover:shadow-md transition p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex items-start gap-4">
+                        {% if registration.event.banner_image %}
+                        <img src="{{ registration.event.banner_image.url }}" alt=""
+                            class="w-20 h-20 object-cover rounded-lg hidden sm:block">
+                        {% else %}
+                        <div
+                            class="w-20 h-20 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg hidden sm:block flex items-center justify-center">
+                            <i class="bi bi-calendar-event text-white text-2xl"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                <a href="{% url 'attendee:registration_detail' registration.id %}"
+                                    class="hover:text-indigo-600">
+                                    {{ registration.event.title }}
+                                </a>
+                            </h3>
+                            <div class="mt-1 space-y-1 text-sm text-gray-600">
+                                <p><i class="bi bi-calendar mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }}
+                                </p>
+                                <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual
+                                    Event" }}</p>
+                                <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name|default:"General"
+                                    }} · {{ registration.registration_number }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                        {% if registration.status == 'confirmed' %}bg-green-100 text-green-800
+                        {% elif registration.status == 'checked_in' %}bg-blue-100 text-blue-800
+                        {% elif registration.status == 'cancelled' %}bg-red-100 text-red-800
+                        {% elif registration.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ registration.get_status_display }}
+                    </span>
+                    <a href="{% url 'attendee:registration_detail' registration.id %}"
+                        class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                        View <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-8 flex justify-center">
+        <nav class="flex gap-1">
+            {% if page_obj.has_previous %}
+            <a href="?filter={{ filter_type }}&search={{ search_query }}&page={{ page_obj.previous_page_number }}"
+                class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">Previous</a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="px-4 py-2 bg-indigo-600 text-white rounded-lg">{{ num }}</span>
+            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <a
+                href="?filter={{ filter_type }}&search={{ search_query }}&page={{ num }}"
+                class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">{{ num }}</a>
+                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <a href="?filter={{ filter_type }}&search={{ search_query }}&page={{ page_obj.next_page_number }}"
+                    class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">Next</a>
+                {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="bg-white rounded-lg shadow p-12 text-center">
+        <i class="bi bi-ticket-perforated text-gray-300 text-6xl mb-4 block"></i>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No registrations found</h3>
+        <p class="text-gray-500 mb-6">{% if filter_type != 'all' %}Try adjusting your filters or {% endif %}browse
+            events to get started.</p>
+        <a href="/events/"
+            class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+            Browse Events
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Tracks - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Tracks</h1>
+            <p class="text-gray-500 mt-1">Manage tracks for {{ event.title }}</p>
+        </div>
+        <a href="{% url 'track_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium shadow-sm">
+            <i class="bi bi-plus-lg mr-2"></i> Add Track
+        </a>
+    </div>
+
+    {% if tracks %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for track in tracks %}
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="px-6 py-4 flex justify-between items-center" style="background-color: {{ track.color }}; color: white;">
+                        <h3 class="font-semibold">{{ track.name }}</h3>
+                        <span class="px-3 py-1 text-xs font-medium rounded-full bg-white/30">
+                            Order: {{ track.order }}
+                        </span>
+                    </div>
+                    <div class="p-6">
+                        {% if track.description %}
+                            <p class="text-gray-600 mb-4">{{ track.description }}</p>
+                        {% endif %}
+                        <p class="text-sm text-gray-500">
+                            <i class="bi bi-palette mr-2" style="color: {{ track.color }}"></i>
+                            Sessions in this track will be color-coded with this color.
+                        </p>
+                    </div>
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-3">
+                        <a href="{% url 'track_edit' event.id track.id %}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-primary hover:text-primary transition text-sm font-medium">
+                            <i class="bi bi-pencil mr-2"></i> Edit
+                        </a>
+                        <a href="{% url 'track_delete' event.id track.id %}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition text-sm font-medium">
+                            <i class="bi bi-trash mr-2"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-16 bg-white rounded-xl shadow-sm">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-tags text-4xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No Tracks Created</h3>
+            <p class="text-gray-500 mb-4">Start by adding your first track.</p>
+            <a href="{% url 'track_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium">
+                <i class="bi bi-plus-lg mr-2"></i> Add First Track
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

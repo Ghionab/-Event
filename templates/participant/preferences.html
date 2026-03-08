@@ -1,0 +1,110 @@
+{% extends 'participant/base.html' %}
+{% block title %}Event Preferences - EventHub{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <nav class="mb-6 text-sm text-gray-500">
+        <a href="{% url 'attendee:dashboard' %}" class="hover:text-indigo-600">Dashboard</a> /
+        <a href="{% url 'attendee:registration_detail' registration.id %}" class="hover:text-indigo-600">{{ event.title
+            }}</a> /
+        <span class="text-gray-900">Preferences</span>
+    </nav>
+
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-8 py-6 text-white">
+            <h1 class="text-2xl font-bold mb-1">Event Preferences</h1>
+            <p class="text-gray-300">Update your needs and settings for {{ event.title }}</p>
+        </div>
+
+        {% if messages %}
+        <div class="px-8 mt-6">
+            {% for message in messages %}
+            <div class="p-4 rounded-lg bg-green-50 text-green-800 border-green-200 border flex items-center">
+                <i class="bi bi-check-circle-fill mr-3 text-green-500 mt-0.5"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="p-8">
+            {% csrf_token %}
+
+            <!-- Basic Needs -->
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center border-b pb-2"><i
+                        class="bi bi-person-wheelchair mr-2 text-indigo-500"></i> Dietary & Accessibility</h3>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dietary Requirements</label>
+                        <select name="dietary_requirements"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 bg-gray-50">
+                            <option value="none" {% if preferences.dietary_requirements=='none' %}selected{% endif %}>
+                                None</option>
+                            <option value="vegetarian" {% if preferences.dietary_requirements=='vegetarian' %}selected{%
+                                endif %}>Vegetarian</option>
+                            <option value="vegan" {% if preferences.dietary_requirements=='vegan' %}selected{% endif %}>
+                                Vegan</option>
+                            <option value="gluten_free" {% if preferences.dietary_requirements=='gluten_free'
+                                %}selected{% endif %}>Gluten-Free</option>
+                            <option value="halal" {% if preferences.dietary_requirements=='halal' %}selected{% endif %}>
+                                Halal</option>
+                            <option value="kosher" {% if preferences.dietary_requirements=='kosher' %}selected{% endif
+                                %}>Kosher</option>
+                            <option value="other" {% if preferences.dietary_requirements=='other' %}selected{% endif %}>
+                                Other (Please specify below)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Accessibility Needs</label>
+                        <textarea name="accessibility_needs" rows="3"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 bg-gray-50"
+                            placeholder="E.g., ASL interpreter, wheelchair access, visually impaired seating...">{{ preferences.accessibility_needs|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Networking Settings -->
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center border-b pb-2"><i
+                        class="bi bi-globe mr-2 text-indigo-500"></i> Networking Preferences</h3>
+
+                <div class="space-y-4">
+                    <label
+                        class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="is_discoverable"
+                            class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" {% if
+                            preferences.is_discoverable %}checked{% endif %}>
+                        <div>
+                            <p class="font-medium text-gray-900">Make my profile visible</p>
+                            <p class="text-sm text-gray-500">Allow other attendees to find you in the directory and send
+                                connection requests.</p>
+                        </div>
+                    </label>
+
+                    <label
+                        class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox" name="allow_messages"
+                            class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" {% if
+                            preferences.allow_messages %}checked{% endif %}>
+                        <div>
+                            <p class="font-medium text-gray-900">Allow direct messages</p>
+                            <p class="text-sm text-gray-500">Let your connections send you direct messages within the
+                                platform.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4 pt-6 border-t border-gray-100">
+                <a href="{% url 'attendee:registration_detail' registration.id %}"
+                    class="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50">Cancel</a>
+                <button type="submit"
+                    class="px-8 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow shadow-indigo-200">Save
+                    Preferences</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

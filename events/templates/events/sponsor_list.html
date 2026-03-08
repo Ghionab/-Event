@@ -1,0 +1,76 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Sponsors - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Sponsors</h1>
+            <p class="text-gray-500 mt-1">Manage sponsors for {{ event.title }}</p>
+        </div>
+        <a href="{% url 'sponsor_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium shadow-sm">
+            <i class="bi bi-plus-lg mr-2"></i> Add Sponsor
+        </a>
+    </div>
+
+    {% if sponsors %}
+        {% regroup sponsors by get_tier_display as tier_list %}
+        {% for tier in tier_list %}
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="bi bi-award mr-2 text-primary"></i>{{ tier.grouper }}
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for sponsor in tier.list %}
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                            {% if sponsor.logo %}
+                                <div class="h-40 flex items-center justify-center p-4 bg-gray-50">
+                                    <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.company_name }}" class="max-h-full max-w-full object-contain">
+                                </div>
+                            {% endif %}
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-semibold text-gray-800">{{ sponsor.company_name }}</h3>
+                                    {% if sponsor.is_featured %}
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
+                                            <i class="bi bi-star-fill mr-1"></i>Featured
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                {% if sponsor.description %}
+                                    <p class="text-gray-600 text-sm mb-4 line-clamp-3">{{ sponsor.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                {% if sponsor.website %}
+                                    <a href="{{ sponsor.website }}" target="_blank" class="inline-flex items-center text-primary hover:text-primaryHover text-sm font-medium">
+                                        <i class="bi bi-globe mr-1"></i> Visit Website
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex gap-3">
+                                <a href="{% url 'sponsor_edit' event.id sponsor.id %}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-primary hover:text-primary transition text-sm font-medium">
+                                    <i class="bi bi-pencil mr-2"></i> Edit
+                                </a>
+                                <a href="{% url 'sponsor_delete' event.id sponsor.id %}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition text-sm font-medium">
+                                    <i class="bi bi-trash mr-2"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-16 bg-white rounded-xl shadow-sm">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-currency-dollar text-4xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No Sponsors Added</h3>
+            <p class="text-gray-500 mb-4">Start by adding your first sponsor.</p>
+            <a href="{% url 'sponsor_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium">
+                <i class="bi bi-plus-lg mr-2"></i> Add First Sponsor
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

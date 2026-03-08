@@ -1,0 +1,100 @@
+{% extends 'participant/base.html' %}
+{% block title %}Browse Attendees - EventHub{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <nav class="mb-6 text-sm text-gray-500">
+        <a href="{% url 'attendee:networking_hub' %}" class="hover:text-indigo-600">Networking Hub</a> /
+        <span class="text-gray-900">Directory</span>
+    </nav>
+
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Attendee Directory</h1>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="bg-white rounded-xl shadow p-4 mb-8">
+        <form method="get" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative">
+                <i class="bi bi-search absolute left-3 top-3 text-gray-400"></i>
+                <input type="text" name="search" value="{{ search_query }}"
+                    placeholder="Search by name, company, or job title..."
+                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div class="w-full md:w-64">
+                <select name="event"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <option value="">All My Events</option>
+                    {% for event in common_events %}
+                    <option value="{{ event.id }}" {% if request.GET.event==event.id|stringformat:"s" %}selected{% endif
+                        %}>{{ event.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit"
+                class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 font-medium whitespace-nowrap">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Grid -->
+    {% if page_obj %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for attendee in page_obj %}
+        <div class="bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 p-6 text-center transition flex flex-col items-center group cursor-pointer"
+            onclick="window.location.href='{% url 'attendee:attendee_profile' attendee.id %}'">
+
+            {% if attendee.profile_picture %}
+            <img src="{{ attendee.profile_picture.url }}"
+                class="w-20 h-20 rounded-full object-cover mb-4 group-hover:scale-105 transition-transform duration-300 shadow">
+            {% else %}
+            <div
+                class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-4 group-hover:bg-indigo-100 transition shadow-sm">
+                <span class="text-2xl font-bold text-indigo-600">{{
+                    attendee.first_name|first|default:attendee.email|first|upper }}</span>
+            </div>
+            {% endif %}
+
+            <h3 class="text-lg font-bold text-gray-900 truncate w-full">{{ attendee.get_full_name|default:attendee.email
+                }}</h3>
+
+            <div class="h-10 my-1">
+                {% if attendee.job_title %}<p class="text-sm text-gray-600 truncate w-full">{{ attendee.job_title }}</p>
+                {% endif %}
+                {% if attendee.company %}<p class="text-xs text-gray-500 font-medium truncate w-full mt-0.5">{{
+                    attendee.company }}</p>{% endif %}
+            </div>
+
+            <div class="w-full mt-4 pt-4 border-t border-gray-100">
+                <a href="{% url 'attendee:send_connection_request' attendee.id %}" onclick="event.stopPropagation()"
+                    class="block w-full text-center border border-gray-300 text-gray-700 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
+                    Connect
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-8 flex justify-center pb-8">
+        <nav class="flex gap-1 shadow-sm">
+            {% if page_obj.has_previous %}<a href="?search={{ search_query }}&page={{ page_obj.previous_page_number }}"
+                class="px-4 py-2 bg-white border rounded-l-lg hover:bg-gray-50 text-sm font-medium">Previous</a>{% endif
+            %}
+            <span class="px-4 py-2 bg-gray-50 border-t border-b text-sm font-medium text-gray-700">Page {{
+                page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a href="?search={{ search_query }}&page={{ page_obj.next_page_number }}"
+                class="px-4 py-2 bg-white border rounded-r-lg hover:bg-gray-50 text-sm font-medium">Next</a>{% endif %}
+        </nav>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="bg-white rounded-xl shadow p-12 text-center text-gray-500 py-20">
+        <i class="bi bi-search text-5xl mb-4 opacity-30"></i>
+        <h3 class="text-lg font-medium text-gray-900">No attendees found</h3>
+        <p class="mt-1">Try adjusting your search criteria.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

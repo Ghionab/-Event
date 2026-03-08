@@ -1,0 +1,66 @@
+{% extends 'events/base.html' %}
+
+{% block title %}My Registrations - Event Management{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">My Registrations</h1>
+        <p class="text-gray-500 mt-1">View and manage your event registrations</p>
+    </div>
+
+    {% if registrations %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for registration in registrations %}
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">{{ registration.event.title }}</h3>
+                            <span class="px-3 py-1 text-xs font-medium rounded-full {% if registration.status == 'confirmed' %}bg-green-100 text-green-700{% elif registration.status == 'cancelled' %}bg-red-100 text-red-700{% elif registration.status == 'pending' %}bg-yellow-100 text-yellow-700{% else %}bg-gray-100 text-gray-700{% endif %}">
+                                {{ registration.get_status_display }}
+                            </span>
+                        </div>
+
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-center text-gray-600">
+                                <i class="bi bi-hash mr-2 text-primary"></i>
+                                <span>Registration #: {{ registration.registration_number }}</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="bi bi-ticket mr-2 text-primary"></i>
+                                <span>{{ registration.ticket_type.name }}</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="bi bi-calendar3 mr-2 text-primary"></i>
+                                <span>{{ registration.created_at|date:"F j, Y, g:i a" }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t border-gray-100 flex gap-3">
+                            <a href="{% url 'registration:registration_detail' registration.id %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover transition text-sm font-medium">
+                                <i class="bi bi-eye mr-2"></i> View Details
+                            </a>
+                            {% if registration.status == 'confirmed' %}
+                                <a href="{% url 'registration:badge_view' registration.id %}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
+                                    <i class="bi bi-credit-card mr-2"></i> View Badge
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-16 bg-white rounded-xl shadow-sm">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-calendar-x text-4xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No Registrations Yet</h3>
+            <p class="text-gray-500 mb-4">You haven't registered for any events yet.</p>
+            <a href="{% url 'event_list' %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium">
+                <i class="bi bi-search mr-2"></i> Browse Events
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

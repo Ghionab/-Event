@@ -1,0 +1,147 @@
+{% extends 'participant/base.html' %}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.email }} - Profile - EventHub{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <nav class="mb-8 text-sm text-gray-500">
+        <a href="{% url 'attendee:networking_hub' %}" class="hover:text-indigo-600">Networking</a> /
+        <a href="{% url 'attendee:browse_attendees' %}" class="hover:text-indigo-600">Directory</a> /
+        <span class="text-gray-900">Profile</span>
+    </nav>
+
+    <!-- Profile Header -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mb-8">
+        <div class="h-32 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+        <div class="px-8 pb-8 relative">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 -mt-16 sm:-mt-12">
+                <div class="flex flex-col sm:flex-row items-center sm:items-end gap-6">
+                    {% if profile_user.profile_picture %}
+                    <img src="{{ profile_user.profile_picture.url }}"
+                        class="w-32 h-32 rounded-xl border-4 border-white shadow-md object-cover">
+                    {% else %}
+                    <div
+                        class="w-32 h-32 rounded-xl border-4 border-white shadow-md bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                        <span class="text-5xl font-bold text-indigo-500">{{
+                            profile_user.first_name|first|default:profile_user.email|first|upper }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="text-center sm:text-left pb-2">
+                        <h1 class="text-3xl font-bold text-gray-900">{{
+                            profile_user.get_full_name|default:profile_user.email }}</h1>
+                        <p class="text-lg text-gray-600 mt-1 font-medium">{{ profile_user.job_title|default:"" }} {% if
+                            profile_user.job_title and profile_user.company %}at{% endif %} {{
+                            profile_user.company|default:"" }}</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pb-2 w-full sm:w-auto">
+                    {% if connection_status == 'connected' %}
+                    <a href="{% url 'attendee:send_message' profile_user.id %}"
+                        class="flex-1 sm:flex-none justify-center flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg shadow hover:bg-indigo-700 font-medium transition">
+                        <i class="bi bi-chat-text"></i> Message
+                    </a>
+                    <button
+                        class="flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-50 font-medium transition"
+                        disabled>
+                        <i class="bi bi-check-lg text-green-500"></i> Connected
+                    </button>
+                    {% elif connection_status == 'pending' %}
+                    <button
+                        class="flex-1 sm:flex-none justify-center flex items-center gap-2 border border-yellow-400 bg-yellow-50 text-yellow-700 px-6 py-2.5 rounded-lg font-medium transition cursor-wait"
+                        disabled>
+                        <i class="bi bi-clock"></i> Request Sent
+                    </button>
+                    {% else %}
+                    <a href="{% url 'attendee:send_connection_request' profile_user.id %}"
+                        class="flex-1 sm:flex-none justify-center flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg shadow hover:bg-indigo-700 font-medium transition">
+                        <i class="bi bi-person-plus"></i> Connect
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Main Column (Bio) -->
+        <div class="md:col-span-2 space-y-8">
+            <div class="bg-white rounded-xl shadow p-8 border border-gray-100">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center"><i
+                        class="bi bi-person-lines-fill text-indigo-500 mr-2"></i> About</h3>
+                {% if profile_user.bio %}
+                <div class="prose max-w-none text-gray-600">{{ profile_user.bio|linebreaks }}</div>
+                {% else %}
+                <p class="text-gray-400 italic">This attendee hasn't added a bio yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Intersecting Events -->
+            <div class="bg-white rounded-xl shadow p-8 border border-gray-100">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center"><i
+                        class="bi bi-calendar-event text-indigo-500 mr-2"></i> Mutual Events</h3>
+                {% if common_events %}
+                <div class="space-y-3">
+                    {% for event in common_events %}
+                    <a href="{% url 'attendee:event_detail' event.id %}"
+                        class="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition group">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                                {{ event.start_date|date:"d" }}</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 group-hover:text-indigo-700">{{ event.title }}
+                                </h4>
+                                <p class="text-xs text-gray-500">{{ event.start_date|date:"M Y" }}</p>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-right text-gray-400 group-hover:text-indigo-600"></i>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500">You don't have any mutually registered events.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-8">
+            <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+                <h3 class="font-bold text-gray-900 mb-4 pb-2 border-b">Contact Info</h3>
+                <ul class="space-y-4 text-sm">
+                    {% if connection_status == 'connected' %}
+                    <li class="flex items-start gap-3">
+                        <i class="bi bi-envelope text-gray-400 mt-0.5"></i>
+                        <span class="text-gray-900 break-all"><a href="mailto:{{ profile_user.email }}"
+                                class="text-indigo-600 hover:underline">{{ profile_user.email }}</a></span>
+                    </li>
+                    {% else %}
+                    <li
+                        class="flex items-center gap-3 text-gray-500 italic p-3 bg-gray-50 rounded-lg border border-dashed text-xs">
+                        <i class="bi bi-lock"></i>
+                        Connect to view email address
+                    </li>
+                    {% endif %}
+
+                    {% if profile_user.linkedin_url %}
+                    <li class="flex items-start gap-3">
+                        <i class="bi bi-linkedin text-[#0077b5] mt-0.5"></i>
+                        <a href="{{ profile_user.linkedin_url }}" target="_blank"
+                            class="text-gray-600 hover:text-indigo-600 truncate break-all">LinkedIn Profile</a>
+                    </li>
+                    {% endif %}
+
+                    {% if profile_user.twitter_url %}
+                    <li class="flex items-start gap-3">
+                        <i class="bi bi-twitter text-[#1DA1F2] mt-0.5"></i>
+                        <a href="{{ profile_user.twitter_url }}" target="_blank"
+                            class="text-gray-600 hover:text-indigo-600 truncate break-all">Twitter Profile</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

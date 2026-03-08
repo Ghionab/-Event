@@ -1,0 +1,271 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ task.title }} - EventHub{% endblock %}
+{% block header %}{{ task.title }}{% endblock %}
+{% block subtitle %}Task details and progress tracking{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex gap-2">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+            {% if task.status == 'completed' %}bg-green-100 text-green-800
+            {% elif task.status == 'in_progress' %}bg-blue-100 text-blue-800
+            {% elif task.status == 'review' %}bg-yellow-100 text-yellow-800
+            {% elif task.status == 'cancelled' %}bg-red-100 text-red-800
+            {% else %}bg-gray-100 text-gray-800{% endif %}">
+            {{ task.get_status_display }}
+        </span>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+            {% if task.priority == 'urgent' %}bg-red-100 text-red-800
+            {% elif task.priority == 'high' %}bg-orange-100 text-orange-800
+            {% elif task.priority == 'medium' %}bg-yellow-100 text-yellow-800
+            {% else %}bg-gray-100 text-gray-800{% endif %}">
+            {{ task.get_priority_display }}
+        </span>
+        {% if task.is_overdue %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                <i class="bi bi-exclamation-triangle mr-1"></i>
+                Overdue
+            </span>
+        {% endif %}
+    </div>
+    <div class="flex gap-2">
+        <a href="{% url 'advanced:task_update' task.pk %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+            <i class="bi bi-pencil mr-2"></i>
+            Edit Task
+        </a>
+        <a href="{% url 'advanced:task_delete' task.pk %}" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+            <i class="bi bi-trash mr-2"></i>
+            Delete
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Task Details -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Task Details</h3>
+            </div>
+            <div class="card-body">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Event</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ task.event.title }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Created By</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ task.created_by.email|default:'-' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Assigned To</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {% if task.assigned_to %}
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-xs mr-2">
+                                        {{ task.assigned_to.user.email|slice:":2"|upper }}
+                                    </div>
+                                    {{ task.assigned_to.user.email }}
+                                </div>
+                            {% else %}
+                                <span class="text-gray-400">Unassigned</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Due Date</dt>
+                        <dd class="mt-1 text-sm {% if task.is_overdue %}text-red-600 font-medium{% else %}text-gray-900{% endif %}">
+                            {% if task.due_date %}
+                                {{ task.due_date|date:"F d, Y g:i A" }}
+                            {% else %}
+                                No due date
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Created</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ task.created_at|date:"F d, Y g:i A" }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Completed</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {% if task.completed_at %}
+                                {{ task.completed_at|date:"F d, Y g:i A" }}
+                            {% else %}
+                                Not completed
+                            {% endif %}
+                        </dd>
+                    </div>
+                    {% if task.depends_on %}
+                    <div class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Depends On</dt>
+                        <dd class="mt-1 text-sm">
+                            <a href="{% url 'advanced:task_detail' task.depends_on.pk %}" class="text-indigo-600 hover:text-indigo-800">
+                                {{ task.depends_on.title }}
+                            </a>
+                        </dd>
+                    </div>
+                    {% endif %}
+                    {% if task.tags %}
+                    <div class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Tags</dt>
+                        <dd class="mt-1">
+                            {% with tags=task.tags|split:"," %}
+                                {% for tag in tags %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-1">{{ tag|trim }}</span>
+                                {% endfor %}
+                            {% endwith %}
+                        </dd>
+                    </div>
+                    {% endif %}
+                    {% if task.description %}
+                    <div class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Description</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ task.description|linebreaks }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <!-- Progress Tracking -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Progress Tracking</h3>
+            </div>
+            <div class="card-body">
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Progress</span>
+                            <span class="text-sm font-medium text-gray-900">{{ task.progress_percentage }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-indigo-600 h-3 rounded-full transition-all" style="width: {{ task.progress_percentage }}%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <div class="text-sm text-blue-600 font-medium">Estimated Hours</div>
+                            <div class="text-2xl font-bold text-blue-900 mt-1">
+                                {% if task.estimated_hours %}{{ task.estimated_hours }}{% else %}—{% endif %}
+                            </div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <div class="text-sm text-green-600 font-medium">Actual Hours</div>
+                            <div class="text-2xl font-bold text-green-900 mt-1">
+                                {% if task.actual_hours %}{{ task.actual_hours }}{% else %}—{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Comments ({{ comments.count }})</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" class="mb-6">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.comment }}
+                        {% if form.comment.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.comment.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        <i class="bi bi-chat-left-text mr-2"></i>
+                        Add Comment
+                    </button>
+                </form>
+                
+                <div class="space-y-4">
+                    {% for comment in comments %}
+                        <div class="border-l-4 border-indigo-500 pl-4 py-2">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-xs mr-2">
+                                        {{ comment.user.email|slice:":2"|upper }}
+                                    </div>
+                                    <span class="font-medium text-gray-900">{{ comment.user.email }}</span>
+                                </div>
+                                <span class="text-sm text-gray-500">{{ comment.created_at|date:"M d, Y g:i A" }}</span>
+                            </div>
+                            <p class="text-gray-700">{{ comment.comment }}</p>
+                        </div>
+                    {% empty %}
+                        <p class="text-center text-gray-500 py-4">No comments yet. Be the first to comment!</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body space-y-2">
+                {% if task.status != 'completed' %}
+                <form method="post" action="{% url 'advanced:task_bulk_update' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="task_ids" value="{{ task.pk }}">
+                    <input type="hidden" name="action" value="mark_completed">
+                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                        <i class="bi bi-check-circle mr-2"></i>
+                        Mark as Completed
+                    </button>
+                </form>
+                {% endif %}
+                <a href="{% url 'advanced:task_update' task.pk %}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    <i class="bi bi-pencil mr-2"></i>
+                    Edit Task
+                </a>
+                <a href="{% url 'advanced:task_list' %}?event={{ task.event.pk }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                    <i class="bi bi-list-task mr-2"></i>
+                    View All Tasks
+                </a>
+            </div>
+        </div>
+
+        <!-- Attachment -->
+        {% if task.attachment %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Attachment</h3>
+            </div>
+            <div class="card-body">
+                <a href="{{ task.attachment.url }}" target="_blank" class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <i class="bi bi-file-earmark text-2xl text-gray-400 mr-3"></i>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">{{ task.attachment.name }}</p>
+                        <p class="text-xs text-gray-500">Click to download</p>
+                    </div>
+                    <i class="bi bi-download text-gray-400"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Notes -->
+        {% if task.notes %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Notes</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-sm text-gray-700">{{ task.notes|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,504 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ title }} - {{ event.title }}{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block subtitle %}Update event details and manage tickets{% endblock %}
+
+{% block content %}
+<!-- Back Button -->
+<div class="mb-6">
+    <a href="{% url 'organizer_event_detail' event.id %}" class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Event
+    </a>
+</div>
+
+<!-- Tab Navigation -->
+<div class="mb-6">
+    <div class="flex border-b border-gray-200">
+        <button onclick="showTab('details')" class="tab-btn px-6 py-3 text-indigo-600 border-b-2 border-indigo-600 font-medium" id="tab-details">
+            <i class="bi bi-info-circle mr-2"></i>Event Details
+        </button>
+        <button onclick="showTab('tickets')" class="tab-btn px-6 py-3 text-gray-500 hover:text-gray-700 font-medium" id="tab-tickets">
+            <i class="bi bi-ticket-detailed mr-2"></i>Tickets
+        </button>
+    </div>
+</div>
+
+<!-- Details Tab -->
+<div id="content-details" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Event Information</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_event">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Title -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Event Title <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.title.errors }}
+                        <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}"
+                               value="{{ form.title.value|default:event.title }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               placeholder="Enter event title" required>
+                    </div>
+
+                    <!-- Event Type -->
+                    <div>
+                        <label for="{{ form.event_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Event Type
+                        </label>
+                        {{ form.event_type.errors }}
+                        <select name="{{ form.event_type.name }}" id="{{ form.event_type.id_for_label }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Select event type</option>
+                            <option value="conference" {% if form.event_type.value == 'conference' %}selected{% endif %}>Conference</option>
+                            <option value="workshop" {% if form.event_type.value == 'workshop' %}selected{% endif %}>Workshop</option>
+                            <option value="seminar" {% if form.event_type.value == 'seminar' %}selected{% endif %}>Seminar</option>
+                            <option value="webinar" {% if form.event_type.value == 'webinar' %}selected{% endif %}>Webinar</option>
+                            <option value="meetup" {% if form.event_type.value == 'meetup' %}selected{% endif %}>Meetup</option>
+                            <option value="concert" {% if form.event_type.value == 'concert' %}selected{% endif %}>Concert</option>
+                            <option value="festival" {% if form.event_type.value == 'festival' %}selected{% endif %}>Festival</option>
+                            <option value="exhibition" {% if form.event_type.value == 'exhibition' %}selected{% endif %}>Exhibition</option>
+                            <option value="networking" {% if form.event_type.value == 'networking' %}selected{% endif %}>Networking</option>
+                            <option value="other" {% if form.event_type.value == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Status
+                        </label>
+                        {{ form.status.errors }}
+                        <select name="{{ form.status.name }}" id="{{ form.status.id_for_label }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="draft" {% if event.status == 'draft' %}selected{% endif %}>Draft</option>
+                            <option value="published" {% if event.status == 'published' %}selected{% endif %}>Published</option>
+                            <option value="cancelled" {% if event.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            <option value="completed" {% if event.status == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div>
+                        <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Start Date <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.start_date.errors }}
+                        <input type="datetime-local" name="{{ form.start_date.name }}" id="{{ form.start_date.id_for_label }}"
+                               value="{{ event.start_date|date:"Y-m-d\TH:i" }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               required>
+                    </div>
+
+                    <!-- End Date -->
+                    <div>
+                        <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            End Date <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.end_date.errors }}
+                        <input type="datetime-local" name="{{ form.end_date.name }}" id="{{ form.end_date.id_for_label }}"
+                               value="{{ event.end_date|date:"Y-m-d\TH:i" }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               required>
+                    </div>
+
+                    <!-- Venue Name -->
+                    <div>
+                        <label for="{{ form.venue_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Venue Name
+                        </label>
+                        {{ form.venue_name.errors }}
+                        <input type="text" name="{{ form.venue_name.name }}" id="{{ form.venue_name.id_for_label }}"
+                               value="{{ form.venue_name.value|default:event.venue_name|default:'' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               placeholder="e.g., Convention Center">
+                    </div>
+
+                    <!-- City -->
+                    <div>
+                        <label for="{{ form.city.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            City
+                        </label>
+                        {{ form.city.errors }}
+                        <input type="text" name="{{ form.city.name }}" id="{{ form.city.id_for_label }}"
+                               value="{{ form.city.value|default:event.city|default:'' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               placeholder="e.g., New York">
+                    </div>
+
+                    <!-- Country -->
+                    <div>
+                        <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Country
+                        </label>
+                        {{ form.country.errors }}
+                        <input type="text" name="{{ form.country.name }}" id="{{ form.country.id_for_label }}"
+                               value="{{ form.country.value|default:event.country|default:'' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               placeholder="e.g., USA">
+                    </div>
+
+                    <!-- Address -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Address
+                        </label>
+                        {{ form.address.errors }}
+                        <textarea name="{{ form.address.name }}" id="{{ form.address.id_for_label }}" rows="2"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                  placeholder="Full address">{{ form.address.value|default:event.address|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                        </label>
+                        {{ form.description.errors }}
+                        <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" rows="4"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                  placeholder="Describe your event">{{ form.description.value|default:event.description|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Virtual Meeting URL -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.virtual_meeting_url.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Virtual Meeting URL
+                        </label>
+                        {{ form.virtual_meeting_url.errors }}
+                        <input type="url" name="{{ form.virtual_meeting_url.name }}" id="{{ form.virtual_meeting_url.id_for_label }}"
+                               value="{{ form.virtual_meeting_url.value|default:event.virtual_meeting_url|default:'' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               placeholder="https://zoom.us/j/...">
+                    </div>
+
+                    <!-- Primary Color -->
+                    <div>
+                        <label for="{{ form.primary_color.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Primary Color
+                        </label>
+                        {{ form.primary_color.errors }}
+                        <div class="flex items-center gap-3">
+                            <input type="color" name="{{ form.primary_color.name }}" id="{{ form.primary_color.id_for_label }}"
+                                   value="{{ form.primary_color.value|default:event.primary_color|default:'#667eea' }}"
+                                   class="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer">
+                            <input type="text" name="{{ form.primary_color.name }}_text" id="{{ form.primary_color.id_for_label }}_text"
+                                   value="{{ form.primary_color.value|default:event.primary_color|default:'#667eea' }}"
+                                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                   placeholder="#667eea">
+                        </div>
+                    </div>
+
+                    <!-- Secondary Color -->
+                    <div>
+                        <label for="{{ form.secondary_color.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Secondary Color
+                        </label>
+                        {{ form.secondary_color.errors }}
+                        <div class="flex items-center gap-3">
+                            <input type="color" name="{{ form.secondary_color.name }}" id="{{ form.secondary_color.id_for_label }}"
+                                   value="{{ form.secondary_color.value|default:event.secondary_color|default:'#764ba2' }}"
+                                   class="w-12 h-12 border border-gray-300 rounded-lg cursor-pointer">
+                            <input type="text" name="{{ form.secondary_color.name }}_text" id="{{ form.secondary_color.id_for_label }}_text"
+                                   value="{{ form.secondary_color.value|default:event.secondary_color|default:'#764ba2' }}"
+                                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                   placeholder="#764ba2">
+                        </div>
+                    </div>
+
+                    <!-- Max Attendees -->
+                    <div>
+                        <label for="{{ form.max_attendees.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Maximum Attendees
+                        </label>
+                        {{ form.max_attendees.errors }}
+                        <input type="number" name="{{ form.max_attendees.name }}" id="{{ form.max_attendees.id_for_label }}"
+                               value="{{ form.max_attendees.value|default:event.max_attendees|default:'' }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                               placeholder="Leave empty for unlimited">
+                    </div>
+
+                    <!-- Is Public -->
+                    <div class="flex items-center pt-6">
+                        <label class="flex items-center cursor-pointer">
+                            <div class="relative">
+                                <input type="checkbox" name="{{ form.is_public.name }}" id="{{ form.is_public.id_for_label }}"
+                                       class="sr-only" {% if event.is_public %}checked{% endif %}>
+                                <div class="w-10 h-6 bg-gray-300 rounded-full shadow-inner toggle-bg"></div>
+                                <div class="dot absolute w-4 h-4 bg-white rounded-full shadow -left-1 -top-1 transition"></div>
+                            </div>
+                            <div class="ml-3 text-gray-700 font-medium">
+                                Make event public
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex items-center justify-end gap-4 pt-6 border-t">
+                    <a href="{% url 'organizer_event_detail' event.id %}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
+                        <i class="bi bi-check-lg mr-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tickets Tab -->
+<div id="content-tickets" class="tab-content hidden">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="bi bi-ticket-detailed mr-2"></i>Ticket Management
+            </h3>
+            <button onclick="showAddTicketForm()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm">
+                <i class="bi bi-plus-lg mr-2"></i>Add Ticket
+            </button>
+        </div>
+        <div class="card-body">
+            <!-- Add Ticket Form (Hidden by default) -->
+            <div id="addTicketForm" class="hidden mb-8 p-6 bg-gray-50 rounded-lg">
+                <h4 class="font-semibold mb-4">Add New Ticket</h4>
+                <form method="post" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_ticket">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ticket Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="e.g., General Admission">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <select name="ticket_category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                            <option value="regular">General</option>
+                            <option value="vip">VIP</option>
+                            <option value="early_bird">Early Bird</option>
+                            <option value="student">Student</option>
+                            <option value="group">Group</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                        <input type="number" name="price" min="0" step="0.01" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity <span class="text-red-500">*</span></label>
+                        <input type="number" name="quantity_available" min="1" value="100" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sales Start <span class="text-red-500">*</span></label>
+                        <input type="datetime-local" name="sales_start" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sales End <span class="text-red-500">*</span></label>
+                        <input type="datetime-local" name="sales_end" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="lg:col-span-2 flex items-end gap-2">
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                            <i class="bi bi-plus-lg mr-2"></i>Add Ticket
+                        </button>
+                        <button type="button" onclick="hideAddTicketForm()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tickets Table -->
+            {% if tickets %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Ticket</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Category</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Price</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Available</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Sold</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Sales Window</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for ticket in tickets %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <span class="font-medium text-gray-800">{{ ticket.name }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 capitalize">
+                                    {{ ticket.get_ticket_category_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if ticket.price > 0 %}
+                                    <span class="font-bold text-gray-800">${{ ticket.price }}</span>
+                                {% else %}
+                                    <span class="font-bold text-green-600">FREE</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">{{ ticket.quantity_available }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ ticket.quantity_sold }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                {{ ticket.sales_start|date:"M d, Y" }} - {{ ticket.sales_end|date:"M d, Y" }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if ticket.is_active %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button onclick="editTicket({{ ticket.id }}, '{{ ticket.name }}', '{{ ticket.get_ticket_category_display }}', {{ ticket.price }}, {{ ticket.quantity_available }})" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <form method="post" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete_ticket">
+                                        <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                                        <button type="submit" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete" onclick="return confirm('Are you sure you want to delete this ticket?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-12 text-gray-500">
+                <i class="bi bi-ticket-detached text-gray-300 text-5xl mb-4"></i>
+                <p class="mb-2">No tickets added yet</p>
+                <p class="text-sm text-gray-400">Add tickets to allow attendees to register</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Ticket Modal -->
+<div id="editTicketModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+        <h3 class="text-lg font-bold mb-4">Edit Ticket</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit_ticket">
+            <input type="hidden" name="ticket_id" id="editTicketId">
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ticket Name</label>
+                    <input type="text" name="name" id="editTicketName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select name="ticket_category" id="editTicketCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <option value="regular">General</option>
+                        <option value="vip">VIP</option>
+                        <option value="early_bird">Early Bird</option>
+                        <option value="student">Student</option>
+                        <option value="group">Group</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                        <input type="number" name="price" id="editTicketPrice" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                        <input type="number" name="quantity_available" id="editTicketQuantity" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .toggle-bg {
+        transition: background-color 0.2s;
+    }
+    input:checked ~ .toggle-bg {
+        background-color: #667eea;
+    }
+    .dot {
+        transition: transform 0.2s;
+    }
+    input:checked ~ .dot {
+        transform: translateX(100%);
+    }
+</style>
+
+<script>
+    function showTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(function(content) {
+            content.classList.add('hidden');
+        });
+
+        // Show selected tab content
+        document.getElementById('content-' + tabName).classList.remove('hidden');
+
+        // Update tab button styles
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
+            btn.classList.add('text-gray-500');
+        });
+
+        var activeBtn = document.getElementById('tab-' + tabName);
+        activeBtn.classList.remove('text-gray-500');
+        activeBtn.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
+    }
+
+    function showAddTicketForm() {
+        document.getElementById('addTicketForm').classList.remove('hidden');
+    }
+
+    function hideAddTicketForm() {
+        document.getElementById('addTicketForm').classList.add('hidden');
+    }
+
+    function editTicket(id, name, category, price, quantity) {
+        document.getElementById('editTicketId').value = id;
+        document.getElementById('editTicketName').value = name;
+        document.getElementById('editTicketCategory').value = category.toLowerCase();
+        document.getElementById('editTicketPrice').value = price;
+        document.getElementById('editTicketQuantity').value = quantity;
+        document.getElementById('editTicketModal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editTicketModal').classList.add('hidden');
+    }
+
+    // Initialize
+    showTab('details');
+</script>
+{% endblock %}

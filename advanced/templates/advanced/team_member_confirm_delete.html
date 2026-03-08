@@ -1,0 +1,27 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Confirm Delete - Event Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4>Confirm Remove</h4>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to remove <strong>{{ member.user.email }}</strong> from the team?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'advanced:team_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

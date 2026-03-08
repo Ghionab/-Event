@@ -1,0 +1,208 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ report.name }} - EventHub{% endblock %}
+{% block header %}{{ report.name }}{% endblock %}
+{% block subtitle %}{{ report.get_report_type_display }} for {{ report.event.title }}{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div class="flex gap-2">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+            {{ report.get_export_format_display }}
+        </span>
+        {% if report.is_scheduled %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                <i class="bi bi-arrow-repeat mr-1"></i>
+                {{ report.get_schedule_frequency_display }}
+            </span>
+        {% endif %}
+    </div>
+    <div class="flex gap-2">
+        <a href="{% url 'business:report_generate' report.id %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+            <i class="bi bi-arrow-clockwise mr-2"></i>
+            Generate Report
+        </a>
+        <div class="relative">
+            <button onclick="toggleExportMenu()" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                <i class="bi bi-download mr-2"></i>
+                Export
+                <i class="bi bi-chevron-down ml-1"></i>
+            </button>
+            <div id="export-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                <a href="{% url 'business:report_export' report.id %}?format=csv" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg">
+                    <i class="bi bi-filetype-csv mr-2 text-green-600"></i>
+                    Export as CSV
+                </a>
+                <a href="{% url 'business:report_export' report.id %}?format=xlsx" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">
+                    <i class="bi bi-filetype-xlsx mr-2 text-green-600"></i>
+                    Export as Excel
+                </a>
+                <a href="{% url 'business:report_export' report.id %}?format=pdf" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-b-lg">
+                    <i class="bi bi-filetype-pdf mr-2 text-red-600"></i>
+                    Export as PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Report Details -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Report Information</h3>
+            </div>
+            <div class="card-body">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Report Name</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ report.name }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Report Type</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ report.get_report_type_display }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Event</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ report.event.title }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Export Format</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ report.get_export_format_display }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Created By</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ report.created_by.email }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Created At</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ report.created_at|date:"F d, Y g:i A" }}</dd>
+                    </div>
+                    {% if report.last_generated %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Last Generated</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ report.last_generated|date:"F d, Y g:i A" }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if report.is_scheduled %}
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Schedule</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ report.get_schedule_frequency_display }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <!-- Export History -->
+        {% if exports %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Export History</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Format</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Generated</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">By</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for export in exports %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        {{ export.get_format_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ export.generated_at|date:"M d, Y g:i A" }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900">{{ export.generated_by.email }}</td>
+                                <td class="px-6 py-4 text-sm">
+                                    <a href="{{ export.file.url }}" class="text-indigo-600 hover:text-indigo-900" download>
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body space-y-2">
+                <a href="{% url 'business:report_generate' report.id %}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                    <i class="bi bi-arrow-clockwise mr-2"></i>
+                    Generate Now
+                </a>
+                <a href="{% url 'business:report_export' report.id %}?format={{ report.export_format }}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    <i class="bi bi-download mr-2"></i>
+                    Export ({{ report.get_export_format_display }})
+                </a>
+                <a href="{% url 'business:report_list' %}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                    <i class="bi bi-arrow-left mr-2"></i>
+                    Back to Reports
+                </a>
+            </div>
+        </div>
+
+        <!-- Export Formats -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Available Formats</h3>
+            </div>
+            <div class="card-body space-y-3">
+                <div class="flex items-start">
+                    <i class="bi bi-filetype-csv text-2xl text-green-600 mr-3"></i>
+                    <div>
+                        <p class="font-medium text-gray-900">CSV</p>
+                        <p class="text-xs text-gray-500">Universal format, opens in Excel</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i class="bi bi-filetype-xlsx text-2xl text-green-600 mr-3"></i>
+                    <div>
+                        <p class="font-medium text-gray-900">Excel</p>
+                        <p class="text-xs text-gray-500">Professional formatting, styled headers</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <i class="bi bi-filetype-pdf text-2xl text-red-600 mr-3"></i>
+                    <div>
+                        <p class="font-medium text-gray-900">PDF</p>
+                        <p class="text-xs text-gray-500">Print-ready, professional layout</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleExportMenu() {
+    document.getElementById('export-menu').classList.toggle('hidden');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('button[onclick="toggleExportMenu()"]')) {
+        document.getElementById('export-menu').classList.add('hidden');
+    }
+});
+</script>
+{% endblock %}

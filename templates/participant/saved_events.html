@@ -1,0 +1,79 @@
+{% extends 'participant/base.html' %}
+{% block title %}Saved Events - EventHub{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Saved Events</h1>
+            <p class="mt-1 text-gray-600">Events you've bookmarked to revisit later</p>
+        </div>
+        <a href="/events/"
+            class="bg-white border text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
+            Browse More
+        </a>
+    </div>
+
+    {% if saved_events %}
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {% for event in saved_events %}
+        <div
+            class="bg-white rounded-lg shadow hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+            <a href="{% url 'attendee:save_event' event.id %}"
+                class="absolute top-3 right-3 text-indigo-600 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow hover:bg-red-50 hover:text-red-500 transition"
+                title="Remove from saved">
+                <i class="bi bi-bookmark-fill"></i>
+            </a>
+
+            {% if event.banner_image %}
+            <img src="{{ event.banner_image.url }}" alt="" class="w-full h-40 object-cover">
+            {% else %}
+            <div class="w-full h-40 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                <i class="bi bi-calendar-event text-white text-4xl"></i>
+            </div>
+            {% endif %}
+
+            <div class="p-5">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-xs px-2 py-0.5 rounded-full
+                        {% if event.event_type == 'in_person' %}bg-green-100 text-green-700
+                        {% elif event.event_type == 'virtual' %}bg-blue-100 text-blue-700
+                        {% else %}bg-purple-100 text-purple-700{% endif %}">
+                        {{ event.get_event_type_display }}
+                    </span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                    <a href="{% url 'attendee:event_detail' event.id %}" class="hover:text-indigo-600">{{ event.title
+                        }}</a>
+                </h3>
+                <div class="space-y-1 text-sm text-gray-500 mb-6">
+                    <p><i class="bi bi-calendar mr-2"></i>{{ event.start_date|date:"M d, Y" }}</p>
+                    <p><i class="bi bi-geo-alt mr-2"></i>{{ event.venue_name|default:"Online" }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="{% url 'attendee:event_detail' event.id %}"
+                        class="text-center bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 text-sm font-medium transition">
+                        Details
+                    </a>
+                    <a href="/events/{{ event.id }}/register/"
+                        class="text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium transition">
+                        Register
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow p-12 text-center text-gray-500 py-24">
+        <i class="bi bi-bookmark-star text-5xl mb-4 opacity-30 block"></i>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">No saved events</h3>
+        <p class="mb-6">Click the bookmark icon on any event to save it here for later.</p>
+        <a href="/events/"
+            class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium transition">
+            Discover Events
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

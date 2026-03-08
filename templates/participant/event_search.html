@@ -1,0 +1,163 @@
+{% extends 'participant/base.html' %}
+
+{% block title %}Browse Events - EventHub{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Browse Events</h1>
+        <p class="mt-1 text-gray-600">Discover upcoming events and register</p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Filter Sidebar -->
+        <div class="lg:w-72 flex-shrink-0">
+            <form method="get" class="bg-white rounded-lg shadow p-6 sticky top-24 space-y-6">
+                <h3 class="font-semibold text-gray-900">Filters</h3>
+
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Event name..."
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <!-- Event Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+                    <select name="type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="">All Types</option>
+                        <option value="in_person" {% if event_type=='in_person' %}selected{% endif %}>In-Person</option>
+                        <option value="virtual" {% if event_type=='virtual' %}selected{% endif %}>Virtual</option>
+                        <option value="hybrid" {% if event_type=='hybrid' %}selected{% endif %}>Hybrid</option>
+                    </select>
+                </div>
+
+                <!-- Date Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date From</label>
+                    <input type="date" name="date_from" value="{{ request.GET.date_from }}"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date To</label>
+                    <input type="date" name="date_to" value="{{ request.GET.date_to }}"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input type="text" name="location" value="{{ location }}" placeholder="City or venue..."
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                </div>
+
+                <!-- Price -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+                        <input type="number" name="price_min" value="{{ request.GET.price_min }}" placeholder="0"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
+                        <input type="number" name="price_max" value="{{ request.GET.price_max }}" placeholder="Any"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <!-- Sort -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                    <select name="sort" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                        <option value="date" {% if sort_by=='date' %}selected{% endif %}>Nearest Date</option>
+                        <option value="price_low" {% if sort_by=='price_low' %}selected{% endif %}>Lowest Price</option>
+                        <option value="popularity" {% if sort_by=='popularity' %}selected{% endif %}>Most Popular
+                        </option>
+                    </select>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                    Apply Filters
+                </button>
+                <a href="/events/"
+                    class="block text-center text-sm text-gray-500 hover:text-indigo-600">Clear All</a>
+            </form>
+        </div>
+
+        <!-- Events Grid -->
+        <div class="flex-1">
+            {% if page_obj %}
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for event in page_obj %}
+                <div class="bg-white rounded-lg shadow card-hover transition-all duration-300 overflow-hidden">
+                    {% if event.banner_image %}
+                    <img src="{{ event.banner_image.url }}" alt="" class="w-full h-40 object-cover">
+                    {% else %}
+                    <div
+                        class="w-full h-40 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                        <i class="bi bi-calendar-event text-white text-4xl"></i>
+                    </div>
+                    {% endif %}
+                    <div class="p-5">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs px-2 py-0.5 rounded-full
+                                {% if event.event_type == 'in_person' %}bg-green-100 text-green-700
+                                {% elif event.event_type == 'virtual' %}bg-blue-100 text-blue-700
+                                {% else %}bg-purple-100 text-purple-700{% endif %}">
+                                {{ event.get_event_type_display }}
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                            <a href="{% url 'attendee:event_detail' event.id %}" class="hover:text-indigo-600">{{
+                                event.title }}</a>
+                        </h3>
+                        <div class="space-y-1 text-sm text-gray-500 mb-4">
+                            <p><i class="bi bi-calendar mr-2"></i>{{ event.start_date|date:"M d, Y" }}</p>
+                            <p><i class="bi bi-geo-alt mr-2"></i>{{ event.venue_name|default:"Online" }}</p>
+                        </div>
+                        <a href="{% url 'attendee:event_detail' event.id %}"
+                            class="block text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium transition">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="mt-8 flex justify-center">
+                <nav class="flex gap-1">
+                    {% if page_obj.has_previous %}
+                    <a href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}"
+                        class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 text-sm">Previous</a>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm">{{ num }}</span>
+                    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <a
+                        href="?{{ request.GET.urlencode }}&page={{ num }}"
+                        class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 text-sm">{{ num }}</a>
+                        {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                        <a href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}"
+                            class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 text-sm">Next</a>
+                        {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="bg-white rounded-lg shadow p-12 text-center">
+                <i class="bi bi-search text-gray-300 text-6xl mb-4 block"></i>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No events found</h3>
+                <p class="text-gray-500">Try adjusting your filters or check back later for new events.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

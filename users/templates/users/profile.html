@@ -1,0 +1,97 @@
+{% extends 'events/base.html' %}
+
+{% block title %}User Profile - Event Management System{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-12">
+            <div class="flex items-center">
+                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
+                    <i class="bi bi-person-fill text-4xl text-primary"></i>
+                </div>
+                <div class="ml-6 text-white">
+                    <h1 class="text-2xl font-bold">{{ user.first_name|default:user.username }} {{ user.last_name|default:"" }}</h1>
+                    <p class="text-indigo-200">{{ user.email }}</p>
+                    <span class="inline-block mt-2 px-3 py-1 text-sm font-medium bg-white/20 rounded-full">{{ user.role|default:"User" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="bi bi-envelope text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Email</p>
+                            <p class="font-medium text-gray-800">{{ user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="bi bi-phone text-purple-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Phone</p>
+                            <p class="font-medium text-gray-800">{{ user.phone|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="bi bi-building text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Company</p>
+                            <p class="font-medium text-gray-800">{{ user.company|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-gray-50 rounded-xl">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="bi bi-briefcase text-yellow-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Job Title</p>
+                            <p class="font-medium text-gray-800">{{ user.job_title|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if user.bio %}
+                <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                    <div class="flex items-start">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="bi bi-file-text text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Bio</p>
+                            <p class="text-gray-700">{{ user.bio }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="mt-8 pt-6 border-t border-gray-100 flex flex-wrap gap-4">
+                <a href="/users/logout/" class="inline-flex items-center px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium shadow-sm">
+                    <i class="bi bi-box-arrow-right mr-2"></i> Logout
+                </a>
+                <a href="#" class="inline-flex items-center px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
+                    <i class="bi bi-pencil mr-2"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

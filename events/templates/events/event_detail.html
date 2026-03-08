@@ -1,0 +1,219 @@
+{% extends 'events/base.html' %}
+
+{% block title %}{{ event.title }} - Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .event-detail-banner { width: 100%; height: 400px; object-fit: cover; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Back Button -->
+    <div class="flex flex-wrap gap-3 mb-6">
+        <a href="{% url 'event_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+            <i class="bi bi-arrow-left mr-2"></i> Back to Events
+        </a>
+        <a href="{% url 'event_landing' slug=event.slug %}" target="_blank" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover transition">
+            <i class="bi bi-globe mr-2"></i> View Public Page
+        </a>
+    </div>
+
+    <!-- Event Detail Card -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
+        {% if event.banner_image %}
+            <img src="{{ event.banner_image.url }}" alt="{{ event.title }}" class="event-detail-banner">
+        {% endif %}
+
+        <div class="p-8">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center gap-6 mb-8">
+                {% if organizer_profile and organizer_profile.logo %}
+                    <img src="{{ organizer_profile.logo.url }}" alt="{{ organizer_profile.company_name }} Logo" class="h-20 w-20 object-contain rounded-xl bg-gray-50 border border-gray-200">
+                {% endif %}
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="px-3 py-1 text-sm font-medium rounded-full text-white" style="background-color: {{ event.secondary_color }};">
+                            {{ event.get_event_type_display }}
+                        </span>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2" style="color: {{ event.primary_color }};">{{ event.title }}</h1>
+                    {% if organizer_profile %}
+                        <p class="text-gray-500">
+                            Organized by <span class="font-medium text-gray-700">{{ organizer_profile.company_name }}</span>
+                            {% if organizer_profile.website %}
+                                | <a href="{{ organizer_profile.website }}" target="_blank" class="text-primary hover:underline">Website</a>
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-6 bg-gray-50 rounded-xl">
+                <div class="flex items-start space-x-4">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-calendar3 text-xl text-primary"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Date & Time</p>
+                        <p class="text-gray-600">{{ event.start_date|date:"l, F d, Y" }}</p>
+                        <p class="text-gray-500">{{ event.start_date|time:"g:i A" }} - {{ event.end_date|time:"g:i A" }}</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-geo-alt text-xl text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Location</p>
+                        <p class="text-gray-600">{{ event.venue_name }}</p>
+                        <p class="text-gray-500">{{ event.address }}, {{ event.city }}, {{ event.country }}</p>
+                    </div>
+                </div>
+                {% if event.virtual_meeting_url %}
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="bi bi-camera-video text-xl text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800">Virtual Event</p>
+                            <a href="{{ event.virtual_meeting_url }}" target="_blank" class="text-primary hover:underline">Join Meeting</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">About This Event</h2>
+                <div class="prose max-w-none text-gray-600 leading-relaxed">
+                    {{ event.description|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Organizer Description -->
+            {% if organizer_profile and organizer_profile.company_description %}
+                <div class="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3" style="color: {{ event.primary_color }};">About {{ organizer_profile.company_name }}</h3>
+                    <p class="text-gray-600">{{ organizer_profile.company_description }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Registration Section -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-100">
+            <h2 class="text-xl font-bold text-gray-800"><i class="bi bi-ticket-perforated mr-2 text-primary"></i>Register for This Event</h2>
+        </div>
+
+        <div class="p-6">
+            {% if registration_success %}
+                <div class="p-4 mb-6 rounded-lg bg-green-50 border border-green-200">
+                    <div class="flex items-center">
+                        <i class="bi bi-check-circle text-green-600 text-xl mr-3"></i>
+                        <div>
+                            <p class="font-semibold text-green-800">Registration successful!</p>
+                            <p class="text-green-700 text-sm">Check your email for confirmation details.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'my_registrations' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
+                            <i class="bi bi-list-ul mr-2"></i> View My Registrations
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                {% if registration_errors %}
+                    <div class="p-4 mb-6 rounded-lg bg-red-50 border border-red-200">
+                        <div class="flex items-center mb-2">
+                            <i class="bi bi-exclamation-circle text-red-600 text-xl mr-3"></i>
+                            <p class="font-semibold text-red-800">Please correct the following errors:</p>
+                        </div>
+                        <ul class="ml-10 list-disc text-red-700 text-sm space-y-1">
+                            {% for field, errors in registration_errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ field|capfirst }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if ticket_types %}
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Ticket Selection -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Select Ticket Type</h3>
+                            <div class="space-y-4">
+                                {% for ticket in ticket_types %}
+                                    <div class="p-4 border rounded-xl transition-all duration-200 {% if ticket.is_sold_out %}border-gray-200 bg-gray-50 opacity-60{% else %}border-gray-200 hover:border-primary hover:shadow-md cursor-pointer{% endif %}">
+                                        <label class="flex items-start gap-4 cursor-pointer {% if ticket.is_sold_out %}cursor-not-allowed{% endif %}">
+                                            <input type="radio" name="ticket_type" value="{{ ticket.id }}"
+                                                   {% if ticket.is_sold_out %}disabled{% endif %}
+                                                   {% if forloop.first and not ticket.is_sold_out %}checked{% endif %}
+                                                   class="mt-1 w-5 h-5 text-primary border-gray-300 focus:ring-primary">
+                                            <div class="flex-1">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="font-semibold text-gray-800">{{ ticket.name }}</span>
+                                                    <span class="text-xl font-bold" style="color: {{ event.primary_color }};">
+                                                        {% if ticket.price > 0 %}
+                                                            ${{ ticket.price }}
+                                                        {% else %}
+                                                            FREE
+                                                        {% endif %}
+                                                    </span>
+                                                </div>
+                                                {% if ticket.description %}
+                                                    <p class="text-gray-500 text-sm mt-1">{{ ticket.description }}</p>
+                                                {% endif %}
+                                                {% if ticket.benefits %}
+                                                    <p class="text-gray-500 text-sm mt-2">
+                                                        <span class="font-medium">Includes:</span><br>
+                                                        {{ ticket.benefits|linebreaksbr }}
+                                                    </p>
+                                                {% endif %}
+                                                <p class="text-sm mt-2 {% if ticket.is_sold_out %}text-red-600{% else %}text-green-600{% endif %}">
+                                                    {% if ticket.is_sold_out %}
+                                                        <i class="bi bi-x-circle mr-1"></i> SOLD OUT
+                                                    {% else %}
+                                                        <i class="bi bi-check-circle mr-1"></i> {{ ticket.available_quantity }} tickets available
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Attendee Info -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Your Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {{ form.as_p }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium text-lg shadow-md hover:shadow-lg">
+                            <i class="bi bi-check-lg mr-2"></i> Complete Registration
+                        </button>
+                    </form>
+                {% else %}
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="bi bi-ticket text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">No Tickets Available</h3>
+                        <p class="text-gray-500">Tickets for this event will be available soon.</p>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

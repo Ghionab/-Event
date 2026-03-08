@@ -1,0 +1,90 @@
+# Registration Log - DEBUG MODE
+# ============================================================================
+# This file logs all registration attempts with raw data for debugging
+# ============================================================================
+
+[2026-02-16 16:31:54] RAW_DATA: {'event_id': 5, 'full_name': 'Server Restart Test', 'email': 'server.restart@test.com', 'tickets': []}
+[2026-02-16 16:31:54] PARSED: event_id=5 (type=int), email=server.restart@test.com, name=Server Restart Test
+[2026-02-16 16:31:54] SUCCESS | event_id=5 | name=Server Restart Test | email=server.restart@test.com | status=confirmed | reg#=REG-A48317C1
+[2026-02-16 17:54:05] RAW_DATA: {'event_id': 5, 'full_name': 'CSRF Fix Test', 'email': 'csrf.test@example.com', 'tickets': []}
+[2026-02-16 17:54:05] PARSED: event_id=5 (type=int), email=csrf.test@example.com, name=CSRF Fix Test
+[2026-02-16 17:54:05] SUCCESS | event_id=5 | name=CSRF Fix Test | email=csrf.test@example.com | status=confirmed | reg#=REG-5AC23A3E
+[2026-02-16 17:58:04] RAW_DATA: {'event_id': 5, 'full_name': 'Simple Test', 'email': 'simple.test2@example.com', 'tickets': []}
+[2026-02-16 17:58:04] PARSED: event_id=5 (type=int), email=simple.test2@example.com, name=Simple Test
+[2026-02-16 17:58:04] SUCCESS | event_id=5 | name=Simple Test | email=simple.test2@example.com | status=confirmed | reg#=REG-8490B3DE
+[2026-02-16 18:04:00] RAW_DATA: <QueryDict: {'event_id': ['5'], 'full_name': ['Form Test'], 'email': ['form.test@example.com'], 'phone': ['']}>
+[2026-02-16 18:04:00] PARSED: event_id=5 (type=str), email=form.test@example.com, name=Form Test
+[2026-02-16 18:04:00] SUCCESS | event_id=5 | name=Form Test | email=form.test@example.com | status=confirmed | reg#=REG-734DAEBC
+[2026-02-16 18:08:15] RAW_DATA: <QueryDict: {'event_id': ['5'], 'full_name': ['No CSRF Test'], 'email': ['no.csrf@test.com']}>
+[2026-02-16 18:08:15] PARSED: event_id=5 (type=str), email=no.csrf@test.com, name=No CSRF Test
+[2026-02-16 18:08:15] SUCCESS | event_id=5 | name=No CSRF Test | email=no.csrf@test.com | status=confirmed | reg#=REG-30A894D9
+[2026-02-16 18:21:20] RAW_DATA: <QueryDict: {'event_id': ['5'], 'full_name': ['CSRF Disabled Test'], 'email': ['csrf.disabled@test.com']}>
+[2026-02-16 18:21:20] PARSED: event_id=5 (type=str), email=csrf.disabled@test.com, name=CSRF Disabled Test
+[2026-02-16 18:21:20] SUCCESS | event_id=5 | name=CSRF Disabled Test | email=csrf.disabled@test.com | status=confirmed | reg#=REG-6D60886E
+[2026-02-16 18:24:49] RAW_DATA: <QueryDict: {'event_id': ['5'], 'full_name': ['Middleware Test'], 'email': ['middleware.test@test.com']}>
+[2026-02-16 18:24:49] PARSED: event_id=5 (type=str), email=middleware.test@test.com, name=Middleware Test
+[2026-02-16 18:24:49] SUCCESS | event_id=5 | name=Middleware Test | email=middleware.test@test.com | status=confirmed | reg#=REG-B94B8CE7
+[2026-02-16 18:25:48] RAW_DATA: <QueryDict: {'event_id': ['5'], 'full_name': ['jennifer Board'], 'email': ['jboard@wheeling.edu'], 'phone': ['(740) 317-2611'], 'special_requests': ['']}>
+[2026-02-16 18:25:48] PARSED: event_id=5 (type=str), email=jboard@wheeling.edu, name=jennifer Board
+[2026-02-16 18:25:48] SUCCESS | event_id=5 | name=jennifer Board | email=jboard@wheeling.edu | status=confirmed | reg#=REG-D520AB38
+[2026-02-16 18:27:24] RAW_DATA: <QueryDict: {'event_id': ['6'], 'full_name': ['Firaol Ajema'], 'email': ['ajfiraol5@gmail.com'], 'phone': ['0942747078'], 'special_requests': ['']}>
+[2026-02-16 18:27:24] PARSED: event_id=6 (type=str), email=ajfiraol5@gmail.com, name=Firaol Ajema
+[2026-02-16 18:27:24] SUCCESS | event_id=6 | name=Firaol Ajema | email=ajfiraol5@gmail.com | status=confirmed | reg#=REG-5EC9BE08
+[2026-02-16 18:28:17] RAW_DATA: <QueryDict: {'event_id': ['5'], 'full_name': ['Success Test'], 'email': ['success.test@example.com']}>
+[2026-02-16 18:28:17] PARSED: event_id=5 (type=str), email=success.test@example.com, name=Success Test
+[2026-02-16 18:28:17] SUCCESS | event_id=5 | name=Success Test | email=success.test@example.com | status=confirmed | reg#=REG-C3D2B82C
+[2026-02-16 18:30:39] RAW_DATA: <QueryDict: {'event_id': ['2'], 'full_name': ['Firaol Ajema'], 'email': ['ajfiraol5@gmail.com'], 'phone': ['0942747078'], 'special_requests': ['']}>
+[2026-02-16 18:30:39] PARSED: event_id=2 (type=str), email=ajfiraol5@gmail.com, name=Firaol Ajema
+[2026-02-16 18:30:39] SUCCESS | event_id=2 | name=Firaol Ajema | email=ajfiraol5@gmail.com | status=confirmed | reg#=REG-2A665F7F
+[2026-02-16 18:38:17] RAW_DATA: <QueryDict: {'event_id': ['6'], 'full_name': ['jennifer Board'], 'email': ['firaolaj5@gmail.com'], 'phone': ['8334435373'], 'special_requests': ['']}>
+[2026-02-16 18:38:17] PARSED: event_id=6 (type=str), email=firaolaj5@gmail.com, name=jennifer Board
+[2026-02-16 18:38:17] SUCCESS | event_id=6 | name=jennifer Board | email=firaolaj5@gmail.com | status=confirmed | reg#=REG-0758AB84
+[2026-02-16 18:44:04] RAW_DATA: <QueryDict: {'event_id': ['5'], 'full_name': ['Paid Ticket Test'], 'email': ['paid.ticket@test.com'], 'tickets': ['[{ticket_id:9,quantity:1}]']}>
+[2026-02-16 18:44:04] PARSED: event_id=5 (type=str), email=paid.ticket@test.com, name=Paid Ticket Test
+[2026-02-16 18:47:39] RAW_DATA: {'event_id': 5, 'full_name': 'JSON Test', 'email': 'json.test@example.com', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
+[2026-02-16 18:47:39] PARSED: event_id=5 (type=int), email=json.test@example.com, name=JSON Test
+[2026-02-16 18:47:39] SUCCESS | event_id=5 | name=JSON Test | email=json.test@example.com | status=pending | reg#=REG-F52F702C
+[2026-02-16 18:48:45] RAW_DATA: {'event_id': 5, 'full_name': 'Final Amount Test', 'email': 'final.amount@test.com', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
+[2026-02-16 18:48:45] PARSED: event_id=5 (type=int), email=final.amount@test.com, name=Final Amount Test
+[2026-02-16 18:48:45] SUCCESS | event_id=5 | name=Final Amount Test | email=final.amount@test.com | status=pending | reg#=REG-C74489C1
+[2026-02-16 18:51:13] RAW_DATA: <QueryDict: {'event_id': ['6'], 'full_name': ['jennifer Board'], 'email': ['jboard@wheeling.edu'], 'phone': ['(740) 317-2611'], 'special_requests': ['']}>
+[2026-02-16 18:51:13] PARSED: event_id=6 (type=str), email=jboard@wheeling.edu, name=jennifer Board
+[2026-02-16 18:51:13] SUCCESS | event_id=6 | name=jennifer Board | email=jboard@wheeling.edu | status=confirmed | reg#=REG-C8B26724
+[2026-02-16 18:52:07] RAW_DATA: <QueryDict: {'event_id': ['6'], 'full_name': ['jennifer Board'], 'email': ['jboard@wheeling.edu'], 'phone': ['(740) 317-2611'], 'special_requests': ['']}>
+[2026-02-16 18:52:07] PARSED: event_id=6 (type=str), email=jboard@wheeling.edu, name=jennifer Board
+[2026-02-16 18:52:07] SUCCESS | event_id=6 | name=jennifer Board | email=jboard@wheeling.edu | status=confirmed | reg#=REG-9AFF00F1
+[2026-02-16 18:52:34] RAW_DATA: <QueryDict: {'event_id': ['6'], 'full_name': ['Firaol Ajema'], 'email': ['ajfiraol5@gmail.com'], 'phone': ['0942747078'], 'special_requests': ['']}>
+[2026-02-16 18:52:34] PARSED: event_id=6 (type=str), email=ajfiraol5@gmail.com, name=Firaol Ajema
+[2026-02-16 18:52:34] SUCCESS | event_id=6 | name=Firaol Ajema | email=ajfiraol5@gmail.com | status=confirmed | reg#=REG-E792AF07
+[2026-02-16 18:57:57] RAW_DATA: {'event_id': 5, 'full_name': 'Revenue Test', 'email': 'revenue.test@example.com', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
+[2026-02-16 18:57:57] PARSED: event_id=5 (type=int), email=revenue.test@example.com, name=Revenue Test
+[2026-02-16 18:57:57] SUCCESS | event_id=5 | name=Revenue Test | email=revenue.test@example.com | status=pending | reg#=REG-FA173315
+[2026-02-16 19:01:12] RAW_DATA: {'event_id': 5, 'full_name': 'Fresh Test', 'email': 'fresh.test@example.com', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
+[2026-02-16 19:01:12] PARSED: event_id=5 (type=int), email=fresh.test@example.com, name=Fresh Test
+[2026-02-16 19:01:12] SUCCESS | event_id=5 | name=Fresh Test | email=fresh.test@example.com | status=pending | reg#=REG-2E3BCEC6
+[2026-02-16 19:08:12] RAW_DATA: {'event_id': 5, 'full_name': 'Decimal Test', 'email': 'decimal.test@example.com', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
+[2026-02-16 19:08:12] PARSED: event_id=5 (type=int), email=decimal.test@example.com, name=Decimal Test
+[2026-02-16 19:08:12] SUCCESS | event_id=5 | name=Decimal Test | email=decimal.test@example.com | status=pending | reg#=REG-49B1E450
+[2026-02-16 19:10:02] RAW_DATA: {'event_id': 5, 'full_name': 'Debug Test', 'email': 'debug.test@example.com', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
+[2026-02-16 19:10:02] PARSED: event_id=5 (type=int), email=debug.test@example.com, name=Debug Test
+[2026-02-16 19:10:02] SUCCESS | event_id=5 | name=Debug Test | email=debug.test@example.com | status=pending | reg#=REG-B5DC09D7
+[2026-02-16 19:14:05] TEST: This is a test line
+[2026-02-16 19:21:04] TEST2: Manual test
+[2026-03-03 22:53:04] RAW_DATA: <QueryDict: {'event_id': ['2'], 'full_name': ['ABRAHAM MULUALEM TSEHAY'], 'email': ['abrahammulualem@gmail.com'], 'phone': ['0952613736'], 'special_requests': ['Lemme join']}>
+[2026-03-03 22:53:04] PARSED: event_id=2 (type=str), email=abrahammulualem@gmail.com, name=ABRAHAM MULUALEM TSEHAY
+[2026-03-03 22:53:04] SUCCESS | event_id=2 | name=ABRAHAM MULUALEM TSEHAY | email=abrahammulualem@gmail.com | status=confirmed | reg#=REG-393E19D7
+[2026-03-06 12:47:05] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['FnUooZ5els4Xge1FkF7pd3X6e4BfuyFBnvG7YLUO9G468EnzZAZjAwkVFi9Lu0Pl'], 'event_id': ['1'], 'full_name': ['Abraham Mulualem'], 'email': ['abrahammulualem69@gmail.com']
+[2026-03-06 12:47:05] PARSED: event_id=1 (type=str), email=abrahammulualem69@gmail.com, name=Abraham Mulualem
+[2026-03-06 12:47:05] SUCCESS | event_id=1 | name=Abraham Mulualem | email=abrahammulualem69@gmail.com | status=confirmed | reg#=REG-90FA9429
+[2026-03-06 12:47:34] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['FnUooZ5els4Xge1FkF7pd3X6e4BfuyFBnvG7YLUO9G468EnzZAZjAwkVFi9Lu0Pl'], 'event_id': ['1'], 'full_name': ['Aron T'], 'email': ['abr@gmail.com'], 'phone': ['+1 (555) 00
+[2026-03-06 12:47:34] PARSED: event_id=1 (type=str), email=abr@gmail.com, name=Aron T
+[2026-03-06 12:47:34] SUCCESS | event_id=1 | name=Aron T | email=abr@gmail.com | status=confirmed | reg#=REG-2B1C185B
+[2026-03-06 12:49:50] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['PmGyBiSQ3zLdkUdUk0jeXAmhGl8DBigaxushb4HqRNLmckzOZVb8k3J67zG9BKqU'], 'event_id': ['1'], 'full_name': ['nati'], 'email': ['nati@mail.com'], 'phone': ['0989890987'],
+[2026-03-06 12:49:50] PARSED: event_id=1 (type=str), email=nati@mail.com, name=nati
+[2026-03-06 12:49:50] SUCCESS | event_id=1 | name=nati | email=nati@mail.com | status=confirmed | reg#=REG-75593A70
+[2026-03-06 13:15:23] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['PWUqPSNsmSAH8A1oUE5kwRxdGbFvJP3yx4G9pEC2a6AQ00nizzXeTkU27pd1Jhdi'], 'event_id': ['5'], 'full_name': ['nik'], 'email': ['nik@gmail.com'], 'phone': ['0945473434'], 
+[2026-03-06 13:15:23] PARSED: event_id=5 (type=str), email=nik@gmail.com, name=nik
+[2026-03-06 13:15:23] SUCCESS | event_id=5 | name=nik | email=nik@gmail.com | status=confirmed | reg#=REG-5D07B1A7
+[2026-03-06 13:41:08] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['2E4E50nfuSD3QD0uXlJsCqEZujPal2aOKMQnFMcPi6DcI3moCgBmZT1OVxnGluky'], 'event_id': ['5'], 'full_name': ['NAt'], 'email': ['ab@gmail.com'], 'phone': ['+1 (555) 000 00
+[2026-03-06 13:41:08] PARSED: event_id=5 (type=str), email=ab@gmail.com, name=NAt
+[2026-03-06 13:41:08] SUCCESS | event_id=5 | name=NAt | email=ab@gmail.com | status=confirmed | reg#=REG-AECAA3C5

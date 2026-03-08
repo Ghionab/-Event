@@ -1,0 +1,53 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Data Export - Event Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Request Data Export</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Request a copy of all your personal data stored in the system. This will be processed within 24 hours.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">What data do you want to export?</label>
+                        <select name="export_type" class="form-select">
+                            <option value="all">All My Data</option>
+                            <option value="registrations">Registration History</option>
+                            <option value="sessions">Session Attendance</option>
+                            <option value="communications">Communication History</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Export Formats</label>
+                        <div class="form-check">
+                            <input type="checkbox" name="formats" value="json" id="format_json" class="form-check-input" checked>
+                            <label class="form-check-label" for="format_json">JSON</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" name="formats" value="csv" id="format_csv" class="form-check-input">
+                            <label class="form-check-label" for="format_csv">CSV</label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <small>Your export will be available for download for 7 days. You will receive an email notification when it's ready.</small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'advanced:privacy_settings' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Request Export</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

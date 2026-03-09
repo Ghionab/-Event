@@ -97,6 +97,24 @@ def participant_signup(request):
     return render(request, 'participant/signup.html', {})
 
 
+def participant_register_success(request, registration_id):
+    """Registration success page for participant portal"""
+    from registration.models import Registration
+    from django.shortcuts import get_object_or_404, render
+    
+    registration = get_object_or_404(Registration, id=registration_id)
+    event = registration.event
+    
+    # Generate QR code image
+    qr_code_image = registration.generate_qr_code_image()
+    
+    return render(request, 'participant/registration_success.html', {
+        'registration': registration,
+        'event': event,
+        'qr_code_image': qr_code_image,
+    })
+
+
 urlpatterns = [
     # Home - Participant landing page
     path('', TemplateView.as_view(template_name='participant/home.html'), name='participant_home'),
@@ -106,6 +124,9 @@ urlpatterns = [
 
     # Registration flow - MUST come before event detail
     path('events/<int:event_id>/register/', participant_register, name='participant_register'),
+    
+    # Registration success page
+    path('registration/success/<int:registration_id>/', participant_register_success, name='participant_registration_success'),
 
     # Event detail (public view - no registration)
     path('events/<int:event_id>/', TemplateView.as_view(template_name='participant/event_detail.html'), name='participant_event_detail'),
@@ -183,6 +204,8 @@ urlpatterns = [
     path('api/v1/', include('events_api.urls_participant')),
     # Simple registration API - completely CSRF exempt
     path('api/v1/register/', simple_register_api, name='api-public-register'),
+    # QR code email API
+    path('api/v1/send-qr-email/', csrf_exempt(lambda request: __import__('registration.views_success', fromlist=['send_qr_email']).send_qr_email(request)), name='api-send-qr-email'),
     # Include main API for tickets (GET)
     path('api/v1/', include('events_api.urls')),
 

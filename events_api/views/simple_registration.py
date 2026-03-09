@@ -173,28 +173,22 @@ def simple_register(request):
     with open(log_file, 'a') as f:
         f.write(f'[{timestamp}] SUCCESS: reg#={registration.registration_number}, amount=${total_amount}\n')
 
-    # For form submissions, show simple HTML response
+    # Send confirmation email with QR code
+    try:
+        from registration.views_success import send_qr_email_direct
+        send_qr_email_direct(registration)
+    except Exception as e:
+        with open(log_file, 'a') as f:
+            f.write(f'[{timestamp}] EMAIL ERROR: {str(e)}\n')
+
+    # Log content type for debugging
+    with open(log_file, 'a') as f:
+        f.write(f'[{timestamp}] CONTENT_TYPE: {content_type}\n')
+        f.write(f'[{timestamp}] REDIRECT: /registration/success/{registration.id}/\n')
+
+    # For form submissions, redirect to success page
     if 'application/json' not in content_type:
-        return HttpResponse(f'''
-            <html>
-            <head>
-                <title>Registration Successful</title>
-                <script src="https://cdn.tailwindcss.com"></script>
-            </head>
-            <body class="bg-gray-50 min-h-screen py-12">
-                <div class="max-w-xl mx-auto px-4">
-                    <div class="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
-                        <h1 class="text-3xl font-bold text-green-800 mb-4">Registration Successful!</h1>
-                        <p class="text-green-700 mb-2">Registration Number: {registration.registration_number}</p>
-                        <p class="text-green-700 mb-4">Status: {registration.status}</p>
-                        <a href="/events/{event_id}/" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700">
-                            Back to Event
-                        </a>
-                    </div>
-                </div>
-            </body>
-            </html>
-        ''')
+        return HttpResponseRedirect(f'/registration/success/{registration.id}/')
 
     # For JSON requests
     return HttpResponse(
@@ -203,7 +197,8 @@ def simple_register(request):
             'registration_number': registration.registration_number,
             'message': 'Registration successful!',
             'status': registration.status,
-            'total_amount': total_amount
+            'total_amount': str(total_amount),
+            'success_url': f'/registration/success/{registration.id}/'
         }),
         content_type='application/json'
     )

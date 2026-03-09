@@ -88,3 +88,51 @@
 [2026-03-06 13:41:08] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['2E4E50nfuSD3QD0uXlJsCqEZujPal2aOKMQnFMcPi6DcI3moCgBmZT1OVxnGluky'], 'event_id': ['5'], 'full_name': ['NAt'], 'email': ['ab@gmail.com'], 'phone': ['+1 (555) 000 00
 [2026-03-06 13:41:08] PARSED: event_id=5 (type=str), email=ab@gmail.com, name=NAt
 [2026-03-06 13:41:08] SUCCESS | event_id=5 | name=NAt | email=ab@gmail.com | status=confirmed | reg#=REG-AECAA3C5
+[2026-03-09 10:13:02] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['wqbbdTOL7iqhODuvQFtyOBK8w8mfFAisIc12cwYaBN0ADABaqjCLt6AcIATjnLIO'], 'event_id': ['7'], 'full_name': ['abe kebede'], 'email': ['a@example.com'], 'phone': ['853902'
+[2026-03-09 10:13:02] PARSED: event_id=7 (type=str), email=a@example.com, name=abe kebede
+[2026-03-09 10:13:02] SUCCESS | event_id=7 | name=abe kebede | email=a@example.com | status=confirmed | reg#=REG-C61D0300
+[2026-03-09 11:01:47] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['4ZwpE49BDFtsywEY67NDy8qQJUpMCj6pIzKQzyz0mJa1IKPMYcVXD4NPCE8YFXGN'], 'event_id': ['8'], 'full_name': ['kebede alemu'], 'email': ['ke@exampe.com'], 'phone': ['45678
+[2026-03-09 11:01:47] PARSED: event_id=8 (type=str), email=ke@exampe.com, name=kebede alemu
+[2026-03-09 11:01:47] SUCCESS | event_id=8 | name=kebede alemu | email=ke@exampe.com | status=confirmed | reg#=REG-2D093DEC
+[2026-03-09 11:09:52] RAW_DATA: {'event_id': 8, 'full_name': 'Test User', 'email': 'test@example.com', 'phone': '+1234567890', 'special_requests': 'Test registration', 'tickets': [{'ticket_id': 7, 'quantity': 1}]}
+[2026-03-09 11:09:52] PARSED: event_id=8 (type=int), email=test@example.com, name=Test User
+[2026-03-09 11:09:52] SUCCESS | event_id=8 | name=Test User | email=test@example.com | status=pending | reg#=REG-4B5C2894
+[2026-03-09 11:33:35] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['ZPmWc5UzQ4sFe9JfRrLni5GTiNNfWbMDv0JUadoEwzhf6cxO5ZjCZ8KndjNQEDyp'], 'event_id': ['8'], 'full_name': ['eytd'], 'email': ['djfg@example.com'], 'phone': ['4587'], 's
+[2026-03-09 11:33:35] PARSED: event_id=8 (type=str), email=djfg@example.com, name=eytd
+[2026-03-09 11:33:35] SUCCESS | event_id=8 | name=eytd | email=djfg@example.com | status=confirmed | reg#=REG-E2B65221
+[2026-03-09 11:42:20] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['JsvW7nbmBVOazS7w0jmW4xaVxLF4RfvOfDSU5vFrhqDKrVV5eRUbLAepshFFzHhA'], 'event_id': ['7'], 'full_name': ['gfalw'], 'email': ['saJK@gmail.com'], 'phone': ['3456789'], 
+[2026-03-09 11:42:20] PARSED: event_id=7 (type=str), email=saJK@gmail.com, name=gfalw
+[2026-03-09 11:42:20] SUCCESS | event_id=7 | name=gfalw | email=saJK@gmail.com | status=confirmed | reg#=REG-1B5114A9
+[2026-03-09 11:50:23] RAW_DATA: {'event_id': 8, 'full_name': 'Test User QR', 'email': 'testqr@example.com', 'phone': '+1234567890', 'special_requests': 'Test QR code functionality', 'tickets': [{'ticket_id': 7, 'quantity': 1}]}
+[2026-03-09 11:50:23] PARSED: event_id=8 (type=int), email=testqr@example.com, name=Test User QR
+[2026-03-09 11:50:23] SUCCESS | event_id=8 | name=Test User QR | email=testqr@example.com | status=pending | reg#=REG-6EE2D9EB
+[2026-03-09 11:54:56] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['JI0yhlOOb5X4E9K9EukKqMzrDb3QvbCvxjr7ytab0nH97pvey9a29ITUxytYWL3Y'], 'event_id': ['8'], 'full_name': ['abebe kebede'], 'email': ['abe@example.com'], 'phone': ['467
+[2026-03-09 11:54:56] PARSED: event_id=8 (type=str), email=abe@example.com, name=abebe kebede
+[2026-03-09 11:54:56] SUCCESS | event_id=8 | name=abebe kebede | email=abe@example.com | status=confirmed | reg#=REG-B1C8A354
+[2026-03-09 11:55:41] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['JI0yhlOOb5X4E9K9EukKqMzrDb3QvbCvxjr7ytab0nH97pvey9a29ITUxytYWL3Y'], 'event_id': ['8'], 'full_name': ['abebe kebede'], 'email': ['abe@example.com'], 'phone': ['467
+[2026-03-09 11:55:41] PARSED: event_id=8 (type=str), email=abe@example.com, name=abebe kebede
+[2026-03-09 11:55:41] SUCCESS | event_id=8 | name=abebe kebede | email=abe@example.com | status=confirmed | reg#=REG-7E1521B6
+[2026-03-09 11:56:01] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['Blyu1kZOpaEvLtfzA1RpP1qWaGfyyaW0pWZ3islbesoAeJ0EuGHHyXKp43FGZKnt'], 'event_id': ['8'], 'full_name': ['abebe kebede'], 'email': ['abe@gmail.com'], 'phone': ['85390
+[2026-03-09 11:56:01] PARSED: event_id=8 (type=str), email=abe@gmail.com, name=abebe kebede
+[2026-03-09 11:56:01] SUCCESS | event_id=8 | name=abebe kebede | email=abe@gmail.com | status=confirmed | reg#=REG-D4B5E2D0
+[2026-03-09 12:17:37] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['himLX5DChxVp4EY80kDD3H72NcuojDS0NtJJVd7HX2KZWHMHeSbSKKbwIIuZ15EM'], 'event_id': ['8'], 'full_name': ['abebe kebede'], 'email': ['abe@gmail.com'], 'phone': ['+1555
+[2026-03-09 12:17:37] PARSED: event_id=8 (type=str), email=abe@gmail.com, name=abebe kebede
+[2026-03-09 12:17:37] SUCCESS | event_id=8 | name=abebe kebede | email=abe@gmail.com | status=confirmed | reg#=REG-9BEE8064
+[2026-03-09 12:18:21] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['BJr0wG5j7bmqhL8ZnmRlB5xrwV9EwGX47UOYuOzoNGb09OWyBUpAi8BVrr9fe8JQ'], 'event_id': ['1'], 'full_name': ['abe lemesa'], 'email': ['abr@gmail.com'], 'phone': ['12345']
+[2026-03-09 12:18:21] PARSED: event_id=1 (type=str), email=abr@gmail.com, name=abe lemesa
+[2026-03-09 12:18:21] SUCCESS | event_id=1 | name=abe lemesa | email=abr@gmail.com | status=confirmed | reg#=REG-803068CB
+[2026-03-09 12:19:52] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['yTHdR5E5TZ0WlzJP10IyeXX4pCOULWzw444bPd8azuPwdCxofygNV01yk8Ovtoli'], 'event_id': ['7'], 'full_name': ['khlikfew lkhfeq'], 'email': ['faljd@gmail.com'], 'phone': ['
+[2026-03-09 12:19:52] PARSED: event_id=7 (type=str), email=faljd@gmail.com, name=khlikfew lkhfeq
+[2026-03-09 12:19:52] SUCCESS | event_id=7 | name=khlikfew lkhfeq | email=faljd@gmail.com | status=confirmed | reg#=REG-A7BD4CD5
+[2026-03-09 12:27:47] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['3866RE3gp3OVawoKGdevrXRKqZKfwd4tzjt4PMxl5yDv2zcjULMK80VelvKQeFQf'], 'event_id': ['8'], 'full_name': ['fgj gjhk'], 'email': ['f@example.com'], 'phone': ['+15550000
+[2026-03-09 12:27:47] PARSED: event_id=8 (type=str), email=f@example.com, name=fgj gjhk
+[2026-03-09 12:27:47] SUCCESS | event_id=8 | name=fgj gjhk | email=f@example.com | status=confirmed | reg#=REG-0A9F2467
+[2026-03-09 12:28:48] RAW_DATA: <QueryDict: {'csrfmiddlewaretoken': ['Y4pMrdrQbtTcST8n5NswZ5f1Kmeimp5QufMKplVVRYIMKWWWjl0LG8jvFSeT4RRC'], 'event_id': ['8'], 'full_name': ['jhv ipb'], 'email': ['lkkn@gmail.com'], 'phone': ['579599334
+[2026-03-09 12:28:48] PARSED: event_id=8 (type=str), email=lkkn@gmail.com, name=jhv ipb
+[2026-03-09 12:28:48] SUCCESS | event_id=8 | name=jhv ipb | email=lkkn@gmail.com | status=confirmed | reg#=REG-561BC99F
+[2026-03-09 12:33:50] RAW_DATA: {'event_id': '8', 'full_name': 'lemesa feysa', 'email': 'lem@example.com', 'phone': '0987654312', 'special_requests': 'clean environment'}
+[2026-03-09 12:33:50] PARSED: event_id=8 (type=str), email=lem@example.com, name=lemesa feysa
+[2026-03-09 12:33:50] SUCCESS | event_id=8 | name=lemesa feysa | email=lem@example.com | status=confirmed | reg#=REG-F87F5C74
+[2026-03-09 12:43:30] RAW_DATA: {'event_id': '8', 'full_name': 'attendee trial', 'email': 'at@example.com', 'phone': '0900000000', 'special_requests': 'it is for  trial'}
+[2026-03-09 12:43:30] PARSED: event_id=8 (type=str), email=at@example.com, name=attendee trial
+[2026-03-09 12:43:30] SUCCESS | event_id=8 | name=attendee trial | email=at@example.com | status=confirmed | reg#=REG-8475137D

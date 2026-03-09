@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.registration_list, name='registration_list'),
     path('my-registrations/', views.my_registrations, name='my_registrations'),
     path('register/<int:event_id>/', views.register_for_event, name='register_for_event'),
+    path('success/<int:registration_id>/', views.registration_success, name='registration_success'),
     path('<int:registration_id>/', views.registration_detail, name='registration_detail'),
     path('<int:registration_id>/cancel/', views.cancel_registration, name='cancel_registration'),
     path('ticket/create/<int:event_id>/', views.ticket_create, name='ticket_create'),
@@ -57,6 +58,11 @@ urlpatterns = [
     path('qr/<int:registration_id>/download/', views.qr_code_download, name='qr_code_download'),
     path('qr/<int:event_id>/print/', views.qr_code_print, name='qr_code_print'),
     path('qr/<int:event_id>/send-emails/', views.qr_code_send_emails, name='qr_code_send_emails'),
+
+    # Bulk Badge Printing URLs
+    path('badges/<int:event_id>/print/', views.bulk_badge_print, name='bulk_badge_print'),
+    path('badges/<int:event_id>/mark-printed/', views.bulk_badge_mark_printed, name='bulk_badge_mark_printed'),
+    path('badges/<int:event_id>/download-pdf/', views.bulk_badge_download_pdf, name='bulk_badge_download_pdf'),
 
     # Check-in Analytics URLs
     path('check-in/analytics/<int:event_id>/', views.checkin_analytics, name='checkin_analytics'),

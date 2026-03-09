@@ -24,6 +24,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('admin/security/', include('event_project.admin_urls')),
     path('', RedirectView.as_view(url='/organizers/login/', permanent=False), name='home'),
     path('events/', include('events.urls')),
     path('users/', include('users.urls')),

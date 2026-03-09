@@ -89,6 +89,11 @@ class ReportForm(forms.ModelForm):
             'is_scheduled': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'schedule_frequency': forms.Select(attrs={'class': 'form-control'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ensure all export formats are available
+        self.fields['export_format'].choices = Report.EXPORT_FORMATS
 
 
 class ReportExportForm(forms.Form):

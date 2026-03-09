@@ -70,3 +70,8 @@ class User(AbstractUser):
     
     def __str__(self):
         return self.email
+    
+    @property
+    def is_organizer(self):
+        """Check if user is an organizer"""
+        return self.role == UserRole.ORGANIZER or hasattr(self, 'organizer_profile')

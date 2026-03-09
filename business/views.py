@@ -5,6 +5,7 @@ from django.http import JsonResponse, FileResponse
 from django.utils import timezone
 from django.db.models import Sum, Count, Avg
 from django.conf import settings
+from .decorators import organizer_required
 from .models import (
     BusinessSponsor, SponsorMaterial, SponsorLead, EventAnalytics, SessionAnalytics,
     Expense, Budget, Invoice, Quote, Report, ReportExport
@@ -16,7 +17,7 @@ from registration.models import Registration, RegistrationStatus
 
 # ============ Sponsor Management ============
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def sponsor_list(request):
     """List all sponsors"""
     event_id = request.GET.get('event')
@@ -28,7 +29,7 @@ def sponsor_list(request):
     return render(request, 'business/sponsor_list.html', {'sponsors': sponsors})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def sponsor_create(request):
     """Create a new sponsor"""
     if request.method == 'POST':
@@ -45,7 +46,7 @@ def sponsor_create(request):
     return render(request, 'business/sponsor_form.html', {'form': form})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def sponsor_detail(request, sponsor_id):
     """View sponsor details"""
     sponsor = get_object_or_404(BusinessSponsor, id=sponsor_id)
@@ -67,7 +68,7 @@ def sponsor_detail(request, sponsor_id):
     })
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def sponsor_edit(request, sponsor_id):
     """Edit a sponsor"""
     sponsor = get_object_or_404(BusinessSponsor, id=sponsor_id)
@@ -84,7 +85,7 @@ def sponsor_edit(request, sponsor_id):
     return render(request, 'business/sponsor_form.html', {'form': form, 'sponsor': sponsor})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def sponsor_delete(request, sponsor_id):
     """Delete a sponsor"""
     sponsor = get_object_or_404(BusinessSponsor, id=sponsor_id)
@@ -98,7 +99,7 @@ def sponsor_delete(request, sponsor_id):
     return render(request, 'business/confirm_delete.html', {'object': sponsor})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def sponsor_materials(request, sponsor_id):
     """Manage sponsor materials"""
     sponsor = get_object_or_404(BusinessSponsor, id=sponsor_id)
@@ -114,7 +115,7 @@ def sponsor_materials(request, sponsor_id):
     return render(request, 'business/sponsor_materials.html', {'sponsor': sponsor, 'materials': materials})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def sponsor_leads(request, sponsor_id):
     """View and manage sponsor leads"""
     sponsor = get_object_or_404(BusinessSponsor, id=sponsor_id)
@@ -140,7 +141,7 @@ def sponsor_leads(request, sponsor_id):
     return render(request, 'business/sponsor_leads.html', {'sponsor': sponsor, 'leads': leads})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def import_leads(request, sponsor_id):
     """Import leads from file"""
     sponsor = get_object_or_404(BusinessSponsor, id=sponsor_id)
@@ -170,7 +171,7 @@ def import_leads(request, sponsor_id):
 
 # ============ Analytics ============
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def analytics_overview(request):
     """Overview of all analytics"""
     events = Event.objects.filter(organizer=request.user)
@@ -194,7 +195,7 @@ def analytics_overview(request):
     return render(request, 'business/analytics_overview.html', context)
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def event_analytics(request, event_id):
     """Detailed analytics for an event"""
     event = get_object_or_404(Event, id=event_id)
@@ -221,7 +222,7 @@ def event_analytics(request, event_id):
     return render(request, 'business/event_analytics.html', context)
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def export_analytics(request, event_id):
     """Export analytics data"""
     event = get_object_or_404(Event, id=event_id)
@@ -249,7 +250,7 @@ Net Revenue: ${analytics.net_revenue}
 
 # ============ Expenses ============
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def expense_list(request):
     """List all expenses"""
     event_id = request.GET.get('event')
@@ -268,7 +269,7 @@ def expense_list(request):
     })
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def expense_create(request):
     """Create a new expense"""
     if request.method == 'POST':
@@ -285,7 +286,7 @@ def expense_create(request):
     return render(request, 'business/expense_form.html', {'form': form})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def expense_edit(request, expense_id):
     """Edit an expense"""
     expense = get_object_or_404(Expense, id=expense_id)
@@ -302,7 +303,7 @@ def expense_edit(request, expense_id):
     return render(request, 'business/expense_form.html', {'form': form, 'expense': expense})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def expense_delete(request, expense_id):
     """Delete an expense"""
     expense = get_object_or_404(Expense, id=expense_id)
@@ -317,7 +318,7 @@ def expense_delete(request, expense_id):
 
 # ============ Budget ============
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def budget_list(request):
     """List budgets"""
     event_id = request.GET.get('event')
@@ -336,7 +337,7 @@ def budget_list(request):
     })
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def budget_create(request):
     """Create a budget"""
     if request.method == 'POST':
@@ -353,7 +354,7 @@ def budget_create(request):
     return render(request, 'business/budget_form.html', {'form': form})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def budget_edit(request, budget_id):
     """Edit a budget"""
     budget = get_object_or_404(Budget, id=budget_id)
@@ -372,7 +373,7 @@ def budget_edit(request, budget_id):
 
 # ============ Invoices ============
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def invoice_list(request):
     """List invoices"""
     invoices = Invoice.objects.all()
@@ -389,7 +390,7 @@ def invoice_list(request):
     })
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def invoice_create(request):
     """Create an invoice"""
     if request.method == 'POST':
@@ -406,14 +407,14 @@ def invoice_create(request):
     return render(request, 'business/invoice_form.html', {'form': form})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def invoice_detail(request, invoice_id):
     """View invoice details"""
     invoice = get_object_or_404(Invoice, id=invoice_id)
     return render(request, 'business/invoice_detail.html', {'invoice': invoice})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def invoice_edit(request, invoice_id):
     """Edit an invoice"""
     invoice = get_object_or_404(Invoice, id=invoice_id)
@@ -430,7 +431,7 @@ def invoice_edit(request, invoice_id):
     return render(request, 'business/invoice_form.html', {'form': form, 'invoice': invoice})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def invoice_send(request, invoice_id):
     """Send invoice to client"""
     invoice = get_object_or_404(Invoice, id=invoice_id)
@@ -440,7 +441,7 @@ def invoice_send(request, invoice_id):
     return redirect('business:invoice_list')
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def invoice_mark_paid(request, invoice_id):
     """Mark invoice as paid"""
     invoice = get_object_or_404(Invoice, id=invoice_id)
@@ -453,14 +454,14 @@ def invoice_mark_paid(request, invoice_id):
 
 # ============ Quotes ============
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def quote_list(request):
     """List quotes"""
     quotes = Quote.objects.all()
     return render(request, 'business/quote_list.html', {'quotes': quotes})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def quote_create(request):
     """Create a quote"""
     if request.method == 'POST':
@@ -475,14 +476,14 @@ def quote_create(request):
     return render(request, 'business/quote_form.html', {'form': form})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def quote_detail(request, quote_id):
     """View quote details"""
     quote = get_object_or_404(Quote, id=quote_id)
     return render(request, 'business/quote_detail.html', {'quote': quote})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def quote_edit(request, quote_id):
     """Edit a quote"""
     quote = get_object_or_404(Quote, id=quote_id)
@@ -499,7 +500,7 @@ def quote_edit(request, quote_id):
     return render(request, 'business/quote_form.html', {'form': form, 'quote': quote})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def quote_convert(request, quote_id):
     """Convert quote to invoice"""
     quote = get_object_or_404(Quote, id=quote_id)
@@ -526,14 +527,14 @@ def quote_convert(request, quote_id):
 
 # ============ Reports ============
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def report_list(request):
     """List reports"""
     reports = Report.objects.all()
     return render(request, 'business/report_list.html', {'reports': reports})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def report_create(request):
     """Create a report"""
     if request.method == 'POST':
@@ -552,7 +553,7 @@ def report_create(request):
     return render(request, 'business/report_form.html', {'form': form})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def report_detail(request, report_id):
     """View report details"""
     report = get_object_or_404(Report, id=report_id)
@@ -560,32 +561,91 @@ def report_detail(request, report_id):
     return render(request, 'business/report_detail.html', {'report': report, 'exports': exports})
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def report_generate(request, report_id):
     """Generate report data"""
     report = get_object_or_404(Report, id=report_id)
     
+    # Parse filters if they exist
+    filters = {}
+    if report.filters:
+        try:
+            import json
+            filters = json.loads(report.filters) if isinstance(report.filters, str) else report.filters
+        except:
+            filters = report.filters if isinstance(report.filters, dict) else {}
+    
+    # Start with base queryset
+    regs = Registration.objects.filter(event=report.event)
+    
+    # Apply filters
+    if filters:
+        # Status filter
+        if 'status' in filters:
+            regs = regs.filter(status=filters['status'])
+        
+        # Ticket type filter
+        if 'ticket_type' in filters:
+            regs = regs.filter(ticket_type__name__icontains=filters['ticket_type'])
+        
+        # Payment status filter
+        if 'payment_status' in filters:
+            regs = regs.filter(payment_status=filters['payment_status'])
+        
+        # Date range filter
+        if 'date_range' in filters:
+            date_range = filters['date_range']
+            if 'from' in date_range:
+                regs = regs.filter(created_at__gte=date_range['from'])
+            if 'to' in date_range:
+                regs = regs.filter(created_at__lte=date_range['to'])
+    
+    # Generate data based on report type
     data = {}
+    
     if report.report_type == 'registration':
-        regs = Registration.objects.filter(event=report.event)
         data = {
             'total': regs.count(),
             'by_status': list(regs.values('status').annotate(count=Count('id'))),
+            'recent': list(regs.order_by('-created_at')[:10].values(
+                'registration_number', 'attendee_name', 'attendee_email', 
+                'status', 'total_amount', 'created_at'
+            )),
         }
     elif report.report_type == 'revenue':
-        regs = Registration.objects.filter(event=report.event, status='confirmed')
+        confirmed_regs = regs.filter(status='confirmed')
         data = {
-            'total_revenue': sum(r.total_amount for r in regs),
-            'by_ticket': list(regs.values('ticket_type__name').annotate(total=Sum('total_amount'))),
+            'total_revenue': float(sum(r.total_amount for r in confirmed_regs)),
+            'total_registrations': confirmed_regs.count(),
+            'by_ticket': list(confirmed_regs.values('ticket_type__name').annotate(
+                total=Sum('total_amount'),
+                count=Count('id')
+            )),
+            'average_ticket_price': float(confirmed_regs.aggregate(avg=Avg('total_amount'))['avg'] or 0),
+        }
+    elif report.report_type == 'attendance':
+        data = {
+            'total': regs.count(),
+            'by_status': list(regs.values('status').annotate(count=Count('id'))),
+            'checked_in': regs.filter(status='checked_in').count(),
+            'confirmed': regs.filter(status='confirmed').count(),
+            'cancelled': regs.filter(status__in=['cancelled', 'refunded']).count(),
         }
     
+    # Update report metadata
     report.last_generated = timezone.now()
+    report.report_data = data
     report.save()
     
-    return JsonResponse({'success': True, 'data': data})
+    # Return JSON for AJAX or redirect for regular request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'data': data})
+    else:
+        messages.success(request, f'Report "{report.name}" generated successfully!')
+        return redirect('business:report_detail', report_id=report.id)
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def report_export(request, report_id):
     """Export report in multiple formats"""
     report = get_object_or_404(Report, id=report_id)
@@ -786,7 +846,7 @@ def report_export(request, report_id):
 
 # ============ Dashboard ============
 
-@user_passes_test(lambda u: u.is_staff or u.is_organizer)
+@organizer_required
 def business_dashboard(request):
     """Business overview dashboard"""
     events = Event.objects.filter(organizer=request.user)

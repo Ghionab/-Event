@@ -9,8 +9,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @media print {
-            .no-print { display: none; }
-            body { background: white; }
+            .no-print { 
+                display: none !important; 
+                visibility: hidden !important;
+            }
+            body { 
+                background: white; 
+            }
+            /* Hide all buttons when printing */
+            button {
+                display: none !important;
+            }
+            /* Hide contact support section */
+            .text-center.mt-8 {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -153,7 +166,7 @@
             <button onclick="downloadQR()" 
                     class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
                 <i class="fas fa-download mr-2"></i>
-                Download QR Code
+                Download Ticket
             </button>
             
             <button onclick="sendEmail()" 
@@ -180,13 +193,116 @@
 
     <script>
         function downloadQR() {
+            // Create a canvas to draw the complete ticket
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size (ticket dimensions)
+            canvas.width = 800;
+            canvas.height = 1000;
+            
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Header gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient.addColorStop(0, '#2563eb');
+            gradient.addColorStop(1, '#7c3aed');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, 200);
+            
+            // Event title
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 32px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('{{ event.title }}', canvas.width / 2, 60);
+            
+            // Event details
+            ctx.font = '18px Arial';
+            ctx.fillText('📅 {{ event.start_date|date:"F d, Y" }}  🕐 {{ event.start_date|date:"g:i A" }}', canvas.width / 2, 100);
+            {% if event.venue_name %}
+            ctx.fillText('📍 {{ event.venue_name }}', canvas.width / 2, 130);
+            {% endif %}
+            
+            // Registration section
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Registration Details', 50, 260);
+            
+            // Registration info
+            ctx.font = '18px Arial';
+            ctx.fillStyle = '#4b5563';
+            
+            ctx.fillText('🎫 Registration Number:', 50, 310);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText('{{ registration.registration_number }}', 50, 340);
+            
+            ctx.fillStyle = '#4b5563';
+            ctx.font = '18px Arial';
+            ctx.fillText('👤 Attendee Name:', 50, 390);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText('{{ registration.attendee_name }}', 50, 420);
+            
+            ctx.fillStyle = '#4b5563';
+            ctx.font = '18px Arial';
+            ctx.fillText('📧 Email:', 50, 470);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = '18px Arial';
+            ctx.fillText('{{ registration.attendee_email }}', 50, 500);
+            
+            {% if registration.ticket_type %}
+            ctx.fillStyle = '#4b5563';
+            ctx.font = '18px Arial';
+            ctx.fillText('🏷️ Ticket Type:', 50, 550);
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 18px Arial';
+            ctx.fillText('{{ registration.ticket_type.name }}', 50, 580);
+            {% endif %}
+            
+            // Status
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText('✓ Confirmed', 50, 630);
+            
+            // QR Code section
+            ctx.fillStyle = '#1f2937';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Your Entry Pass', canvas.width / 2, 700);
+            
+            // Draw QR code
             const qrImage = document.querySelector('img[alt="QR Code"]');
-            const link = document.createElement('a');
-            link.href = qrImage.src;
-            link.download = 'ticket-qr-{{ registration.registration_number }}.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const qrSize = 250;
+            const qrX = (canvas.width - qrSize) / 2;
+            const qrY = 720;
+            
+            // QR code border
+            ctx.strokeStyle = '#2563eb';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
+            
+            // Draw QR code image
+            ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+            
+            // Instructions
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '14px Arial';
+            ctx.fillText('Show this QR code at the event entrance for check-in', canvas.width / 2, 1020);
+            
+            // Convert canvas to blob and download
+            canvas.toBlob(function(blob) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'ticket-{{ registration.registration_number }}.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            });
         }
 
         function sendEmail() {

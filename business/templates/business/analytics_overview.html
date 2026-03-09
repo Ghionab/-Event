@@ -1,0 +1,74 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Analytics Overview{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Analytics Overview</h2>
+    
+    <!-- Stats Summary -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="card-title">{{ total_registrations }}</h3>
+                    <p class="card-text">Total Registrations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="card-title">${{ total_revenue|floatformat:2 }}</h3>
+                    <p class="card-text">Total Revenue</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="card-title">{{ total_checked_in }}</h3>
+                    <p class="card-text">Total Checked In</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Events Table -->
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Event Analytics</h4>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Registrations</th>
+                        <th>Revenue</th>
+                        <th>Checked In</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'business:event_analytics' event.id %}">{{ event.title }}</a>
+                                <br><small class="text-muted">{{ event.start_date|date:"M d, Y" }}</small>
+                            </td>
+                            <td>{{ event.analytics.total_registrations|default:0 }}</td>
+                            <td>${{ event.analytics.total_revenue|default:0|floatformat:2 }}</td>
+                            <td>{{ event.analytics.checked_in_count|default:0 }}</td>
+                            <td>
+                                <a href="{% url 'business:event_analytics' event.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                <a href="{% url 'business:export_analytics' event.id %}" class="btn btn-sm btn-outline-secondary">Export</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -79,9 +79,24 @@
             </div>
 
             <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                <p class="font-semibold">Your Tickets:</p>
-                <div id="ticketInfo" class="mt-2 text-gray-600">Loading...</div>
-                <p class="mt-2 font-bold text-lg" id="totalInfo">Total: FREE</p>
+                <p class="font-semibold mb-4">Select Your Tickets:</p>
+                <div id="ticketSelection" class="space-y-4">
+                    <div class="text-gray-500">Loading tickets...</div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="button" onclick="addTicket()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700">
+                        <i class="fas fa-plus mr-2"></i>Add Ticket
+                    </button>
+                </div>
+                
+                <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                    <p class="font-semibold text-blue-800">Your Selected Tickets:</p>
+                    <div id="selectedTicketsDisplay" class="space-y-2">
+                        <p class="text-blue-600">No tickets selected</p>
+                    </div>
+                    <p class="font-bold text-lg text-blue-800 mt-2" id="totalInfo">Total: FREE</p>
+                </div>
             </div>
 
             <button type="submit" id="submitBtn"
@@ -117,42 +132,169 @@
     // Load tickets
     var storedTickets = sessionStorage.getItem('selectedTickets');
     var selectedTickets = storedTickets ? JSON.parse(storedTickets) : [];
+    var availableTickets = [];
 
     fetch('/api/v1/public/events/' + eventId + '/tickets/')
         .then(r => r.json())
         .then(function (tickets) {
-            var html = '';
-            var total = 0;
-
-            if (selectedTickets.length > 0) {
-                selectedTickets.forEach(function (st) {
-                    var ticket = tickets.find(function (t) { return t.id === st.ticket_id; });
-                    if (ticket) {
-                        var price = parseFloat(ticket.price) || 0;
-                        total += price * st.quantity;
-                        html += '<p>' + ticket.name + ' x ' + st.quantity + ' - ' +
-                            (price === 0 ? 'FREE' : '$' + price.toFixed(2)) + '</p>';
-                    }
-                });
-            } else {
-                html = '<p>General Admission - FREE</p>';
-            }
-
-            document.getElementById('ticketInfo').innerHTML = html || '<p>General Admission - FREE</p>';
-            document.getElementById('totalInfo').textContent = 'Total: ' +
-                (total === 0 ? 'FREE' : '$' + total.toFixed(2));
+            availableTickets = tickets;
+            displayTicketOptions(tickets);
+            updateSelectedTicketsDisplay();
         })
         .catch(function (err) {
-            document.getElementById('ticketInfo').textContent = 'General Admission - FREE';
+            console.error('Error loading tickets:', err);
+            document.getElementById('ticketSelection').innerHTML = '<p class="text-red-500">Error loading tickets</p>';
         });
+
+    function displayTicketOptions(tickets) {
+        var html = '';
+        if (tickets.length === 0) {
+            html = '<p class="text-gray-500">No tickets available for this event</p>';
+        } else {
+            tickets.forEach(function (ticket) {
+                var price = parseFloat(ticket.price) || 0;
+                var priceText = price === 0 ? 'FREE' : '$' + price.toFixed(2);
+                html += `
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold text-lg">${ticket.name}</h4>
+                                <p class="text-gray-600 text-sm mt-1">${ticket.description || 'Standard admission'}</p>
+                                ${ticket.benefits ? `<p class="text-gray-500 text-xs mt-2">${ticket.benefits}</p>` : ''}
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-indigo-600">${priceText}</div>
+                                <select id="ticket-qty-${ticket.id}" class="mt-2 border border-gray-300 rounded px-2 py-1">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        document.getElementById('ticketSelection').innerHTML = html;
+    }
+
+    function addTicket() {
+        var selectedTicketId = null;
+        var selectedQuantity = 1;
+        
+        // Find first selected ticket with quantity > 0
+        availableTickets.forEach(function (ticket) {
+            var qtySelect = document.getElementById('ticket-qty-' + ticket.id);
+            if (qtySelect && parseInt(qtySelect.value) > 0) {
+                selectedTicketId = ticket.id;
+                selectedQuantity = parseInt(qtySelect.value);
+                return false; // break
+            }
+        });
+
+        if (!selectedTicketId) {
+            alert('Please select a ticket quantity first');
+            return;
+        }
+
+        // Check if already selected
+        var existingIndex = selectedTickets.findIndex(function (t) { 
+            return t.ticket_id === selectedTicketId; 
+        });
+
+        if (existingIndex >= 0) {
+            selectedTickets[existingIndex].quantity += selectedQuantity;
+        } else {
+            selectedTickets.push({
+                ticket_id: selectedTicketId,
+                quantity: selectedQuantity
+            });
+        }
+
+        // Reset selection
+        availableTickets.forEach(function (ticket) {
+            var qtySelect = document.getElementById('ticket-qty-' + ticket.id);
+            if (qtySelect) {
+                qtySelect.value = '0';
+            }
+        });
+
+        // Update display
+        updateSelectedTicketsDisplay();
+        sessionStorage.setItem('selectedTickets', JSON.stringify(selectedTickets));
+    }
+
+    function updateSelectedTicketsDisplay() {
+        var display = document.getElementById('selectedTicketsDisplay');
+        var totalInfo = document.getElementById('totalInfo');
+        
+        if (selectedTickets.length === 0) {
+            display.innerHTML = '<p class="text-blue-600">No tickets selected</p>';
+            totalInfo.textContent = 'Total: FREE';
+            return;
+        }
+
+        var html = '';
+        var total = 0;
+
+        selectedTickets.forEach(function (st) {
+            var ticket = availableTickets.find(function (t) { return t.id === st.ticket_id; });
+            if (ticket) {
+                var price = parseFloat(ticket.price) || 0;
+                var ticketTotal = price * st.quantity;
+                total += ticketTotal;
+                var priceText = price === 0 ? 'FREE' : '$' + price.toFixed(2);
+                var totalText = ticketTotal === 0 ? 'FREE' : '$' + ticketTotal.toFixed(2);
+                
+                html += `
+                    <div class="flex justify-between items-center p-3 bg-blue-100 rounded">
+                        <div>
+                            <span class="font-semibold">${ticket.name}</span>
+                            <span class="text-blue-600 ml-2">x ${st.quantity}</span>
+                        </div>
+                        <div class="font-bold text-blue-800">${totalText}</div>
+                    </div>
+                `;
+            }
+        });
+
+        display.innerHTML = html;
+        totalInfo.textContent = 'Total: ' + (total === 0 ? 'FREE' : '$' + total.toFixed(2));
+    }
+
+    function getCSRFToken() {
+        var token = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (token) {
+            return token.value;
+        }
+        // Fallback for Django's CSRF token in cookies
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.startsWith('csrftoken=')) {
+                return cookie.substring('csrftoken='.length);
+            }
+        }
+        return null;
+    }
 
     function doRegister(e) {
         e.preventDefault();
+        
+        console.log('=== Registration Debug ===');
+        console.log('Event ID:', eventId);
+        console.log('Selected tickets:', selectedTickets);
+        console.log('Available tickets:', availableTickets);
 
         var fullName = document.getElementById('fullName').value.trim();
         var email = document.getElementById('email').value.trim();
         var phone = document.getElementById('phone').value;
         var specialRequests = document.getElementById('specialRequests').value;
+
+        console.log('Form data:', { fullName, email, phone, specialRequests });
 
         if (!fullName) {
             alert('Please enter your full name.');
@@ -165,6 +307,11 @@
         // Basic email format check
         if (email.indexOf('@') === -1 || email.indexOf('.') === -1) {
             alert('Please enter a valid email address.');
+            return false;
+        }
+
+        if (selectedTickets.length === 0) {
+            alert('Please select at least one ticket.');
             return false;
         }
 
@@ -181,7 +328,7 @@
             tickets: selectedTickets
         };
 
-        console.log('Sending:', JSON.stringify(payload));
+        console.log('Sending payload:', JSON.stringify(payload, null, 2));
 
         fetch('/api/v1/register/', {
             method: 'POST',
@@ -191,28 +338,25 @@
             },
             body: JSON.stringify(payload)
         })
-            .then(r => r.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(function (data) {
-                console.log('Response:', data);
+                console.log('Response data:', data);
                 if (data.id || data.registration_number) {
-                    // Success
-                    sessionStorage.removeItem('selectedTickets');
-                    document.getElementById('registrationFormContainer').style.display = 'none';
-                    document.getElementById('successMessage').classList.remove('hidden');
-                    document.getElementById('regNumber').textContent = 'Registration Number: ' + data.registration_number;
-
-                    var statusMsg = data.status === 'pending'
-                        ? 'Your registration is pending payment confirmation.'
-                        : 'Your registration has been confirmed!';
-                    document.getElementById('successText').textContent = statusMsg;
+                    // Success - redirect to success page
+                    const successUrl = data.success_url || '/registration/success/' + data.id + '/';
+                    window.location.href = successUrl;
                 } else {
+                    console.error('Registration error:', data);
                     alert('Error: ' + (data.error || 'Registration failed'));
                     btn.disabled = false;
                     btn.textContent = 'Complete Registration';
                 }
             })
             .catch(function (err) {
-                console.error(err);
+                console.error('Network error:', err);
                 alert('Network error: ' + err.message);
                 btn.disabled = false;
                 btn.textContent = 'Complete Registration';

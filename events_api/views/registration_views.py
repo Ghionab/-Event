@@ -98,6 +98,60 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         return Response({'message': 'Checked in successfully', 'checked_in_at': registration.checked_in_at})
 
 
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.conf import settings
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+import base64
+import io
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def SendQREmailView(request):
+    """Send QR code via email"""
+    try:
+        registration_id = request.data.get('registration_id')
+        
+        if not registration_id:
+            return Response({'success': False, 'error': 'Registration ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get registration
+        try:
+            registration = Registration.objects.get(id=registration_id)
+        except Registration.DoesNotExist:
+            return Response({'success': False, 'error': 'Registration not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Generate QR code
+        qr_image = registration.generate_qr_code_image()
+        
+        # Create email content
+        subject = f'Your QR Code for {registration.event.title}'
+        
+        html_message = render_to_string('registration/qr_email.html', {
+            'registration': registration,
+            'event': registration.event,
+            'qr_image': qr_image
+        })
+        
+        # Send email
+        send_mail(
+            subject=subject,
+            message='',
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@eventportal.com'),
+            recipient_list=[registration.attendee_email],
+            html_message=html_message,
+            fail_silently=False
+        )
+        
+        return Response({'success': True, 'message': 'QR code sent successfully'})
+        
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class PublicRegisterView(APIView):
     """Public registration endpoint without authentication"""
     permission_classes = [AllowAny]

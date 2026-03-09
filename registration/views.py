@@ -1,21 +1,42 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import JsonResponse, HttpResponse, Http404
+from django.urls import reverse
 from django.utils import timezone
 from django.db import models
-from .forms import RegistrationForm, TicketTypeForm, PromoCodeForm, RegistrationFieldForm, RegistrationDocumentForm
-from .models import Registration, TicketType, PromoCode, RegistrationField, Waitlist, RegistrationStatus, RegistrationDocument
+from django.db.models import Q, Count
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
+# Import security decorators
+from event_project.decorators import (
+    admin_required, 
+    organizer_or_admin_required, 
+    event_organizer_or_admin_required,
+    can_manage_event,
+    can_view_registration
+)
+
+from .models import (
+    Registration, TicketType, PromoCode, RegistrationField, 
+    RegistrationDocument, CheckIn, AttendeeNotification, Badge,
+    BulkRegistrationUpload, BulkRegistrationRow, ManualRegistration
+)
 from events.models import Event
+from .forms import (
+    RegistrationForm, TicketTypeForm, PromoCodeForm, 
+    RegistrationFieldForm, BulkUploadForm, ManualRegistrationForm
+)
 
 # Create your views here.
 
+@can_view_registration
 def registration_list(request):
     """List all registrations for the current user"""
-    if not request.user.is_authenticated:
-        messages.error(request, 'Please log in to view your registrations.')
-        return redirect('login')
-    
     registrations = Registration.objects.filter(
         models.Q(user=request.user) | models.Q(attendee_email=request.user.email)
     ).order_by('-created_at')
@@ -173,6 +194,24 @@ def registration_detail(request, registration_id):
         return redirect('home')
     
     return render(request, 'registration/registration_detail.html', {'registration': registration})
+
+def registration_success(request, registration_id):
+    """Display registration success page with QR code"""
+    registration = get_object_or_404(Registration, id=registration_id)
+    
+    # Get event information
+    event = registration.event
+    
+    # Generate QR code image
+    qr_code_image = registration.generate_qr_code_image()
+    
+    # No permission check needed - this is a public success page for the registrant
+    
+    return render(request, 'participant/registration_success.html', {
+        'registration': registration,
+        'event': event,
+        'qr_code_image': qr_code_image,
+    })
 
 def cancel_registration(request, registration_id):
     """Cancel a registration"""
@@ -1581,7 +1620,7 @@ def qr_code_send_emails(request, event_id):
     registrations = Registration.objects.filter(
         event=event,
         status__in=['pending', 'confirmed']
-    )
+    ).select_related('ticket_type')
 
     sent_count = 0
     failed_count = 0
@@ -1612,6 +1651,233 @@ Best regards,
 
     messages.success(request, f'QR codes sent to {sent_count} attendees. {failed_count} failed.')
     return redirect('registration:qr_code_list', event_id=event.id)
+
+
+# =============================================================================
+# Bulk Badge Printing Views
+# =============================================================================
+
+# @event_organizer_or_admin_required
+def bulk_badge_print(request, event_id):
+    """Bulk print all badges for an event"""
+    event = get_object_or_404(Event, id=event_id)
+
+    registrations = Registration.objects.filter(
+        event=event,
+        status__in=['confirmed', 'checked_in']
+    ).select_related('ticket_type', 'badge')
+
+    badges = []
+    for reg in registrations:
+        # Get title and company from custom fields
+        custom_fields = reg.custom_fields or {}
+        title = custom_fields.get('title', '')
+        company = custom_fields.get('company', '')
+        
+        # Create or get badge
+        badge, created = Badge.objects.get_or_create(
+            registration=reg,
+            defaults={
+                'name': reg.attendee_name,
+                'title': title,
+                'company': company,
+                'badge_type': 'vip' if reg.ticket_type and reg.ticket_type.ticket_category == 'vip' else 'standard',
+                'qr_code_data': f"BADGE:{reg.qr_code}",
+            }
+        )
+        
+        # Generate QR code
+        try:
+            qr_image = badge.generate_qr_code()
+        except Exception:
+            qr_image = None
+        
+        badges.append({
+            'badge': badge,
+            'registration': reg,
+            'qr_image': qr_image,
+        })
+
+    return render(request, 'registration/bulk_badge_print.html', {
+        'event': event,
+        'badges': badges,
+        'total_badges': len(badges),
+    })
+
+
+@event_organizer_or_admin_required
+def bulk_badge_mark_printed(request, event_id):
+    """Mark all badges as printed"""
+    event = get_object_or_404(Event, id=event_id)
+
+    registrations = Registration.objects.filter(
+        event=event,
+        status__in=['confirmed', 'checked_in']
+    ).select_related('badge')
+
+    printed_count = 0
+    for reg in registrations:
+        # Get title and company from custom fields
+        custom_fields = reg.custom_fields or {}
+        title = custom_fields.get('title', '')
+        company = custom_fields.get('company', '')
+        
+        # Create or get badge
+        badge, created = Badge.objects.get_or_create(
+            registration=reg,
+            defaults={
+                'name': reg.attendee_name,
+                'title': title,
+                'company': company,
+                'badge_type': 'vip' if reg.ticket_type and reg.ticket_type.ticket_category == 'vip' else 'standard',
+                'qr_code_data': f"BADGE:{reg.qr_code}",
+            }
+        )
+        
+        # Mark as printed
+        badge.mark_printed(request.user)
+        printed_count += 1
+
+    messages.success(request, f'{printed_count} badges marked as printed.')
+    return redirect('registration:bulk_badge_print', event_id=event.id)
+
+
+@event_organizer_or_admin_required
+def bulk_badge_download_pdf(request, event_id):
+    """Download all badges as PDF for printing"""
+    event = get_object_or_404(Event, id=event_id)
+
+    registrations = Registration.objects.filter(
+        event=event,
+        status__in=['confirmed', 'checked_in']
+    ).select_related('ticket_type', 'badge')
+
+    # Create PDF
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.units import inch
+    from io import BytesIO
+    import datetime
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    # Badge dimensions
+    badge_width = 3.5 * inch
+    badge_height = 2.25 * inch
+    margin = 0.5 * inch
+    
+    # Calculate grid (2x3 badges per page)
+    cols = 2
+    rows = 3
+    spacing_x = (width - 2 * margin - cols * badge_width) / (cols - 1)
+    spacing_y = (height - 2 * margin - rows * badge_height) / (rows - 1)
+
+    current_col = 0
+    current_row = 0
+    page_num = 1
+
+    for reg in registrations:
+        # Get title and company from custom fields
+        custom_fields = reg.custom_fields or {}
+        title = custom_fields.get('title', '')
+        company = custom_fields.get('company', '')
+        
+        # Create or get badge
+        badge, created = Badge.objects.get_or_create(
+            registration=reg,
+            defaults={
+                'name': reg.attendee_name,
+                'title': title,
+                'company': company,
+                'badge_type': 'vip' if reg.ticket_type and reg.ticket_type.ticket_category == 'vip' else 'standard',
+                'qr_code_data': f"BADGE:{reg.qr_code}",
+            }
+        )
+
+        # Calculate position
+        x = margin + current_col * (badge_width + spacing_x)
+        y = height - margin - (current_row + 1) * badge_height - current_row * spacing_y
+
+        # Draw badge border
+        p.setStrokeColorRGB(0.2, 0.2, 0.2)
+        p.setFillColorRGB(1, 1, 1)
+        p.rect(x, y, badge_width, badge_height, fill=1, stroke=1)
+
+        # Badge header with color
+        if badge.badge_type == 'vip':
+            p.setFillColorRGB(0.8, 0.2, 0.2)  # Red for VIP
+        else:
+            p.setFillColorRGB(0.2, 0.4, 0.8)  # Blue for standard
+        
+        p.rect(x, y + badge_height - 0.5 * inch, badge_width, 0.5 * inch, fill=1, stroke=1)
+
+        # Event name
+        p.setFillColorRGB(1, 1, 1)
+        p.setFont("Helvetica-Bold", 12)
+        p.drawCentredText(x + badge_width/2, y + badge_height - 0.25 * inch, event.title[:30])
+
+        # Attendee name
+        p.setFillColorRGB(0, 0, 0)
+        p.setFont("Helvetica-Bold", 16)
+        p.drawCentredText(x + badge_width/2, y + badge_height - 0.8 * inch, badge.name[:25])
+
+        # Title
+        if badge.title:
+            p.setFont("Helvetica", 10)
+            p.drawCentredText(x + badge_width/2, y + badge_height - 1.1 * inch, badge.title[:30])
+
+        # Company
+        if badge.company:
+            p.setFont("Helvetica", 9)
+            p.drawCentredText(x + badge_width/2, y + badge_height - 1.3 * inch, badge.company[:25])
+
+        # QR Code placeholder (small square)
+        qr_size = 0.6 * inch
+        qr_x = x + badge_width - qr_size - 0.1 * inch
+        qr_y = y + 0.1 * inch
+        p.setStrokeColorRGB(0, 0, 0)
+        p.setFillColorRGB(0, 0, 0)
+        p.rect(qr_x, qr_y, qr_size, qr_size, fill=0, stroke=1)
+
+        # QR Code text
+        p.setFont("Helvetica", 6)
+        p.drawCentredText(qr_x + qr_size/2, qr_y - 0.05 * inch, "QR Code")
+
+        # Registration number
+        p.setFont("Helvetica", 8)
+        p.drawCentredText(x + badge_width/2, y + 0.05 * inch, f"Reg: {reg.registration_number}")
+
+        # Move to next position
+        current_col += 1
+        if current_col >= cols:
+            current_col = 0
+            current_row += 1
+            if current_row >= rows:
+                # New page
+                p.showPage()
+                page_num += 1
+                current_row = 0
+                # Add page number
+                p.setFont("Helvetica", 8)
+                p.setFillColorRGB(0.5, 0.5, 0.5)
+                p.drawString(width - 1 * inch, 0.5 * inch, f"Page {page_num}")
+
+    # Finalize PDF
+    p.save()
+
+    # Mark badges as printed
+    for reg in registrations:
+        badge, created = Badge.objects.get_or_create(registration=reg)
+        badge.mark_printed(request.user)
+
+    # Prepare response
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="badges_{event.title}_{datetime.datetime.now().strftime("%Y%m%d")}.pdf"'
+    
+    return response
 
 
 # =============================================================================

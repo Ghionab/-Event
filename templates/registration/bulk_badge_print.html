@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bulk Badge Printing - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-id-badge"></i>
+                    Bulk Badge Printing
+                    <small class="text-muted">- {{ event.title }}</small>
+                </h2>
+                <div>
+                    <a href="/events/{{ event.id }}/" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Event
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Badges</h5>
+                            <h2>{{ total_badges }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Printed</h5>
+                            <h2>{{ badges|dictsort:"badge.is_printed"|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Pending</h5>
+                            <h2>{{ badges|dictsort:"badge.is_printed"|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">VIP Badges</h5>
+                            <h2>{{ badges|dictsort:"badge.badge_type"|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary" onclick="window.print()">
+                            <i class="fas fa-print"></i> Print Badges
+                        </button>
+                        <a href="{% url 'registration:bulk_badge_download_pdf' event.id %}" 
+                           class="btn btn-success">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </a>
+                        <a href="{% url 'registration:bulk_badge_mark_printed' event.id %}" 
+                           class="btn btn-warning"
+                           onclick="return confirm('Mark all badges as printed?')">
+                            <i class="fas fa-check"></i> Mark All Printed
+                        </a>
+                        <a href="{% url 'registration:qr_code_list' event.id %}" 
+                           class="btn btn-outline-secondary">
+                            <i class="fas fa-qrcode"></i> QR Codes
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badges Grid -->
+            <div class="row" id="badges-container">
+                {% for item in badges %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card badge-card {% if item.badge.badge_type == 'vip' %}border-danger{% endif %}">
+                        <div class="card-header {% if item.badge.badge_type == 'vip' %}bg-danger text-white{% else %}bg-primary text-white{% endif %}">
+                            <strong>{{ event.title|truncatechars:30 }}</strong>
+                            {% if item.badge.badge_type == 'vip' %}
+                                <span class="badge badge-light float-right">VIP</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body text-center">
+                            <!-- QR Code -->
+                            {% if item.qr_image %}
+                                <img src="data:image/png;base64,{{ item.qr_image }}" 
+                                     alt="QR Code" 
+                                     class="badge-qr mb-2"
+                                     style="width: 80px; height: 80px;">
+                            {% else %}
+                                <div class="badge-qr-placeholder mb-2">
+                                    <i class="fas fa-qrcode fa-2x text-muted"></i>
+                                </div>
+                            {% endif %}
+
+                            <!-- Attendee Info -->
+                            <h5 class="card-title">{{ item.badge.name }}</h5>
+                            {% if item.badge.title %}
+                                <p class="text-muted">{{ item.badge.title }}</p>
+                            {% endif %}
+                            {% if item.badge.company %}
+                                <p class="text-muted">{{ item.badge.company }}</p>
+                            {% endif %}
+
+                            <!-- Registration Info -->
+                            <small class="text-muted">
+                                Reg: {{ item.registration.registration_number }}<br>
+                                {% if item.badge.is_printed %}
+                                    <span class="text-success">
+                                        <i class="fas fa-check-circle"></i> Printed
+                                    </span>
+                                {% else %}
+                                    <span class="text-warning">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="card-footer">
+                            <div class="btn-group btn-group-sm w-100">
+                                <a href="{% url 'registration:badge_view' item.registration.id %}" 
+                                   class="btn btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{% url 'registration:badge_print' item.registration.id %}" 
+                                   class="btn btn-outline-secondary">
+                                    <i class="fas fa-print"></i> Print
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        No confirmed registrations found for badge printing.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .badge-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 2px solid #000 !important;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        background-color: #000 !important;
+        color: #fff !important;
+    }
+    
+    .badge-qr {
+        border: 1px solid #000 !important;
+    }
+    
+    .btn-group, .card-footer {
+        display: none !important;
+    }
+}
+
+.badge-card {
+    transition: transform 0.2s;
+}
+
+.badge-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.badge-qr-placeholder {
+    width: 80px;
+    height: 80px;
+    border: 2px dashed #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 4px;
+}
+</style>
+
+<!-- Print Preview Script -->
+<script>
+function printPreview() {
+    const printWindow = window.open('', '_blank');
+    const badgesHtml = document.getElementById('badges-container').innerHTML;
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Badge Print Preview - {{ event.title }}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .badge-card { 
+                    width: 350px; 
+                    height: 225px; 
+                    border: 2px solid #000; 
+                    margin: 10px; 
+                    float: left; 
+                    page-break-inside: avoid;
+                }
+                .card-header { 
+                    background: #000; 
+                    color: #fff; 
+                    padding: 10px; 
+                    text-align: center;
+                    font-weight: bold;
+                }
+                .card-body { 
+                    padding: 15px; 
+                    text-align: center; 
+                    height: calc(100% - 60px);
+                }
+                .badge-qr { 
+                    width: 60px; 
+                    height: 60px; 
+                    border: 1px solid #000; 
+                    margin: 0 auto 10px;
+                }
+                h5 { margin: 5px 0; font-size: 16px; }
+                p { margin: 2px 0; font-size: 12px; }
+                small { font-size: 10px; }
+                @media print {
+                    body { margin: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            ${badgesHtml}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.print();
+}
+</script>
+{% endblock %}

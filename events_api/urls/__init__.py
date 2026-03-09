@@ -7,7 +7,7 @@ from events_api.views import (
     SpeakerViewSet, SessionViewSet,
     VendorViewSet, ContractViewSet,
     TicketTypeViewSet, PromoCodeViewSet, RegistrationViewSet,
-    PublicRegisterView
+    PublicRegisterView, SendQREmailView
 )
 
 router = DefaultRouter()
@@ -50,6 +50,9 @@ urlpatterns = [
 
     # Public registration endpoint
     path('register/', PublicRegisterView.as_view(), name='api-public-register'),
+    
+    # QR code email endpoint
+    path('send-qr-email/', SendQREmailView, name='api-send-qr-email'),
 
     path('events/<int:event_pk>/contracts/', ContractViewSet.as_view({'get': 'list', 'post': 'create'}), name='api-event-contracts'),
     path('events/<int:event_pk>/contracts/<int:pk>/', ContractViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='api-event-contract-detail'),

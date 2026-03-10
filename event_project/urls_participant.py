@@ -11,6 +11,9 @@ from django.contrib.auth import views as auth_views
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
+# Import attendee views for my-registrations
+from registration import views_attendee
+
 # Simple CSRF exempt registration API
 @csrf_exempt
 def simple_register_api(request):
@@ -134,8 +137,8 @@ urlpatterns = [
     # Event detail with slug
     path('events/<int:event_id>/<slug:slug>/', TemplateView.as_view(template_name='participant/event_detail.html'), name='participant_event_detail_slug'),
 
-    # My registrations (auth required)
-    path('my-registrations/', TemplateView.as_view(template_name='participant/my_registrations.html'), name='participant_my_registrations'),
+    # My registrations (auth required) - uses proper view with context data
+    path('my-registrations/', views_attendee.my_registrations_enhanced, name='participant_my_registrations'),
 
     # Single registration detail
     path('my-registrations/<int:registration_id>/', TemplateView.as_view(template_name='participant/registration_detail.html'), name='participant_registration_detail'),

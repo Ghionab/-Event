@@ -1,6 +1,6 @@
 from django import forms
 from .models import OrganizerProfile, EventTemplate, OrganizerTeamMember
-
+from registration.models import Registration
 
 class OrganizerProfileForm(forms.ModelForm):
     class Meta:
@@ -47,3 +47,25 @@ class TeamMemberInviteForm(forms.ModelForm):
         self.fields['permissions'].widget = forms.Textarea(attrs={
             'placeholder': 'Enter permissions as JSON, e.g., {"manage_events": true, "view_analytics": true}'
         })
+
+
+class RegistrationEditForm(forms.ModelForm):
+    """Form for editing registration details by organizer"""
+    
+    class Meta:
+        model = Registration
+        fields = [
+            'attendee_name', 'attendee_email', 'attendee_phone',
+            'status', 'special_requests'
+        ]
+        widgets = {
+            'attendee_name': forms.TextInput(attrs={'placeholder': 'Full Name', 'class': 'form-input'}),
+            'attendee_email': forms.EmailInput(attrs={'placeholder': 'Email Address', 'class': 'form-input'}),
+            'attendee_phone': forms.TextInput(attrs={'placeholder': 'Phone Number', 'class': 'form-input'}),
+            'special_requests': forms.Textarea(attrs={
+                'rows': 3, 
+                'placeholder': 'Any special requests or dietary requirements?',
+                'class': 'form-textarea'
+            }),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }

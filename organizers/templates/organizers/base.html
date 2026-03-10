@@ -104,9 +104,6 @@
             border-left: 3px solid transparent;
             margin: 0 0.5rem;
             border-radius: 0.5rem;
-            position: relative;
-            z-index: 1001;
-            pointer-events: auto;
             cursor: pointer;
         }
 
@@ -124,12 +121,6 @@
         .nav-item i {
             width: 1.25rem;
             text-align: center;
-        }
-
-        /* Ensure nav items are always clickable */
-        .sidebar-nav {
-            position: relative;
-            z-index: 1000;
         }
 
         .sidebar-footer {
@@ -364,15 +355,15 @@
 
                     <div class="nav-section-title">Management</div>
                     <div class="nav-section">
-                        <a href="#" class="nav-item">
+                        <a href="{% url 'organizer_registration_list' %}" class="nav-item {% if 'registration' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-person-badge"></i>
                             <span>Registrations</span>
                         </a>
-                        <a href="#" class="nav-item">
+                        <a href="{% url 'organizer_communication_dashboard' %}" class="nav-item {% if 'communication' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-envelope"></i>
                             <span>Communication</span>
                         </a>
-                        <a href="#" class="nav-item">
+                        <a href="{% url 'organizer_sponsor_list' %}" class="nav-item {% if 'sponsor' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-currency-dollar"></i>
                             <span>Sponsors</span>
                         </a>
@@ -408,14 +399,7 @@
                             <i class="bi bi-bar-chart-line"></i>
                             <span>Analytics</span>
                         </a>
-                        <a href="{% url 'advanced:audit_log' %}" class="nav-item {% if 'audit' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="bi bi-shield-check"></i>
-                            <span>Audit Log</span>
-                        </a>
-                        <a href="{% url 'advanced:security_events' %}" class="nav-item {% if 'security' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="bi bi-shield-exclamation"></i>
-                            <span>Security</span>
-                        </a>
+                       
                         <a href="{% url 'organizer_settings' %}" class="nav-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-gear"></i>
                             <span>Settings</span>
@@ -428,14 +412,14 @@
                 </nav>
 
                 <!-- Footer -->
-                <div class="sidebar-footer" style="position: relative; z-index: 1000;">
+                <div class="sidebar-footer">
                     <a href="/" class="nav-item">
                         <i class="bi bi-house"></i>
                         <span>Back to Home</span>
                     </a>
-                    <form method="post" action="{% url 'logout' %}" class="mt-2" style="position: relative; z-index: 1001;">
+                    <form method="post" action="{% url 'logout' %}" class="mt-2">
                         {% csrf_token %}
-                        <button type="submit" class="nav-item w-full text-left text-red-400 hover:text-red-300" style="pointer-events: auto;">
+                        <button type="submit" class="nav-item w-full text-left text-red-400 hover:text-red-300">
                             <i class="bi bi-box-arrow-right"></i>
                             <span>Logout</span>
                         </button>

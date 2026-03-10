@@ -209,6 +209,28 @@
                 </div>
             </div>
 
+            <!-- CSV Upload Section -->
+            <div class="mb-6 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                <h4 class="font-medium text-indigo-900 mb-2"><i class="bi bi-upload mr-2"></i>Bulk Import Team Members</h4>
+                <p class="text-sm text-indigo-700 mb-3">Upload a CSV file with team member details. Format: name, email, role</p>
+                <form method="post" action="{% url 'organizer_import_team_csv' event.id %}" enctype="multipart/form-data" class="flex items-end gap-4">
+                    {% csrf_token %}
+                    <div class="flex-1">
+                        <input type="file" name="team_csv" accept=".csv" required
+                               class="w-full px-3 py-2 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white">
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        <i class="bi bi-file-earmark-arrow-up mr-2"></i>Import CSV
+                    </button>
+                </form>
+                <div class="mt-2 text-xs text-indigo-600">
+                    <a href="data:text/csv;charset=utf-8,name,email,role%0AJohn Doe,john@example.com,Manager%0AJane Smith,jane@example.com,Volunteer" 
+                       download="team_template.csv" class="underline hover:text-indigo-800">
+                        <i class="bi bi-download mr-1"></i>Download CSV Template
+                    </a>
+                </div>
+            </div>
+
             {% if team_members %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 {% for member in team_members %}
@@ -343,8 +365,14 @@ We hope to see you there!</textarea>
                 <form method="post" class="max-w-md mx-auto">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="finish">
+                    <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-sm text-green-800">
+                            <i class="bi bi-check-circle-fill mr-2"></i>
+                            <strong>Event is already published!</strong> Your event is live and visible to attendees.
+                        </p>
+                    </div>
                     <button type="submit" class="w-full px-8 py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-lg font-medium">
-                        <i class="bi bi-rocket-takeoff mr-2"></i>Publish Event
+                        <i class="bi bi-check-lg mr-2"></i>Finish Setup
                     </button>
                 </form>
 

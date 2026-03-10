@@ -51,14 +51,7 @@
                 opacity: 0;
             }
         }
-
-            {
-            % block extra_css %
-        }
-
-            {
-            % endblock %
-        }
+        {% block extra_css %}{% endblock %}
     </style>
 </head>
 
@@ -123,8 +116,7 @@
                     </a>
                     <!-- User menu -->
                     <div class="relative" x-data="{ open: false }">
-                        <span class="text-gray-600 text-sm hidden lg:inline">{{ user.first_name|default:user.email
-                            }}</span>
+                        <span class="text-gray-600 text-sm hidden lg:inline">{{ user.first_name|default:user.email }}</span>
                         <a href="{% url 'attendee:settings' %}"
                             class="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-indigo-50 transition">
                             <i class="fas fa-user-circle text-xl"></i>

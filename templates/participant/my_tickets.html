@@ -3,60 +3,139 @@
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <h1 class="text-3xl font-bold text-gray-900 mb-2">My Tickets</h1>
-    <p class="text-gray-600 mb-8">Show your QR code at the event entrance for quick check-in</p>
+    <p class="text-gray-600 mb-8">All your purchased tickets in one place</p>
 
-    {% if tickets %}
-    <div class="space-y-6">
-        {% for ticket in tickets %}
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    {% if has_any_tickets %}
+    
+    {% if upcoming_tickets %}
+    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <i class="bi bi-calendar-check text-green-500 mr-2"></i>Upcoming Events
+    </h2>
+    <div class="space-y-6 mb-10">
+        {% for ticket in upcoming_tickets %}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden border-l-4 border-green-500">
             <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
                 <h2 class="text-white font-bold text-lg">{{ ticket.registration.event.title }}</h2>
                 <p class="text-indigo-100 text-sm">{{ ticket.registration.event.start_date|date:"F d, Y · g:i A" }}</p>
             </div>
-            <div class="p-6 text-center">
-                {% if ticket.qr_image %}
-                <img src="data:image/png;base64,{{ ticket.qr_image }}" alt="QR Code" class="mx-auto w-56 h-56 mb-4"
-                    style="image-rendering: pixelated;">
-                {% endif %}
-                <p class="text-sm text-gray-500 mb-1">{{ ticket.registration.registration_number }}</p>
-                <p class="text-sm text-gray-500 mb-4">{{ ticket.registration.attendee_name }}</p>
-                <div class="flex gap-2 justify-center">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                        {% if ticket.registration.status == 'confirmed' %}bg-green-100 text-green-800
-                        {% elif ticket.registration.status == 'checked_in' %}bg-blue-100 text-blue-800
-                        {% else %}bg-gray-100 text-gray-800{% endif %}">
-                        {{ ticket.registration.get_status_display }}
-                    </span>
-                    <span
-                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                        {{ ticket.registration.ticket_type.name|default:"General" }}
-                    </span>
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Registration #{{ ticket.registration.registration_number }}</p>
+                        <h3 class="text-lg font-semibold text-gray-800">{{ ticket.registration.attendee_name }}</h3>
+                        <p class="text-sm text-gray-600">{{ ticket.registration.attendee_email }}</p>
+                        {% if ticket.registration.attendee_phone %}
+                        <p class="text-sm text-gray-500">{{ ticket.registration.attendee_phone }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                            {% if ticket.registration.status == 'confirmed' %}bg-green-100 text-green-800
+                            {% elif ticket.registration.status == 'checked_in' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ ticket.registration.get_status_display }}
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div class="border-t px-6 py-4 flex gap-3 justify-center bg-gray-50">
-                <a href="{% url 'attendee:download_ticket' ticket.registration.id %}"
-                    class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                    <i class="bi bi-download mr-1"></i>Download
-                </a>
-                <span class="text-gray-300">|</span>
-                <a href="{% url 'attendee:digital_badge' ticket.registration.id %}"
-                    class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                    <i class="bi bi-person-badge mr-1"></i>Badge
-                </a>
-                <span class="text-gray-300">|</span>
-                <a href="{% url 'attendee:registration_detail' ticket.registration.id %}"
-                    class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                    <i class="bi bi-info-circle mr-1"></i>Details
-                </a>
+                
+                <div class="text-center py-4 bg-gray-50 rounded-lg mb-4">
+                    {% if ticket.qr_image %}
+                    <img src="data:image/png;base64,{{ ticket.qr_image }}" alt="QR Code" class="mx-auto w-48 h-48 mb-2"
+                        style="image-rendering: pixelated;">
+                    <p class="text-xs text-gray-500">Scan at check-in</p>
+                    {% else %}
+                    <p class="text-gray-500">QR code not available</p>
+                    {% endif %}
+                </div>
+                
+                <div class="flex items-center justify-between pt-4 border-t">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        {{ ticket.registration.ticket_type.name|default:"General Admission" }}
+                    </span>
+                    <div class="flex gap-3">
+                        <a href="{% url 'attendee:download_ticket' ticket.registration.id %}"
+                            class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                            <i class="bi bi-download mr-1"></i>Download
+                        </a>
+                        <a href="{% url 'attendee:digital_badge' ticket.registration.id %}"
+                            class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                            <i class="bi bi-person-badge mr-1"></i>Badge
+                        </a>
+                        <a href="{% url 'attendee:registration_detail' ticket.registration.id %}"
+                            class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                            <i class="bi bi-info-circle mr-1"></i>Details
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         {% endfor %}
     </div>
+    {% endif %}
+
+    {% if past_tickets %}
+    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+        <i class="bi bi-calendar-x text-gray-500 mr-2"></i>Past Events
+    </h2>
+    <div class="space-y-6 opacity-75">
+        {% for ticket in past_tickets %}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden border-l-4 border-gray-400">
+            <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4">
+                <h2 class="text-white font-bold text-lg">{{ ticket.registration.event.title }}</h2>
+                <p class="text-gray-200 text-sm">{{ ticket.registration.event.start_date|date:"F d, Y · g:i A" }}</p>
+            </div>
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Registration #{{ ticket.registration.registration_number }}</p>
+                        <h3 class="text-lg font-semibold text-gray-800">{{ ticket.registration.attendee_name }}</h3>
+                        <p class="text-sm text-gray-600">{{ ticket.registration.attendee_email }}</p>
+                        {% if ticket.registration.attendee_phone %}
+                        <p class="text-sm text-gray-500">{{ ticket.registration.attendee_phone }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                            {% if ticket.registration.status == 'confirmed' %}bg-green-100 text-green-800
+                            {% elif ticket.registration.status == 'checked_in' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ ticket.registration.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="text-center py-4 bg-gray-50 rounded-lg mb-4">
+                    {% if ticket.qr_image %}
+                    <img src="data:image/png;base64,{{ ticket.qr_image }}" alt="QR Code" class="mx-auto w-48 h-48 mb-2 grayscale"
+                        style="image-rendering: pixelated;">
+                    <p class="text-xs text-gray-500">Event completed</p>
+                    {% else %}
+                    <p class="text-gray-500">QR code not available</p>
+                    {% endif %}
+                </div>
+                
+                <div class="flex items-center justify-between pt-4 border-t">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        {{ ticket.registration.ticket_type.name|default:"General Admission" }}
+                    </span>
+                    <div class="flex gap-3">
+                        <a href="{% url 'attendee:registration_detail' ticket.registration.id %}"
+                            class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                            <i class="bi bi-info-circle mr-1"></i>Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     {% else %}
     <div class="bg-white rounded-lg shadow p-12 text-center">
         <i class="bi bi-ticket-perforated text-gray-300 text-6xl mb-4 block"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">No active tickets</h3>
-        <p class="text-gray-500 mb-6">Register for upcoming events to get your tickets here.</p>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No tickets found</h3>
+        <p class="text-gray-500 mb-6">You haven't purchased any tickets yet. Browse events to get started.</p>
         <a href="/events/"
             class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">Browse Events</a>
     </div>

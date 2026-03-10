@@ -36,14 +36,7 @@ urlpatterns = [
     path('tasks/<int:pk>/comment/', views.task_add_comment, name='task_add_comment'),
     path('tasks/export/', views.task_export, name='task_export'),
     path('tasks/bulk-update/', views.task_bulk_update, name='task_bulk_update'),
-    
-    # Audit URLs
-    path('audit/', views.audit_log, name='audit_log'),
-    
-    # Security URLs
-    path('security/', views.security_events, name='security_events'),
-    path('security/<int:pk>/resolve/', views.security_event_resolve, name='security_event_resolve'),
-    
+
     # Privacy URLs
     path('privacy/', views.privacy_settings, name='privacy_settings'),
     path('privacy/export/', views.data_export_request, name='data_export_request'),

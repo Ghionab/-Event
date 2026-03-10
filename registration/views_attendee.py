@@ -944,29 +944,40 @@ def account_settings(request):
 
 @login_required
 def my_tickets(request):
-    """Mobile-optimized QR code display for all upcoming registrations"""
+    """Display all purchased tickets including upcoming and past events"""
     user = request.user
     now = timezone.now()
 
-    registrations = Registration.objects.filter(
+    # Get all confirmed/checked-in registrations for this user
+    all_registrations = Registration.objects.filter(
         models.Q(user=user) | models.Q(attendee_email=user.email),
-        event__start_date__gte=now,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event', 'ticket_type').order_by('event__start_date')
 
-    tickets = []
-    for reg in registrations:
-        try:
-            qr_image = reg.generate_qr_code_image()
-        except Exception:
-            qr_image = None
-        tickets.append({
-            'registration': reg,
-            'qr_image': qr_image,
-        })
+    # Separate into upcoming and past
+    upcoming_registrations = all_registrations.filter(event__start_date__gte=now)
+    past_registrations = all_registrations.filter(event__start_date__lt=now)
+
+    def create_tickets_list(registrations):
+        tickets = []
+        for reg in registrations:
+            try:
+                qr_image = reg.generate_qr_code_image()
+            except Exception:
+                qr_image = None
+            tickets.append({
+                'registration': reg,
+                'qr_image': qr_image,
+            })
+        return tickets
+
+    upcoming_tickets = create_tickets_list(upcoming_registrations)
+    past_tickets = create_tickets_list(past_registrations)
 
     context = {
-        'tickets': tickets,
+        'upcoming_tickets': upcoming_tickets,
+        'past_tickets': past_tickets,
+        'has_any_tickets': all_registrations.exists(),
     }
     return render(request, 'participant/my_tickets.html', context)
 

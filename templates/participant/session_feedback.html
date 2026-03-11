@@ -1,4 +1,4 @@
-{% extends 'participant/base.html' %}
+﻿{% extends 'participant/base.html' %}
 {% block title %}Rate Session - EventHub{% endblock %}
 {% block content %}
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -10,7 +10,7 @@
     <div class="bg-white rounded-lg shadow p-8">
         <h1 class="text-2xl font-bold text-gray-900 mb-2">Rate This Session</h1>
         <p class="text-gray-600 mb-6">{{ session.title }}</p>
-        <p class="text-sm text-gray-500 mb-8">{{ session.start_time|date:"F d, Y · g:i A" }} — {{
+        <p class="text-sm text-gray-500 mb-8">{{ session.start_time|date:"F d, Y" }} &middot; {{ session.start_time|date:"g:i A" }} &mdash; {{
             session.end_time|date:"g:i A" }}</p>
 
         <form method="post">
@@ -22,7 +22,7 @@
                     {% for i in "12345" %}
                     <button type="button" onclick="setRating({{ i }})" id="star-{{ i }}"
                         class="text-3xl text-gray-300 hover:text-yellow-400 transition cursor-pointer focus:outline-none {% if attendance.rating and attendance.rating >= forloop.counter %}text-yellow-400{% endif %}">
-                        ★
+                        &#9733;
                     </button>
                     {% endfor %}
                 </div>
@@ -63,3 +63,5 @@
 </script>
 {% endblock %}
 {% endblock %}
+
+

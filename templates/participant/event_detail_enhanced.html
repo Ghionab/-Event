@@ -1,4 +1,4 @@
-{% extends 'participant/base.html' %}
+﻿{% extends 'participant/base.html' %}
 {% block title %}{{ event.title }} - EventHub{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -19,11 +19,15 @@
                 <span class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700">
                     <i class="bi bi-people mr-1"></i>{{ attendee_count }} attending
                 </span>
+                {% if has_capacity %}
+                <span class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700">
+                    <i class="bi bi-person-plus mr-1"></i>{{ available_spots }} spots left
+                </span>
+                {% endif %}
             </div>
             <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ event.title }}</h1>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-gray-600">
-                <p><i class="bi bi-calendar text-indigo-500 mr-2"></i>{{ event.start_date|date:"F d, Y · g:i A" }} — {{
-                    event.end_date|date:"F d, Y · g:i A" }}</p>
+                <p><i class="bi bi-calendar text-indigo-500 mr-2"></i>{{ event.start_date|date:"F d, Y" }} &middot; {{ event.start_date|date:"g:i A" }} &mdash; {{ event.end_date|date:"F d, Y" }} &middot; {{ event.end_date|date:"g:i A" }}</p>
                 <p><i class="bi bi-geo-alt text-indigo-500 mr-2"></i>{{ event.venue_name|default:"Virtual Event" }}</p>
                 {% if event.contact_email %}<p><i class="bi bi-envelope text-indigo-500 mr-2"></i>{{ event.contact_email
                     }}</p>{% endif %}
@@ -35,23 +39,24 @@
                 <p class="text-green-800 font-medium"><i class="bi bi-check-circle mr-2"></i>You are registered for this
                     event!</p>
                 <a href="{% url 'attendee:registration_detail' user_registration.id %}"
-                    class="text-green-700 underline text-sm">View Registration →</a>
+                    class="text-green-700 underline text-sm">View Registration &rarr;</a>
             </div>
             {% endif %}
         </div>
     </div>
 
     <!-- Ticket Types -->
-    {% if ticket_types and not is_registered %}
+    {% if not is_registered %}
     <div class="bg-white rounded-lg shadow p-6 mt-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Tickets</h2>
+        {% if ticket_types %}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             {% for ticket in ticket_types %}
-            <div class="border rounded-lg p-4 {% if ticket.is_sold_out %}opacity-60{% endif %}">
+            <div class="border rounded-lg p-4 {% if ticket.computed_sold_out %}opacity-60{% endif %}">
                 <h3 class="font-semibold text-gray-900">{{ ticket.name }}</h3>
                 <p class="text-2xl font-bold text-indigo-600 my-2">${{ ticket.price }}</p>
-                <p class="text-sm text-gray-500 mb-3">{{ ticket.available_quantity }} remaining</p>
-                {% if not ticket.is_sold_out %}
+                <p class="text-sm text-gray-500 mb-3">{{ ticket.computed_available }} remaining</p>
+                {% if not ticket.computed_sold_out %}
                 <a href="/events/{{ event.id }}/register/"
                     class="block text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm">Register</a>
                 {% else %}
@@ -60,6 +65,18 @@
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="text-center py-8">
+            <i class="bi bi-ticket text-gray-300 text-4xl mb-3"></i>
+            <p class="text-gray-500">
+                {% if has_ticket_types %}
+                    Tickets are not on sale at the moment.
+                {% else %}
+                    No tickets have been configured yet.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 
@@ -93,8 +110,7 @@
             {% for session in sessions %}
             <div class="border-l-4 border-indigo-500 pl-4 py-2">
                 <h4 class="font-medium text-gray-900">{{ session.title }}</h4>
-                <p class="text-sm text-gray-500">{{ session.start_time|date:"M d · g:i A" }} — {{
-                    session.end_time|date:"g:i A" }}</p>
+                <p class="text-sm text-gray-500">{{ session.start_time|date:"M d" }} &middot; {{ session.start_time|date:"g:i A" }} &mdash; {{ session.end_time|date:"g:i A" }}</p>
             </div>
             {% endfor %}
         </div>
@@ -118,3 +134,4 @@
     {% endif %}
 </div>
 {% endblock %}
+

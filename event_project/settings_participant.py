@@ -90,6 +90,12 @@ CORS_ALLOW_CREDENTIALS = True
 # URL configuration for participant portal
 ROOT_URLCONF = 'event_project.urls_participant'
 
+# Login redirect URL for participant portal
+LOGIN_REDIRECT_URL = '/events/'
+
+# Logout redirect URL
+LOGOUT_REDIRECT_URL = '/login/'
+
 # Session settings
 SESSION_COOKIE_NAME = 'participant_sessionid'
 SESSION_COOKIE_AGE = 86400  # 24 hours

@@ -66,7 +66,7 @@
                 </div>
                 <div>
                     <p class="text-sm text-gray-500">Revenue</p>
-                    <p class="text-2xl font-bold text-gray-800">${{ analytics.total_revenue|default:"0" }}</p>
+                    <p class="text-2xl font-bold text-gray-800">${{ analytics.total_revenue|default:"0"|floatformat:2 }}</p>
                 </div>
             </div>
         </div>
@@ -83,9 +83,9 @@
             </h3>
         </div>
         <div class="card-body">
-            {% if analytics.traffic_sources %}
+            {% if traffic_sources %}
             <div class="space-y-4">
-                {% for source, count in analytics.traffic_sources.items %}
+                {% for source, count in traffic_sources.items %}
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <span class="w-3 h-3 rounded-full bg-indigo-500 mr-3"></span>
@@ -93,7 +93,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="w-32 bg-gray-200 rounded-full h-2">
-                            <div class="bg-indigo-500 h-2 rounded-full" style="width: {{ count }}%"></div>
+                            <div class="bg-indigo-500 h-2 rounded-full" style="width: {% widthratio count traffic_sources_total 100 %}%"></div>
                         </div>
                         <span class="text-sm font-medium text-gray-600 w-12 text-right">{{ count }}</span>
                     </div>
@@ -117,9 +117,9 @@
             </h3>
         </div>
         <div class="card-body">
-            {% if analytics.tickets_sold_by_type %}
+            {% if tickets_sold_by_type %}
             <div class="space-y-4">
-                {% for ticket_type, count in analytics.tickets_sold_by_type.items %}
+                {% for ticket_type, count in tickets_sold_by_type.items %}
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>
@@ -127,7 +127,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="w-32 bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: {{ count }}%"></div>
+                            <div class="bg-green-500 h-2 rounded-full" style="width: {% widthratio count tickets_sold_total 100 %}%"></div>
                         </div>
                         <span class="text-sm font-medium text-gray-600 w-12 text-right">{{ count }}</span>
                     </div>
@@ -154,13 +154,7 @@
             </h3>
         </div>
         <div class="card-body text-center">
-            <p class="text-4xl font-bold text-indigo-600">
-                {% if analytics.total_views and analytics.total_registrations %}
-                    {% widthratio analytics.total_registrations analytics.total_views 100 %}%
-                {% else %}
-                    0%
-                {% endif %}
-            </p>
+            <p class="text-4xl font-bold text-indigo-600">{{ conversion_rate|floatformat:1 }}%</p>
             <p class="text-sm text-gray-500 mt-2">Views to registrations</p>
         </div>
     </div>
@@ -173,13 +167,7 @@
             </h3>
         </div>
         <div class="card-body text-center">
-            <p class="text-4xl font-bold text-green-600">
-                {% if analytics.total_registrations and analytics.checked_in_count %}
-                    {% widthratio analytics.checked_in_count analytics.total_registrations 100 %}%
-                {% else %}
-                    0%
-                {% endif %}
-            </p>
+            <p class="text-4xl font-bold text-green-600">{{ attendance_rate|floatformat:1 }}%</p>
             <p class="text-sm text-gray-500 mt-2">Check-in rate</p>
         </div>
     </div>
@@ -192,13 +180,7 @@
             </h3>
         </div>
         <div class="card-body text-center">
-            <p class="text-4xl font-bold text-purple-600">
-                {% if analytics.total_registrations %}
-                    ${{ analytics.total_revenue|default:"0"|divisibleby:analytics.total_registrations|yesno:"0"|default:analytics.total_registrations|stringformat:"d" }}
-                {% else %}
-                    $0
-                {% endif %}
-            </p>
+            <p class="text-4xl font-bold text-purple-600">${{ revenue_per_attendee|floatformat:2 }}</p>
             <p class="text-sm text-gray-500 mt-2">Average per registration</p>
         </div>
     </div>

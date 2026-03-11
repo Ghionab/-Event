@@ -1,4 +1,4 @@
-{% extends 'participant/base.html' %}
+﻿{% extends 'participant/base.html' %}
 {% block title %}My Tickets - EventHub{% endblock %}
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -16,7 +16,7 @@
         <div class="bg-white rounded-xl shadow-lg overflow-hidden border-l-4 border-green-500">
             <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
                 <h2 class="text-white font-bold text-lg">{{ ticket.registration.event.title }}</h2>
-                <p class="text-indigo-100 text-sm">{{ ticket.registration.event.start_date|date:"F d, Y · g:i A" }}</p>
+                <p class="text-indigo-100 text-sm">{{ ticket.registration.event.start_date|date:"F d, Y" }} &middot; {{ ticket.registration.event.start_date|date:"g:i A" }}</p>
             </div>
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
@@ -53,9 +53,15 @@
                         {{ ticket.registration.ticket_type.name|default:"General Admission" }}
                     </span>
                     <div class="flex gap-3">
+<<<<<<< HEAD
                         <a href="{% url 'attendee:download_ticket' ticket.registration.id %}"
                             class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
                             <i class="bi bi-download mr-1"></i>Download
+=======
+                        <a href="{% url 'attendee:ticket_preview' ticket.registration.id %}"
+                            class="inline-flex items-center gap-2 bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                            <i class="bi bi-file-earmark-pdf"></i> Ticket
+>>>>>>> 5bf0b5c (my update on everything)
                         </a>
                         <a href="{% url 'attendee:digital_badge' ticket.registration.id %}"
                             class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
@@ -82,7 +88,11 @@
         <div class="bg-white rounded-xl shadow-lg overflow-hidden border-l-4 border-gray-400">
             <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4">
                 <h2 class="text-white font-bold text-lg">{{ ticket.registration.event.title }}</h2>
+<<<<<<< HEAD
                 <p class="text-gray-200 text-sm">{{ ticket.registration.event.start_date|date:"F d, Y · g:i A" }}</p>
+=======
+                <p class="text-gray-200 text-sm">{{ ticket.registration.event.start_date|date:"F d, Y" }} &middot; {{ ticket.registration.event.start_date|date:"g:i A" }}</p>
+>>>>>>> 5bf0b5c (my update on everything)
             </div>
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
@@ -119,6 +129,13 @@
                         {{ ticket.registration.ticket_type.name|default:"General Admission" }}
                     </span>
                     <div class="flex gap-3">
+<<<<<<< HEAD
+=======
+                        <a href="{% url 'attendee:ticket_preview' ticket.registration.id %}"
+                            class="inline-flex items-center gap-2 bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                            <i class="bi bi-file-earmark-pdf"></i> Ticket
+                        </a>
+>>>>>>> 5bf0b5c (my update on everything)
                         <a href="{% url 'attendee:registration_detail' ticket.registration.id %}"
                             class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
                             <i class="bi bi-info-circle mr-1"></i>Details
@@ -142,3 +159,5 @@
     {% endif %}
 </div>
 {% endblock %}
+
+

@@ -20,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0011ux95rc)db*1kjscoqm&!!49%f^z)nn-)711wel)8psg=cp'
+SECRET_KEY = 'participant-secret-key-change-in-production'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # CSRF settings for browser preview proxies
 CSRF_TRUSTED_ORIGINS = [
@@ -55,17 +55,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third party apps
     'rest_framework',
     'corsheaders',
-    'drf_spectacular',
-    # Custom apps
     'events',
-    'users',
     'registration',
-    'organizers',
-    'communication',
-    'business',
+    'users',
     'advanced',
     'events_api',
 ]
@@ -81,7 +75,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'event_project.urls'
+ROOT_URLCONF = 'event_project.urls_participant'
+
+LOGIN_REDIRECT_URL = '/events/'
 
 TEMPLATES = [
     {
@@ -133,22 +129,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
-<<<<<<< HEAD
-# Authentication backends
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
-
-# Login/Logout URLs
-LOGIN_URL = '/organizers/login/'
-LOGIN_REDIRECT_URL = '/organizers/'
-LOGOUT_REDIRECT_URL = '/organizers/login/'
-=======
-# Auth defaults (organizer portal)
-LOGIN_URL = '/organizers/login/'
-LOGIN_REDIRECT_URL = '/organizers/dashboard/'
->>>>>>> 5bf0b5c (my update on everything)
-
 
 # Email Configuration
 # For development, emails are printed to console
@@ -180,7 +160,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # Media files (Uploads)
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # File Upload Settings

@@ -499,6 +499,10 @@
     }
 
     // Initialize
-    showTab('details');
+    if (window.location.hash === '#tickets') {
+        showTab('tickets');
+    } else {
+        showTab('details');
+    }
 </script>
 {% endblock %}

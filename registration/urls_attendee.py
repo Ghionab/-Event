@@ -31,6 +31,7 @@ urlpatterns = [
 
     # Tickets & Badges
     path('tickets/', views_attendee.my_tickets, name='my_tickets'),
+    path('tickets/<int:registration_id>/preview/', views_attendee.ticket_preview, name='ticket_preview'),
     path('tickets/<int:registration_id>/badge/', views_attendee.digital_badge, name='digital_badge'),
 
     # Certificates & Post-Event

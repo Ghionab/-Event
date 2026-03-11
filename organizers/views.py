@@ -13,12 +13,20 @@ from .models import (
     EventTemplate, OrganizerNotification, OrganizerPayout
 )
 from events.models import Event, EventSession, Sponsor
+<<<<<<< HEAD
 from registration.models import Registration, TicketType, CheckIn
+=======
+from registration.models import Registration, TicketType, CheckIn, RegistrationStatus
+>>>>>>> 5bf0b5c (my update on everything)
 from communication.models import EmailTemplate, EmailLog, ScheduledEmail, LivePoll, LiveQA
 from communication.forms import EmailTemplateForm, ScheduledEmailForm, LivePollForm
 from events.forms import SponsorForm
 
 from .forms import RegistrationEditForm
+<<<<<<< HEAD
+=======
+from .utils import organizer_profile_exists, ensure_user_is_organizer
+>>>>>>> 5bf0b5c (my update on everything)
 
 def organizer_required(view_func):
     """Decorator to ensure user has organizer profile"""
@@ -33,6 +41,67 @@ def organizer_required(view_func):
             messages.error(request, 'You need to create an organizer profile first.')
             return redirect('organizer_create')
     return wrapper
+
+
+def _compute_event_metrics(event):
+    registrations = Registration.objects.filter(event=event)
+    active_regs = registrations.filter(
+        status__in=[
+            RegistrationStatus.PENDING,
+            RegistrationStatus.CONFIRMED,
+            RegistrationStatus.CHECKED_IN,
+        ]
+    )
+    confirmed_regs = registrations.filter(
+        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+    )
+
+    total_registrations = registrations.count()
+    checked_in_count = registrations.filter(status=RegistrationStatus.CHECKED_IN).count()
+    total_revenue = confirmed_regs.aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+    total_refunds = registrations.filter(
+        status=RegistrationStatus.REFUNDED
+    ).aggregate(total=Sum('refund_amount'))['total'] or Decimal('0')
+
+    tickets_sold_by_type = {
+        row['ticket_type__name'] or 'Unspecified': row['count']
+        for row in confirmed_regs.values('ticket_type__name').annotate(count=Count('id'))
+    }
+
+    recent_activity = []
+    for reg in registrations.order_by('-created_at')[:10]:
+        action = 'registration'
+        activity_date = reg.created_at
+        details = f"{reg.attendee_name} registered"
+        if reg.status == RegistrationStatus.CHECKED_IN and reg.checked_in_at:
+            action = 'checked in'
+            activity_date = reg.checked_in_at
+            details = f"{reg.attendee_name} checked in"
+        elif reg.status == RegistrationStatus.CANCELLED:
+            action = 'cancelled'
+            details = f"{reg.attendee_name} cancelled"
+        elif reg.status == RegistrationStatus.REFUNDED:
+            action = 'refunded'
+            details = f"{reg.attendee_name} refunded"
+
+        recent_activity.append({
+            'date': activity_date,
+            'action': action,
+            'details': details,
+        })
+
+    return {
+        'total_registrations': total_registrations,
+        'confirmed_registrations': confirmed_regs.count(),
+        'cancelled_registrations': registrations.filter(
+            status__in=[RegistrationStatus.CANCELLED, RegistrationStatus.REFUNDED]
+        ).count(),
+        'checked_in_count': checked_in_count,
+        'total_revenue': total_revenue,
+        'total_refunds': total_refunds,
+        'tickets_sold_by_type': tickets_sold_by_type,
+        'recent_activity': recent_activity,
+    }
 
 
 @login_required
@@ -83,8 +152,9 @@ def dashboard(request):
 def organizer_create(request):
     """Create organizer profile"""
     from .forms import OrganizerProfileForm
-    from users.models import UserRole
-    
+
+    if organizer_profile_exists(request.user):
+        return redirect('organizer_dashboard')
     
     if request.method == 'POST':
         form = OrganizerProfileForm(request.POST, request.FILES)
@@ -92,6 +162,7 @@ def organizer_create(request):
             profile = form.save(commit=False)
             profile.user = request.user
             profile.save()
+            ensure_user_is_organizer(request.user)
             messages.success(request, 'Organizer profile created successfully!')
             return redirect('organizer_dashboard')
     else:
@@ -178,6 +249,9 @@ def event_setup(request, event_id):
             if form.is_valid():
                 ticket = form.save(commit=False)
                 ticket.event = event
+                # Default tickets to active when no explicit field is provided
+                if 'is_active' not in request.POST:
+                    ticket.is_active = True
                 ticket.save()
                 messages.success(request, 'Ticket added successfully!')
             return redirect('organizer_event_setup', event_id=event.id)
@@ -497,6 +571,17 @@ def event_detail(request, event_id):
 
     # Registrations
     registrations = Registration.objects.filter(event=event).order_by('-created_at')
+    active_regs = registrations.filter(
+        status__in=[
+            RegistrationStatus.PENDING,
+            RegistrationStatus.CONFIRMED,
+            RegistrationStatus.CHECKED_IN,
+        ]
+    )
+    confirmed_regs = registrations.filter(
+        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+    )
+    checked_in_count = registrations.filter(status=RegistrationStatus.CHECKED_IN).count()
 
     # Ticket types
     ticket_types = TicketType.objects.filter(event=event)
@@ -507,11 +592,13 @@ def event_detail(request, event_id):
     total_revenue = 0
 
     for ticket in ticket_types:
-        # Get registrations for this ticket type
-        ticket_regs = registrations.filter(ticket_type=ticket)
+        # Get active registrations for this ticket type
+        ticket_regs = active_regs.filter(ticket_type=ticket)
         sold_count = ticket_regs.count()
         # Sum actual revenue from registrations
-        revenue = ticket_regs.aggregate(total=Sum('total_amount'))['total'] or 0
+        revenue = confirmed_regs.filter(ticket_type=ticket).aggregate(
+            total=Sum('total_amount')
+        )['total'] or 0
         total_tickets_sold += sold_count
         total_revenue += float(revenue)
         ticket_sales.append({
@@ -520,9 +607,12 @@ def event_detail(request, event_id):
             'price': ticket.price,
             'revenue': float(revenue),
         })
+        ticket.computed_sold = sold_count
+        ticket.computed_available = max(0, ticket.quantity_available - sold_count)
 
     # Total registrations
     total_registrations = registrations.count()
+    total_confirmed = confirmed_regs.count()
 
     context = {
         'event': event,
@@ -533,6 +623,8 @@ def event_detail(request, event_id):
         'total_tickets_sold': total_tickets_sold,
         'total_revenue': total_revenue,
         'total_registrations': total_registrations,
+        'total_confirmed': total_confirmed,
+        'checked_in_count': checked_in_count,
     }
     return render(request, 'organizers/event_detail.html', context)
 
@@ -554,9 +646,12 @@ def event_edit(request, event_id):
             if ticket_form.is_valid():
                 ticket = ticket_form.save(commit=False)
                 ticket.event = event
+                # Default tickets to active when no explicit field is provided
+                if 'is_active' not in request.POST:
+                    ticket.is_active = True
                 ticket.save()
                 messages.success(request, 'Ticket added successfully!')
-            return redirect('organizer_event_edit', event_id=event.id)
+            return redirect('organizer_event_detail', event_id=event.id)
 
         elif action == 'edit_ticket':
             ticket_id = request.POST.get('ticket_id')
@@ -564,23 +659,27 @@ def event_edit(request, event_id):
             from registration.forms import TicketTypeForm
             ticket_form = TicketTypeForm(request.POST, instance=ticket)
             if ticket_form.is_valid():
-                ticket_form.save()
+                updated_ticket = ticket_form.save(commit=False)
+                # Default to active when field isn't present
+                if 'is_active' not in request.POST:
+                    updated_ticket.is_active = True
+                updated_ticket.save()
                 messages.success(request, 'Ticket updated successfully!')
-            return redirect('organizer_event_edit', event_id=event.id)
+            return redirect('organizer_event_detail', event_id=event.id)
 
         elif action == 'delete_ticket':
             ticket_id = request.POST.get('ticket_id')
             ticket = get_object_or_404(TicketType, id=ticket_id, event=event)
             ticket.delete()
             messages.success(request, 'Ticket deleted successfully!')
-            return redirect('organizer_event_edit', event_id=event.id)
+            return redirect('organizer_event_detail', event_id=event.id)
 
         elif action == 'save_event':
             form = EventForm(request.POST, request.FILES, instance=event)
             if form.is_valid():
                 form.save()
                 messages.success(request, 'Event updated successfully!')
-                return redirect('organizer_event_detail', event_id=event.id)
+                return redirect('organizer_event_list')
 
     # Get existing tickets
     tickets = TicketType.objects.filter(event=event)
@@ -622,14 +721,63 @@ def analytics(request, event_id=None):
     
     if event_id:
         event = get_object_or_404(Event, id=event_id, organizer=request.user)
-        analytics = get_object_or_404(EventAnalytics, event=event)
+        analytics, _ = EventAnalytics.objects.get_or_create(event=event)
+        metrics = _compute_event_metrics(event)
+        analytics.total_registrations = metrics['total_registrations']
+        analytics.confirmed_registrations = metrics['confirmed_registrations']
+        analytics.cancelled_registrations = metrics['cancelled_registrations']
+        analytics.checked_in_count = metrics['checked_in_count']
+        analytics.total_revenue = metrics['total_revenue']
+        analytics.total_refunds = metrics['total_refunds']
+        analytics.tickets_sold_by_type = metrics['tickets_sold_by_type']
+        analytics.recent_activity = metrics['recent_activity']
+        if not analytics.traffic_sources and metrics['total_registrations']:
+            analytics.traffic_sources = {'direct': metrics['total_registrations']}
+        analytics.save(update_fields=[
+            'total_registrations',
+            'confirmed_registrations',
+            'cancelled_registrations',
+            'checked_in_count',
+            'total_revenue',
+            'total_refunds',
+            'tickets_sold_by_type',
+            'traffic_sources',
+            'updated_at',
+        ])
+
+        total_views = analytics.total_views or 0
+        conversion_rate = (metrics['total_registrations'] / total_views * 100) if total_views else 0
+        attendance_rate = (metrics['checked_in_count'] / metrics['total_registrations'] * 100) if metrics['total_registrations'] else 0
+        revenue_per_attendee = (metrics['total_revenue'] / metrics['total_registrations']) if metrics['total_registrations'] else Decimal('0')
+        traffic_sources = analytics.traffic_sources or {}
+        traffic_sources_total = sum(traffic_sources.values()) or 1
+        tickets_sold_by_type = metrics['tickets_sold_by_type']
+        tickets_sold_total = sum(tickets_sold_by_type.values()) or 1
         return render(request, 'organizers/analytics_detail.html', {
             'event': event,
-            'analytics': analytics
+            'analytics': analytics,
+            'conversion_rate': conversion_rate,
+            'attendance_rate': attendance_rate,
+            'revenue_per_attendee': revenue_per_attendee,
+            'traffic_sources': traffic_sources,
+            'traffic_sources_total': traffic_sources_total,
+            'tickets_sold_by_type': tickets_sold_by_type,
+            'tickets_sold_total': tickets_sold_total,
         })
     
     # Overall analytics
     events = Event.objects.filter(organizer=organizer.user)
+    event_metrics = {}
+    total_views = 0
+    for event in events:
+        analytics, _ = EventAnalytics.objects.get_or_create(event=event)
+        metrics = _compute_event_metrics(event)
+        event_metrics[event.id] = {
+            'views': analytics.total_views or 0,
+            'registrations': metrics['total_registrations'],
+            'revenue': metrics['total_revenue'],
+        }
+        total_views += analytics.total_views or 0
     
     # Registration trends - calculate from actual Registration data
     registrations_qs = Registration.objects.filter(
@@ -645,11 +793,14 @@ def analytics(request, event_id=None):
         event__in=events, status='checked_in'
     ).count()
     
+<<<<<<< HEAD
     # Calculate total views from EventAnalytics (this is tracked separately)
     total_views = EventAnalytics.objects.filter(
         event__in=events
     ).aggregate(total=Sum('total_views'))['total'] or 0
     
+=======
+>>>>>>> 5bf0b5c (my update on everything)
     # Registration trends by date
     registrations = Registration.objects.filter(
         event__in=events, status__in=['confirmed', 'checked_in']
@@ -659,6 +810,7 @@ def analytics(request, event_id=None):
     
     context = {
         'events': events,
+        'event_metrics': event_metrics,
         'registrations': registrations,
         'total_views': total_views,
         'total_registrations': total_registrations,
@@ -1403,6 +1555,10 @@ def send_email(request):
     organizer = request.organizer
     events = Event.objects.filter(organizer=organizer.user)
     templates = EmailTemplate.objects.filter(is_active=True)
+<<<<<<< HEAD
+=======
+    selected_event_id = request.GET.get('event')
+>>>>>>> 5bf0b5c (my update on everything)
     
     if request.method == 'POST':
         event_id = request.POST.get('event')
@@ -1450,6 +1606,10 @@ def send_email(request):
     context = {
         'events': events,
         'templates': templates,
+<<<<<<< HEAD
+=======
+        'selected_event_id': selected_event_id,
+>>>>>>> 5bf0b5c (my update on everything)
     }
     return render(request, 'organizers/send_email.html', context)
 

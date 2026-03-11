@@ -213,6 +213,51 @@
             background: #f1f5f9;
             border-radius: 9999px;
             cursor: pointer;
+       }
+
+        .user-menu-wrapper {
+            position: relative;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            right: 0;
+            background: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            min-width: 180px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+            transform-origin: top right;
+            animation: dropdownIn 0.15s ease-out;
+        }
+
+        .user-dropdown a {
+            padding: 0.6rem 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1f2937;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: background 0.2s ease;
+        }
+
+        .user-dropdown a:hover {
+            background: #f8fafc;
+        }
+
+        .user-dropdown.hidden {
+            display: none;
+        }
+
+        @keyframes dropdownIn {
+            from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .user-avatar {
@@ -417,7 +462,11 @@
                         <i class="bi bi-house"></i>
                         <span>Back to Home</span>
                     </a>
+<<<<<<< HEAD
                     <form method="post" action="{% url 'logout' %}" class="mt-2">
+=======
+                    <form method="post" action="{% url 'organizer_logout' %}" class="mt-2">
+>>>>>>> 5bf0b5c (my update on everything)
                         {% csrf_token %}
                         <button type="submit" class="nav-item w-full text-left text-red-400 hover:text-red-300">
                             <i class="bi bi-box-arrow-right"></i>
@@ -441,15 +490,27 @@
                         <i class="bi bi-bell text-xl"></i>
                         <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                     </a>
-                    <div class="user-menu">
-                        <div class="user-avatar">
-                            {{ user.first_name|default:user.email|slice:":2"|upper }}
+                    <div class="user-menu-wrapper">
+                        <div class="user-menu" id="userMenuToggle" role="button" aria-haspopup="true" aria-expanded="false">
+                            <div class="user-avatar">
+                                {{ user.first_name|default:user.email|slice:":2"|upper }}
+                            </div>
+                            <div class="hidden md:block">
+                                <p class="text-sm font-medium text-gray-700">{{ user.first_name|default:user.email }}</p>
+                                <p class="text-xs text-gray-500">Organizer</p>
+                            </div>
+                            <i class="bi bi-chevron-down text-gray-400"></i>
                         </div>
-                        <div class="hidden md:block">
-                            <p class="text-sm font-medium text-gray-700">{{ user.first_name|default:user.email }}</p>
-                            <p class="text-xs text-gray-500">Organizer</p>
+                        <div class="user-dropdown hidden" id="userDropdown">
+                            <a href="{% url 'organizer_settings' %}">
+                                <i class="bi bi-gear text-sm text-gray-500"></i>
+                                <span>Profile &amp; Settings</span>
+                            </a>
+                            <a href="{% url 'organizer_logout' %}">
+                                <i class="bi bi-box-arrow-right text-sm text-gray-500"></i>
+                                <span>Logout</span>
+                            </a>
                         </div>
-                        <i class="bi bi-chevron-down text-gray-400"></i>
                     </div>
                 </div>
             </header>
@@ -485,6 +546,29 @@
                     if (!sidebarContainer.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
                         sidebarContainer.classList.remove('open');
                     }
+                }
+            });
+        }
+
+        const userMenuToggle = document.getElementById('userMenuToggle');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userMenuToggle && userDropdown) {
+            userMenuToggle.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const isOpen = !userDropdown.classList.contains('hidden');
+                userDropdown.classList.toggle('hidden');
+                userMenuToggle.setAttribute('aria-expanded', String(!isOpen));
+            });
+
+            document.addEventListener('click', function(event) {
+                if (
+                    !userMenuToggle.contains(event.target) &&
+                    !userDropdown.contains(event.target) &&
+                    !userDropdown.classList.contains('hidden')
+                ) {
+                    userDropdown.classList.add('hidden');
+                    userMenuToggle.setAttribute('aria-expanded', 'false');
                 }
             });
         }

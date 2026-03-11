@@ -13,20 +13,13 @@ from .models import (
     EventTemplate, OrganizerNotification, OrganizerPayout
 )
 from events.models import Event, EventSession, Sponsor
-<<<<<<< HEAD
-from registration.models import Registration, TicketType, CheckIn
-=======
 from registration.models import Registration, TicketType, CheckIn, RegistrationStatus
->>>>>>> 5bf0b5c (my update on everything)
 from communication.models import EmailTemplate, EmailLog, ScheduledEmail, LivePoll, LiveQA
 from communication.forms import EmailTemplateForm, ScheduledEmailForm, LivePollForm
 from events.forms import SponsorForm
 
 from .forms import RegistrationEditForm
-<<<<<<< HEAD
-=======
 from .utils import organizer_profile_exists, ensure_user_is_organizer
->>>>>>> 5bf0b5c (my update on everything)
 
 def organizer_required(view_func):
     """Decorator to ensure user has organizer profile"""
@@ -793,14 +786,11 @@ def analytics(request, event_id=None):
         event__in=events, status='checked_in'
     ).count()
     
-<<<<<<< HEAD
     # Calculate total views from EventAnalytics (this is tracked separately)
     total_views = EventAnalytics.objects.filter(
         event__in=events
     ).aggregate(total=Sum('total_views'))['total'] or 0
     
-=======
->>>>>>> 5bf0b5c (my update on everything)
     # Registration trends by date
     registrations = Registration.objects.filter(
         event__in=events, status__in=['confirmed', 'checked_in']
@@ -1555,10 +1545,7 @@ def send_email(request):
     organizer = request.organizer
     events = Event.objects.filter(organizer=organizer.user)
     templates = EmailTemplate.objects.filter(is_active=True)
-<<<<<<< HEAD
-=======
     selected_event_id = request.GET.get('event')
->>>>>>> 5bf0b5c (my update on everything)
     
     if request.method == 'POST':
         event_id = request.POST.get('event')
@@ -1606,10 +1593,7 @@ def send_email(request):
     context = {
         'events': events,
         'templates': templates,
-<<<<<<< HEAD
-=======
         'selected_event_id': selected_event_id,
->>>>>>> 5bf0b5c (my update on everything)
     }
     return render(request, 'organizers/send_email.html', context)
 

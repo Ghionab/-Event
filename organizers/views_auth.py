@@ -36,7 +36,6 @@ def organizer_login(request):
 
         if user is not None:
             # Check if user has organizer profile
-<<<<<<< HEAD
             try:
                 from organizers.models import OrganizerProfile
                 if hasattr(user, 'organizerprofile'):
@@ -54,15 +53,6 @@ def organizer_login(request):
             except:
                 login(request, user)
                 return redirect('organizer_dashboard')
-=======
-            login(request, user)
-            if organizer_profile_exists(user):
-                messages.success(request, 'You have logged in successfully.')
-                next_page = request.GET.get('next')
-                return redirect(_resolve_next_login_url(next_page))
-            messages.info(request, 'Please create an organizer profile to access the dashboard.')
-            return redirect(create_url())
->>>>>>> 5bf0b5c (my update on everything)
         else:
             messages.error(request, 'Invalid email or password. Please try again.')
 

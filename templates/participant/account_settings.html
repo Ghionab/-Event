@@ -89,7 +89,6 @@
             </nav>
         </div>
 
-<<<<<<< HEAD
         <!-- Settings Content -->
         <div class="flex-1">
             <!-- Account Settings Tab -->
@@ -127,32 +126,6 @@
                                 </button>
                             </form>
                         </div>
-=======
-                <div class="flex items-center gap-6 mb-8">
-                    <div class="flex-shrink-0">
-                        {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                            class="w-24 h-24 rounded-full object-cover border border-gray-200">
-                        <div
-                            class="hidden w-24 h-24 rounded-full bg-indigo-100 text-indigo-600 items-center justify-center font-bold text-3xl">
-                            {{ user.first_name|first|default:user.email|first|upper }}
-                        </div>
-                        {% else %}
-                        <div
-                            class="w-24 h-24 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-3xl">
-                            {{ user.first_name|first|default:user.email|first|upper }}
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
-                        <input type="file" name="profile_image" accept="image/*"
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                        <p class="text-xs text-gray-400 mt-2">Accepted: JPG, PNG, GIF, WebP.</p>
-                    </div>
-                </div>
->>>>>>> 5bf0b5c (my update on everything)
 
                         <!-- Two-Factor Authentication -->
                         <div class="border-t border-gray-200 pt-8">
@@ -210,7 +183,6 @@
                 </div>
             </div>
 
-<<<<<<< HEAD
             <!-- Notifications Tab -->
             <div id="notifications-tab" class="settings-content hidden">
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -293,41 +265,6 @@
                                 </button>
                             </form>
                         </div>
-=======
-                <div class="mb-8 border-b border-gray-100 pb-8">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                    <textarea name="bio" rows="4"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">{{ form.bio.value|default:user.bio }}</textarea>
-                    <p class="mt-2 text-sm text-gray-500">A brief description of yourself that will be visible to other
-                        attendees.</p>
-                </div>
-
-                <h2 id="contact" class="text-xl font-bold text-gray-900 mb-6">Contact Info</h2>
-                <div class="mb-8 border-b border-gray-100 pb-8">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input type="text" name="phone"
-                        value="{{ form.phone.value|default:user.phone }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                </div>
-
-                <h2 id="social" class="text-xl font-bold text-gray-900 mb-6">Social Profiles</h2>
-                <div class="space-y-6 mb-8">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-1"><i
-                                class="bi bi-linkedin text-[#0077b5]"></i> LinkedIn URL</label>
-                        <input type="url" name="linkedin_url"
-                            value="{{ form.linkedin_url.value|default:user.linkedin_url }}"
-                            placeholder="https://linkedin.com/in/..."
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-1"><i
-                                class="bi bi-twitter text-[#1DA1F2]"></i> Twitter URL</label>
-                        <input type="text" name="twitter_handle"
-                            value="{{ form.twitter_handle.value|default:user.twitter_handle }}"
-                            placeholder="@yourhandle"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
->>>>>>> 5bf0b5c (my update on everything)
                     </div>
                 </div>
             </div>
@@ -494,10 +431,7 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 </div>
-<<<<<<< HEAD
 
 <script>
 function showTab(tabName) {
@@ -686,6 +620,10 @@ document.getElementById('preferences-form').addEventListener('submit', function(
     });
 });
 
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
 function showToast(message, type) {
     // Create toast container if it doesn't exist
     let toastContainer = document.getElementById('toast-container');
@@ -712,6 +650,3 @@ function showToast(message, type) {
 }
 </script>
 {% endblock %}
-=======
-{% endblock %}
->>>>>>> 5bf0b5c (my update on everything)

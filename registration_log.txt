@@ -195,3 +195,6 @@
 [2026-03-11 12:20:05] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'dnmiki29@gmail.com', 'phone': '0961996315', 'special_requests': 'dfg'}
 [2026-03-11 12:20:05] PARSED: event_id=5 (type=str), email=dnmiki29@gmail.com, name=Mikiyas Arage
 [2026-03-11 12:20:05] SUCCESS | event_id=5 | name=Mikiyas Arage | email=dnmiki29@gmail.com | status=confirmed | reg#=REG-088E7252
+[2026-03-11 04:16:21] RAW_DATA: {'event_id': '1', 'full_name': 'abeba kebede', 'email': 'abekebe@gmail.com', 'phone': '0911225127', 'special_requests': 'ertdyuli'}
+[2026-03-11 04:16:21] PARSED: event_id=1 (type=str), email=abekebe@gmail.com, name=abeba kebede
+[2026-03-11 04:16:21] SUCCESS | event_id=1 | name=abeba kebede | email=abekebe@gmail.com | status=confirmed | reg#=REG-ACD058C1

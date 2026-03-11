@@ -1,11 +1,31 @@
-{% extends 'participant/base.html' %}
+﻿{% extends 'participant/base.html' %}
 
 {% block title %}{{ registration.event.title }} - Registration Details{% endblock %}
+{% block extra_css %}
+@media print {
+    nav,
+    footer,
+    .toast-container,
+    .print-hide {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+    }
+    main {
+        padding: 0 !important;
+    }
+    .print-card {
+        box-shadow: none !important;
+        border: 1px solid #e5e7eb !important;
+    }
+}
+{% endblock %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Breadcrumb -->
-    <nav class="mb-6 text-sm text-gray-500">
+    <nav class="mb-6 text-sm text-gray-500 print-hide">
         <a href="{% url 'attendee:dashboard' %}" class="hover:text-indigo-600">Dashboard</a> /
         <a href="{% url 'attendee:my_registrations' %}" class="hover:text-indigo-600">My Registrations</a> /
         <span class="text-gray-900">{{ registration.event.title }}</span>
@@ -35,23 +55,23 @@
                             {{ registration.get_status_display }}
                         </span>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
-                        <div class="flex items-center gap-2">
-                            <i class="bi bi-calendar text-indigo-500"></i>
-                            <span>{{ registration.event.start_date|date:"F d, Y · g:i A" }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="bi bi-geo-alt text-indigo-500"></i>
-                            <span>{{ registration.event.venue_name|default:"Virtual Event" }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="bi bi-ticket text-indigo-500"></i>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-calendar text-indigo-500"></i>
+                            <span>{{ registration.event.start_date|date:"F d, Y" }} &middot; {{ registration.event.start_date|date:"g:i A" }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-geo-alt text-indigo-500"></i>
+                                <span>{{ registration.event.venue_name|default:"Virtual Event" }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-ticket text-indigo-500"></i>
                             <span>{{ registration.ticket_type.name|default:"General Admission" }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="bi bi-hash text-indigo-500"></i>
-                            <span>{{ registration.registration_number }}</span>
-                        </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-hash text-indigo-500"></i>
+                                <span>{{ registration.registration_number }}</span>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -62,7 +82,7 @@
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <p class="text-gray-500">Total Amount</p>
-                        <p class="text-lg font-semibold text-gray-900">${{ registration.total_amount }}</p>
+                        <p class="text-lg font-semibold text-gray-900">${{ display_total_amount|floatformat:2 }}</p>
                     </div>
                     {% if registration.discount_amount > 0 %}
                     <div>
@@ -122,16 +142,18 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- QR Code -->
-            <div class="bg-white rounded-lg shadow p-6 text-center">
+            <div class="bg-white rounded-lg shadow p-6 text-center print-card">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Your QR Code</h3>
+                <p class="text-sm text-gray-600 mb-2">{{ registration.event.title }}</p>
+                <p class="text-xs text-gray-500 mb-4">{{ registration.registration_number }}</p>
                 {% if qr_code_image %}
                 <img src="data:image/png;base64,{{ qr_code_image }}" alt="QR Code" class="mx-auto w-48 h-48 mb-4">
                 {% endif %}
                 <p class="text-xs text-gray-500 mb-4">Show this at the event entrance</p>
-                <div class="space-y-2">
-                    <a href="{% url 'attendee:download_ticket' registration.id %}"
-                        class="block w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
-                        <i class="bi bi-download mr-2"></i>Download Ticket
+                <div class="space-y-2 print-hide">
+                    <a href="{% url 'attendee:ticket_preview' registration.id %}"
+                        class="inline-flex w-full items-center justify-center gap-2 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                        <i class="bi bi-file-earmark-pdf"></i> Ticket
                     </a>
                     <a href="{% url 'attendee:digital_badge' registration.id %}"
                         class="block w-full border border-indigo-600 text-indigo-600 py-2 rounded-lg hover:bg-indigo-50 text-sm font-medium">
@@ -141,7 +163,7 @@
             </div>
 
             <!-- Quick Actions -->
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-white rounded-lg shadow p-6 print-hide">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
                 <div class="space-y-2">
                     <a href="{% url 'attendee:event_schedule' registration.event.id %}"
@@ -168,3 +190,4 @@
     </div>
 </div>
 {% endblock %}
+

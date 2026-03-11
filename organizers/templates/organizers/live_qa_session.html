@@ -1,0 +1,191 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ session.title }} - Live Q&A - Event Organizer{% endblock %}
+
+{% block header %}{{ session.title }}{% endblock %}
+
+{% block subtitle %}Q&A Session for {{ session.event.title }}{% endblock %}
+
+{% block content %}
+<!-- Back Navigation -->
+<div class="mb-6">
+    <a href="{% url 'organizer_live_qa_list' %}" class="inline-flex items-center text-sm text-gray-500 hover:text-indigo-600 transition-colors duration-200">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Q&A
+    </a>
+</div>
+
+<!-- Premium Header Banner -->
+<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 shadow-xl">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative px-8 py-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                    <i class="bi bi-chat-square-text text-white text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white">{{ session.title }}</h1>
+                    <p class="text-emerald-100 text-sm mt-1">Live Q&A Session</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-full bg-amber-400/20 text-amber-100 border border-amber-400/30">
+                    <span class="w-1.5 h-1.5 bg-amber-400 rounded-full mr-2 animate-pulse"></span>{{ pending_count }} pending
+                </span>
+                <span class="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-full bg-emerald-400/20 text-emerald-100 border border-emerald-400/30">
+                    <i class="bi bi-check-circle mr-1.5"></i>{{ answered_count }} answered
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
+        <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <i class="bi bi-question-circle text-indigo-600"></i>
+        </div>
+        <p class="text-2xl font-bold text-gray-900">{{ total_count }}</p>
+        <p class="text-xs text-gray-500 uppercase tracking-wide">Total</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
+        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <i class="bi bi-hourglass-split text-amber-600"></i>
+        </div>
+        <p class="text-2xl font-bold text-gray-900">{{ pending_count }}</p>
+        <p class="text-xs text-gray-500 uppercase tracking-wide">Pending</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
+        <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <i class="bi bi-check-circle text-emerald-600"></i>
+        </div>
+        <p class="text-2xl font-bold text-gray-900">{{ answered_count }}</p>
+        <p class="text-xs text-gray-500 uppercase tracking-wide">Answered</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center">
+        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mx-auto mb-2">
+            <i class="bi bi-check2-all text-blue-600"></i>
+        </div>
+        <p class="text-2xl font-bold text-gray-900">{{ total_count|add:answered_count|add:-pending_count }}</p>
+        <p class="text-xs text-gray-500 uppercase tracking-wide">Approved</p>
+    </div>
+</div>
+
+<!-- Questions Card -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+            <i class="bi bi-chat-left-text mr-2 text-gray-500"></i>Questions
+        </h3>
+        <span class="text-xs text-gray-500">{{ questions|length }} question{{ questions|length|pluralize }}</span>
+    </div>
+    <div class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+        {% if questions %}
+        {% for question in questions %}
+        <div class="p-5 {% if not question.is_approved %}bg-amber-50/50 border-l-4 border-amber-400{% elif question.is_answered %}bg-emerald-50/30{% endif %}">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="bi bi-person text-gray-500"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ question.user.get_full_name|default:question.user.email }}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ question.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full
+                                {% if question.is_answered %}bg-emerald-100 text-emerald-700 border border-emerald-200
+                                {% elif question.is_approved %}bg-blue-100 text-blue-700 border border-blue-200
+                                {% else %}bg-amber-100 text-amber-700 border border-amber-200{% endif %}">
+                                {% if question.is_answered %}<i class="bi bi-check-circle-fill mr-1"></i>Answered
+                                {% elif question.is_approved %}<i class="bi bi-check mr-1"></i>Approved
+                                {% else %}<i class="bi bi-hourglass mr-1"></i>Pending{% endif %}
+                            </span>
+                            <div class="flex items-center gap-1 text-sm text-gray-500">
+                                <i class="bi bi-hand-thumbs-up text-gray-400"></i>
+                                <span class="font-medium">{{ question.upvotes }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="mt-3 text-gray-800 leading-relaxed">{{ question.question }}</p>
+                    
+                    {% if question.answer %}
+                    <div class="mt-4 p-4 bg-white rounded-lg border-l-4 border-emerald-500 shadow-sm">
+                        <p class="text-sm font-semibold text-emerald-800 flex items-center gap-2 mb-2">
+                            <i class="bi bi-check-circle-fill text-emerald-600"></i>
+                            Answer by {{ question.answered_by.get_full_name|default:question.answered_by.email }}
+                        </p>
+                        <p class="text-gray-700 leading-relaxed">{{ question.answer }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="p-12 text-center">
+            <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <i class="bi bi-question-circle text-gray-400 text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No Questions Yet</h3>
+            <p class="text-gray-500 max-w-md mx-auto">Questions from attendees will appear here. Encourage your audience to participate in the Q&A session.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Session Info Card -->
+<div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+            <i class="bi bi-info-circle mr-2 text-gray-500"></i>Session Information
+        </h3>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="bi bi-collection-play text-indigo-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Session</p>
+                    <p class="text-sm font-medium text-gray-900">{{ session.title }}</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="bi bi-calendar-event text-purple-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Event</p>
+                    <p class="text-sm font-medium text-gray-900">{{ session.event.title }}</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="bi bi-clock text-blue-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Start Time</p>
+                    <p class="text-sm font-medium text-gray-900">{{ session.start_time|date:"M d, Y H:i"|default:"Not set" }}</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="bi bi-clock-history text-rose-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">End Time</p>
+                    <p class="text-sm font-medium text-gray-900">{{ session.end_time|date:"M d, Y H:i"|default:"Not set" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

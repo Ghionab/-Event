@@ -133,6 +133,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
+# Auth defaults (organizer portal)
+LOGIN_URL = '/organizers/login/'
+LOGIN_REDIRECT_URL = '/organizers/dashboard/'
+
 
 # Email Configuration
 # For development, emails are printed to console
@@ -164,7 +168,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # Media files (Uploads)
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # File Upload Settings

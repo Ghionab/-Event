@@ -51,14 +51,7 @@
                 opacity: 0;
             }
         }
-
-            {
-            % block extra_css %
-        }
-
-            {
-            % endblock %
-        }
+        {% block extra_css %}{% endblock %}
     </style>
 </head>
 
@@ -122,12 +115,19 @@
                         {% endif %}
                     </a>
                     <!-- User menu -->
-                    <div class="relative" x-data="{ open: false }">
-                        <span class="text-gray-600 text-sm hidden lg:inline">{{ user.first_name|default:user.email
-                            }}</span>
-                        <a href="{% url 'attendee:settings' %}"
-                            class="text-gray-600 hover:text-indigo-600 p-2 rounded-full hover:bg-indigo-50 transition">
+                    <div class="relative flex items-center gap-3">
+                        <a href="{% url 'attendee:settings' %}" class="flex items-center gap-2 text-gray-600 hover:text-indigo-600 transition">
+                            {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="Profile"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"
+                                class="w-9 h-9 rounded-full object-cover border border-gray-200">
+                            <span class="hidden w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 items-center justify-center font-bold text-sm border border-gray-200">
+                                {{ user.first_name|first|default:user.email|first|upper }}
+                            </span>
+                            {% else %}
                             <i class="fas fa-user-circle text-xl"></i>
+                            {% endif %}
+                            <span class="text-sm hidden lg:inline">{{ user.first_name|default:user.email }}</span>
                         </a>
                         <a href="/logout/"
                             class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">Logout</a>

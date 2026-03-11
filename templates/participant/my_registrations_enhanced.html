@@ -79,10 +79,8 @@
                             <div class="mt-1 space-y-1 text-sm text-gray-600">
                                 <p><i class="bi bi-calendar mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }}
                                 </p>
-                                <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual
-                                    Event" }}</p>
-                                <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name|default:"General"
-                                    }} · {{ registration.registration_number }}</p>
+                                <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual Event" }}</p>
+                                <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name|default:"General" }} &middot; {{ registration.registration_number }}</p>
                             </div>
                         </div>
                     </div>

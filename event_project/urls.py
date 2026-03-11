@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.contrib.auth import views as auth_views
+from organizers import views_auth as organizer_auth_views
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
@@ -34,7 +35,7 @@ urlpatterns = [
     path('business/', include('business.urls')),
     path('advanced/', include('advanced.urls')),
     # Authentication
-    path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('accounts/login/', organizer_auth_views.organizer_login, name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/organizers/login/'), name='logout'),
     # API v1
     path('api/v1/', include('events_api.urls')),

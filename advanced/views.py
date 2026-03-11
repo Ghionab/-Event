@@ -265,16 +265,45 @@ def team_list(request):
 @login_required
 @permission_required('advanced.add_teammember', raise_exception=True)
 def team_member_create(request):
+    # Get event from query parameter
+    event_id = request.GET.get('event')
+    event = None
+    if event_id:
+        event = get_object_or_404(Event, pk=event_id)
+    
     if request.method == 'POST':
-        form = TeamMemberForm(request.POST)
+        form = TeamMemberForm(request.POST, user=request.user)
         if form.is_valid():
-            form.save()
+            team_member = form.save(commit=False)
+            # Set event if not already set
+            if not team_member.event and event:
+                team_member.event = event
+            # If still no event, try to get from POST data
+            if not team_member.event:
+                event_id_post = request.POST.get('event')
+                if event_id_post:
+                    team_member.event = get_object_or_404(Event, pk=event_id_post)
+            team_member.save()
             messages.success(request, 'Team member added successfully.')
             return redirect('advanced:team_list')
     else:
-        form = TeamMemberForm()
+        initial = {}
+        if event:
+            initial['event'] = event
+        form = TeamMemberForm(initial=initial, user=request.user)
     
-    return render(request, 'advanced/team_member_form.html', {'form': form, 'action': 'Add'})
+    # Get events for dropdown
+    if request.user.is_staff:
+        events = Event.objects.all()
+    else:
+        events = Event.objects.filter(organizer=request.user)
+    
+    return render(request, 'advanced/team_member_form.html', {
+        'form': form, 
+        'action': 'Add',
+        'event': event,
+        'events': events
+    })
 
 
 @login_required
@@ -283,13 +312,13 @@ def team_member_update(request, pk):
     member = get_object_or_404(TeamMember, pk=pk)
     
     if request.method == 'POST':
-        form = TeamMemberForm(request.POST, instance=member)
+        form = TeamMemberForm(request.POST, instance=member, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Team member updated successfully.')
             return redirect('advanced:team_list')
     else:
-        form = TeamMemberForm(instance=member)
+        form = TeamMemberForm(instance=member, user=request.user)
     
     return render(request, 'advanced/team_member_form.html', {'form': form, 'action': 'Update', 'member': member})
 

@@ -1,0 +1,81 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Scheduled Emails - Event Organizer{% endblock %}
+
+{% block header %}Scheduled Emails{% endblock %}
+
+{% block subtitle %}Manage automated email campaigns{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <a href="{% url 'organizer_communication_dashboard' %}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 transition">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Communication
+    </a>
+    <a href="{% url 'organizer_scheduled_email_create' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+        <i class="bi bi-plus-lg mr-2"></i>Schedule Email
+    </a>
+</div>
+
+<div class="card">
+    <div class="overflow-x-auto">
+        {% if scheduled_emails %}
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Event</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Schedule</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for email in scheduled_emails %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
+                                <i class="bi bi-calendar-event text-pink-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">{{ email.subject|truncatechars:30 }}</p>
+                                {% if email.template %}
+                                <p class="text-xs text-gray-500">Template: {{ email.template.name }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm text-gray-800">{{ email.event.title|truncatechars:25 }}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <p class="text-sm font-medium text-gray-800">{{ email.scheduled_at|date:"M d, Y H:i" }}</p>
+                        <p class="text-xs text-gray-500">{{ email.get_frequency_display }}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full {% if email.is_active %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {% if email.is_active %}Active{% else %}Paused{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'organizer_scheduled_email_edit' email.id %}" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-12 text-center">
+            <i class="bi bi-calendar-x text-gray-300 text-5xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Scheduled Emails</h3>
+            <p class="text-gray-500 mb-6">Schedule automated emails for your events.</p>
+            <a href="{% url 'organizer_scheduled_email_create' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                <i class="bi bi-plus-lg mr-2"></i>Schedule Email
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

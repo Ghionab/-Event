@@ -136,3 +136,48 @@
 [2026-03-09 12:43:30] RAW_DATA: {'event_id': '8', 'full_name': 'attendee trial', 'email': 'at@example.com', 'phone': '0900000000', 'special_requests': 'it is for  trial'}
 [2026-03-09 12:43:30] PARSED: event_id=8 (type=str), email=at@example.com, name=attendee trial
 [2026-03-09 12:43:30] SUCCESS | event_id=8 | name=attendee trial | email=at@example.com | status=confirmed | reg#=REG-8475137D
+[2026-03-09 16:18:19] RAW_DATA: {'event_id': '1', 'full_name': 'Qwert yui', 'email': 'qwert@gmail.com', 'phone': '0945473434', 'special_requests': ''}
+[2026-03-09 16:18:19] PARSED: event_id=1 (type=str), email=qwert@gmail.com, name=Qwert yui
+[2026-03-09 16:18:19] SUCCESS | event_id=1 | name=Qwert yui | email=qwert@gmail.com | status=confirmed | reg#=REG-D4D76C4B
+[2026-03-09 20:28:28] RAW_DATA: {'event_id': '1', 'full_name': 'Abr Ham', 'email': 'a@gmail.com', 'phone': '0989890987', 'special_requests': ''}
+[2026-03-09 20:28:28] PARSED: event_id=1 (type=str), email=a@gmail.com, name=Abr Ham
+[2026-03-09 20:28:28] SUCCESS | event_id=1 | name=Abr Ham | email=a@gmail.com | status=confirmed | reg#=REG-DD871E74
+[2026-03-09 22:00:44] RAW_DATA: {'event_id': '1', 'full_name': 'Abraham Mulualem', 'email': 'abrahammulualem@gmail.com', 'phone': '0945435435', 'special_requests': ''}
+[2026-03-09 22:00:44] PARSED: event_id=1 (type=str), email=abrahammulualem@gmail.com, name=Abraham Mulualem
+[2026-03-09 22:00:44] SUCCESS | event_id=1 | name=Abraham Mulualem | email=abrahammulualem@gmail.com | status=confirmed | reg#=REG-9D9F618D
+[2026-03-09 23:02:03] RAW_DATA: {'event_id': '1', 'full_name': 'Abraham Mulualem', 'email': 'abrahammulualem@gmail.com', 'phone': '0989890987', 'special_requests': ''}
+[2026-03-09 23:02:03] PARSED: event_id=1 (type=str), email=abrahammulualem@gmail.com, name=Abraham Mulualem
+[2026-03-09 23:02:03] SUCCESS | event_id=1 | name=Abraham Mulualem | email=abrahammulualem@gmail.com | status=confirmed | reg#=REG-00F4074A
+[2026-03-10 10:20:50] RAW_DATA: {'event_id': '1', 'full_name': 'Abraham Mulualem', 'email': 'abrahammul@gmail.com', 'phone': '0945473434', 'special_requests': ''}
+[2026-03-10 10:20:50] PARSED: event_id=1 (type=str), email=abrahammul@gmail.com, name=Abraham Mulualem
+[2026-03-10 10:20:50] SUCCESS | event_id=1 | name=Abraham Mulualem | email=abrahammul@gmail.com | status=confirmed | reg#=REG-2B73A72F
+[2026-03-10 10:20:57] RAW_DATA: {'event_id': '1', 'full_name': 'Abraham Mulualem', 'email': 'abraham@gmail.com', 'phone': '0945473434', 'special_requests': ''}
+[2026-03-10 10:20:57] PARSED: event_id=1 (type=str), email=abraham@gmail.com, name=Abraham Mulualem
+[2026-03-10 10:20:57] SUCCESS | event_id=1 | name=Abraham Mulualem | email=abraham@gmail.com | status=confirmed | reg#=REG-4E250F3A
+[2026-03-10 10:21:10] RAW_DATA: {'event_id': '1', 'full_name': 'Abraham Mulualem', 'email': 'abraham@gmail.com', 'phone': '0945473434', 'special_requests': 'qwert'}
+[2026-03-10 10:21:10] PARSED: event_id=1 (type=str), email=abraham@gmail.com, name=Abraham Mulualem
+[2026-03-10 10:21:10] SUCCESS | event_id=1 | name=Abraham Mulualem | email=abraham@gmail.com | status=confirmed | reg#=REG-17755F35
+[2026-03-10 10:22:06] RAW_DATA: {'event_id': '1', 'full_name': 'abr ham', 'email': 'aree@gmail.com', 'phone': '0989890987', 'special_requests': 'Qwert'}
+[2026-03-10 10:22:06] PARSED: event_id=1 (type=str), email=aree@gmail.com, name=abr ham
+[2026-03-10 10:22:06] SUCCESS | event_id=1 | name=abr ham | email=aree@gmail.com | status=confirmed | reg#=REG-821CF676
+[2026-03-10 10:22:57] RAW_DATA: {'event_id': '1', 'full_name': 'abr ham', 'email': 'aree@gmail.com', 'phone': '0989890987', 'special_requests': 'Qwert'}
+[2026-03-10 10:22:57] PARSED: event_id=1 (type=str), email=aree@gmail.com, name=abr ham
+[2026-03-10 10:22:57] SUCCESS | event_id=1 | name=abr ham | email=aree@gmail.com | status=confirmed | reg#=REG-3AF378BC
+[2026-03-10 10:23:51] RAW_DATA: {'event_id': '1', 'full_name': 'abra', 'email': 'ar@gmail.com', 'phone': '0945473434', 'special_requests': 'qwert'}
+[2026-03-10 10:23:51] PARSED: event_id=1 (type=str), email=ar@gmail.com, name=abra
+[2026-03-10 10:23:51] SUCCESS | event_id=1 | name=abra | email=ar@gmail.com | status=confirmed | reg#=REG-7FEBC2B0
+[2026-03-10 18:46:54] RAW_DATA: {'event_id': '1', 'full_name': 'zefasil zefaf', 'email': 'z@example.com', 'phone': '12345678910', 'special_requests': 'it is a trial'}
+[2026-03-10 18:46:54] PARSED: event_id=1 (type=str), email=z@example.com, name=zefasil zefaf
+[2026-03-10 18:46:54] SUCCESS | event_id=1 | name=zefasil zefaf | email=z@example.com | status=confirmed | reg#=REG-FE4F77F4
+[2026-03-10 20:33:18] RAW_DATA: {'event_id': '8', 'full_name': 'zefasil zefaf', 'email': 'z@example.com', 'phone': '+15550000000', 'special_requests': ''}
+[2026-03-10 20:33:18] PARSED: event_id=8 (type=str), email=z@example.com, name=zefasil zefaf
+[2026-03-10 20:33:18] SUCCESS | event_id=8 | name=zefasil zefaf | email=z@example.com | status=confirmed | reg#=REG-DD6E1193
+[2026-03-10 20:34:59] RAW_DATA: {'event_id': '8', 'full_name': 'zefasil zefaf', 'email': 'z@example.com', 'phone': '12345678910', 'special_requests': ''}
+[2026-03-10 20:34:59] PARSED: event_id=8 (type=str), email=z@example.com, name=zefasil zefaf
+[2026-03-10 20:34:59] SUCCESS | event_id=8 | name=zefasil zefaf | email=z@example.com | status=confirmed | reg#=REG-2196E740
+[2026-03-10 21:46:29] RAW_DATA: {'event_id': '8', 'full_name': 'admin eventmanager', 'email': 'admin@eventmanager.com', 'phone': 'admin123', 'special_requests': 'this is a trial'}
+[2026-03-10 21:46:29] PARSED: event_id=8 (type=str), email=admin@eventmanager.com, name=admin eventmanager
+[2026-03-10 21:46:29] SUCCESS | event_id=8 | name=admin eventmanager | email=admin@eventmanager.com | status=confirmed | reg#=REG-097D1EF3
+[2026-03-11 01:31:59] RAW_DATA: {'event_id': '8', 'full_name': 'abebe kebede', 'email': 'admin@eventmanager.com', 'phone': '123456789', 'special_requests': ''}
+[2026-03-11 01:31:59] PARSED: event_id=8 (type=str), email=admin@eventmanager.com, name=abebe kebede
+[2026-03-11 01:31:59] SUCCESS | event_id=8 | name=abebe kebede | email=admin@eventmanager.com | status=confirmed | reg#=REG-EB45C96D

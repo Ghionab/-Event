@@ -8,8 +8,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView, RedirectView
 from django.contrib.auth import views as auth_views
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+
+# Import attendee views for my-registrations
+from registration import views_attendee
 
 # Simple CSRF exempt registration API
 @csrf_exempt
@@ -24,11 +28,40 @@ def participant_register(request, event_id):
     )(request, event_id=event_id)
 
 
+def participant_home(request):
+    """Smart home redirect based on authentication status"""
+    if request.user.is_authenticated:
+        # Check if profile is complete (has first name)
+        if not request.user.first_name:
+            return redirect('participant_profile')
+        # Profile complete, redirect to events page
+        return redirect('/events/')
+    else:
+        # Not authenticated, redirect to login
+        return redirect('/login/')
+
+
 def participant_logout(request):
     """Simple logout view that logs out and redirects to login"""
     from django.contrib.auth import logout
     logout(request)
-    return RedirectView.as_view(url='/login/')(request)
+    return redirect('/login/')
+
+
+def participant_login(request):
+    """Custom login view that redirects based on profile completion"""
+    if request.user.is_authenticated:
+        # Check if profile is complete (has first name)
+        if not request.user.first_name:
+            return redirect('participant_profile')
+        return redirect('/events/')
+    
+    # Use Django's login view for unauthenticated users
+    from django.contrib.auth import views as auth_views
+    return auth_views.LoginView.as_view(
+        template_name='participant/login.html',
+        redirect_authenticated_user=True
+    )(request)
 
 
 def participant_signup(request):
@@ -115,9 +148,24 @@ def participant_register_success(request, registration_id):
     })
 
 
+def participant_home(request):
+    from django.shortcuts import render
+    from django.utils import timezone
+    from events.models import Event
+
+    upcoming_events = Event.objects.filter(
+        status='published',
+        is_public=True,
+        start_date__gte=timezone.now()
+    ).order_by('start_date')[:6]
+
+    return render(request, 'participant/home.html', {
+        'upcoming_events': upcoming_events,
+    })
+
 urlpatterns = [
-    # Home - Participant landing page
-    path('', TemplateView.as_view(template_name='participant/home.html'), name='participant_home'),
+    # Home - Smart redirect based on auth status
+    path('', participant_home, name='participant_home'),
 
     # Event listing (public)
     path('events/', TemplateView.as_view(template_name='participant/events.html'), name='participant_events'),
@@ -134,17 +182,14 @@ urlpatterns = [
     # Event detail with slug
     path('events/<int:event_id>/<slug:slug>/', TemplateView.as_view(template_name='participant/event_detail.html'), name='participant_event_detail_slug'),
 
-    # My registrations (auth required)
-    path('my-registrations/', TemplateView.as_view(template_name='participant/my_registrations.html'), name='participant_my_registrations'),
+    # My registrations (auth required) - uses proper view with context data
+    path('my-registrations/', views_attendee.my_registrations_enhanced, name='participant_my_registrations'),
 
     # Single registration detail
     path('my-registrations/<int:registration_id>/', TemplateView.as_view(template_name='participant/registration_detail.html'), name='participant_registration_detail'),
 
     # User authentication
-    path('login/', auth_views.LoginView.as_view(
-        template_name='participant/login.html',
-        redirect_authenticated_user=True
-    ), name='participant_login'),
+    path('login/', participant_login, name='participant_login'),
 
     path('logout/', participant_logout, name='participant_logout'),
 
@@ -171,10 +216,7 @@ urlpatterns = [
     path('profile/', TemplateView.as_view(template_name='participant/profile.html'), name='participant_profile'),
 
     # Django auth URLs with accounts/ prefix
-    path('accounts/login/', auth_views.LoginView.as_view(
-        template_name='participant/login.html',
-        redirect_authenticated_user=True
-    ), name='account_login'),
+    path('accounts/login/', participant_login, name='account_login'),
 
     path('accounts/logout/', auth_views.LogoutView.as_view(
         next_page='/login/'

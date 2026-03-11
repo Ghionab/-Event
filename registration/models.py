@@ -65,11 +65,9 @@ class TicketType(models.Model):
     
     def can_purchase(self):
         now = timezone.now()
-        return (
-            self.is_active and
-            self.sales_start <= now <= self.sales_end and
-            not self.is_sold_out
-        )
+        sales_start_ok = (self.sales_start is None) or (self.sales_start <= now)
+        sales_end_ok = (self.sales_end is None) or (now <= self.sales_end)
+        return self.is_active and sales_start_ok and sales_end_ok and not self.is_sold_out
 
 
 class PromoCode(models.Model):
@@ -190,10 +188,11 @@ class Registration(models.Model):
     def cancel(self, reason=''):
         """Cancel the registration"""
         if self.status in [RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED]:
+            was_confirmed = self.status == RegistrationStatus.CONFIRMED
             self.status = RegistrationStatus.CANCELLED
             self.refund_reason = reason
             # Update ticket sold count
-            if self.ticket_type and self.status == RegistrationStatus.CONFIRMED:
+            if self.ticket_type and was_confirmed:
                 self.ticket_type.quantity_sold = max(0, self.ticket_type.quantity_sold - 1)
                 self.ticket_type.save()
             self.save()

@@ -38,7 +38,7 @@
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen py-10" onload="window.print()">
+<body class="bg-gray-100 min-h-screen py-10">
     <div class="max-w-2xl mx-auto px-4">
         <!-- Actions -->
         <div class="mb-6 flex justify-between items-center no-print">
@@ -55,71 +55,7 @@
         </div>
 
         <!-- Ticket -->
-        <div
-            class="ticket-card bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col sm:flex-row relative">
-
-            <!-- Left Side / Top -->
-            <div
-                class="bg-indigo-600 text-white p-6 sm:w-1/3 flex flex-col justify-between items-center sm:items-start text-center sm:text-left relative z-10">
-                <div class="mb-8">
-                    <p class="text-indigo-200 text-xs uppercase tracking-widest font-bold mb-1">Pass</p>
-                    <h2 class="text-2xl font-bold leading-tight">{{ registration.ticket_type.name|default:"General
-                        Admission" }}</h2>
-                </div>
-
-                <div class="w-full">
-                    {% if qr_code_image %}
-                    <div class="bg-white p-2 rounded-lg inline-block shadow-inner">
-                        <img src="data:image/png;base64,{{ qr_code_image }}" alt="QR"
-                            class="w-32 h-32 sm:w-w-full sm:h-auto object-cover" style="image-rendering: pixelated;">
-                    </div>
-                    {% endif %}
-                    <p class="mt-4 text-xs font-mono text-indigo-200 break-all">{{ registration.registration_number }}
-                    </p>
-                </div>
-
-                <!-- Ticket perforations (visual) -->
-                <div
-                    class="hidden sm:block absolute right-0 top-0 bottom-0 w-4 overflow-hidden transform translate-x-1/2">
-                    <div class="h-full border-r-4 border-dashed border-gray-100/30"></div>
-                </div>
-            </div>
-
-            <!-- Right Side / Bottom -->
-            <div class="p-8 sm:w-2/3 flex flex-col justify-between">
-                <div>
-                    <h1 class="text-2xl font-black text-gray-900 mb-2">{{ registration.event.title }}</h1>
-
-                    <div class="space-y-4 mt-6">
-                        <div>
-                            <p class="text-xs uppercase tracking-wider text-gray-400 font-bold">Attendee</p>
-                            <p class="text-lg font-bold text-gray-900">{{ registration.attendee_name }}</p>
-                            {% if registration.attendee_email %}<p class="text-sm text-gray-500">{{
-                                registration.attendee_email }}</p>{% endif %}
-                        </div>
-
-                        <div class="flex gap-8">
-                            <div>
-                                <p class="text-xs uppercase tracking-wider text-gray-400 font-bold mb-1">Date & Time</p>
-                                <p class="font-medium text-gray-900">{{ registration.event.start_date|date:"F d, Y" }}
-                                </p>
-                                <p class="text-sm text-gray-500">{{ registration.event.start_date|date:"g:i A" }}</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-xs uppercase tracking-wider text-gray-400 font-bold mb-1">Location</p>
-                            <p class="font-medium text-gray-900 max-w-xs">{{
-                                registration.event.venue_name|default:"Virtual Event" }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8 pt-4 border-t border-dashed border-gray-200 text-xs text-gray-400">
-                    <p>Please present this ticket at the registration desk for check-in.</p>
-                </div>
-            </div>
-        </div>
+        {% include 'participant/partials/ticket_pass.html' %}
     </div>
 </body>
 

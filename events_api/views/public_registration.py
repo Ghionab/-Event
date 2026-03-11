@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from events.models import Event
 from registration.models import Registration, TicketType
 
@@ -18,7 +19,7 @@ User = get_user_model()
 def get_user_registrations(request):
     """Get all registrations for the current user"""
     registrations = Registration.objects.filter(
-        user=request.user
+        Q(user=request.user) | Q(attendee_email=request.user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
 
     data = []

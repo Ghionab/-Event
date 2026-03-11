@@ -119,18 +119,18 @@
         <div class="card-body space-y-4">
             <div class="flex items-center justify-between">
                 <span class="text-gray-500">Registrations</span>
-                <span class="font-semibold text-indigo-600">{{ analytics.total_registrations|default:0 }}</span>
+                <span class="font-semibold text-indigo-600">{{ total_registrations|default:0 }}</span>
             </div>
             <div class="flex items-center justify-between">
                 <span class="text-gray-500">Checked In</span>
-                <span class="font-semibold text-green-600">{{ analytics.checked_in_count|default:0 }}</span>
+                <span class="font-semibold text-green-600">{{ checked_in_count|default:0 }}</span>
             </div>
             <div class="flex items-center justify-between">
                 <span class="text-gray-500">Revenue</span>
-                <span class="font-semibold text-green-600">${{ analytics.total_revenue|default:"0.00" }}</span>
+                <span class="font-semibold text-green-600">${{ total_revenue|floatformat:2 }}</span>
             </div>
             <hr class="border-gray-200">
-            <a href="#" class="block text-center text-indigo-600 hover:text-indigo-800 font-medium">
+            <a href="{% url 'organizer_send_email' %}?event={{ event.id }}" class="block text-center text-indigo-600 hover:text-indigo-800 font-medium">
                 <i class="bi bi-envelope mr-1"></i>Send Announcement
             </a>
         </div>
@@ -237,9 +237,9 @@
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Ticket Types</h3>
-        <button class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+        <a href="{% url 'organizer_event_edit' event.id %}#tickets" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
             <i class="bi bi-plus mr-1"></i>Add Ticket Type
-        </button>
+        </a>
     </div>
     <div class="overflow-x-auto">
         {% if ticket_types %}
@@ -258,8 +258,8 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 font-medium text-gray-800">{{ ticket.name }}</td>
                     <td class="px-6 py-4 text-gray-600">${{ ticket.price|default:"0.00" }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ ticket.quantity_sold|default:0 }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ ticket.quantity_available|default:"Unlimited" }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ ticket.computed_sold|default:0 }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ ticket.computed_available|default:"Unlimited" }}</td>
                     <td class="px-6 py-4">
                         {% if ticket.is_active %}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>

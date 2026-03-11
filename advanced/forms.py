@@ -77,17 +77,26 @@ class TeamMemberForm(forms.ModelForm):
     class Meta:
         model = TeamMember
         fields = [
-            'user', 'role', 'department', 'can_manage_registrations',
+            'event', 'user', 'role', 'department', 'can_manage_registrations',
             'can_manage_sessions', 'can_manage_sponsors', 'can_view_financials',
             'can_manage_team', 'shift_start', 'shift_end', 'is_active'
         ]
         widgets = {
+            'event': forms.Select(attrs={'class': 'form-control'}),
             'user': forms.Select(attrs={'class': 'form-control'}),
             'role': forms.Select(attrs={'class': 'form-control'}),
             'department': forms.TextInput(attrs={'class': 'form-control'}),
             'shift_start': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
             'shift_end': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filter events by organizer
+        if user and not user.is_staff:
+            self.fields['event'].queryset = Event.objects.filter(organizer=user)
 
 
 class TaskForm(forms.ModelForm):

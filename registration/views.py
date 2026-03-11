@@ -112,6 +112,12 @@ def register_for_event(request, event_id):
 
             # Calculate total amount
             if registration.ticket_type:
+                if not registration.ticket_type.can_purchase():
+                    messages.error(request, 'Selected ticket type is not available for purchase.')
+                    return render(request, 'registration/register_event.html', {
+                        'form': form, 'event': event, 'custom_fields': custom_fields,
+                        'file_fields': file_fields, 'non_file_fields': non_file_fields
+                    })
                 total = registration.ticket_type.price
                 discount = 0
 
@@ -146,6 +152,7 @@ def register_for_event(request, event_id):
                 registration.discount_amount = discount
 
             registration.save()
+            registration.confirm()
 
             # Save uploaded files
             for field in file_fields:

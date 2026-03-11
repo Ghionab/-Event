@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +15,7 @@
             }
             body { 
                 background: white; 
+                margin: 0;
             }
             /* Hide all buttons when printing */
             button {
@@ -23,6 +24,15 @@
             /* Hide contact support section */
             .text-center.mt-8 {
                 display: none !important;
+            }
+            .ticket-card {
+                box-shadow: none !important;
+                border: 2px solid #e5e7eb !important;
+                border-radius: 12px;
+            }
+            @page {
+                margin: 2cm;
+                size: auto;
             }
         }
     </style>
@@ -38,121 +48,35 @@
             <p class="text-gray-600">Your ticket has been confirmed</p>
         </div>
 
-        <!-- Registration Card -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
-            <!-- Event Header -->
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-                <h2 class="text-2xl font-bold mb-2">{{ event.title }}</h2>
-                <div class="flex flex-wrap gap-4 text-sm">
-                    <div class="flex items-center">
-                        <i class="fas fa-calendar mr-2"></i>
-                        <span>{{ event.start_date|date:"F d, Y" }}</span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="fas fa-clock mr-2"></i>
-                        <span>{{ event.start_date|date:"g:i A" }}</span>
-                    </div>
-                    {% if event.venue_name %}
-                    <div class="flex items-center">
-                        <i class="fas fa-map-marker-alt mr-2"></i>
-                        <span>{{ event.venue_name }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+        <!-- Ticket -->
+        <div class="mb-6">
+            {% include 'participant/partials/ticket_pass.html' %}
+        </div>
 
-            <!-- Registration Details -->
-            <div class="p-8">
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Left Column: Details -->
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">Registration Details</h3>
-                        
-                        <div class="space-y-3">
-                            <div class="flex items-start">
-                                <i class="fas fa-ticket-alt text-blue-600 mt-1 mr-3"></i>
-                                <div>
-                                    <p class="text-sm text-gray-600">Registration Number</p>
-                                    <p class="font-bold text-lg text-gray-800">{{ registration.registration_number }}</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start">
-                                <i class="fas fa-user text-blue-600 mt-1 mr-3"></i>
-                                <div>
-                                    <p class="text-sm text-gray-600">Attendee Name</p>
-                                    <p class="font-semibold text-gray-800">{{ registration.attendee_name }}</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start">
-                                <i class="fas fa-envelope text-blue-600 mt-1 mr-3"></i>
-                                <div>
-                                    <p class="text-sm text-gray-600">Email</p>
-                                    <p class="font-semibold text-gray-800">{{ registration.attendee_email }}</p>
-                                </div>
-                            </div>
-
-                            {% if registration.ticket_type %}
-                            <div class="flex items-start">
-                                <i class="fas fa-tag text-blue-600 mt-1 mr-3"></i>
-                                <div>
-                                    <p class="text-sm text-gray-600">Ticket Type</p>
-                                    <p class="font-semibold text-gray-800">{{ registration.ticket_type.name }}</p>
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            <div class="flex items-start">
-                                <i class="fas fa-check-circle text-green-600 mt-1 mr-3"></i>
-                                <div>
-                                    <p class="text-sm text-gray-600">Status</p>
-                                    <p class="font-semibold text-green-600 capitalize">{{ registration.status }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column: QR Code -->
-                    <div class="flex flex-col items-center justify-center">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">Your Entry Pass</h3>
-                        <div class="bg-white p-6 rounded-xl border-4 border-blue-600 shadow-lg">
-                            <img src="data:image/png;base64,{{ qr_code_image }}" 
-                                 alt="QR Code" 
-                                 class="w-48 h-48">
-                        </div>
-                        <p class="text-sm text-gray-600 mt-4 text-center max-w-xs">
-                            Show this QR code at the event entrance for quick check-in
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Important Information -->
-                <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-                    <h4 class="font-bold text-blue-900 mb-3 flex items-center">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        Important Information
-                    </h4>
-                    <ul class="space-y-2 text-sm text-blue-800">
-                        <li class="flex items-start">
-                            <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
-                            <span>A confirmation email with your QR code has been sent to <strong>{{ registration.attendee_email }}</strong></span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
-                            <span>Please save or print this page for your records</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
-                            <span>Bring a valid ID along with this QR code to the event</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
-                            <span>Arrive at least 15 minutes before the event starts</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+        <!-- Important Information -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 no-print">
+            <h4 class="font-bold text-blue-900 mb-3 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>
+                Important Information
+            </h4>
+            <ul class="space-y-2 text-sm text-blue-800">
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                    <span>A confirmation email with your QR code has been sent to <strong>{{ registration.attendee_email }}</strong></span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                    <span>Please save or print this ticket for your records</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                    <span>Bring a valid ID along with this QR code to the event</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                    <span>Arrive at least 15 minutes before the event starts</span>
+                </li>
+            </ul>
         </div>
 
         <!-- Action Buttons -->
@@ -163,11 +87,11 @@
                 Print Ticket
             </button>
             
-            <button onclick="downloadQR()" 
-                    class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
-                <i class="fas fa-download mr-2"></i>
-                Download Ticket
-            </button>
+            <a href="{% url 'attendee:ticket_preview' registration.id %}" 
+               class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
+                <i class="fas fa-file-pdf mr-2"></i>
+                Ticket
+            </a>
             
             <button onclick="sendEmail()" 
                     id="emailBtn"
@@ -192,119 +116,6 @@
     </div>
 
     <script>
-        function downloadQR() {
-            // Create a canvas to draw the complete ticket
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Set canvas size (ticket dimensions)
-            canvas.width = 800;
-            canvas.height = 1000;
-            
-            // Background
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Header gradient
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-            gradient.addColorStop(0, '#2563eb');
-            gradient.addColorStop(1, '#7c3aed');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, 200);
-            
-            // Event title
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 32px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('{{ event.title }}', canvas.width / 2, 60);
-            
-            // Event details
-            ctx.font = '18px Arial';
-            ctx.fillText('📅 {{ event.start_date|date:"F d, Y" }}  🕐 {{ event.start_date|date:"g:i A" }}', canvas.width / 2, 100);
-            {% if event.venue_name %}
-            ctx.fillText('📍 {{ event.venue_name }}', canvas.width / 2, 130);
-            {% endif %}
-            
-            // Registration section
-            ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 24px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText('Registration Details', 50, 260);
-            
-            // Registration info
-            ctx.font = '18px Arial';
-            ctx.fillStyle = '#4b5563';
-            
-            ctx.fillText('🎫 Registration Number:', 50, 310);
-            ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 20px Arial';
-            ctx.fillText('{{ registration.registration_number }}', 50, 340);
-            
-            ctx.fillStyle = '#4b5563';
-            ctx.font = '18px Arial';
-            ctx.fillText('👤 Attendee Name:', 50, 390);
-            ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 20px Arial';
-            ctx.fillText('{{ registration.attendee_name }}', 50, 420);
-            
-            ctx.fillStyle = '#4b5563';
-            ctx.font = '18px Arial';
-            ctx.fillText('📧 Email:', 50, 470);
-            ctx.fillStyle = '#1f2937';
-            ctx.font = '18px Arial';
-            ctx.fillText('{{ registration.attendee_email }}', 50, 500);
-            
-            {% if registration.ticket_type %}
-            ctx.fillStyle = '#4b5563';
-            ctx.font = '18px Arial';
-            ctx.fillText('🏷️ Ticket Type:', 50, 550);
-            ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 18px Arial';
-            ctx.fillText('{{ registration.ticket_type.name }}', 50, 580);
-            {% endif %}
-            
-            // Status
-            ctx.fillStyle = '#10b981';
-            ctx.font = 'bold 20px Arial';
-            ctx.fillText('✓ Confirmed', 50, 630);
-            
-            // QR Code section
-            ctx.fillStyle = '#1f2937';
-            ctx.font = 'bold 24px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Your Entry Pass', canvas.width / 2, 700);
-            
-            // Draw QR code
-            const qrImage = document.querySelector('img[alt="QR Code"]');
-            const qrSize = 250;
-            const qrX = (canvas.width - qrSize) / 2;
-            const qrY = 720;
-            
-            // QR code border
-            ctx.strokeStyle = '#2563eb';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
-            
-            // Draw QR code image
-            ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
-            
-            // Instructions
-            ctx.fillStyle = '#6b7280';
-            ctx.font = '14px Arial';
-            ctx.fillText('Show this QR code at the event entrance for check-in', canvas.width / 2, 1020);
-            
-            // Convert canvas to blob and download
-            canvas.toBlob(function(blob) {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'ticket-{{ registration.registration_number }}.png';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
-            });
-        }
-
         function sendEmail() {
             const btn = document.getElementById('emailBtn');
             const btnText = document.getElementById('emailBtnText');
@@ -347,3 +158,7 @@
     </script>
 </body>
 </html>
+
+
+
+

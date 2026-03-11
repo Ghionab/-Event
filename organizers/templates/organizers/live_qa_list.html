@@ -1,0 +1,162 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Live Q&A - Event Organizer{% endblock %}
+
+{% block header %}Live Q&A{% endblock %}
+
+{% block subtitle %}Manage attendee questions and facilitate interactive sessions{% endblock %}
+
+{% block content %}
+<!-- Premium Header Banner -->
+<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 shadow-xl">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative px-8 py-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                    <i class="bi bi-chat-square-text text-white text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white">Live Q&A</h1>
+                    <p class="text-indigo-100 text-sm mt-1">{{ recent_questions|length }} questions across {{ sessions|length }} sessions</p>
+                </div>
+            </div>
+            <a href="{% url 'organizer_communication_dashboard' %}" class="inline-flex items-center text-sm text-indigo-100 hover:text-white transition-colors duration-200">
+                <i class="bi bi-arrow-left mr-2"></i>Back to Communication
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
+            <i class="bi bi-question-circle text-white text-xl"></i>
+        </div>
+        <div>
+            <p class="text-2xl font-bold text-gray-900">{{ recent_questions|length }}</p>
+            <p class="text-sm text-gray-500">Recent Questions</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
+            <i class="bi bi-check-circle text-white text-xl"></i>
+        </div>
+        <div>
+            <p class="text-2xl font-bold text-gray-900">{{ sessions|length }}</p>
+            <p class="text-sm text-gray-500">Active Sessions</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-sm">
+            <i class="bi bi-chat-dots text-white text-xl"></i>
+        </div>
+        <div>
+            <p class="text-2xl font-bold text-gray-900">{{ events|length }}</p>
+            <p class="text-sm text-gray-500">Events with Q&A</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Sessions with Q&A -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                <i class="bi bi-collection-play mr-2 text-gray-500"></i>Sessions with Q&A
+            </h3>
+            <span class="text-xs text-gray-500">{{ sessions|length }} session{{ sessions|length|pluralize }}</span>
+        </div>
+        <div class="divide-y divide-gray-100">
+            {% if sessions %}
+            {% for session in sessions %}
+            <a href="{% url 'organizer_live_qa_session' session.id %}" class="flex items-center justify-between p-4 hover:bg-gray-50/80 transition-colors duration-200 group">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
+                        <i class="bi bi-question-circle text-white"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900 group-hover:text-indigo-600 transition-colors">{{ session.title }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">{{ session.event.title|truncatechars:30 }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                        <i class="bi bi-chat-left-text mr-1"></i>{{ session.qa_questions.count }}
+                    </span>
+                    <i class="bi bi-chevron-right text-gray-400 group-hover:text-indigo-600 transition-colors"></i>
+                </div>
+            </a>
+            {% endfor %}
+            {% else %}
+            <div class="p-8 text-center">
+                <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-question-circle text-gray-400 text-2xl"></i>
+                </div>
+                <p class="text-gray-500">No Q&A sessions yet</p>
+                <p class="text-sm text-gray-400 mt-1">Questions will appear when attendees submit them</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Questions -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                <i class="bi bi-chat-left-text mr-2 text-gray-500"></i>Recent Questions
+            </h3>
+            <span class="text-xs text-gray-500">{{ recent_questions|length }} total</span>
+        </div>
+        <div class="divide-y divide-gray-100 max-h-[480px] overflow-y-auto">
+            {% if recent_questions %}
+            {% for question in recent_questions %}
+            <div class="p-4 hover:bg-gray-50/80 transition-colors duration-200">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-person text-gray-500 text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 leading-relaxed">{{ question.question|truncatechars:120 }}</p>
+                        <div class="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                            <span class="flex items-center gap-1">
+                                <i class="bi bi-person-circle"></i>{{ question.user.get_full_name|default:question.user.email|truncatechars:20 }}
+                            </span>
+                            <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                            <span>{{ question.event.title|truncatechars:20 }}</span>
+                            <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                            <span>{{ question.created_at|date:"M d, H:i" }}</span>
+                        </div>
+                        {% if question.is_answered %}
+                        <div class="mt-3 p-2.5 bg-emerald-50 border border-emerald-100 rounded-lg">
+                            <p class="text-sm text-emerald-800 flex items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-emerald-600"></i>
+                                <span>Answered by {{ question.answered_by.get_full_name|default:question.answered_by.email|truncatechars:25 }}</span>
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-1 text-sm text-gray-500 flex-shrink-0">
+                        <i class="bi bi-hand-thumbs-up text-gray-400"></i>
+                        <span class="font-medium">{{ question.upvotes }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="p-8 text-center">
+                <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-chat text-gray-400 text-2xl"></i>
+                </div>
+                <p class="text-gray-500">No questions yet</p>
+                <p class="text-sm text-gray-400 mt-1">Attendees can submit questions during events</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -81,16 +81,16 @@
 
         <!-- Action Buttons -->
         <div class="flex flex-wrap gap-4 justify-center no-print">
-            <button onclick="window.print()" 
+            <a href="{% url 'attendee:ticket_preview' registration.id %}" 
                     class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
                 <i class="fas fa-print mr-2"></i>
                 Print Ticket
-            </button>
+            </a>
             
-            <a href="{% url 'attendee:ticket_preview' registration.id %}" 
+            <a href="{% url 'attendee:download_ticket' registration.id %}" 
                class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
                 <i class="fas fa-file-pdf mr-2"></i>
-                Ticket
+                Download PDF
             </a>
             
             <button onclick="sendEmail()" 

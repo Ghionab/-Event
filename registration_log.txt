@@ -190,3 +190,6 @@
 [2026-03-11 09:52:21] RAW_DATA: {'event_id': '1', 'full_name': 'Test User', 'email': 'test@example.com', 'phone': '1234567890', 'special_requests': ''}
 [2026-03-11 09:52:21] PARSED: event_id=1 (type=str), email=test@example.com, name=Test User
 [2026-03-11 09:52:21] SUCCESS | event_id=1 | name=Test User | email=test@example.com | status=confirmed | reg#=REG-56504448
+[2026-03-11 18:29:51] RAW_DATA: {'event_id': '8', 'full_name': 'ando foiqe', 'email': 'admin@eventmanager.com', 'phone': '251980278337', 'special_requests': ''}
+[2026-03-11 18:29:51] PARSED: event_id=8 (type=str), email=admin@eventmanager.com, name=ando foiqe
+[2026-03-11 18:29:51] SUCCESS | event_id=8 | name=ando foiqe | email=admin@eventmanager.com | status=confirmed | reg#=REG-5A020481

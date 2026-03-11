@@ -1135,8 +1135,8 @@ def account_settings(request):
             user.profile_image = request.FILES['profile_image']
         
         user.save()
-        messages.success(request, 'Your profile has been updated successfully.')
-        return redirect('participant_home')
+        messages.success(request, 'Settings saved successfully!')
+        return redirect('registration:account_settings')
     
     context = {
         'user': user,
@@ -1157,32 +1157,23 @@ def my_tickets(request):
 
     registrations = Registration.objects.filter(
         models.Q(user=user) | models.Q(attendee_email=user.email),
+        event__start_date__gte=now,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event', 'ticket_type').order_by('event__start_date')
 
-    upcoming_tickets = []
-    past_tickets = []
-    
+    tickets = []
     for reg in registrations:
         try:
             qr_image = reg.generate_qr_code_image()
         except Exception:
             qr_image = None
-            
-        ticket_data = {
+        tickets.append({
             'registration': reg,
             'qr_image': qr_image,
-        }
-        
-        if reg.event.start_date >= now:
-            upcoming_tickets.append(ticket_data)
-        else:
-            past_tickets.append(ticket_data)
+        })
 
     context = {
-        'upcoming_tickets': upcoming_tickets,
-        'past_tickets': past_tickets,
-        'has_any_tickets': len(upcoming_tickets) > 0 or len(past_tickets) > 0,
+        'tickets': tickets,
     }
     return render(request, 'participant/my_tickets.html', context)
 

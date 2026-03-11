@@ -86,7 +86,7 @@ def participant_signup(request):
 
         # Log the user in
         from django.contrib.auth import authenticate, login
-        user = authenticate(request, username=email, password=password1)
+        user = authenticate(request, email=email, password=password1)
         if user:
             login(request, user)
             from django.http import HttpResponseRedirect

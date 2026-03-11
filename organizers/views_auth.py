@@ -32,7 +32,11 @@ def organizer_login(request):
                 if hasattr(user, 'organizerprofile'):
                     login(request, user)
                     next_page = request.GET.get('next', '/organizers/')
-                    return redirect(next_page)
+                    # Validate next parameter to prevent open redirects
+                    if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+                        return redirect(next_page)
+                    else:
+                        return redirect('/organizers/')
                 else:
                     messages.info(request, 'Please create an organizer profile to access the dashboard.')
                     login(request, user)

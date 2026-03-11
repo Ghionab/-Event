@@ -58,4 +58,5 @@ urlpatterns = [
     # Preferences
     path('preferences/<int:event_id>/', views_attendee.preferences_enhanced, name='preferences'),
     path('settings/', views_attendee.account_settings, name='settings'),
+    path('profile/', views_attendee.attendee_profile_edit, name='profile'),
 ]

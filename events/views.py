@@ -30,7 +30,7 @@ def event_create(request):
         if form.is_valid():
             event = form.save(commit=False)
             event.organizer = request.user
-            event.status = 'draft'  # Auto-assign draft status
+            event.status = 'published'  # Set to published so it appears in attendee portal
             event.save()
             
             # Send email invitations if provided

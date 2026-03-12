@@ -23,6 +23,7 @@ urlpatterns = [
     path('registrations/', views.registration_list, name='organizer_registration_list'),
     path('registrations/export/', views.registration_export, name='organizer_registration_export'),
     path('registrations/bulk-action/', views.registration_bulk_action, name='organizer_registration_bulk_action'),
+    path('registrations/badges/print/', views.badge_print_bulk, name='organizer_badge_print_bulk'),
     path('registrations/<int:registration_id>/', views.registration_detail, name='organizer_registration_detail'),
     path('registrations/<int:registration_id>/edit/', views.registration_edit, name='organizer_registration_edit'),
     path('registrations/<int:registration_id>/cancel/', views.registration_cancel, name='organizer_registration_cancel'),

@@ -69,6 +69,48 @@
                               placeholder="Describe your event">{{ form.description.value|default:'' }}</textarea>
                 </div>
 
+                <!-- Event Logo -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.logo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="bi bi-image mr-2"></i>Event Logo
+                    </label>
+                    {{ form.logo.errors }}
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-1">
+                            <input type="file" name="{{ form.logo.name }}" id="{{ form.logo.id_for_label }}"
+                                   accept="image/*"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                        {% if form.logo.value %}
+                        <div class="flex-shrink-0">
+                            <img src="{{ form.logo.value.url }}" alt="Event logo" class="h-16 w-16 object-cover rounded-lg border border-gray-200">
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">Upload a logo for your event (recommended: 200x200px, max 5MB)</p>
+                </div>
+
+                <!-- Banner Image -->
+                <div class="md:col-span-2">
+                    <label for="{{ form.banner_image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="bi bi-card-image mr-2"></i>Banner Image
+                    </label>
+                    {{ form.banner_image.errors }}
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-1">
+                            <input type="file" name="{{ form.banner_image.name }}" id="{{ form.banner_image.id_for_label }}"
+                                   accept="image/*"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                        {% if form.banner_image.value %}
+                        <div class="flex-shrink-0">
+                            <img src="{{ form.banner_image.value.url }}" alt="Event banner" class="h-16 w-24 object-cover rounded-lg border border-gray-200">
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">Upload a banner image for your event (recommended: 1200x400px, max 10MB)</p>
+                </div>
+
                 <!-- Event Type -->
                 <div>
                     <label for="{{ form.event_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">

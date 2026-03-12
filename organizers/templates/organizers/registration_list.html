@@ -175,6 +175,7 @@ View and manage all event registrations across your events
                 <option value="checkin">Check In</option>
                 <option value="cancel">Cancel</option>
                 <option value="email">Send Email</option>
+                <option value="print_badges">Print Badges</option>
                 <option value="export">Export Selected</option>
             </select>
             <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium" onclick="return confirmBulkAction()">
@@ -365,6 +366,12 @@ View and manage all event registrations across your events
         
         if (action === 'cancel') {
             return confirm('Are you sure you want to cancel the selected registrations?');
+        }
+        
+        if (action === 'print_badges') {
+            if (checked.length > 50) {
+                return confirm('You have selected ' + checked.length + ' badges. Printing many badges may take a while. Continue?');
+            }
         }
         
         return true;

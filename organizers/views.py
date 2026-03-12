@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models import Sum, Count, Q
 from django.db.models.functions import TruncDate
 from django.core.paginator import Paginator
+from django.urls import reverse
 from decimal import Decimal
 
 from .models import (
@@ -1342,7 +1343,95 @@ def registration_bulk_action(request):
     elif action == 'export':
         return _export_csv(registrations)
     
+    elif action == 'print_badges':
+        # Redirect to badge printing page with selected registration IDs
+        registration_ids_str = ','.join(registration_ids)
+        return redirect(f'{reverse("organizer_badge_print_bulk")}?registrations={registration_ids_str}')
+    
     return redirect('organizer_registration_list')
+
+
+@login_required
+@organizer_required
+def badge_print_bulk(request):
+    """Bulk print badges for selected registrations"""
+    organizer = request.organizer
+    events = Event.objects.filter(organizer=organizer.user)
+    
+    # Get registration IDs from query parameter
+    registration_ids_str = request.GET.get('registrations', '')
+    if not registration_ids_str:
+        messages.error(request, 'No registrations selected for badge printing.')
+        return redirect('organizer_registration_list')
+    
+    # Parse registration IDs
+    try:
+        registration_ids = [int(id_str) for id_str in registration_ids_str.split(',') if id_str.strip()]
+    except ValueError:
+        messages.error(request, 'Invalid registration IDs.')
+        return redirect('organizer_registration_list')
+    
+    if not registration_ids:
+        messages.error(request, 'No valid registrations selected.')
+        return redirect('organizer_registration_list')
+    
+    # Get registrations belonging to organizer's events
+    registrations = Registration.objects.filter(
+        id__in=registration_ids,
+        event__in=events
+    ).select_related('event', 'ticket_type').order_by('event__title', 'attendee_name')
+    
+    if not registrations.exists():
+        messages.error(request, 'No valid registrations found for badge printing.')
+        return redirect('organizer_registration_list')
+    
+    # Generate QR codes for badges
+    import qrcode
+    import qrcode.image.svg
+    from io import BytesIO
+    import base64
+    
+    badges = []
+    for reg in registrations:
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(reg.registration_number)
+        qr.make(fit=True)
+        
+        # Create QR image
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        qr_base64 = base64.b64encode(buffer.getvalue()).decode()
+        
+        # Determine badge type based on ticket
+        badge_type = 'standard'
+        if reg.ticket_type and reg.ticket_type.price > 100:
+            badge_type = 'vip'
+        
+        badges.append({
+            'registration': reg,
+            'qr_image': qr_base64,
+            'badge_type': badge_type,
+        })
+    
+    # Get unique events for this badge batch
+    event_ids = registrations.values_list('event_id', flat=True).distinct()
+    events_in_batch = Event.objects.filter(id__in=event_ids)
+    
+    context = {
+        'badges': badges,
+        'total_badges': len(badges),
+        'events': events_in_batch,
+        'event': events_in_batch.first(),  # Primary event for header
+        'is_multi_event': events_in_batch.count() > 1,
+    }
+    return render(request, 'organizers/badge_print_bulk.html', context)
 
 
 # =============================================================================

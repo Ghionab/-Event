@@ -1,0 +1,71 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Active Events - Gate Staff Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="fas fa-calendar-check"></i> Active Events
+        </h2>
+    </div>
+</div>
+
+{% if events %}
+    {% for item in events %}
+    <div class="attendee-card">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h4 class="mb-1">{{ item.event.title }}</h4>
+                <p class="text-muted mb-2">
+                    <i class="fas fa-calendar"></i> 
+                    {{ item.event.start_date|date:"F d, Y" }}
+                    {% if item.event.venue_name %}
+                    <br>
+                    <i class="fas fa-map-marker-alt"></i> {{ item.event.venue_name }}
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="stats-number text-primary" style="font-size: 24px;">
+                            {{ item.total_registered }}
+                        </div>
+                        <small class="text-muted">Registered</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="stats-number text-success" style="font-size: 24px;">
+                            {{ item.total_checked_in }}
+                        </div>
+                        <small class="text-muted">Checked In</small>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 8px;">
+                    <div class="progress-bar bg-success" 
+                         role="progressbar" 
+                         style="width: {{ item.check_in_rate }}%"
+                         aria-valuenow="{{ item.check_in_rate }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <small class="text-muted">{{ item.check_in_rate|floatformat:0 }}% checked in</small>
+            </div>
+            <div class="col-md-2 text-end">
+                <a href="{% url 'staff:event_dashboard' item.event.id %}" 
+                   class="btn btn-primary">
+                    <i class="fas fa-qrcode"></i> Open
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        No active events found. Events will appear here on their event date.
+    </div>
+{% endif %}
+
+{% endblock %}

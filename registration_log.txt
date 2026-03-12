@@ -205,3 +205,9 @@
 [2026-03-12 11:00:30] RAW_DATA: {'event_id': '1', 'full_name': 'abe lemesa', 'email': 'admin@eventmanager.com', 'phone': '853902', 'special_requests': ''}
 [2026-03-12 11:00:30] PARSED: event_id=1 (type=str), email=admin@eventmanager.com, name=abe lemesa
 [2026-03-12 11:00:30] SUCCESS | event_id=1 | name=abe lemesa | email=admin@eventmanager.com | status=confirmed | reg#=REG-0A7CB8F6
+[2026-03-12 23:02:32] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': 'ertyu'}
+[2026-03-12 23:02:32] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-12 23:02:32] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=confirmed | reg#=REG-063172A3
+[2026-03-12 23:06:00] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': ''}
+[2026-03-12 23:06:00] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-12 23:06:00] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=confirmed | reg#=REG-1A3A3630

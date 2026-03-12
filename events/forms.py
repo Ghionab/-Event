@@ -16,12 +16,9 @@ class EventForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = [
-            'title', 'description', 'event_type', 'start_date', 'end_date',
-            'registration_deadline', 'venue_name', 'address', 'city', 'country',
-            'virtual_meeting_url', 'virtual_platform', 'logo', 'banner_image',
-            'primary_color', 'secondary_color', 'max_attendees', 'is_public',
-            'require_approval', 'meta_title', 'meta_description', 'contact_email',
-            'contact_phone'
+            'title', 'description', 'start_date', 'end_date',
+            'venue_name', 'city', 'country', 'logo', 'banner_image',
+            'max_attendees', 'is_public'
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 5}),
@@ -31,6 +28,23 @@ class EventForm(forms.ModelForm):
             'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'registration_deadline': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Surgical fix: If editing an existing event, make fields optional if they are not in the UI
+        # This prevents validation errors for hidden fields that might be required in the model
+        if self.instance and self.instance.pk:
+            ui_fields = [
+                'title', 'description', 'event_type', 'start_date', 'end_date',
+                'venue_name', 'address', 'city', 'country', 'virtual_meeting_url',
+                'primary_color', 'secondary_color', 'max_attendees', 'is_public'
+            ]
+            for field_name in self.fields:
+                if field_name not in ui_fields:
+                    self.fields[field_name].required = False
+                    
+        # Ensure status is set to published by default if we were to handle it here
+        # (Though it's already handled in the model default)
     
     def clean_invite_emails(self):
         """Validate and parse email addresses"""

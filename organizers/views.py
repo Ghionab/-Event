@@ -671,18 +671,27 @@ def event_edit(request, event_id):
         elif action == 'save_event':
             form = EventForm(request.POST, request.FILES, instance=event)
             if form.is_valid():
-                form.save()
+                event = form.save(commit=False)
+                event.status = 'published' # Enforce live status on edit
+                event.save()
+                form.save_m2m()
                 messages.success(request, 'Event updated successfully!')
                 return redirect('organizer_event_list')
+            else:
+                # If form is invalid, we fall through to the render below with the form errors
+                pass
+            # If form is not valid, it will fall through to be rendered with errors
 
+    # If it's a GET request or form validation failed, initialize/re-use the form
+    if 'form' not in locals():
+        form = EventForm(instance=event)
+    
     # Get existing tickets
     tickets = TicketType.objects.filter(event=event)
 
     # Get ticket form for adding new tickets
     from registration.forms import TicketTypeForm
     ticket_form = TicketTypeForm()
-
-    form = EventForm(instance=event)
 
     return render(request, 'organizers/event_edit.html', {
         'form': form,

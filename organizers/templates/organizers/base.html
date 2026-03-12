@@ -45,19 +45,74 @@
             z-index: 1000;
         }
 
-        /* Custom scrollbar for sidebar */
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
+        /* Sidebar toggle button */
+        .sidebar-toggle {
+            position: absolute;
+            top: 1rem;
+            right: -1rem;
+            width: 2rem;
+            height: 2rem;
+            background: #4f46e5;
+            border: 2px solid #1e293b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            z-index: 1001;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-        .sidebar::-webkit-scrollbar-track {
-            background: transparent;
+        
+        .sidebar-toggle:hover {
+            background: #4338ca;
+            transform: scale(1.1);
         }
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 3px;
+        
+        .sidebar.collapsed {
+            width: 80px;
         }
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
+        
+        .sidebar.collapsed .sidebar-brand span {
+            display: none;
+        }
+        
+        .sidebar.collapsed .nav-section-title {
+            display: none;
+        }
+        
+        .sidebar.collapsed .nav-item span {
+            display: none;
+        }
+        
+        .sidebar.collapsed .sidebar-footer {
+            display: none;
+        }
+        
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 0.75rem;
+            margin: 0.25rem;
+        }
+        
+        .sidebar.collapsed .nav-item i {
+            margin: 0;
+        }
+        
+        .main-wrapper.sidebar-collapsed {
+            margin-left: 80px;
+            width: calc(100% - 80px);
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar.collapsed {
+                width: 60px;
+            }
+            .main-wrapper.sidebar-collapsed {
+                margin-left: 60px;
+                width: calc(100% - 60px);
+            }
         }
 
         .sidebar-header {
@@ -372,7 +427,12 @@
     <div class="flex">
         <!-- Sidebar -->
         <div class="sidebar-container" id="sidebarContainer">
-            <div class="sidebar">
+            <div class="sidebar" id="sidebar">
+                <!-- Toggle Button -->
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-chevron-left" id="toggleIcon"></i>
+                </button>
+                
                 <!-- Brand -->
                 <div class="sidebar-header">
                     <a href="{% url 'organizer_dashboard' %}" class="sidebar-brand">
@@ -444,7 +504,6 @@
                             <i class="bi bi-bar-chart-line"></i>
                             <span>Analytics</span>
                         </a>
-                       
                         <a href="{% url 'organizer_settings' %}" class="nav-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-gear"></i>
                             <span>Settings</span>
@@ -453,28 +512,24 @@
                             <i class="bi bi-bell"></i>
                             <span>Notifications</span>
                         </a>
+                        <a href="/" class="nav-item">
+                            <i class="bi bi-house"></i>
+                            <span>Back to Home</span>
+                        </a>
+                        <form method="post" action="{% url 'organizer_logout' %}" id="logoutForm">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-item w-full text-left text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Logout</span>
+                            </button>
+                        </form>
                     </div>
                 </nav>
-
-                <!-- Footer -->
-                <div class="sidebar-footer">
-                    <a href="/" class="nav-item">
-                        <i class="bi bi-house"></i>
-                        <span>Back to Home</span>
-                    </a>
-                    <form method="post" action="{% url 'organizer_logout' %}" class="mt-2">
-                        {% csrf_token %}
-                        <button type="submit" class="nav-item w-full text-left text-red-400 hover:text-red-300">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="main-wrapper">
+        <div class="main-wrapper" id="mainWrapper">
             <!-- Top Header -->
             <header class="top-header">
                 <div>
@@ -527,6 +582,38 @@
     </div>
 
     <script>
+        // Sidebar toggle functionality
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainWrapper = document.getElementById('mainWrapper');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        // Check localStorage for saved state
+        const savedState = localStorage.getItem('sidebarCollapsed');
+        if (savedState === 'true') {
+            sidebar.classList.add('collapsed');
+            mainWrapper.classList.add('sidebar-collapsed');
+            toggleIcon.className = 'bi bi-chevron-right';
+        }
+        
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                
+                if (isCollapsed) {
+                    sidebar.classList.remove('collapsed');
+                    mainWrapper.classList.remove('sidebar-collapsed');
+                    toggleIcon.className = 'bi bi-chevron-left';
+                    localStorage.setItem('sidebarCollapsed', 'false');
+                } else {
+                    sidebar.classList.add('collapsed');
+                    mainWrapper.classList.add('sidebar-collapsed');
+                    toggleIcon.className = 'bi bi-chevron-right';
+                    localStorage.setItem('sidebarCollapsed', 'true');
+                }
+            });
+        }
+        
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebarContainer = document.getElementById('sidebarContainer');

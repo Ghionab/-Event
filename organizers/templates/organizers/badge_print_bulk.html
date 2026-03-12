@@ -1,0 +1,187 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Print Badges - Event Organizer{% endblock %}
+
+{% block header %}Badge Printing{% endblock %}
+
+{% block subtitle %}
+{% if is_multi_event %}Multiple Events{% else %}{{ event.title }}{% endif %} - {{ total_badges }} badge{{ total_badges|pluralize }}
+{% endblock %}
+
+{% block content %}
+<!-- Print Controls -->
+<div class="mb-6 flex flex-wrap gap-3 no-print">
+    <button onclick="window.print()" class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold shadow-lg">
+        <i class="bi bi-printer mr-2"></i>Print Badges
+    </button>
+    <button onclick="printPreview()" class="inline-flex items-center px-5 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-semibold shadow-sm">
+        <i class="bi bi-eye mr-2"></i>Preview
+    </button>
+    <a href="{% url 'organizer_registration_list' %}" class="inline-flex items-center px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-semibold">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Registrations
+    </a>
+    <span class="inline-flex items-center px-4 py-2.5 bg-emerald-100 text-emerald-700 rounded-lg font-medium">
+        <i class="bi bi-check-circle mr-2"></i>{{ total_badges }} badge{{ total_badges|pluralize }} ready
+    </span>
+</div>
+
+<!-- Badge Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="badges-container">
+    {% for item in badges %}
+    <div class="bg-white rounded-xl shadow-lg border-2 {% if item.badge_type == 'vip' %}border-amber-400{% else %}border-gray-200{% endif %} overflow-hidden badge-card">
+        <!-- Header -->
+        <div class="{% if item.badge_type == 'vip' %}bg-gradient-to-r from-amber-500 to-orange-500{% else %}bg-gradient-to-r from-indigo-600 to-purple-600{% endif %} px-4 py-3">
+            <div class="flex items-center justify-between">
+                <span class="text-white font-bold text-sm truncate">{{ item.registration.event.title|truncatechars:30 }}</span>
+                {% if item.badge_type == 'vip' %}
+                <span class="bg-white/20 text-white text-xs px-2 py-1 rounded-full font-semibold">VIP</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Body -->
+        <div class="p-6 text-center">
+            <!-- QR Code -->
+            <div class="mb-4">
+                <img src="data:image/png;base64,{{ item.qr_image }}" 
+                     alt="QR Code" 
+                     class="w-24 h-24 mx-auto border-2 border-gray-200 rounded-lg">
+            </div>
+            
+            <!-- Attendee Info -->
+            <h3 class="text-xl font-bold text-gray-900 mb-1">{{ item.registration.attendee_name }}</h3>
+            <p class="text-sm text-gray-500 mb-3">{{ item.registration.attendee_email }}</p>
+            
+            {% if item.registration.ticket_type %}
+            <p class="text-sm font-medium text-indigo-600 mb-2">
+                <i class="bi bi-ticket-perforated mr-1"></i>{{ item.registration.ticket_type.name }}
+            </p>
+            {% endif %}
+            
+            <!-- Registration Number -->
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-400 uppercase tracking-wide">Registration #</p>
+                <p class="text-lg font-mono font-bold text-gray-700">{{ item.registration.registration_number }}</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-50 px-4 py-3 border-t border-gray-100">
+            <div class="flex items-center justify-between text-xs text-gray-500">
+                <span><i class="bi bi-calendar mr-1"></i>{{ item.registration.event.start_date|date:"M d, Y" }}</span>
+                <span class="font-medium {% if item.registration.status == 'confirmed' %}text-emerald-600{% elif item.registration.status == 'checked_in' %}text-blue-600{% else %}text-amber-600{% endif %}">
+                    {{ item.registration.get_status_display|default:item.registration.status|title }}
+                </span>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-8 text-center">
+            <i class="bi bi-exclamation-triangle text-amber-500 text-4xl mb-4"></i>
+            <h3 class="text-lg font-semibold text-amber-900 mb-2">No Badges to Display</h3>
+            <p class="text-amber-700">The selected registrations could not be found or don't have valid badge data.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .badge-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .badge-card .bg-gradient-to-r {
+        background: #000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .badge-card .bg-gradient-to-r.from-amber-500 {
+        background: #f59e0b !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    #badges-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px;
+    }
+}
+
+.badge-card {
+    transition: transform 0.2s;
+}
+
+.badge-card:hover {
+    transform: translateY(-2px);
+}
+</style>
+
+<script>
+function printPreview() {
+    const printWindow = window.open('', '_blank');
+    const badgesHtml = document.getElementById('badges-container').innerHTML;
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Badge Print Preview</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 20px;
+                    background: #f3f4f6;
+                }
+                .grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 20px;
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+                .badge-card {
+                    background: white;
+                    border: 2px solid #000;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                }
+                .badge-card > div:first-child {
+                    background: #4f46e5 !important;
+                    color: white;
+                    padding: 12px 16px;
+                    font-weight: bold;
+                }
+                .badge-card p.text-sm.text-gray-500 { color: #6b7280; }
+                .badge-card p.text-lg.font-mono { font-size: 14px; }
+                img { border: 1px solid #e5e7eb; border-radius: 8px; }
+                .no-print, .bg-gray-50 { display: none !important; }
+                @media print {
+                    body { margin: 0; background: white; }
+                    .badge-card { break-inside: avoid; page-break-inside: avoid; }
+                }
+            </style>
+        </head>
+        <body>
+            <h2 style="text-align: center; margin-bottom: 20px;">Badge Print Preview</h2>
+            <div class="grid">${badgesHtml}</div>
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.print();
+}
+</script>
+{% endblock %}

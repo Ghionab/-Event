@@ -12,12 +12,16 @@
 </div>
 
 <script>
-    const eventId = {{ event_id }};
+    // Extract event_id from URL path
+    const pathParts = window.location.pathname.split('/');
+    const eventId = pathParts[pathParts.indexOf('events') + 1] || pathParts[pathParts.indexOf('events') + 1];
     let eventData = null;
     let ticketsData = [];
 
     document.addEventListener('DOMContentLoaded', function() {
-        loadEventAndTickets();
+        if (eventId) {
+            loadEventAndTickets();
+        }
     });
 
     function loadEventAndTickets() {
@@ -49,7 +53,10 @@
             <!-- Event Header -->
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
                 <div class="h-64 bg-gradient-to-br ${gradient} flex items-center justify-center relative">
-                    <i class="fas fa-calendar-alt text-white text-8xl opacity-50"></i>
+                    ${event.logo ? 
+                        `<img src="${event.logo}" alt="${event.title}" class="h-full w-full object-cover">` :
+                        `<i class="fas fa-calendar-alt text-white text-8xl opacity-50"></i>`
+                    }
                     <div class="absolute top-4 left-4">
                         <a href="/events/" class="bg-white/90 text-gray-800 px-3 py-1 rounded-lg text-sm hover:bg-white transition">
                             <i class="fas fa-arrow-left mr-1"></i> Back

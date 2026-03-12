@@ -114,7 +114,10 @@
         grid.innerHTML = eventsList.map(event => `
             <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover transition cursor-pointer" onclick="viewEvent(${event.id})">
                 <div class="h-48 bg-gradient-to-br ${getRandomGradient()} flex items-center justify-center relative">
-                    <i class="fas fa-calendar-alt text-white text-6xl opacity-50"></i>
+                    ${event.logo ? 
+                        `<img src="${event.logo}" alt="${event.title}" class="h-full w-full object-cover">` :
+                        `<i class="fas fa-calendar-alt text-white text-6xl opacity-50"></i>`
+                    }
                     <span class="absolute top-4 right-4 bg-white/90 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded">
                         ${event.event_type || 'Event'}
                     </span>

@@ -33,7 +33,7 @@ class EventSerializer(serializers.ModelSerializer):
                   'start_date', 'end_date', 'registration_deadline',
                   'venue_name', 'address', 'city', 'country',
                   'virtual_meeting_url', 'virtual_platform',
-                  'primary_color', 'secondary_color',
+                  'logo', 'banner_image', 'primary_color', 'secondary_color',
                   'max_attendees', 'is_public', 'require_approval',
                   'contact_email', 'contact_phone',
                   'tracks', 'rooms', 'sponsors', 'is_owner']
@@ -66,4 +66,4 @@ class EventListSerializer(serializers.ModelSerializer):
         model = Event
         fields = ['id', 'title', 'slug', 'event_type', 'status',
                   'start_date', 'end_date', 'venue_name', 'city',
-                  'primary_color', 'is_public']
+                  'logo', 'primary_color', 'is_public']

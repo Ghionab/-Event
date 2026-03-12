@@ -91,25 +91,32 @@
                             <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
-                                        <h3 class="text-lg font-semibold text-gray-900">
-                                            <a href="{% url 'attendee:registration_detail' registration.id %}" class="hover:text-indigo-600">
-                                                {{ registration.event.title }}
-                                            </a>
-                                        </h3>
-                                        <div class="mt-2 space-y-1 text-sm text-gray-600">
-                                            <p><i class="bi bi-calendar mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }}</p>
-                                            <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual Event" }}</p>
-                                            <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name|default:"General" }}</p>
-                                            <p><i class="bi bi-cash-coin mr-2"></i>
-                                                {% if registration.display_total_amount %}
-                                                    ${{ registration.display_total_amount|floatformat:2 }}
-                                                {% else %}
-                                                    Free
-                                                {% endif %}
-                                            </p>
+                                        <div class="flex items-start gap-3">
+                                            {% if registration.event.logo %}
+                                            <img src="{{ registration.event.logo.url }}" alt="{{ registration.event.title }}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 flex-shrink-0">
+                                            {% endif %}
+                                            <div>
+                                                <h3 class="text-lg font-semibold text-gray-900">
+                                                    <a href="{% url 'attendee:registration_detail' registration.id %}" class="hover:text-indigo-600">
+                                                        {{ registration.event.title }}
+                                                    </a>
+                                                </h3>
+                                                <div class="mt-2 space-y-1 text-sm text-gray-600">
+                                                    <p><i class="bi bi-calendar mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }}</p>
+                                                    <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual Event" }}</p>
+                                                    <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name|default:"General" }}</p>
+                                                    <p><i class="bi bi-cash-coin mr-2"></i>
+                                                        {% if registration.display_total_amount %}
+                                                            ${{ registration.display_total_amount|floatformat:2 }}
+                                                        {% else %}
+                                                            Free
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="ml-4">
+                                    <div class="ml-4 flex-shrink-0">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
                                             {% if registration.status == 'confirmed' %}bg-green-100 text-green-800
                                             {% elif registration.status == 'checked_in' %}bg-blue-100 text-blue-800

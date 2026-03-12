@@ -1151,29 +1151,40 @@ def account_settings(request):
 
 @login_required
 def my_tickets(request):
-    """Mobile-optimized QR code display for all upcoming registrations"""
+    """Display all purchased tickets including upcoming and past events"""
     user = request.user
     now = timezone.now()
 
-    registrations = Registration.objects.filter(
+    # Get all confirmed/checked-in registrations for this user
+    all_registrations = Registration.objects.filter(
         models.Q(user=user) | models.Q(attendee_email=user.email),
-        event__start_date__gte=now,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event', 'ticket_type').order_by('event__start_date')
 
-    tickets = []
-    for reg in registrations:
-        try:
-            qr_image = reg.generate_qr_code_image()
-        except Exception:
-            qr_image = None
-        tickets.append({
-            'registration': reg,
-            'qr_image': qr_image,
-        })
+    # Separate into upcoming and past
+    upcoming_registrations = all_registrations.filter(event__start_date__gte=now)
+    past_registrations = all_registrations.filter(event__start_date__lt=now)
+
+    def create_tickets_list(registrations):
+        tickets = []
+        for reg in registrations:
+            try:
+                qr_image = reg.generate_qr_code_image()
+            except Exception:
+                qr_image = None
+            tickets.append({
+                'registration': reg,
+                'qr_image': qr_image,
+            })
+        return tickets
+
+    upcoming_tickets = create_tickets_list(upcoming_registrations)
+    past_tickets = create_tickets_list(past_registrations)
 
     context = {
-        'tickets': tickets,
+        'upcoming_tickets': upcoming_tickets,
+        'past_tickets': past_tickets,
+        'has_any_tickets': all_registrations.exists(),
     }
     return render(request, 'participant/my_tickets.html', context)
 
@@ -1489,3 +1500,199 @@ def export_schedule_ical(request):
     response['Content-Disposition'] = 'attachment; filename="my_schedule.ics"'
     return response
 
+
+# =============================================================================
+# PROFILE AND SETTINGS VIEWS
+# =============================================================================
+
+@login_required
+def attendee_profile_edit(request):
+    """Enhanced profile editing view"""
+    user = request.user
+    
+    if request.method == 'POST':
+        # Handle profile updates
+        try:
+            # Update basic fields
+            user.first_name = request.POST.get('first_name', '').strip()
+            user.last_name = request.POST.get('last_name', '').strip()
+            user.email = request.POST.get('email', '').strip()
+            user.phone = request.POST.get('phone', '').strip()
+            user.company = request.POST.get('company', '').strip()
+            user.job_title = request.POST.get('job_title', '').strip()
+            user.bio = request.POST.get('bio', '').strip()
+            user.linkedin_url = request.POST.get('linkedin_url', '').strip()
+            user.website = request.POST.get('website', '').strip()
+            
+            # Handle profile image upload
+            if 'profile_image' in request.FILES:
+                user.profile_image = request.FILES['profile_image']
+            
+            user.save()
+            
+            # Check if it's an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Profile updated successfully!'})
+            else:
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('attendee:profile')
+                
+        except Exception as e:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': str(e)})
+            else:
+                messages.error(request, f'Error updating profile: {str(e)}')
+    
+    # Get profile stats
+    try:
+        all_registrations = Registration.objects.filter(
+            models.Q(user=user) | models.Q(attendee_email=user.email)
+        )
+        
+        now = timezone.now()
+        events_attended = all_registrations.filter(
+            event__end_date__lt=now,
+            status=RegistrationStatus.CHECKED_IN
+        ).count()
+        
+        upcoming_events = all_registrations.filter(
+            event__start_date__gte=now,
+            status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        ).count()
+    except:
+        events_attended = 0
+        upcoming_events = 0
+    
+    # Get certificates count (placeholder)
+    certificates_count = 0
+    
+    context = {
+        'user': user,
+        'events_attended': events_attended,
+        'upcoming_events': upcoming_events,
+        'certificates_count': certificates_count,
+    }
+    
+    return render(request, 'participant/profile.html', context)
+
+
+@login_required
+def account_settings(request):
+    """Account settings view with tabs for different settings categories"""
+    user = request.user
+    
+    if request.method == 'POST':
+        action = request.POST.get('action', 'change_password')  # Default action
+        
+        if action == 'change_password':
+            # Handle password change
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            if not current_password or not new_password or not confirm_password:
+                return JsonResponse({'success': False, 'error': 'All password fields are required'})
+            
+            if not user.check_password(current_password):
+                return JsonResponse({'success': False, 'error': 'Current password is incorrect'})
+            
+            if new_password != confirm_password:
+                return JsonResponse({'success': False, 'error': 'New passwords do not match'})
+            
+            if len(new_password) < 8:
+                return JsonResponse({'success': False, 'error': 'Password must be at least 8 characters long'})
+            
+            try:
+                user.set_password(new_password)
+                user.save()
+                return JsonResponse({'success': True, 'message': 'Password updated successfully!'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Error updating password: {str(e)}'})
+        
+        elif action == 'update_notifications':
+            # Handle notification preferences
+            try:
+                # Get notification preferences from form
+                event_reminders = request.POST.get('event_reminders') == 'on'
+                ticket_confirmations = request.POST.get('ticket_confirmations') == 'on'
+                event_updates = request.POST.get('event_updates') == 'on'
+                marketing_notifications = request.POST.get('marketing_notifications') == 'on'
+                weekly_newsletter = request.POST.get('weekly_newsletter') == 'on'
+                
+                # Update user notification preferences (you can store this in user.notification_preferences JSON field)
+                if not user.notification_preferences:
+                    user.notification_preferences = {}
+                
+                user.notification_preferences.update({
+                    'event_reminders': event_reminders,
+                    'ticket_confirmations': ticket_confirmations,
+                    'event_updates': event_updates,
+                    'marketing_notifications': marketing_notifications,
+                    'weekly_newsletter': weekly_newsletter,
+                })
+                user.save()
+                
+                return JsonResponse({'success': True, 'message': 'Notification preferences updated!'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Error updating notifications: {str(e)}'})
+        
+        elif action == 'update_privacy':
+            # Handle privacy settings
+            try:
+                public_profile = request.POST.get('public_profile') == 'on'
+                hide_email = request.POST.get('hide_email') == 'on'
+                hide_phone = request.POST.get('hide_phone') == 'on'
+                analytics_sharing = request.POST.get('analytics_sharing') == 'on'
+                
+                # Update user privacy preferences
+                if not user.notification_preferences:
+                    user.notification_preferences = {}
+                
+                user.notification_preferences.update({
+                    'public_profile': public_profile,
+                    'hide_email': hide_email,
+                    'hide_phone': hide_phone,
+                    'analytics_sharing': analytics_sharing,
+                })
+                user.save()
+                
+                return JsonResponse({'success': True, 'message': 'Privacy settings updated!'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Error updating privacy settings: {str(e)}'})
+        
+        elif action == 'update_preferences':
+            # Handle general preferences
+            try:
+                language = request.POST.get('language', 'en')
+                timezone_pref = request.POST.get('timezone', 'UTC')
+                theme = request.POST.get('theme', 'light')
+                email_format = request.POST.get('email_format', 'html')
+                
+                # Update user general preferences
+                if not user.notification_preferences:
+                    user.notification_preferences = {}
+                
+                user.notification_preferences.update({
+                    'language': language,
+                    'timezone': timezone_pref,
+                    'theme': theme,
+                    'email_format': email_format,
+                })
+                user.save()
+                
+                return JsonResponse({'success': True, 'message': 'Preferences updated!'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Error updating preferences: {str(e)}'})
+        
+        else:
+            return JsonResponse({'success': False, 'error': 'Invalid action'})
+    
+    # Get current preferences for display
+    preferences = user.notification_preferences or {}
+    
+    context = {
+        'user': user,
+        'preferences': preferences,
+    }
+    
+    return render(request, 'participant/account_settings.html', context)

@@ -3,45 +3,26 @@
 {% block title %}Ticket Preview - {{ registration.event.title }}{% endblock %}
 
 {% block extra_css %}
-<style>
-    @media print {
-        /* Hide everything except the ticket card */
-        nav, footer, .no-print, .toast-container {
-            display: none !important;
-        }
-        
-        body {
-            background: white !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .ticket-wrapper {
-            max-width: none !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            min-height: 100vh !important;
-        }
-
-        .ticket-card {
-            box-shadow: none !important;
-            border: 1px solid #eee !important;
-            page-break-inside: avoid !important;
-            width: 700px !important; /* Fixed width for consistent print */
-            margin: auto !important;
-        }
-
-        /* Adjust page size to fit ticket card */
-        @page {
-            size: auto;
-            margin: 0;
-        }
+@media print {
+    nav, .no-print {
+        display: none !important;
     }
-</style>
+    body {
+        background: white !important;
+    }
+    .ticket-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .ticket-card {
+        box-shadow: none !important;
+        border: 2px solid #e5e7eb !important;
+    }
+    @page {
+        margin: 2cm;
+        size: auto;
+    }
+}
 {% endblock %}
 
 {% block content %}

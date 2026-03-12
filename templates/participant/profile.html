@@ -3,85 +3,372 @@
 {% block title %}My Profile - EventPortal{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">My Profile</h1>
+<div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb Navigation -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'attendee:dashboard' %}" class="text-gray-500 hover:text-indigo-600 inline-flex items-center">
+                    <i class="bi bi-house mr-2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="bi bi-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-gray-700 font-medium">Account</span>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="bi bi-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-gray-700 font-medium">My Profile</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
 
-    <div class="bg-white rounded-xl shadow-sm p-8">
-        <div class="flex items-center mb-8">
-            <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mr-6">
-                <i class="fas fa-user text-indigo-600 text-3xl"></i>
-            </div>
-            <div>
-                <h2 class="text-xl font-bold">{{ user.first_name|default:user.email }}</h2>
-                <p class="text-gray-500">{{ user.email }}</p>
+    <!-- Account Navigation Tabs -->
+    <div class="mb-8">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="Account Navigation">
+                <a href="{% url 'attendee:profile' %}" 
+                   class="border-indigo-500 text-indigo-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                    <i class="bi bi-person-circle mr-2"></i>
+                    Profile
+                </a>
+                <a href="{% url 'attendee:settings' %}" 
+                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition">
+                    <i class="bi bi-gear mr-2"></i>
+                    Settings
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Profile Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div class="px-6 py-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <!-- Profile Picture -->
+                <div class="relative">
+                    <div class="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center">
+                        {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="{{ user.first_name }}" class="w-24 h-24 rounded-full object-cover">
+                        {% else %}
+                            <i class="bi bi-person text-indigo-600 text-4xl"></i>
+                        {% endif %}
+                    </div>
+                    <button onclick="document.getElementById('profile-image-input').click()" 
+                            class="absolute bottom-0 right-0 bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700 transition shadow-lg">
+                        <i class="bi bi-camera text-sm"></i>
+                    </button>
+                </div>
+                
+                <!-- User Info -->
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold text-gray-900">{{ user.first_name }} {{ user.last_name|default:"" }}</h1>
+                    <p class="text-gray-600 mt-1">{{ user.email }}</p>
+                    <div class="flex items-center mt-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 capitalize">
+                            <i class="bi bi-person-badge mr-1"></i>
+                            {{ user.role|default:"Participant" }}
+                        </span>
+                        {% if user.is_verified %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
+                            <i class="bi bi-check-circle mr-1"></i>
+                            Verified
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex space-x-3">
+                    <button onclick="toggleEditMode()" id="edit-btn" 
+                            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+                        <i class="bi bi-pencil mr-2"></i>
+                        Edit Profile
+                    </button>
+                </div>
             </div>
         </div>
-
-        <form method="post" action="/attendee/settings/" enctype="multipart/form-data" class="space-y-6">
-            {% csrf_token %}
-            <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                    <input type="text" name="first_name" value="{{ user.first_name|default:'' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                    <input type="text" name="last_name" value="{{ user.last_name|default:'' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input type="email" value="{{ user.email }}" disabled class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                <input type="tel" name="phone" value="{{ user.phone|default:'' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
-                <input type="text" name="company" value="{{ user.company|default:'' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-                <input type="text" name="job_title" value="{{ user.job_title|default:'' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
-                <textarea name="bio" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">{{ user.bio|default:'' }}</textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn URL</label>
-                <input type="url" name="linkedin_url" value="{{ user.linkedin_url|default:'' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Twitter Handle</label>
-                <input type="text" name="twitter_handle" value="{{ user.twitter_handle|default:'' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Website</label>
-                <input type="url" name="website" value="{{ user.website|default:'' }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
-                <input type="file" name="profile_image" accept="image/*" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                {% if user.profile_image %}
-                <img src="{{ user.profile_image.url }}" alt="Profile Image" class="mt-2 w-20 h-20 rounded-full object-cover">
-                {% endif %}
-            </div>
-
-            <button type="submit" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
-                Save Changes
-            </button>
-        </form>
     </div>
+
+    <!-- Profile Form -->
+    <form id="profile-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" id="profile-image-input" name="profile_image" accept="image/*" class="hidden" onchange="previewImage(this)">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Personal Information -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Personal Information</h2>
+                        <p class="text-sm text-gray-600 mt-1">Update your personal details and contact information.</p>
+                    </div>
+                    <div class="px-6 py-6 space-y-6">
+                        <!-- Name Fields -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                       readonly>
+                            </div>
+                            <div>
+                                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                       readonly>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                   readonly>
+                        </div>
+
+                        <!-- Phone -->
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" value="{{ user.phone }}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                   readonly>
+                        </div>
+
+                        <!-- Company & Job Title -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="company" class="block text-sm font-medium text-gray-700 mb-2">Organization</label>
+                                <input type="text" id="company" name="company" value="{{ user.company }}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                       readonly>
+                            </div>
+                            <div>
+                                <label for="job_title" class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                                <input type="text" id="job_title" name="job_title" value="{{ user.job_title }}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                       readonly>
+                            </div>
+                        </div>
+
+                        <!-- Bio -->
+                        <div>
+                            <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                            <textarea id="bio" name="bio" rows="4" 
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                      readonly>{{ user.bio }}</textarea>
+                            <p class="text-sm text-gray-500 mt-1">Tell others about yourself and your interests.</p>
+                        </div>
+
+                        <!-- Social Links -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="linkedin_url" class="block text-sm font-medium text-gray-700 mb-2">LinkedIn URL</label>
+                                <input type="url" id="linkedin_url" name="linkedin_url" value="{{ user.linkedin_url }}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                       readonly>
+                            </div>
+                            <div>
+                                <label for="website" class="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                                <input type="url" id="website" name="website" value="{{ user.website }}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                                       readonly>
+                            </div>
+                        </div>
+
+                        <!-- Save Button (Hidden by default) -->
+                        <div id="save-section" class="hidden pt-4 border-t border-gray-200">
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" onclick="cancelEdit()" 
+                                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+                                    <i class="bi bi-check-lg mr-2"></i>
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Stats & Quick Actions -->
+            <div class="space-y-6">
+                <!-- Profile Stats -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Profile Stats</h3>
+                    </div>
+                    <div class="px-6 py-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Events Attended</span>
+                            <span class="font-semibold text-gray-900">{{ events_attended|default:0 }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Upcoming Events</span>
+                            <span class="font-semibold text-gray-900">{{ upcoming_events|default:0 }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Certificates Earned</span>
+                            <span class="font-semibold text-gray-900">{{ certificates_count|default:0 }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Member Since</span>
+                            <span class="font-semibold text-gray-900">{{ user.date_joined|date:"M Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+                    </div>
+                    <div class="px-6 py-6 space-y-3">
+                        <a href="{% url 'attendee:my_tickets' %}" 
+                           class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 transition">
+                            <i class="bi bi-ticket-perforated text-indigo-600 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-900">View My Tickets</span>
+                        </a>
+                        <a href="{% url 'attendee:my_schedule' %}" 
+                           class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 transition">
+                            <i class="bi bi-calendar3 text-indigo-600 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-900">My Schedule</span>
+                        </a>
+                        <a href="{% url 'attendee:certificates' %}" 
+                           class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 transition">
+                            <i class="bi bi-award text-indigo-600 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-900">Certificates</span>
+                        </a>
+                        <a href="{% url 'attendee:settings' %}" 
+                           class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-indigo-50 hover:border-indigo-200 transition">
+                            <i class="bi bi-gear text-indigo-600 mr-3"></i>
+                            <span class="text-sm font-medium text-gray-900">Account Settings</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
+
+<script>
+let isEditMode = false;
+
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    const inputs = document.querySelectorAll('#profile-form input, #profile-form textarea');
+    const editBtn = document.getElementById('edit-btn');
+    const saveSection = document.getElementById('save-section');
+    
+    inputs.forEach(input => {
+        if (input.type !== 'file') {
+            input.readOnly = !isEditMode;
+            if (isEditMode) {
+                input.classList.remove('bg-gray-50');
+                input.classList.add('bg-white');
+            } else {
+                input.classList.add('bg-gray-50');
+                input.classList.remove('bg-white');
+            }
+        }
+    });
+    
+    if (isEditMode) {
+        editBtn.innerHTML = '<i class="bi bi-x-lg mr-2"></i>Cancel Edit';
+        editBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        editBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
+        saveSection.classList.remove('hidden');
+    } else {
+        editBtn.innerHTML = '<i class="bi bi-pencil mr-2"></i>Edit Profile';
+        editBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+        editBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+        saveSection.classList.add('hidden');
+    }
+}
+
+function cancelEdit() {
+    // Reload the page to reset form values
+    window.location.reload();
+}
+
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.querySelector('.w-24.h-24 img') || document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'w-24 h-24 rounded-full object-cover';
+            
+            const container = document.querySelector('.w-24.h-24');
+            container.innerHTML = '';
+            container.appendChild(img);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Form submission
+document.getElementById('profile-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{% url "attendee:profile" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showToast(data.message || 'Profile updated successfully!', 'success');
+            toggleEditMode();
+        } else {
+            showToast(data.error || 'Error updating profile. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating profile. Please try again.', 'error');
+    });
+});
+
+function showToast(message, type) {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `p-4 rounded-lg shadow-lg max-w-sm ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
+    toast.innerHTML = `
+        <div class="flex items-center gap-2">
+            <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle'}"></i>
+            <span class="text-sm font-medium">${message}</span>
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+</script>
 {% endblock %}

@@ -133,9 +133,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
 
-# Auth defaults (organizer portal)
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Login/Logout URLs
 LOGIN_URL = '/organizers/login/'
-LOGIN_REDIRECT_URL = '/organizers/dashboard/'
+LOGIN_REDIRECT_URL = '/organizers/'
+LOGOUT_REDIRECT_URL = '/organizers/login/'
 
 
 # Email Configuration

@@ -26,7 +26,8 @@ class PublicEventViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['-start_date']
 
     def get_queryset(self):
-        return Event.objects.filter(is_public=True, status='published')
+        # Include both published and ongoing events to ensure real-time visibility
+        return Event.objects.filter(is_public=True, status__in=['published', 'ongoing'])
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

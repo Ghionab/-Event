@@ -30,6 +30,7 @@ urlpatterns = [
     path('events/', include('events.urls')),
     path('users/', include('users.urls')),
     path('registration/', include('registration.urls')),
+    path('attendee/', include('registration.urls_attendee')),
     path('organizers/', include('organizers.urls')),
     path('communication/', include('communication.urls')),
     path('business/', include('business.urls')),
@@ -37,6 +38,7 @@ urlpatterns = [
     # Authentication
     path('accounts/login/', organizer_auth_views.organizer_login, name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/organizers/login/'), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/organizers/login/', http_method_names=['get', 'post']), name='participant_logout'),
     # API v1
     path('api/v1/', include('events_api.urls')),
     # API Documentation

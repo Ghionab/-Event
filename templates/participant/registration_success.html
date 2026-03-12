@@ -87,10 +87,10 @@
                 Print Ticket
             </a>
             
-            <a href="{% url 'attendee:download_ticket' registration.id %}" 
+            <a href="{% url 'attendee:ticket_preview' registration.id %}" 
                class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
                 <i class="fas fa-file-pdf mr-2"></i>
-                Download PDF
+                Ticket
             </a>
             
             <button onclick="sendEmail()" 

@@ -786,6 +786,11 @@ def analytics(request, event_id=None):
         event__in=events, status='checked_in'
     ).count()
     
+    # Calculate total views from EventAnalytics (this is tracked separately)
+    total_views = EventAnalytics.objects.filter(
+        event__in=events
+    ).aggregate(total=Sum('total_views'))['total'] or 0
+    
     # Registration trends by date
     registrations = Registration.objects.filter(
         event__in=events, status__in=['confirmed', 'checked_in']

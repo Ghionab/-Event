@@ -181,15 +181,15 @@
 [2026-03-11 01:31:59] RAW_DATA: {'event_id': '8', 'full_name': 'abebe kebede', 'email': 'admin@eventmanager.com', 'phone': '123456789', 'special_requests': ''}
 [2026-03-11 01:31:59] PARSED: event_id=8 (type=str), email=admin@eventmanager.com, name=abebe kebede
 [2026-03-11 01:31:59] SUCCESS | event_id=8 | name=abebe kebede | email=admin@eventmanager.com | status=confirmed | reg#=REG-EB45C96D
-[2026-03-11 09:27:13] RAW_DATA: {'event_id': '1', 'full_name': 'Test User', 'email': 'testuser@example.com', 'phone': '1234567890', 'special_requests': ''}
-[2026-03-11 09:27:13] PARSED: event_id=1 (type=str), email=testuser@example.com, name=Test User
-[2026-03-11 09:27:13] SUCCESS | event_id=1 | name=Test User | email=testuser@example.com | status=confirmed | reg#=REG-10019FEE
-[2026-03-11 09:32:58] RAW_DATA: {'event_id': '8', 'full_name': 'abebe kebede', 'email': 'admin@eventmanager.com', 'phone': '12345678910', 'special_requests': ''}
-[2026-03-11 09:32:58] PARSED: event_id=8 (type=str), email=admin@eventmanager.com, name=abebe kebede
-[2026-03-11 09:32:58] SUCCESS | event_id=8 | name=abebe kebede | email=admin@eventmanager.com | status=confirmed | reg#=REG-B7FE6107
-[2026-03-11 09:52:21] RAW_DATA: {'event_id': '1', 'full_name': 'Test User', 'email': 'test@example.com', 'phone': '1234567890', 'special_requests': ''}
-[2026-03-11 09:52:21] PARSED: event_id=1 (type=str), email=test@example.com, name=Test User
-[2026-03-11 09:52:21] SUCCESS | event_id=1 | name=Test User | email=test@example.com | status=confirmed | reg#=REG-56504448
-[2026-03-11 18:29:51] RAW_DATA: {'event_id': '8', 'full_name': 'ando foiqe', 'email': 'admin@eventmanager.com', 'phone': '251980278337', 'special_requests': ''}
-[2026-03-11 18:29:51] PARSED: event_id=8 (type=str), email=admin@eventmanager.com, name=ando foiqe
-[2026-03-11 18:29:51] SUCCESS | event_id=8 | name=ando foiqe | email=admin@eventmanager.com | status=confirmed | reg#=REG-5A020481
+[2026-03-11 11:49:59] RAW_DATA: {'event_id': '1', 'full_name': 'Mikiyas Arage', 'email': 'dnmiki29@gmail.com', 'phone': '0961996315', 'special_requests': 'qwerty'}
+[2026-03-11 11:49:59] PARSED: event_id=1 (type=str), email=dnmiki29@gmail.com, name=Mikiyas Arage
+[2026-03-11 11:49:59] SUCCESS | event_id=1 | name=Mikiyas Arage | email=dnmiki29@gmail.com | status=confirmed | reg#=REG-9E6AE175
+[2026-03-11 12:17:20] RAW_DATA: {'event_id': '4', 'full_name': 'Mikiyas Arage', 'email': 'dnmiki29@gmail.com', 'phone': '0961996315', 'special_requests': 'erty'}
+[2026-03-11 12:17:20] PARSED: event_id=4 (type=str), email=dnmiki29@gmail.com, name=Mikiyas Arage
+[2026-03-11 12:17:20] SUCCESS | event_id=4 | name=Mikiyas Arage | email=dnmiki29@gmail.com | status=confirmed | reg#=REG-6C7A682F
+[2026-03-11 12:20:05] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'dnmiki29@gmail.com', 'phone': '0961996315', 'special_requests': 'dfg'}
+[2026-03-11 12:20:05] PARSED: event_id=5 (type=str), email=dnmiki29@gmail.com, name=Mikiyas Arage
+[2026-03-11 12:20:05] SUCCESS | event_id=5 | name=Mikiyas Arage | email=dnmiki29@gmail.com | status=confirmed | reg#=REG-088E7252
+[2026-03-11 04:16:21] RAW_DATA: {'event_id': '1', 'full_name': 'abeba kebede', 'email': 'abekebe@gmail.com', 'phone': '0911225127', 'special_requests': 'ertdyuli'}
+[2026-03-11 04:16:21] PARSED: event_id=1 (type=str), email=abekebe@gmail.com, name=abeba kebede
+[2026-03-11 04:16:21] SUCCESS | event_id=1 | name=abeba kebede | email=abekebe@gmail.com | status=confirmed | reg#=REG-ACD058C1

@@ -99,6 +99,11 @@ SESSION_COOKIE_NAME = 'staff_sessionid'
 SESSION_COOKIE_AGE = 28800  # 8 hours
 SESSION_COOKIE_HTTPONLY = True
 
+# Login/Logout URLs for staff portal
+LOGIN_URL = '/staff/login/'
+LOGIN_REDIRECT_URL = '/staff/events/'
+LOGOUT_REDIRECT_URL = '/staff/login/'
+
 # Logging
 LOGGING = {
     'version': 1,

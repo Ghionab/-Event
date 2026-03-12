@@ -94,9 +94,14 @@
                         {% else %}bg-gray-100 text-gray-800{% endif %}">
                         {{ registration.get_status_display }}
                     </span>
-                    <a href="{% url 'attendee:registration_detail' registration.id %}"
-                        class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                        View <i class="bi bi-arrow-right"></i>
+                    <a href="{% url 'attendee:ticket_preview' registration.id %}" 
+                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center shadow transition mr-2">
+                        <i class="bi bi-eye mr-2"></i> Ticket
+                    </a>
+                    
+                    <a href="{% url 'attendee:download_ticket' registration.id %}" 
+                       class="bg-white border hover:bg-gray-50 text-indigo-700 px-4 py-2 rounded-lg font-medium text-sm flex items-center shadow-sm transition">
+                        <i class="bi bi-download mr-2"></i> Download
                     </a>
                 </div>
             </div>

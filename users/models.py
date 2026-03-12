@@ -30,6 +30,7 @@ class UserManager(BaseUserManager):
 class UserRole(models.TextChoices):
     ADMIN = 'admin', 'Administrator'
     ORGANIZER = 'organizer', 'Event Organizer'
+    STAFF = 'staff', 'Gate Staff'
     SPEAKER = 'speaker', 'Speaker'
     SPONSOR = 'sponsor', 'Sponsor'
     ATTENDEE = 'attendee', 'Attendee'

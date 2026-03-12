@@ -169,3 +169,6 @@
 [2026-03-10 14:09:34] RAW_DATA: {'event_id': '1', 'full_name': 'Abraham Mulualem', 'email': 'abrahammulualem@gmail.com', 'phone': '0989890987', 'special_requests': 'qwet'}
 [2026-03-10 14:09:34] PARSED: event_id=1 (type=str), email=abrahammulualem@gmail.com, name=Abraham Mulualem
 [2026-03-10 14:09:34] SUCCESS | event_id=1 | name=Abraham Mulualem | email=abrahammulualem@gmail.com | status=confirmed | reg#=REG-91DC2667
+[2026-03-10 22:06:29] RAW_DATA: {'event_id': '1', 'full_name': 'Abraham Mulualem', 'email': 'ab@gmail.com', 'phone': '+1 (555) 000 008', 'special_requests': 'qwert'}
+[2026-03-10 22:06:29] PARSED: event_id=1 (type=str), email=ab@gmail.com, name=Abraham Mulualem
+[2026-03-10 22:06:29] SUCCESS | event_id=1 | name=Abraham Mulualem | email=ab@gmail.com | status=confirmed | reg#=REG-E560E8D4

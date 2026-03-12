@@ -1,4 +1,4 @@
-{% extends 'participant/base.html' %}
+﻿{% extends 'participant/base.html' %}
 
 {% block title %}My Dashboard - EventHub{% endblock %}
 
@@ -99,7 +99,14 @@
                                         <div class="mt-2 space-y-1 text-sm text-gray-600">
                                             <p><i class="bi bi-calendar mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }}</p>
                                             <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual Event" }}</p>
-                                            <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name }}</p>
+                                            <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name|default:"General" }}</p>
+                                            <p><i class="bi bi-cash-coin mr-2"></i>
+                                                {% if registration.display_total_amount %}
+                                                    ${{ registration.display_total_amount|floatformat:2 }}
+                                                {% else %}
+                                                    Free
+                                                {% endif %}
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="ml-4">
@@ -120,9 +127,9 @@
                                        class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                                         <i class="bi bi-calendar3 mr-1"></i> Schedule
                                     </a>
-                                    <a href="{% url 'attendee:download_ticket' registration.id %}" 
-                                       class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                        <i class="bi bi-download mr-1"></i> Ticket
+                                    <a href="{% url 'attendee:ticket_preview' registration.id %}" 
+                                       class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                                        <i class="bi bi-file-earmark-pdf"></i> Ticket
                                     </a>
                                 </div>
                             </div>
@@ -220,3 +227,4 @@
     </div>
 </div>
 {% endblock %}
+

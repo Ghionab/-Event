@@ -96,14 +96,19 @@ def simple_register(request):
     except (Event.DoesNotExist, ValueError):
         return HttpResponse('Event not found', status=404)
 
-    # Find or create user
-    user, created = User.objects.get_or_create(
-        email=email,
-        defaults={
-            'first_name': full_name.split()[0] if full_name else '',
-            'last_name': ' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else '',
-        }
-    )
+    # Find or create user (prefer authenticated user when available)
+    if request.user.is_authenticated:
+        user = request.user
+        if not email:
+            email = user.email
+    else:
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'first_name': full_name.split()[0] if full_name else '',
+                'last_name': ' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else '',
+            }
+        )
 
     # Create registration
     registration = None

@@ -1,145 +1,652 @@
 {% extends 'participant/base.html' %}
-{% block title %}Account Settings - EventHub{% endblock %}
+
+{% block title %}Account Settings - EventPortal{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb Navigation -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a href="{% url 'attendee:dashboard' %}" class="text-gray-500 hover:text-indigo-600 inline-flex items-center">
+                    <i class="bi bi-house mr-2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="bi bi-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-gray-700 font-medium">Account</span>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <i class="bi bi-chevron-right text-gray-400 mx-2"></i>
+                    <span class="text-gray-700 font-medium">Settings</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Account Navigation Tabs -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Account Settings</h1>
-        <p class="mt-1 text-gray-600">Manage your profile and account details</p>
-    </div>
-
-    <!-- Messages -->
-    {% if messages %}
-    <div class="mb-6 space-y-2">
-        {% for message in messages %}
-        <div
-            class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-800 border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border-red-200{% else %}bg-blue-50 text-blue-800 border-blue-200{% endif %} border">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Settings Nav (Desktop) -->
-        <div class="hidden md:block">
-            <nav class="space-y-1 bg-white rounded-xl shadow-sm p-2 border border-gray-100">
-                <a href="#profile"
-                    class="bg-indigo-50 text-indigo-700 hover:text-indigo-700 hover:bg-white group rounded-md px-3 py-2 flex items-center text-sm font-medium">
-                    <i
-                        class="bi bi-person-circle text-indigo-400 group-hover:text-indigo-500 flex-shrink-0 -ml-1 mr-3 text-lg"></i>
-                    <span class="truncate">Profile</span>
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="Account Navigation">
+                <a href="{% url 'attendee:profile' %}" 
+                   class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition">
+                    <i class="bi bi-person-circle mr-2"></i>
+                    Profile
                 </a>
-                <a href="#contact"
-                    class="text-gray-900 hover:text-gray-900 hover:bg-gray-50 group rounded-md px-3 py-2 flex items-center text-sm font-medium">
-                    <i
-                        class="bi bi-envelope text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 text-lg"></i>
-                    <span class="truncate">Contact Info</span>
-                </a>
-                <a href="#social"
-                    class="text-gray-900 hover:text-gray-900 hover:bg-gray-50 group rounded-md px-3 py-2 flex items-center text-sm font-medium">
-                    <i class="bi bi-share text-gray-400 group-hover:text-gray-500 flex-shrink-0 -ml-1 mr-3 text-lg"></i>
-                    <span class="truncate">Social Profiles</span>
+                <a href="{% url 'attendee:settings' %}" 
+                   class="border-indigo-500 text-indigo-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                    <i class="bi bi-gear mr-2"></i>
+                    Settings
                 </a>
             </nav>
         </div>
-
-        <!-- Forms -->
-        <div class="md:col-span-2 space-y-8">
-            <form method="post" enctype="multipart/form-data"
-                class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-                {% csrf_token %}
-
-                <h2 id="profile" class="text-xl font-bold text-gray-900 mb-6">Profile Information</h2>
-
-                <div class="flex items-center gap-6 mb-8">
-                    <div class="flex-shrink-0">
-                        {% if user.profile_picture %}
-                        <img src="{{ user.profile_picture.url }}"
-                            class="w-24 h-24 rounded-full object-cover border border-gray-200">
-                        {% else %}
-                        <div
-                            class="w-24 h-24 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-3xl">
-                            {{ user.first_name|first|default:user.email|first|upper }}
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
-                        <input type="file" name="profile_picture" accept="image/*"
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                        <input type="text" name="first_name" value="{{ form.first_name.value|default:user.first_name }}"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                        <input type="text" name="last_name" value="{{ form.last_name.value|default:user.last_name }}"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                        <input type="text" name="job_title" value="{{ form.job_title.value|default:user.job_title }}"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Company</label>
-                        <input type="text" name="company" value="{{ form.company.value|default:user.company }}"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                    </div>
-                </div>
-
-                <div class="mb-8 border-b border-gray-100 pb-8">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                    <textarea name="bio" rows="4"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">{{ form.bio.value|default:user.bio }}</textarea>
-                    <p class="mt-2 text-sm text-gray-500">A brief description of yourself that will be visible to other
-                        attendees.</p>
-                </div>
-
-                <h2 id="contact" class="text-xl font-bold text-gray-900 mb-6">Contact Info</h2>
-                <div class="mb-8 border-b border-gray-100 pb-8">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input type="text" name="phone_number"
-                        value="{{ form.phone_number.value|default:user.phone_number }}"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                </div>
-
-                <h2 id="social" class="text-xl font-bold text-gray-900 mb-6">Social Profiles</h2>
-                <div class="space-y-6 mb-8">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-1"><i
-                                class="bi bi-linkedin text-[#0077b5]"></i> LinkedIn URL</label>
-                        <input type="url" name="linkedin_url"
-                            value="{{ form.linkedin_url.value|default:user.linkedin_url }}"
-                            placeholder="https://linkedin.com/in/..."
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-1"><i
-                                class="bi bi-twitter text-[#1DA1F2]"></i> Twitter URL</label>
-                        <input type="url" name="twitter_url"
-                            value="{{ form.twitter_url.value|default:user.twitter_url }}"
-                            placeholder="https://twitter.com/..."
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2 border">
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-4 border-t border-gray-100">
-                    <button type="submit"
-                        class="bg-indigo-600 text-white px-8 py-2.5 rounded-lg hover:bg-indigo-700 font-medium shadow transition">
-                        Save Changes
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Account Settings</h1>
+        <p class="text-gray-600 mt-2">Manage your account preferences, security, and privacy settings.</p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Settings Navigation -->
+        <div class="lg:w-64 flex-shrink-0">
+            <nav class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <ul class="space-y-1">
+                    <li>
+                        <button onclick="showTab('account')" id="tab-account" 
+                                class="settings-tab w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition bg-indigo-50 text-indigo-600">
+                            <i class="bi bi-person-gear mr-2"></i>
+                            Account Settings
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="showTab('notifications')" id="tab-notifications" 
+                                class="settings-tab w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
+                            <i class="bi bi-bell mr-2"></i>
+                            Notifications
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="showTab('privacy')" id="tab-privacy" 
+                                class="settings-tab w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
+                            <i class="bi bi-shield-lock mr-2"></i>
+                            Privacy
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="showTab('preferences')" id="tab-preferences" 
+                                class="settings-tab w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
+                            <i class="bi bi-sliders mr-2"></i>
+                            Preferences
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="flex-1">
+            <!-- Account Settings Tab -->
+            <div id="account-tab" class="settings-content">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Account Settings</h2>
+                        <p class="text-sm text-gray-600 mt-1">Manage your account security and login preferences.</p>
+                    </div>
+                    <div class="px-6 py-6 space-y-8">
+                        <!-- Change Password -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Change Password</h3>
+                            <form id="password-form" class="space-y-4">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="change_password">
+                                <div>
+                                    <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                                    <input type="password" id="current_password" name="current_password" required
+                                           class="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                                </div>
+                                <div>
+                                    <label for="new_password" class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                                    <input type="password" id="new_password" name="new_password" required
+                                           class="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                                </div>
+                                <div>
+                                    <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                                    <input type="password" id="confirm_password" name="confirm_password" required
+                                           class="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                                </div>
+                                <button type="submit" 
+                                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+                                    Update Password
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Two-Factor Authentication -->
+                        <div class="border-t border-gray-200 pt-8">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Two-Factor Authentication</h3>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="font-medium text-gray-900">Enable 2FA</p>
+                                    <p class="text-sm text-gray-600">Add an extra layer of security to your account</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" id="two-factor-toggle">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Email Management -->
+                        <div class="border-t border-gray-200 pt-8">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Email Management</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ user.email }}</p>
+                                        <p class="text-sm text-gray-600">Primary email address</p>
+                                    </div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="bi bi-check-circle mr-1"></i>
+                                        Verified
+                                    </span>
+                                </div>
+                                <button class="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
+                                    + Add another email address
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Delete Account -->
+                        <div class="border-t border-gray-200 pt-8">
+                            <h3 class="text-lg font-medium text-red-600 mb-4">Danger Zone</h3>
+                            <div class="p-4 border border-red-200 rounded-lg bg-red-50">
+                                <div class="flex items-start space-x-3">
+                                    <i class="bi bi-exclamation-triangle text-red-600 mt-0.5"></i>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-red-900">Delete Account</h4>
+                                        <p class="text-sm text-red-700 mt-1">Once you delete your account, there is no going back. Please be certain.</p>
+                                        <button onclick="confirmDeleteAccount()" 
+                                                class="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-medium text-sm">
+                                            Delete My Account
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div id="notifications-tab" class="settings-content hidden">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Notification Settings</h2>
+                        <p class="text-sm text-gray-600 mt-1">Choose what notifications you want to receive.</p>
+                    </div>
+                    <div class="px-6 py-6 space-y-6">
+                        <!-- Event Notifications -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Event Notifications</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Event Reminders</p>
+                                        <p class="text-sm text-gray-600">Get notified about upcoming events you're registered for</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Ticket Confirmations</p>
+                                        <p class="text-sm text-gray-600">Receive confirmation when you register for events</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Event Updates</p>
+                                        <p class="text-sm text-gray-600">Get notified about changes to events you're attending</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Marketing Notifications -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Marketing & Promotions</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Marketing Notifications</p>
+                                        <p class="text-sm text-gray-600">Receive updates about new events and special offers</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Weekly Newsletter</p>
+                                        <p class="text-sm text-gray-600">Get a weekly digest of upcoming events</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <form id="notifications-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_notifications">
+                                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+                                    Save Notification Preferences
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Tab -->
+            <div id="privacy-tab" class="settings-content hidden">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Privacy Settings</h2>
+                        <p class="text-sm text-gray-600 mt-1">Control who can see your information and how it's used.</p>
+                    </div>
+                    <div class="px-6 py-6 space-y-6">
+                        <!-- Profile Visibility -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Profile Visibility</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Public Profile</p>
+                                        <p class="text-sm text-gray-600">Allow other attendees to see your profile</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Hide Email from Organizers</p>
+                                        <p class="text-sm text-gray-600">Prevent event organizers from seeing your email address</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Hide Phone Number</p>
+                                        <p class="text-sm text-gray-600">Keep your phone number private from other users</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Usage -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Data Usage</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Analytics & Insights</p>
+                                        <p class="text-sm text-gray-600">Help improve our service by sharing anonymous usage data</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <form id="privacy-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_privacy">
+                                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+                                    Save Privacy Settings
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences Tab -->
+            <div id="preferences-tab" class="settings-content hidden">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-900">Preferences</h2>
+                        <p class="text-sm text-gray-600 mt-1">Customize your experience and display preferences.</p>
+                    </div>
+                    <div class="px-6 py-6 space-y-6">
+                        <!-- Language & Region -->
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Language & Region</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="language" class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                                    <select id="language" name="language" 
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                                        <option value="en">English</option>
+                                        <option value="es">Español</option>
+                                        <option value="fr">Français</option>
+                                        <option value="de">Deutsch</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="timezone" class="block text-sm font-medium text-gray-700 mb-2">Time Zone</label>
+                                    <select id="timezone" name="timezone" 
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                                        <option value="UTC">UTC</option>
+                                        <option value="America/New_York">Eastern Time</option>
+                                        <option value="America/Chicago">Central Time</option>
+                                        <option value="America/Denver">Mountain Time</option>
+                                        <option value="America/Los_Angeles">Pacific Time</option>
+                                        <option value="Europe/London">London</option>
+                                        <option value="Europe/Paris">Paris</option>
+                                        <option value="Asia/Tokyo">Tokyo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Theme -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Theme</h3>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="radio" name="theme" value="light" class="text-indigo-600 focus:ring-indigo-500" checked>
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Light</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="theme" value="dark" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Dark</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="theme" value="auto" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Auto (System)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Email Format -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Email Format</h3>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="radio" name="email_format" value="html" class="text-indigo-600 focus:ring-indigo-500" checked>
+                                    <span class="ml-3 text-sm font-medium text-gray-900">HTML (Rich formatting)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="email_format" value="text" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Plain Text</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <form id="preferences-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_preferences">
+                                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+                                    Save Preferences
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 </div>
+
+<script>
+function showTab(tabName) {
+    // Hide all content tabs
+    document.querySelectorAll('.settings-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Remove active class from all nav tabs
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+        tab.classList.remove('bg-indigo-50', 'text-indigo-600');
+        tab.classList.add('text-gray-700', 'hover:bg-gray-50');
+    });
+    
+    // Show selected content tab
+    document.getElementById(tabName + '-tab').classList.remove('hidden');
+    
+    // Add active class to selected nav tab
+    const activeTab = document.getElementById('tab-' + tabName);
+    activeTab.classList.add('bg-indigo-50', 'text-indigo-600');
+    activeTab.classList.remove('text-gray-700', 'hover:bg-gray-50');
+}
+
+function confirmDeleteAccount() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        if (confirm('This will permanently delete all your data, registrations, and tickets. Type "DELETE" to confirm.')) {
+            // Handle account deletion
+            alert('Account deletion functionality would be implemented here.');
+        }
+    }
+}
+
+// Password form submission
+document.getElementById('password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('current_password').value;
+    const newPassword = document.getElementById('new_password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        showToast('All password fields are required.', 'error');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        showToast('New passwords do not match.', 'error');
+        return;
+    }
+    
+    if (newPassword.length < 8) {
+        showToast('Password must be at least 8 characters long.', 'error');
+        return;
+    }
+    
+    // Handle password change
+    const formData = new FormData(this);
+    
+    fetch('{% url "attendee:settings" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message || 'Password updated successfully!', 'success');
+            this.reset();
+        } else {
+            showToast(data.error || 'Error updating password. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating password. Please try again.', 'error');
+    });
+});
+
+// Notifications form submission
+document.getElementById('notifications-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    // Add checkbox values
+    const checkboxes = document.querySelectorAll('#notifications-tab input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        formData.append(checkbox.name || checkbox.id, checkbox.checked ? 'on' : 'off');
+    });
+    
+    fetch('{% url "attendee:settings" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message || 'Notification preferences updated!', 'success');
+        } else {
+            showToast(data.error || 'Error updating preferences.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating preferences.', 'error');
+    });
+});
+
+// Privacy form submission
+document.getElementById('privacy-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    // Add checkbox values
+    const checkboxes = document.querySelectorAll('#privacy-tab input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        formData.append(checkbox.name || checkbox.id, checkbox.checked ? 'on' : 'off');
+    });
+    
+    fetch('{% url "attendee:settings" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message || 'Privacy settings updated!', 'success');
+        } else {
+            showToast(data.error || 'Error updating settings.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating settings.', 'error');
+    });
+});
+
+// Preferences form submission
+document.getElementById('preferences-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    // Add select and radio values
+    const selects = document.querySelectorAll('#preferences-tab select');
+    selects.forEach(select => {
+        formData.append(select.name || select.id, select.value);
+    });
+    
+    const radios = document.querySelectorAll('#preferences-tab input[type="radio"]:checked');
+    radios.forEach(radio => {
+        formData.append(radio.name, radio.value);
+    });
+    
+    fetch('{% url "attendee:settings" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message || 'Preferences updated!', 'success');
+        } else {
+            showToast(data.error || 'Error updating preferences.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating preferences.', 'error');
+    });
+});
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function showToast(message, type) {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `p-4 rounded-lg shadow-lg max-w-sm ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
+    toast.innerHTML = `
+        <div class="flex items-center gap-2">
+            <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle'}"></i>
+            <span class="text-sm font-medium">${message}</span>
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+</script>
 {% endblock %}

@@ -5,6 +5,7 @@ from . import views_auth
 urlpatterns = [
     path('', views_auth.organizer_login, name='organizer_login'),
     path('login/', views_auth.organizer_login, name='organizer_login'),
+    path('logout/', views_auth.organizer_logout, name='organizer_logout'),
     path('logout/', views_auth.organizer_logout, name='logout'),
     path('create/', views.organizer_create, name='organizer_create'),
     path('dashboard/', views.dashboard, name='organizer_dashboard'),

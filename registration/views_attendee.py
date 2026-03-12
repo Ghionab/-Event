@@ -30,13 +30,13 @@ def attendee_dashboard(request):
     
     # Get all registrations
     all_registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
     
     # Separate upcoming and past events
     upcoming_registrations_qs = all_registrations.filter(
         event__start_date__gte=now,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     )
     upcoming_registrations = upcoming_registrations_qs[:5]
     
@@ -44,6 +44,13 @@ def attendee_dashboard(request):
         event__start_date__lt=now
     )
     past_registrations = past_registrations_qs[:5]
+
+    # Add display totals for upcoming registrations
+    for reg in upcoming_registrations:
+        total = reg.total_amount or 0
+        if (not total) and reg.ticket_type and reg.ticket_type.price:
+            total = reg.ticket_type.price
+        reg.display_total_amount = total
     
     # Get unread messages count
     unread_messages = AttendeeMessage.objects.filter(
@@ -128,7 +135,7 @@ def registration_detail_enhanced(request, registration_id):
     )
     
     # Check permission
-    if registration.user != request.user and registration.attendee_email != request.user.email:
+    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
         messages.error(request, 'You do not have permission to view this registration.')
         return redirect('registration:attendee_dashboard')
     
@@ -162,6 +169,10 @@ def registration_detail_enhanced(request, registration_id):
     # Get saved sessions
     saved_session_ids = preferences.saved_sessions if preferences else []
     
+    display_total_amount = registration.total_amount or 0
+    if (not display_total_amount) and registration.ticket_type and registration.ticket_type.price:
+        display_total_amount = registration.ticket_type.price
+
     context = {
         'registration': registration,
         'sessions': sessions,
@@ -170,6 +181,7 @@ def registration_detail_enhanced(request, registration_id):
         'qr_code_image': qr_code_image,
         'preferences': preferences,
         'saved_session_ids': saved_session_ids,
+        'display_total_amount': display_total_amount,
     }
     
     return render(request, 'participant/registration_detail_enhanced.html', context)
@@ -209,20 +221,152 @@ def download_ticket(request, registration_id):
     registration = get_object_or_404(Registration, id=registration_id)
     
     # Check permission
-    if registration.user != request.user and registration.attendee_email != request.user.email:
+    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
         messages.error(request, 'You do not have permission to download this ticket.')
         return redirect('registration:attendee_dashboard')
-    
-    # Generate QR code
+
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.colors import HexColor
+        from reportlab.lib.utils import ImageReader
+        from io import BytesIO
+        import base64
+
+        def safe_hex(value, fallback):
+            if isinstance(value, str) and value.startswith('#') and len(value) == 7:
+                return value
+            return fallback
+
+        event = registration.event
+        primary = safe_hex(getattr(event, 'primary_color', None), '#4f46e5')
+        secondary = safe_hex(getattr(event, 'secondary_color', None), '#7c3aed')
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = (
+            f'attachment; filename="ticket_{registration.registration_number}.pdf"'
+        )
+
+        c = canvas.Canvas(response, pagesize=A4)
+        width, height = A4
+
+        # Background
+        c.setFillColor(HexColor('#f8fafc'))
+        c.rect(0, 0, width, height, fill=1, stroke=0)
+
+        # Card container
+        margin = 40
+        card_w = width - (margin * 2)
+        card_h = 420
+        card_x = margin
+        card_y = (height - card_h) / 2
+        c.setFillColor(HexColor('#ffffff'))
+        c.setStrokeColor(HexColor('#e5e7eb'))
+        c.setLineWidth(1)
+        c.roundRect(card_x, card_y, card_w, card_h, 16, fill=1, stroke=1)
+
+        # Accent stripe
+        accent_w = 140
+        c.setFillColor(HexColor(primary))
+        c.roundRect(card_x, card_y, accent_w, card_h, 16, fill=1, stroke=0)
+
+        # EventHub label
+        c.setFillColor(HexColor('#e0e7ff'))
+        c.setFont('Helvetica-Bold', 9)
+        c.drawString(card_x + 20, card_y + card_h - 30, 'EVENTHUB PASS')
+
+        # Ticket type
+        ticket_type = registration.ticket_type.name if registration.ticket_type else 'General Admission'
+        c.setFillColor(HexColor('#ffffff'))
+        c.setFont('Helvetica-Bold', 16)
+        c.drawString(card_x + 20, card_y + card_h - 60, ticket_type)
+
+        # Registration number
+        c.setFont('Helvetica', 9)
+        c.setFillColor(HexColor('#e0e7ff'))
+        c.drawString(card_x + 20, card_y + card_h - 80, registration.registration_number)
+
+        # Right side content
+        right_x = card_x + accent_w + 30
+        right_y = card_y + card_h - 40
+
+        c.setFillColor(HexColor('#111827'))
+        c.setFont('Helvetica-Bold', 18)
+        c.drawString(right_x, right_y, event.title)
+
+        c.setFont('Helvetica', 10)
+        c.setFillColor(HexColor('#6b7280'))
+        c.drawString(right_x, right_y - 18, event.start_date.strftime('%B %d, %Y - %I:%M %p'))
+        venue = event.venue_name or 'Virtual Event'
+        c.drawString(right_x, right_y - 34, venue)
+
+        # Attendee block
+        c.setFont('Helvetica', 9)
+        c.setFillColor(HexColor('#9ca3af'))
+        c.drawString(right_x, right_y - 70, 'ATTENDEE')
+        c.setFont('Helvetica-Bold', 12)
+        c.setFillColor(HexColor('#111827'))
+        c.drawString(right_x, right_y - 88, registration.attendee_name)
+        c.setFont('Helvetica', 9)
+        c.setFillColor(HexColor('#6b7280'))
+        c.drawString(right_x, right_y - 104, registration.attendee_email)
+
+        # Status badge
+        status_text = registration.get_status_display()
+        c.setFillColor(HexColor('#eef2ff'))
+        c.roundRect(right_x, right_y - 132, 90, 18, 8, fill=1, stroke=0)
+        c.setFillColor(HexColor(primary))
+        c.setFont('Helvetica-Bold', 8)
+        c.drawString(right_x + 8, right_y - 126, status_text.upper())
+
+        # QR code
+        qr_base64 = registration.generate_qr_code_image()
+        qr_bytes = base64.b64decode(qr_base64)
+        qr_image = ImageReader(BytesIO(qr_bytes))
+        qr_size = 140
+        qr_x = card_x + card_w - qr_size - 40
+        qr_y = card_y + 50
+        c.setStrokeColor(HexColor(secondary))
+        c.setLineWidth(2)
+        c.roundRect(qr_x - 6, qr_y - 6, qr_size + 12, qr_size + 12, 8, stroke=1, fill=0)
+        c.drawImage(qr_image, qr_x, qr_y, qr_size, qr_size, mask='auto')
+        c.setFont('Helvetica', 8)
+        c.setFillColor(HexColor('#6b7280'))
+        c.drawCentredString(qr_x + (qr_size / 2), qr_y - 14, 'Show at check-in')
+
+        # Footer
+        c.setFont('Helvetica', 9)
+        c.setFillColor(HexColor('#9ca3af'))
+        c.drawString(card_x + 20, card_y + 18, 'Please present this ticket at the registration desk for check-in.')
+
+        c.showPage()
+        c.save()
+        return response
+
+    except ImportError:
+        messages.error(request, 'PDF generation is not available. Please install reportlab.')
+        return redirect('attendee:registration_detail', registration_id=registration.id)
+
+
+@login_required
+def ticket_preview(request, registration_id):
+    """Preview ticket before downloading"""
+    registration = get_object_or_404(
+        Registration.objects.select_related('event', 'ticket_type'),
+        id=registration_id
+    )
+
+    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
+        messages.error(request, 'You do not have permission to view this ticket.')
+        return redirect('attendee:dashboard')
+
     qr_code_image = registration.generate_qr_code_image()
-    
+
     context = {
         'registration': registration,
         'qr_code_image': qr_code_image,
     }
-    
-    # Render ticket template
-    return render(request, 'participant/ticket_download.html', context)
+    return render(request, 'participant/ticket_preview.html', context)
 
 
 # =============================================================================
@@ -323,21 +467,52 @@ def event_detail_enhanced(request, event_id):
     # Get attendee count
     attendee_count = Registration.objects.filter(
         event=event,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[
+            RegistrationStatus.PENDING,
+            RegistrationStatus.CONFIRMED,
+            RegistrationStatus.CHECKED_IN,
+        ]
     ).count()
+    has_capacity = event.max_attendees is not None
+    available_spots = None
+    if has_capacity:
+        available_spots = max(0, event.max_attendees - attendee_count)
     
     # Get ticket types
-    ticket_types = event.ticket_types.filter(is_active=True)
+    all_ticket_types = event.ticket_types.all()
+    ticket_types = all_ticket_types.filter(is_active=True)
+    now = timezone.now()
+    sold_counts = {
+        row['ticket_type']: row['count']
+        for row in Registration.objects.filter(
+            event=event,
+            ticket_type__in=ticket_types,
+            status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        ).values('ticket_type').annotate(count=models.Count('id'))
+    }
+    available_ticket_types = []
+    for ticket in ticket_types:
+        sold_count = max(sold_counts.get(ticket.id, 0), ticket.quantity_sold or 0)
+        ticket.computed_sold = sold_count
+        ticket.computed_available = max(0, ticket.quantity_available - sold_count)
+        ticket.computed_sold_out = ticket.computed_available <= 0
+        ticket.on_sale = (
+            ticket.is_active and
+            (not ticket.sales_start or ticket.sales_start <= now) and
+            (not ticket.sales_end or now <= ticket.sales_end)
+        )
+        if ticket.on_sale and not ticket.computed_sold_out:
+            available_ticket_types.append(ticket)
     
     # Check if user is registered
     is_registered = False
     user_registration = None
     if request.user.is_authenticated:
         user_registration = Registration.objects.filter(
-            models.Q(user=request.user) | models.Q(attendee_email=request.user.email)
+            models.Q(user=request.user) | models.Q(attendee_email__iexact=request.user.email)
         ).filter(
             event=event,
-            status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+            status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
         ).first()
         is_registered = user_registration is not None
     
@@ -358,11 +533,14 @@ def event_detail_enhanced(request, event_id):
         'sessions': sessions,
         'speakers': speakers,
         'attendee_count': attendee_count,
-        'ticket_types': ticket_types,
+        'ticket_types': available_ticket_types,
+        'has_ticket_types': all_ticket_types.exists(),
         'is_registered': is_registered,
         'user_registration': user_registration,
         'is_saved': is_saved,
         'similar_events': similar_events,
+        'has_capacity': has_capacity,
+        'available_spots': available_spots,
     }
     
     return render(request, 'participant/event_detail_enhanced.html', context)
@@ -637,49 +815,63 @@ def networking_hub(request):
 def browse_attendees(request):
     """Browse other attendees for networking"""
     user = request.user
-    event_id = request.GET.get('event')
-    
-    # Get attendees
-    if event_id:
-        event = get_object_or_404(Event, id=event_id)
-        # Get all confirmed registrations for this event
-        registrations = Registration.objects.filter(
-            event=event,
-            status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
-        ).exclude(
-            models.Q(user=user) | models.Q(attendee_email=user.email)
-        ).select_related('user')
-        
-        # Get users with networking enabled
-        attendees = []
-        for reg in registrations:
-            if reg.user:
-                prefs = AttendeePreference.objects.filter(
-                    user=reg.user,
-                    event=event,
-                    networking_enabled=True
-                ).first()
-                if prefs:
-                    attendees.append({
-                        'user': reg.user,
-                        'registration': reg,
-                        'preferences': prefs,
-                    })
+    search_query = request.GET.get('search', '').strip()
+    event_id_raw = request.GET.get('event', '').strip()
+    now = timezone.now()
+
+    # Events the user is registered for (by user or email)
+    user_regs = Registration.objects.filter(
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+    )
+    common_events = Event.objects.filter(
+        registrations__in=user_regs
+    ).distinct().order_by('start_date')
+    common_events = common_events.filter(start_date__gte=now)
+
+    event_filter_id = None
+    if event_id_raw:
+        try:
+            event_filter_id = int(event_id_raw)
+        except ValueError:
+            event_filter_id = None
+
+    event_ids = list(common_events.values_list('id', flat=True))
+    if event_filter_id and event_filter_id in event_ids:
+        filtered_event_ids = [event_filter_id]
     else:
-        attendees = []
-    
-    # Get user's events for filter
-    user_events = Event.objects.filter(
-        registrations__user=user,
-        start_date__gte=timezone.now()
-    ).distinct()
-    
+        filtered_event_ids = event_ids
+
+    if not filtered_event_ids:
+        attendee_qs = User.objects.none()
+    else:
+        attendee_qs = User.objects.filter(
+            registrations__event_id__in=filtered_event_ids
+        ).exclude(id=user.id).distinct()
+
+        attendee_qs = attendee_qs.filter(
+            models.Q(attendee_preferences__event_id__in=filtered_event_ids, attendee_preferences__networking_enabled=True) |
+            models.Q(attendee_preferences__isnull=True)
+        ).distinct()
+
+    if search_query:
+        attendee_qs = attendee_qs.filter(
+            models.Q(first_name__icontains=search_query) |
+            models.Q(last_name__icontains=search_query) |
+            models.Q(email__icontains=search_query) |
+            models.Q(company__icontains=search_query) |
+            models.Q(job_title__icontains=search_query)
+        )
+
+    paginator = Paginator(attendee_qs, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
     context = {
-        'attendees': attendees,
-        'selected_event_id': event_id,
-        'user_events': user_events,
+        'page_obj': page_obj,
+        'common_events': common_events,
+        'search_query': search_query,
     }
-    
+
     return render(request, 'participant/browse_attendees.html', context)
 
 
@@ -688,27 +880,42 @@ def attendee_profile(request, user_id):
     """View another attendee's public profile"""
     profile_user = get_object_or_404(User, id=user_id)
     
-    # Get common events
-    current_user_events = set(Event.objects.filter(
+    common_events = Event.objects.filter(
         registrations__user=request.user
-    ).values_list('id', flat=True))
-    
-    profile_user_events = Event.objects.filter(
-        registrations__user=profile_user,
-        id__in=current_user_events
+    ).filter(
+        registrations__user=profile_user
+    ).distinct()
+
+    connection_messages = AttendeeMessage.objects.filter(
+        models.Q(sender=request.user, recipient=profile_user) |
+        models.Q(sender=profile_user, recipient=request.user)
     )
-    
-    # Get preferences for common events
-    preferences = AttendeePreference.objects.filter(
-        user=profile_user,
-        event__in=profile_user_events,
-        networking_enabled=True
-    )
+
+    connection_status = 'none'
+    if connection_messages.exists():
+        pending_request = connection_messages.filter(
+            sender=request.user,
+            recipient=profile_user,
+            subject__iexact='Connection Request'
+        ).exists()
+        if pending_request and not connection_messages.filter(sender=profile_user, recipient=request.user).exists():
+            connection_status = 'pending'
+        else:
+            connection_status = 'connected'
+
+    # Normalize twitter url for template usage
+    if getattr(profile_user, 'twitter_handle', ''):
+        handle = profile_user.twitter_handle.strip()
+        if handle and not handle.startswith('http'):
+            handle = handle.lstrip('@')
+            profile_user.twitter_url = f"https://twitter.com/{handle}"
+        else:
+            profile_user.twitter_url = handle
     
     context = {
         'profile_user': profile_user,
-        'common_events': profile_user_events,
-        'preferences': preferences,
+        'common_events': common_events,
+        'connection_status': connection_status,
     }
     
     return render(request, 'participant/attendee_profile.html', context)
@@ -1293,3 +1500,199 @@ def export_schedule_ical(request):
     response['Content-Disposition'] = 'attachment; filename="my_schedule.ics"'
     return response
 
+
+# =============================================================================
+# PROFILE AND SETTINGS VIEWS
+# =============================================================================
+
+@login_required
+def attendee_profile_edit(request):
+    """Enhanced profile editing view"""
+    user = request.user
+    
+    if request.method == 'POST':
+        # Handle profile updates
+        try:
+            # Update basic fields
+            user.first_name = request.POST.get('first_name', '').strip()
+            user.last_name = request.POST.get('last_name', '').strip()
+            user.email = request.POST.get('email', '').strip()
+            user.phone = request.POST.get('phone', '').strip()
+            user.company = request.POST.get('company', '').strip()
+            user.job_title = request.POST.get('job_title', '').strip()
+            user.bio = request.POST.get('bio', '').strip()
+            user.linkedin_url = request.POST.get('linkedin_url', '').strip()
+            user.website = request.POST.get('website', '').strip()
+            
+            # Handle profile image upload
+            if 'profile_image' in request.FILES:
+                user.profile_image = request.FILES['profile_image']
+            
+            user.save()
+            
+            # Check if it's an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Profile updated successfully!'})
+            else:
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('attendee:profile')
+                
+        except Exception as e:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': str(e)})
+            else:
+                messages.error(request, f'Error updating profile: {str(e)}')
+    
+    # Get profile stats
+    try:
+        all_registrations = Registration.objects.filter(
+            models.Q(user=user) | models.Q(attendee_email=user.email)
+        )
+        
+        now = timezone.now()
+        events_attended = all_registrations.filter(
+            event__end_date__lt=now,
+            status=RegistrationStatus.CHECKED_IN
+        ).count()
+        
+        upcoming_events = all_registrations.filter(
+            event__start_date__gte=now,
+            status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        ).count()
+    except:
+        events_attended = 0
+        upcoming_events = 0
+    
+    # Get certificates count (placeholder)
+    certificates_count = 0
+    
+    context = {
+        'user': user,
+        'events_attended': events_attended,
+        'upcoming_events': upcoming_events,
+        'certificates_count': certificates_count,
+    }
+    
+    return render(request, 'participant/profile.html', context)
+
+
+@login_required
+def account_settings(request):
+    """Account settings view with tabs for different settings categories"""
+    user = request.user
+    
+    if request.method == 'POST':
+        action = request.POST.get('action', 'change_password')  # Default action
+        
+        if action == 'change_password':
+            # Handle password change
+            current_password = request.POST.get('current_password')
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+            
+            if not current_password or not new_password or not confirm_password:
+                return JsonResponse({'success': False, 'error': 'All password fields are required'})
+            
+            if not user.check_password(current_password):
+                return JsonResponse({'success': False, 'error': 'Current password is incorrect'})
+            
+            if new_password != confirm_password:
+                return JsonResponse({'success': False, 'error': 'New passwords do not match'})
+            
+            if len(new_password) < 8:
+                return JsonResponse({'success': False, 'error': 'Password must be at least 8 characters long'})
+            
+            try:
+                user.set_password(new_password)
+                user.save()
+                return JsonResponse({'success': True, 'message': 'Password updated successfully!'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Error updating password: {str(e)}'})
+        
+        elif action == 'update_notifications':
+            # Handle notification preferences
+            try:
+                # Get notification preferences from form
+                event_reminders = request.POST.get('event_reminders') == 'on'
+                ticket_confirmations = request.POST.get('ticket_confirmations') == 'on'
+                event_updates = request.POST.get('event_updates') == 'on'
+                marketing_notifications = request.POST.get('marketing_notifications') == 'on'
+                weekly_newsletter = request.POST.get('weekly_newsletter') == 'on'
+                
+                # Update user notification preferences (you can store this in user.notification_preferences JSON field)
+                if not user.notification_preferences:
+                    user.notification_preferences = {}
+                
+                user.notification_preferences.update({
+                    'event_reminders': event_reminders,
+                    'ticket_confirmations': ticket_confirmations,
+                    'event_updates': event_updates,
+                    'marketing_notifications': marketing_notifications,
+                    'weekly_newsletter': weekly_newsletter,
+                })
+                user.save()
+                
+                return JsonResponse({'success': True, 'message': 'Notification preferences updated!'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Error updating notifications: {str(e)}'})
+        
+        elif action == 'update_privacy':
+            # Handle privacy settings
+            try:
+                public_profile = request.POST.get('public_profile') == 'on'
+                hide_email = request.POST.get('hide_email') == 'on'
+                hide_phone = request.POST.get('hide_phone') == 'on'
+                analytics_sharing = request.POST.get('analytics_sharing') == 'on'
+                
+                # Update user privacy preferences
+                if not user.notification_preferences:
+                    user.notification_preferences = {}
+                
+                user.notification_preferences.update({
+                    'public_profile': public_profile,
+                    'hide_email': hide_email,
+                    'hide_phone': hide_phone,
+                    'analytics_sharing': analytics_sharing,
+                })
+                user.save()
+                
+                return JsonResponse({'success': True, 'message': 'Privacy settings updated!'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Error updating privacy settings: {str(e)}'})
+        
+        elif action == 'update_preferences':
+            # Handle general preferences
+            try:
+                language = request.POST.get('language', 'en')
+                timezone_pref = request.POST.get('timezone', 'UTC')
+                theme = request.POST.get('theme', 'light')
+                email_format = request.POST.get('email_format', 'html')
+                
+                # Update user general preferences
+                if not user.notification_preferences:
+                    user.notification_preferences = {}
+                
+                user.notification_preferences.update({
+                    'language': language,
+                    'timezone': timezone_pref,
+                    'theme': theme,
+                    'email_format': email_format,
+                })
+                user.save()
+                
+                return JsonResponse({'success': True, 'message': 'Preferences updated!'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Error updating preferences: {str(e)}'})
+        
+        else:
+            return JsonResponse({'success': False, 'error': 'Invalid action'})
+    
+    # Get current preferences for display
+    preferences = user.notification_preferences or {}
+    
+    context = {
+        'user': user,
+        'preferences': preferences,
+    }
+    
+    return render(request, 'participant/account_settings.html', context)

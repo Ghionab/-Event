@@ -1,4 +1,4 @@
-{% extends 'participant/base.html' %}
+﻿{% extends 'participant/base.html' %}
 {% block title %}Materials: {{ event.title }} - EventHub{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -20,7 +20,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
                 <h2 class="text-lg font-bold text-gray-900">{{ session.title }}</h2>
-                <span class="text-sm font-medium text-gray-500">{{ session.start_time|date:"M d · g:i A" }}</span>
+                <span class="text-sm font-medium text-gray-500">{{ session.start_time|date:"M d" }} &middot; {{ session.start_time|date:"g:i A" }}</span>
             </div>
 
             <div class="p-6">
@@ -89,3 +89,6 @@
     {% endif %}
 </div>
 {% endblock %}
+
+
+

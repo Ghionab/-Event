@@ -1,23 +1,32 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, resolve_url
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 
+from .utils import (
+    organizer_profile_exists, dashboard_url, create_url
+)
+
+
+def _resolve_next_login_url(next_param):
+    default = dashboard_url()
+    if not next_param:
+        return default
+    try:
+        resolved = resolve_url(next_param)
+    except Exception:
+        return default
+    return resolved if resolved.rstrip('/') != create_url().rstrip('/') else default
+
 
 @require_http_methods(["GET", "POST"])
 def organizer_login(request):
-    """Organizer login page - redirects to dashboard if already logged in"""
+    """Organizer login page - redirects to dashboard if already logged in."""
     if request.user.is_authenticated:
-        # Check if user is an organizer
-        try:
-            from organizers.models import OrganizerProfile
-            if hasattr(request.user, 'organizerprofile'):
-                return redirect('organizer_dashboard')
-            else:
-                messages.info(request, 'Please create an organizer profile to access the dashboard.')
-                return redirect('organizer_create')
-        except:
-            return redirect('organizer_dashboard')
+        if organizer_profile_exists(request.user):
+            return redirect(dashboard_url())
+        messages.info(request, 'Please create an organizer profile to access the dashboard.')
+        return redirect(create_url())
 
     if request.method == 'POST':
         email = request.POST.get('username')
@@ -32,7 +41,11 @@ def organizer_login(request):
                 if hasattr(user, 'organizerprofile'):
                     login(request, user)
                     next_page = request.GET.get('next', '/organizers/')
-                    return redirect(next_page)
+                    # Validate next parameter to prevent open redirects
+                    if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+                        return redirect(next_page)
+                    else:
+                        return redirect('/organizers/')
                 else:
                     messages.info(request, 'Please create an organizer profile to access the dashboard.')
                     login(request, user)

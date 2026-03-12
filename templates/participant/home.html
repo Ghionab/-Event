@@ -18,27 +18,27 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <h2 class="text-3xl font-bold text-center mb-12">Why Use EventPortal?</h2>
     <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white p-8 rounded-xl shadow-sm card-hover transition">
+        <a href="/events/" class="block bg-white p-8 rounded-xl shadow-sm card-hover transition">
             <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
                 <i class="fas fa-search text-indigo-600 text-2xl"></i>
             </div>
             <h3 class="text-xl font-bold mb-4">Easy Discovery</h3>
             <p class="text-gray-600">Find events that match your interests with our powerful search and filters.</p>
-        </div>
-        <div class="bg-white p-8 rounded-xl shadow-sm card-hover transition">
+        </a>
+        <a href="/events/" class="block bg-white p-8 rounded-xl shadow-sm card-hover transition">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
                 <i class="fas fa-ticket-alt text-green-600 text-2xl"></i>
             </div>
             <h3 class="text-xl font-bold mb-4">Simple Registration</h3>
             <p class="text-gray-600">Register for events in just a few clicks with instant confirmation.</p>
-        </div>
-        <div class="bg-white p-8 rounded-xl shadow-sm card-hover transition">
+        </a>
+        <a href="{% url 'attendee:my_tickets' %}" class="block bg-white p-8 rounded-xl shadow-sm card-hover transition">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6">
                 <i class="fas fa-qrcode text-purple-600 text-2xl"></i>
             </div>
             <h3 class="text-xl font-bold mb-4">QR Check-in</h3>
             <p class="text-gray-600">Get instant QR codes for seamless check-in at event venues.</p>
-        </div>
+        </a>
     </div>
 </div>
 
@@ -49,6 +49,18 @@
             <h2 class="text-3xl font-bold">Upcoming Events</h2>
             <a href="/events/" class="text-indigo-600 hover:text-indigo-800 font-medium">View All <i class="fas fa-arrow-right ml-1"></i></a>
         </div>
+        {% if upcoming_events %}
+        <div class="grid md:grid-cols-3 gap-6">
+            {% for event in upcoming_events %}
+            <a href="/events/{{ event.id }}/" class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition block">
+                <h3 class="text-lg font-bold text-gray-900 mb-2">{{ event.title }}</h3>
+                <p class="text-sm text-gray-600"><i class="fas fa-calendar-alt mr-2"></i>{{ event.start_date|date:"F d, Y" }}</p>
+                <p class="text-sm text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>{{ event.venue_name|default:"Virtual Event" }}</p>
+                <span class="inline-block mt-4 text-indigo-600 font-medium">View Details</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
         <div class="bg-white rounded-xl shadow-sm p-8 text-center">
             <i class="fas fa-calendar-check text-gray-300 text-6xl mb-4"></i>
             <p class="text-gray-500 text-lg">No upcoming events at the moment</p>
@@ -57,6 +69,7 @@
                 Browse All Events
             </a>
         </div>
+        {% endif %}
     </div>
 </div>
 

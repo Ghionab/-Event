@@ -978,8 +978,8 @@ def registration_list(request):
     # Calculate statistics
     total_registrations = registrations.count()
     total_revenue = registrations.filter(
-        status__in=['confirmed', 'checked_in']
-    ).aggregate(total=Sum('total_amount'))['total'] or 0
+        status__in=['confirmed', 'checked_in', 'pending']
+    ).aggregate(total=Sum('ticket_type__price'))['total'] or 0
     checked_in_count = registrations.filter(status='checked_in').count()
     pending_count = registrations.filter(status='pending').count()
     
@@ -1039,8 +1039,8 @@ def event_registration_list(request, event_id):
     # Statistics
     total_registrations = registrations.count()
     total_revenue = registrations.filter(
-        status__in=['confirmed', 'checked_in']
-    ).aggregate(total=Sum('total_amount'))['total'] or 0
+        status__in=['confirmed', 'checked_in', 'pending']
+    ).aggregate(total=Sum('ticket_type__price'))['total'] or 0
     checked_in_count = registrations.filter(status='checked_in').count()
     pending_count = registrations.filter(status='pending').count()
     

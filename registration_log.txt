@@ -289,3 +289,6 @@
 [2026-03-13 12:31:03] RAW_DATA: {'event_id': '7', 'full_name': 'check', 'email': 'mikiyasarage1@gmail.com', 'phone': '456789', 'special_requests': 'sdfghjk', 'tickets': [{'ticket_id': 10, 'quantity': 1}]}
 [2026-03-13 12:31:03] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=check
 [2026-03-13 12:31:03] SUCCESS | event_id=7 | name=check | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-14068353
+[2026-03-13 13:14:04] RAW_DATA: {'event_id': '7', 'full_name': 'me', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': '', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
+[2026-03-13 13:14:04] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=me
+[2026-03-13 13:14:04] SUCCESS | event_id=7 | name=me | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-3D11FAA8

@@ -13,6 +13,9 @@ urlpatterns = [
     # Event dashboard with QR scanner
     path('events/<int:event_id>/', views.event_dashboard, name='event_dashboard'),
     
+    # QR code check-in
+    path('events/<int:event_id>/qr-checkin/', views.qr_checkin, name='qr_checkin'),
+    
     # Manual check-in
     path('checkin/<int:registration_id>/', views.manual_checkin, name='manual_checkin'),
     

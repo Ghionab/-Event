@@ -1176,7 +1176,7 @@ def process_bulk_registration(bulk_upload, skip_header=True, send_invitations=Tr
 
             # Get header row
             if skip_header:
-                header_row = [str(cell.value).strip().lower() if cell.value else '' for cell in ws[1]]
+                header_row = [str(cell.value).strip().lower() if cell.value else f'col_{i}' for i, cell in enumerate(ws[1])]
                 start_row = 2
             else:
                 header_row = ['name', 'email', 'phone', 'company', 'job_title']
@@ -1187,7 +1187,7 @@ def process_bulk_registration(bulk_upload, skip_header=True, send_invitations=Tr
                 row_data = {}
                 for i, cell in enumerate(row):
                     if i < len(header_row):
-                        row_data[header_row[i]] = cell.value
+                        row_data[header_row[i]] = str(cell.value).strip() if cell.value is not None else ''
                 if any(row_data.values()):
                     rows_data.append(row_data)
 
@@ -1196,7 +1196,7 @@ def process_bulk_registration(bulk_upload, skip_header=True, send_invitations=Tr
                 reader = csv.reader(f)
 
                 if skip_header:
-                    header_row = [str(h).strip().lower() for h in next(reader)]
+                    header_row = [str(h).strip().lower() if h else f'col_{i}' for i, h in enumerate(next(reader))]
                 else:
                     header_row = ['name', 'email', 'phone', 'company', 'job_title']
 
@@ -1259,8 +1259,10 @@ def process_bulk_registration(bulk_upload, skip_header=True, send_invitations=Tr
                     attendee_name=name,
                     attendee_email=email,
                     attendee_phone=phone or '',
-                    company=company or '',
-                    job_title=job_title or '',
+                    custom_fields={
+                        'company': company or '',
+                        'job_title': job_title or '',
+                    },
                     ticket_type=ticket_type,
                     total_amount=ticket_type.price,
                     status=RegistrationStatus.CONFIRMED

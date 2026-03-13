@@ -1,0 +1,223 @@
+
+{% extends 'organizers/base.html' %}
+
+{% block title %}Enterprise Bulk Registration - Step 5: Execute Import{% endblock %}
+
+{% block header %}
+<div class="flex items-center justify-between">
+    <div class="flex items-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mr-4 shadow-xl">
+            <i class="bi bi-play-circle text-white text-4xl"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Execute Import</h1>
+            <p class="text-sm text-gray-600 mt-1">Final step: Import your attendees</p>
+        </div>
+    </div>
+    <a href="{% url 'registration:bulk_wizard_options' event.id bulk_upload.id %}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Options
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Progress Indicator -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Upload File</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Map Columns</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Validate Data</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Configure</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">5</div>
+                <span class="ml-3 text-sm font-medium text-indigo-600">Execute Import</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto">
+    <!-- Final Review Card -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-8">
+        <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-6">
+            <h3 class="text-xl font-bold text-white flex items-center">
+                <i class="bi bi-clipboard-check mr-3"></i>Step 5: Final Review & Execute
+            </h3>
+            <p class="text-blue-50 text-sm mt-2">Review your import settings and execute the final import</p>
+        </div>
+        
+        <div class="p-8">
+            <!-- Import Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="bi bi-check-circle-fill text-green-600 text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-green-600">{{ processable_rows }}</p>
+                            <p class="text-sm text-gray-600">Rows to Import</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-200">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="bi bi-exclamation-triangle-fill text-orange-600 text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold text-orange-600">{{ duplicate_count }}</p>
+                            <p class="text-sm text-gray-600">Duplicates Found</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="bi bi-file-earmark text-blue-600 text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-lg font-bold text-blue-600 truncate">{{ bulk_upload.original_filename|truncatechars:15 }}</p>
+                            <p class="text-sm text-gray-600">Source File</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Review -->
+            <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                <h4 class="text-lg font-bold text-gray-900 mb-4">Import Configuration</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Duplicate Handling:</p>
+                        <p class="text-sm text-gray-900 mt-1">
+                            {% if bulk_upload.import_options.duplicate_handling == 'skip' %}
+                                <i class="bi bi-x-circle text-red-600 mr-1"></i>Skip duplicates
+                            {% elif bulk_upload.import_options.duplicate_handling == 'update' %}
+                                <i class="bi bi-arrow-repeat text-blue-600 mr-1"></i>Update existing
+                            {% else %}
+                                <i class="bi bi-plus-circle text-green-600 mr-1"></i>Allow duplicates
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Ticket Assignment:</p>
+                        <p class="text-sm text-gray-900 mt-1">
+                            {% if bulk_upload.import_options.ticket_assignment_mode == 'same_for_all' %}
+                                <i class="bi bi-ticket text-indigo-600 mr-1"></i>Same for all: {{ bulk_upload.default_ticket_type.name }}
+                            {% elif bulk_upload.import_options.ticket_assignment_mode == 'per_row' %}
+                                <i class="bi bi-list text-purple-600 mr-1"></i>Per-row from file
+                            {% else %}
+                                <i class="bi bi-gear text-gray-600 mr-1"></i>Default: {{ bulk_upload.default_ticket_type.name }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Email Notifications:</p>
+                        <p class="text-sm text-gray-900 mt-1">
+                            {% if bulk_upload.import_options.send_emails %}
+                                <i class="bi bi-envelope-check text-green-600 mr-1"></i>Send confirmation emails
+                            {% else %}
+                                <i class="bi bi-envelope-slash text-gray-600 mr-1"></i>Do not send emails
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Event:</p>
+                        <p class="text-sm text-gray-900 mt-1">
+                            <i class="bi bi-calendar-event text-blue-600 mr-1"></i>{{ event.title }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Messages -->
+            {% if duplicate_count > 0 %}
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <div class="flex">
+                        <i class="bi bi-exclamation-triangle-fill text-yellow-600 mr-2 mt-0.5"></i>
+                        <div class="text-sm text-yellow-800">
+                            <p class="font-medium">{{ duplicate_count }} duplicate email{{ duplicate_count|pluralize }} found</p>
+                            <p class="mt-1">
+                                {% if bulk_upload.import_options.duplicate_handling == 'skip' %}
+                                    These rows will be skipped during import.
+                                {% elif bulk_upload.import_options.duplicate_handling == 'update' %}
+                                    Existing registrations will be updated with new data.
+                                {% else %}
+                                    New registrations will be created despite duplicate emails.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-6 border-2 border-red-200">
+                    <div class="flex items-start">
+                        <i class="bi bi-exclamation-triangle-fill text-red-600 mr-3 mt-1 text-xl"></i>
+                        <div>
+                            <h5 class="text-lg font-bold text-red-900 mb-2">Important Notice</h5>
+                            <p class="text-sm text-red-800 mb-4">
+                                This action will create <strong>{{ processable_rows }} new registration{{ processable_rows|pluralize }}</strong> 
+                                in your event. This action cannot be easily undone. Please ensure you have reviewed all settings above.
+                            </p>
+                            <ul class="text-xs text-red-700 space-y-1">
+                                <li>• Registration records will be created immediately</li>
+                                <li>• Ticket counts will be updated</li>
+                                {% if bulk_upload.import_options.send_emails %}
+                                    <li>• Confirmation emails will be sent to {{ processable_rows }} attendee{{ processable_rows|pluralize }}</li>
+                                {% endif %}
+                                <li>• This process may take several minutes for large imports</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="submit" name="action" value="execute" 
+                            class="flex-1 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center text-lg"
+                            onclick="return confirm('Are you sure you want to proceed with importing {{ processable_rows }} registrations? This action cannot be undone.')">
+                        <i class="bi bi-play-circle mr-3"></i>
+                        Execute Import ({{ processable_rows }} rows)
+                    </button>
+                    <button type="submit" name="action" value="back_to_options" 
+                            class="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 font-semibold flex items-center justify-center">
+                        <i class="bi bi-arrow-left mr-2"></i>Back to Options
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -292,3 +292,10 @@
 [2026-03-13 13:14:04] RAW_DATA: {'event_id': '7', 'full_name': 'me', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': '', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
 [2026-03-13 13:14:04] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=me
 [2026-03-13 13:14:04] SUCCESS | event_id=7 | name=me | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-3D11FAA8
+[2026-03-12 12:40:07] RAW_DATA: {'event_id': '1', 'full_name': 'Nathan James', 'email': 'jamesnathan7668@gmail.com', 'phone': '0978876565', 'special_requests': 'vukgljb'}
+[2026-03-12 12:40:07] PARSED: event_id=1 (type=str), email=jamesnathan7668@gmail.com, name=Nathan James
+[2026-03-12 12:40:07] SUCCESS | event_id=1 | name=Nathan James | email=jamesnathan7668@gmail.com | status=confirmed | reg#=REG-56768A9E
+[2026-03-12 13:26:51] RAW_DATA: {'event_id': '1', 'full_name': 'abeba kebede', 'email': 'abekebe@gmail.com', 'phone': '0911225127', 'special_requests': "';jqlhjhpi;"}
+[2026-03-12 13:26:51] PARSED: event_id=1 (type=str), email=abekebe@gmail.com, name=abeba kebede
+[2026-03-12 13:26:51] SUCCESS | event_id=1 | name=abeba kebede | email=abekebe@gmail.com | status=confirmed | reg#=REG-92F9B0B5
+

@@ -55,6 +55,9 @@
     <a href="{% url 'organizer_event_edit' event.id %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
         <i class="bi bi-pencil mr-2"></i>Edit Event
     </a>
+    <a href="{% url 'registration:manual_registration_list' event.id %}" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+        <i class="bi bi-person-plus mr-2"></i>Manage Registrations
+    </a>
     <a href="{% url 'organizer_analytics_event' event.id %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
         <i class="bi bi-bar-chart-line mr-2"></i>Analytics
     </a>

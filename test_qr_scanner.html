@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-qr { display: inline-block; margin: 10px; text-align: center; }
+        .test-qr img { border: 2px solid #ccc; }
+        .qr-code { font-family: monospace; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>QR Scanner Test Page</h1>
+    <p>These are sample QR codes for testing the staff portal QR scanner.</p>
+    <p>Access the staff portal at: <a href="http://localhost:8002/staff/events/" target="_blank">http://localhost:8002/staff/events/</a></p>
+    
+    <h2>Test QR Codes</h2>
+    <div id="qr-codes">
+        <!-- QR codes will be displayed here -->
+    </div>
+    
+    <h2>Manual Test</h2>
+    <p>You can also manually test the QR check-in endpoint:</p>
+    <form id="test-form">
+        <label for="qr-code-input">Enter QR Code:</label><br>
+        <input type="text" id="qr-code-input" size="20" placeholder="e.g., 11272962602e429d">
+        <button type="submit">Test Check-in</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        // Sample QR codes for testing
+        const testQRCodes = [
+            { name: 'John Doe', code: '11272962602e429d' },
+            { name: 'Abraham Mulualem', code: 'c464f6c39ce04319' },
+            { name: 'Abraham Mulualem', code: 'edaa4c4ea0784b11' }
+        ];
+        
+        // Generate QR codes using an online service (for demo purposes)
+        const qrContainer = document.getElementById('qr-codes');
+        testQRCodes.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'test-qr';
+            div.innerHTML = `
+                <h4>${item.name}</h4>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${item.code}" alt="QR Code for ${item.name}">
+                <div class="qr-code">${item.code}</div>
+            `;
+            qrContainer.appendChild(div);
+        });
+        
+        // Manual test form
+        document.getElementById('test-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const qrCode = document.getElementById('qr-code-input').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!qrCode) {
+                resultDiv.innerHTML = '<p style="color: red;">Please enter a QR code</p>';
+                return;
+            }
+            
+            try {
+                // Try event ID 8 (Team CSV event) first
+                const response = await fetch('/staff/events/8/qr-checkin/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `qr_code=${encodeURIComponent(qrCode)}`
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `<p style="color: green;">✓ ${result.message}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: orange;">⚠ ${result.message}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">✗ Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

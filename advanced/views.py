@@ -285,6 +285,10 @@ def team_member_create(request):
                     team_member.event = get_object_or_404(Event, pk=event_id_post)
             team_member.save()
             messages.success(request, 'Team member added successfully.')
+            
+            # Redirect back to event setup if event parameter is present
+            if event:
+                return redirect('organizer_event_setup', event_id=event.id)
             return redirect('advanced:team_list')
     else:
         initial = {}
@@ -311,16 +315,30 @@ def team_member_create(request):
 def team_member_update(request, pk):
     member = get_object_or_404(TeamMember, pk=pk)
     
+    # Check if coming from event setup (GET or POST)
+    from_event_setup = request.GET.get('from_setup') or request.POST.get('from_setup')
+    event_id = request.GET.get('event') or request.POST.get('event') or (member.event.id if member.event else None)
+    
     if request.method == 'POST':
         form = TeamMemberForm(request.POST, instance=member, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Team member updated successfully.')
+            
+            # Redirect back to event setup if from_setup parameter is present
+            if from_event_setup and event_id:
+                return redirect('organizer_event_setup', event_id=event_id)
             return redirect('advanced:team_list')
     else:
         form = TeamMemberForm(instance=member, user=request.user)
     
-    return render(request, 'advanced/team_member_form.html', {'form': form, 'action': 'Update', 'member': member})
+    return render(request, 'advanced/team_member_form.html', {
+        'form': form, 
+        'action': 'Update', 
+        'member': member,
+        'from_event_setup': from_event_setup,
+        'event_id': event_id
+    })
 
 
 @login_required
@@ -328,12 +346,24 @@ def team_member_update(request, pk):
 def team_member_delete(request, pk):
     member = get_object_or_404(TeamMember, pk=pk)
     
+    # Check if coming from event setup (GET or POST)
+    from_event_setup = request.GET.get('from_setup') or request.POST.get('from_setup')
+    event_id = request.GET.get('event') or request.POST.get('event') or (member.event.id if member.event else None)
+    
     if request.method == 'POST':
         member.delete()
         messages.success(request, 'Team member removed successfully.')
+        
+        # Redirect back to event setup if from_setup parameter is present
+        if from_event_setup and event_id:
+            return redirect('organizer_event_setup', event_id=event_id)
         return redirect('advanced:team_list')
     
-    return render(request, 'advanced/team_member_confirm_delete.html', {'member': member})
+    return render(request, 'advanced/team_member_confirm_delete.html', {
+        'member': member,
+        'from_event_setup': from_event_setup,
+        'event_id': event_id
+    })
 
 
 # ============ Task Views ============

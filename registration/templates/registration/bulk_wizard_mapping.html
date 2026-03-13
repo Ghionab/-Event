@@ -1,0 +1,291 @@
+{% extends 'organizers/base.html' %}
+{% load registration_filters %}
+
+{% block title %}Enterprise Bulk Registration - Step 2: Map Columns{% endblock %}
+
+{% block header %}
+<div class="flex items-center justify-between">
+    <div class="flex items-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mr-4 shadow-xl">
+            <i class="bi bi-diagram-3 text-white text-4xl"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Column Mapping</h1>
+            <p class="text-sm text-gray-600 mt-1">Map your file columns to system fields</p>
+        </div>
+    </div>
+    <a href="{% url 'registration:bulk_wizard_start' event.id %}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Upload
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Progress Indicator -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Upload File</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                <span class="ml-3 text-sm font-medium text-indigo-600">Map Columns</span>
+            </div>
+            <div class="w-16 h-1 bg-gray-200 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center font-bold">3</div>
+                <span class="ml-3 text-sm font-medium text-gray-500">Validate Data</span>
+            </div>
+            <div class="w-16 h-1 bg-gray-200 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center font-bold">4</div>
+                <span class="ml-3 text-sm font-medium text-gray-500">Configure</span>
+            </div>
+            <div class="w-16 h-1 bg-gray-200 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center font-bold">5</div>
+                <span class="ml-3 text-sm font-medium text-gray-500">Import</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Mapping Section -->
+    <div class="lg:col-span-2">
+        <!-- File Info -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                        <i class="bi bi-file-earmark-check text-green-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">{{ bulk_upload.original_filename }}</h3>
+                        <p class="text-sm text-gray-600">{{ bulk_upload.total_rows }} rows • {{ bulk_upload.detected_columns|length }} columns • {{ bulk_upload.file_size|filesizeformat }}</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                    <i class="bi bi-check-circle mr-1"></i>Uploaded
+                </span>
+            </div>
+        </div>
+
+        <!-- Column Mapping Form -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-6">
+                <h3 class="text-xl font-bold text-white flex items-center">
+                    <i class="bi bi-diagram-3 mr-3"></i>Step 2: Map Your Columns
+                </h3>
+                <p class="text-blue-50 text-sm mt-2">Tell us which columns in your file correspond to which system fields</p>
+            </div>
+            
+            <div class="p-8">
+                <form method="post" id="mappingForm" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex">
+                                <i class="bi bi-exclamation-triangle-fill text-red-600 mr-2"></i>
+                                <div class="text-sm text-red-700">
+                                    {{ form.non_field_errors.0 }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="space-y-4">
+                        {% for field in form %}
+                            {% if field.name|slice:":8" == "mapping_" %}
+                                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                        <div class="flex items-center">
+                                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                                <i class="bi bi-table text-blue-600 text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-500">File Column</p>
+                                                <p class="text-lg font-bold text-gray-900">{{ field.field.widget.attrs.data_column|default:"Unknown Column" }}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center">
+                                            <i class="bi bi-arrow-right text-gray-400 text-2xl mr-4"></i>
+                                            <div class="flex-1">
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                                                {{ field }}
+                                                {% if field.errors %}
+                                                    <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-4 pt-6 border-t border-gray-200">
+                        <button type="submit" class="flex-1 px-8 py-4 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center text-lg">
+                            <i class="bi bi-check-circle mr-3"></i>Save Mapping & Continue
+                        </button>
+                        <a href="{% url 'registration:bulk_wizard_start' event.id %}" class="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 font-semibold flex items-center justify-center">
+                            <i class="bi bi-arrow-left mr-2"></i>Back
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Data Preview -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-eye mr-2"></i>Data Preview
+                </h3>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-gray-700 mb-4">First few rows from your file:</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                {% for column in bulk_upload.detected_columns %}
+                                    <th class="px-2 py-2 text-left font-medium text-gray-700 border-b">{{ column|truncatechars:15 }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sample_rows %}
+                                <tr class="border-b border-gray-100">
+                                    {% for column in bulk_upload.detected_columns %}
+                                        <td class="px-2 py-2 text-gray-600">{{ row.row_data|dict_lookup:column|truncatechars:15|default:"-" }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapping Guide -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-info-circle mr-2"></i>Mapping Guide
+                </h3>
+            </div>
+            <div class="p-6">
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-start">
+                        <i class="bi bi-check-circle-fill text-green-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Required:</strong> Name and Email must be mapped</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="bi bi-info-circle-fill text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Auto-detection:</strong> Common column names are pre-selected</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="bi bi-x-circle-fill text-gray-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Ignore:</strong> Select "Ignore Column" for unused columns</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="bi bi-exclamation-triangle-fill text-yellow-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>No duplicates:</strong> Each field can only be mapped once</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Field Descriptions -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-list-ul mr-2"></i>Field Descriptions
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-start">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-3 mt-0.5">Required</span>
+                        <div>
+                            <p class="font-semibold text-gray-900">Attendee Name</p>
+                            <p class="text-gray-600">Full name of the attendee</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-3 mt-0.5">Required</span>
+                        <div>
+                            <p class="font-semibold text-gray-900">Email Address</p>
+                            <p class="text-gray-600">Valid email address (must be unique)</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-3 mt-0.5">Optional</span>
+                        <div>
+                            <p class="font-semibold text-gray-900">Phone Number</p>
+                            <p class="text-gray-600">Contact phone number</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-3 mt-0.5">Optional</span>
+                        <div>
+                            <p class="font-semibold text-gray-900">Company</p>
+                            <p class="text-gray-600">Organization or company name</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-3 mt-0.5">Optional</span>
+                        <div>
+                            <p class="font-semibold text-gray-900">Job Title</p>
+                            <p class="text-gray-600">Position or role</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-3 mt-0.5">Special</span>
+                        <div>
+                            <p class="font-semibold text-gray-900">Ticket Type</p>
+                            <p class="text-gray-600">Specific ticket category (if available)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add custom filter for template lookup
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any JavaScript for enhanced UX
+    const selects = document.querySelectorAll('select[name^="mapping_"]');
+    
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            // Visual feedback for mapping changes
+            const container = this.closest('.bg-gray-50');
+            if (this.value && this.value !== 'ignore') {
+                container.classList.add('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+            } else {
+                container.classList.remove('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+            }
+        });
+        
+        // Trigger initial state
+        select.dispatchEvent(new Event('change'));
+    });
+});
+</script>
+
+{% endblock %}

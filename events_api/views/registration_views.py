@@ -54,7 +54,7 @@ class PromoCodeViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RegistrationViewSet(viewsets.ModelViewSet):
     serializer_class = RegistrationSerializer
-    permission_classes = [IsParticipant]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -63,7 +63,7 @@ class RegistrationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role in ['organizer', 'admin']:
+        if user.role in ['organizer', 'admin', 'staff']:
             event_id = self.kwargs.get('event_pk')
             if event_id:
                 return Registration.objects.filter(event_id=event_id)
@@ -88,14 +88,50 @@ class RegistrationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def check_in(self, request, pk=None, event_pk=None):
+        from registration.models import CheckIn, RegistrationStatus
+        
         registration = self.get_object()
-        if registration.checked_in_at is not None:
-            return Response(
-                {'error': 'Already checked in'},
-                status=status.HTTP_400_BAD_REQUEST
+        
+        # Check if already checked in
+        if registration.status == RegistrationStatus.CHECKED_IN:
+            return Response({
+                'error': f'{registration.attendee_name} is already checked in',
+                'checked_in_at': registration.checked_in_at.isoformat() if registration.checked_in_at else None
+            })
+        
+        # Check if registration is confirmed
+        if registration.status != RegistrationStatus.CONFIRMED:
+            return Response({
+                'error': f'Registration status is {registration.get_status_display()}. Only confirmed registrations can be checked in.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Perform check-in
+        checked_by = request.user if request.user.is_authenticated else None
+        success = registration.check_in(checked_by=checked_by)
+        
+        if success:
+            # Log check-in
+            CheckIn.objects.create(
+                registration=registration,
+                checked_in_by=checked_by,
+                method='qr_scan',
+                notes='QR code scan via staff portal API'
             )
-        registration.check_in(checked_by=request.user)
-        return Response({'message': 'Checked in successfully', 'checked_in_at': registration.checked_in_at})
+            
+            return Response({
+                'success': True,
+                'message': f'{registration.attendee_name} checked in successfully',
+                'checked_in_at': registration.checked_in_at.isoformat() if registration.checked_in_at else None,
+                'registration': {
+                    'id': registration.id,
+                    'attendee_name': registration.attendee_name,
+                    'status': registration.status
+                }
+            })
+        else:
+            return Response({
+                'error': 'Check-in failed. Registration must be confirmed.'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 from rest_framework import status

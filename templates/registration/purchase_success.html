@@ -1,0 +1,133 @@
+{% extends 'participant/base.html' %}
+
+{% block title %}Purchase Successful{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Success Message -->
+    <div class="bg-green-50 border border-green-200 rounded-2xl p-8 text-center mb-8">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-check text-green-600 text-3xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-green-800 mb-2">Purchase Successful!</h1>
+        <p class="text-green-700 text-lg mb-4">
+            Your tickets have been confirmed. Check your email for details.
+        </p>
+        <p class="text-sm text-green-600">
+            Purchase Number: <span class="font-mono font-bold">{{ purchase.purchase_number }}</span>
+        </p>
+    </div>
+
+    <!-- Purchase Details -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <h2 class="text-2xl font-bold mb-6">Purchase Details</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <p class="text-sm text-gray-600">Event</p>
+                <p class="font-semibold text-lg">{{ purchase.event.title }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Purchase Date</p>
+                <p class="font-semibold">{{ purchase.created_at|date:"F d, Y" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Total Tickets</p>
+                <p class="font-semibold">{{ purchase.get_ticket_count }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Total Amount</p>
+                <p class="font-semibold text-2xl text-indigo-600">
+                    {% if purchase.total_amount == 0 %}
+                    FREE
+                    {% else %}
+                    ${{ purchase.total_amount }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {% if purchase.discount_amount > 0 %}
+        <div class="p-4 bg-green-50 rounded-lg mb-6">
+            <p class="text-green-700">
+                <i class="fas fa-tag mr-2"></i>
+                You saved ${{ purchase.discount_amount }} with promo code: 
+                <span class="font-bold">{{ purchase.promo_code.code }}</span>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Tickets List -->
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold mb-6">Your Tickets</h2>
+        
+        <div class="space-y-4">
+            {% for ticket in tickets %}
+            <div class="border border-gray-200 rounded-lg p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-bold text-lg">{{ ticket.ticket_type.name }}</h3>
+                        <p class="text-sm text-gray-600 mt-1">
+                            Ticket #: <span class="font-mono">{{ ticket.ticket_number }}</span>
+                        </p>
+                    </div>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                        {{ ticket.status|title }}
+                    </span>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Attendee Name</p>
+                        <p class="font-semibold">{{ ticket.attendee_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Email</p>
+                        <p class="font-semibold">{{ ticket.attendee_email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Phone</p>
+                        <p class="font-semibold">{{ ticket.attendee_phone|default:"N/A" }}</p>
+                    </div>
+                </div>
+
+                {% if ticket.answers.all %}
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-sm font-semibold text-gray-700 mb-2">Additional Information:</p>
+                    <div class="space-y-2">
+                        {% for answer in ticket.answers.all %}
+                        <div class="text-sm">
+                            <span class="text-gray-600">{{ answer.question.label }}:</span>
+                            <span class="font-medium ml-2">{{ answer.answer }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- QR Code -->
+                <div class="mt-4 pt-4 border-t border-gray-200 text-center">
+                    <p class="text-sm text-gray-600 mb-2">Check-in QR Code</p>
+                    <img src="data:image/png;base64,{{ ticket.generate_qr_code_image }}" 
+                         alt="QR Code" 
+                         class="w-32 h-32 mx-auto">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-8 flex gap-4 justify-center">
+        <a href="{% url 'registration:my_purchases' %}" 
+           class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+            <i class="fas fa-list mr-2"></i> View All My Purchases
+        </a>
+        <a href="{% url 'events:event_list' %}" 
+           class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
+            <i class="fas fa-calendar mr-2"></i> Browse More Events
+        </a>
+    </div>
+</div>
+{% endblock %}

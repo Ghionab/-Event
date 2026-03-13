@@ -14,22 +14,21 @@ from .decorators import staff_required
 @staff_required
 def event_list(request):
     """
-    Display list of active events for staff member
+    Display list of events for staff member
     """
-    # Get events that are active (today or in the future)
-    today = timezone.now().date()
-    
-    # For ADMIN and ORGANIZER, show all active events
+    # Show all events that have registrations (past, present, and future)
+    # This ensures staff can check in attendees for any event
     if request.user.role in ['admin', 'organizer']:
+        # For ADMIN and ORGANIZER, show all events with registrations
         events = Event.objects.filter(
-            start_date__gte=today
-        ).order_by('start_date')
+            registrations__isnull=False
+        ).distinct().order_by('-start_date')
     else:
-        # For STAFF, show only events they're assigned to
+        # For STAFF, show all events with registrations
         # TODO: Implement event team assignment filtering
         events = Event.objects.filter(
-            start_date__gte=today
-        ).order_by('start_date')
+            registrations__isnull=False
+        ).distinct().order_by('-start_date')
     
     # Add registration stats to each event
     events_with_stats = []
@@ -136,6 +135,76 @@ def manual_checkin(request, registration_id):
             })
     
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+@staff_required
+def qr_checkin(request, event_id):
+    """
+    Handle QR code check-in via staff portal
+    """
+    from django.http import JsonResponse
+    from registration.models import CheckIn, RegistrationStatus
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+    
+    qr_code = request.POST.get('qr_code', '').strip()
+    if not qr_code:
+        return JsonResponse({'success': False, 'message': 'QR code is required'})
+    
+    event = get_object_or_404(Event, id=event_id)
+    
+    # Find registration by QR code
+    try:
+        registration = Registration.objects.get(
+            qr_code=qr_code,
+            event=event
+        )
+    except Registration.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Invalid QR code or registration not found'})
+    
+    # Check if already checked in
+    if registration.status == RegistrationStatus.CHECKED_IN:
+        return JsonResponse({
+            'success': False,
+            'message': f'{registration.attendee_name} is already checked in',
+            'checked_in_at': registration.checked_in_at.isoformat() if registration.checked_in_at else None
+        })
+    
+    # Check if registration is confirmed
+    if registration.status != RegistrationStatus.CONFIRMED:
+        return JsonResponse({
+            'success': False,
+            'message': f'Registration status is {registration.get_status_display()}. Only confirmed registrations can be checked in.'
+        })
+    
+    # Perform check-in
+    success = registration.check_in(checked_by=request.user)
+    
+    if success:
+        # Log check-in
+        CheckIn.objects.create(
+            registration=registration,
+            checked_in_by=request.user,
+            method='qr_scan',
+            notes='QR code scan via staff portal'
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{registration.attendee_name} checked in successfully',
+            'checked_in_at': registration.checked_in_at.isoformat() if registration.checked_in_at else None,
+            'registration': {
+                'id': registration.id,
+                'attendee_name': registration.attendee_name,
+                'status': registration.status
+            }
+        })
+    else:
+        return JsonResponse({
+            'success': False,
+            'message': 'Check-in failed. Registration must be confirmed.'
+        })
 
 
 @staff_required

@@ -93,8 +93,24 @@
                     {% for row in rows %}
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">{{ row.row_number }}</td>
-                        <td class="px-6 py-4">{{ row.row_data.name|default:row.row_data.full_name|default:"-" }}</td>
-                        <td class="px-6 py-4">{{ row.row_data.email|default:row.row_data.email_address|default:"-" }}</td>
+                        <td class="px-6 py-4">
+                            {% if row.row_data.name %}
+                                {{ row.row_data.name }}
+                            {% elif row.row_data.full_name %}
+                                {{ row.row_data.full_name }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if row.row_data.email %}
+                                {{ row.row_data.email }}
+                            {% elif row.row_data.email_address %}
+                                {{ row.row_data.email_address }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                 {% if row.status == 'success' %}bg-green-100 text-green-800

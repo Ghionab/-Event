@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from django.utils import timezone
-
+from django.db import transaction, models
 from registration.models import Registration, TicketType, PromoCode
 from events_api.serializers import (
     RegistrationSerializer, RegistrationCreateSerializer,
@@ -201,14 +201,13 @@ class PublicRegisterView(APIView):
             quantity = ticket_data.get('quantity', 1)
 
             try:
-                ticket_type = TicketType.objects.get(id=ticket_id, event=event, is_active=True)
+                ticket_type = TicketType.objects.select_for_update().get(id=ticket_id, event=event, is_active=True)
             except TicketType.DoesNotExist:
                 continue
 
             # Check availability
-            available = ticket_type.quantity_available - ticket_type.quantity_sold
-            if available < quantity:
-                continue
+            if ticket_type.available_quantity < quantity:
+                return Response({'error': f'Ticket finished for {ticket_type.name}'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Calculate ticket total
             ticket_price = ticket_type.price if ticket_type.price else Decimal('0')

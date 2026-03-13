@@ -68,6 +68,16 @@
                             data[key] = value;
                         }
                     });
+
+                    // Add tickets from sessionStorage
+                    const selectedTickets = sessionStorage.getItem('selectedTickets');
+                    if (selectedTickets) {
+                        try {
+                            data['tickets'] = JSON.parse(selectedTickets);
+                        } catch (e) {
+                            console.error('Error parsing selected tickets:', e);
+                        }
+                    }
                     
                     // Submit via fetch
                     fetch('/api/v1/register/', {

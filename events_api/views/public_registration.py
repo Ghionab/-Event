@@ -2,12 +2,14 @@
 Simple public registration API for participant portal
 """
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
+from django.db import transaction, models
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Q, F
 from events.models import Event
 from registration.models import Registration, TicketType
 
@@ -19,7 +21,7 @@ User = get_user_model()
 def get_user_registrations(request):
     """Get all registrations for the current user"""
     registrations = Registration.objects.filter(
-        Q(user=request.user) | Q(attendee_email=request.user.email)
+        Q(user=request.user) | Q(attendee_email__iexact=request.user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
 
     data = []
@@ -45,6 +47,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 @authentication_classes([])
 @permission_classes([AllowAny])
 @csrf_exempt
+@transaction.atomic
 def public_register(request):
     """Public endpoint for event registration without authentication"""
     import re
@@ -134,14 +137,14 @@ def public_register(request):
             quantity = ticket_data.get('quantity', 1)
 
             try:
-                ticket_type = TicketType.objects.get(id=ticket_id, event=event, is_active=True)
+                ticket_type = TicketType.objects.select_for_update().get(id=ticket_id, event=event, is_active=True)
             except TicketType.DoesNotExist:
                 continue
 
             # Check availability
-            available = ticket_type.quantity_available - ticket_type.quantity_sold
-            if available < quantity:
-                continue
+            if ticket_type.available_quantity < quantity:
+                # Return error if any ticket in the batch is unavailable
+                return Response({'error': f'Ticket finished for {ticket_type.name}'}, status=status.HTTP_400_BAD_REQUEST)
 
             reg = Registration.objects.create(
                 event=event,
@@ -155,8 +158,9 @@ def public_register(request):
             )
             registration_numbers.append(reg.registration_number)
 
-            # Update quantity sold
+            # Update quantity sold and available atomically
             ticket_type.quantity_sold += quantity
+            ticket_type.quantity_available -= quantity
             ticket_type.save()
 
             if registration is None:

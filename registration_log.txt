@@ -211,3 +211,75 @@
 [2026-03-12 23:06:00] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': ''}
 [2026-03-12 23:06:00] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
 [2026-03-12 23:06:00] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=confirmed | reg#=REG-1A3A3630
+[2026-03-13 01:34:17] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': 'dfgh'}
+[2026-03-13 01:34:17] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-13 01:34:17] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=confirmed | reg#=REG-86FD6BB4
+[2026-03-13 01:37:44] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '09619963', 'special_requests': 'asdfg'}
+[2026-03-13 01:37:44] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 01:37:44] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage@gmail.com | status=confirmed | reg#=REG-31BAC2E1
+[2026-03-13 01:59:23] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '09619963', 'special_requests': 'hjkl'}
+[2026-03-13 01:59:23] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 01:59:23] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage@gmail.com | status=confirmed | reg#=REG-B46FCE6A
+[2026-03-13 02:00:02] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '456789', 'special_requests': 'dfghjkl'}
+[2026-03-13 02:00:02] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 02:00:02] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage@gmail.com | status=confirmed | reg#=REG-9E0E2DED
+[2026-03-13 02:04:15] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage2@gmail.com', 'phone': '09619963', 'special_requests': 'mnbvc'}
+[2026-03-13 02:04:15] PARSED: event_id=7 (type=str), email=mikiyasarage2@gmail.com, name=Mikiyas Arage
+[2026-03-13 02:04:15] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage2@gmail.com | status=confirmed | reg#=REG-FBDC4E21
+[2026-03-13 02:27:28] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': ''}
+[2026-03-13 02:27:28] PARSED: event_id=5 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-13 02:27:28] SUCCESS | event_id=5 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=confirmed | reg#=REG-ED8B3800
+[2026-03-13 02:27:53] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '456789', 'special_requests': ''}
+[2026-03-13 02:27:53] PARSED: event_id=5 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-13 02:27:53] SUCCESS | event_id=5 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=confirmed | reg#=REG-2000F15B
+[2026-03-13 10:14:57] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '09619964', 'special_requests': 'vsxbgf'}
+[2026-03-13 10:14:57] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 10:14:57] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage@gmail.com | status=confirmed | reg#=REG-5DE9C61A
+[2026-03-13 10:15:29] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '09619963', 'special_requests': 'asdfg'}
+[2026-03-13 10:15:29] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 10:15:29] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage@gmail.com | status=confirmed | reg#=REG-D9DADFDA
+[2026-03-13 10:21:46] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': ''}
+[2026-03-13 10:21:46] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-13 10:21:46] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=confirmed | reg#=REG-A7DC0957
+[2026-03-13 10:57:10] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '456789', 'special_requests': 'asdfgh'}
+[2026-03-13 10:57:10] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 10:57:10] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage@gmail.com | status=confirmed | reg#=REG-389B1654
+[2026-03-13 11:13:29] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': 'sdfg'}
+[2026-03-13 11:13:29] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:13:29] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=confirmed | reg#=REG-849DDFB7
+[2026-03-13 11:15:20] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '09619963', 'special_requests': 'sdfgh'}
+[2026-03-13 11:15:20] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:15:20] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage@gmail.com | status=confirmed | reg#=REG-71148C12
+[2026-03-13 11:30:14] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '09619964', 'special_requests': 'cvbnm,', 'tickets': [{'ticket_id': None, 'quantity': 1}]}
+[2026-03-13 11:30:14] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:30:14] FAILED | No tickets available for event_id=7
+[2026-03-13 11:30:47] RAW_DATA: {'event_id': '7', 'full_name': 'abel Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '3456789', 'special_requests': 'poiuyf', 'tickets': [{'ticket_id': None, 'quantity': 1}]}
+[2026-03-13 11:30:47] PARSED: event_id=7 (type=str), email=mikiyasarage@gmail.com, name=abel Arage
+[2026-03-13 11:30:47] FAILED | No tickets available for event_id=7
+[2026-03-13 11:31:52] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '0987', 'special_requests': 'dfgh', 'tickets': [{'ticket_id': None, 'quantity': 1}]}
+[2026-03-13 11:31:52] PARSED: event_id=5 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:31:52] FAILED | No tickets available for event_id=5
+[2026-03-13 11:32:10] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '0987', 'special_requests': 'dfgh', 'tickets': [{'ticket_id': None, 'quantity': 1}]}
+[2026-03-13 11:32:10] PARSED: event_id=5 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:32:10] FAILED | No tickets available for event_id=5
+[2026-03-13 11:32:32] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '0987', 'special_requests': 'dfgh', 'tickets': [{'ticket_id': None, 'quantity': 1}]}
+[2026-03-13 11:32:32] PARSED: event_id=5 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:32:32] FAILED | No tickets available for event_id=5
+[2026-03-13 11:35:41] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '0987', 'special_requests': 'dfgh', 'tickets': [{'ticket_id': None, 'quantity': 1}]}
+[2026-03-13 11:35:41] PARSED: event_id=5 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:35:41] FAILED | No tickets available for event_id=5
+[2026-03-13 11:42:39] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage@gmail.com', 'phone': '3456789', 'special_requests': 'hjkl;', 'tickets': [{'ticket_id': None, 'quantity': 1}]}
+[2026-03-13 11:42:39] PARSED: event_id=5 (type=str), email=mikiyasarage@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:42:39] FAILED | No tickets available for event_id=5
+[2026-03-13 11:43:46] RAW_DATA: {'event_id': '5', 'full_name': 'yonas', 'email': 'mikiyasarage@gmail.com', 'phone': '098765', 'special_requests': 'bukjml', 'tickets': [{'ticket_id': 7, 'quantity': 1}]}
+[2026-03-13 11:43:46] PARSED: event_id=5 (type=str), email=mikiyasarage@gmail.com, name=yonas
+[2026-03-13 11:43:46] SUCCESS | event_id=5 | name=yonas | email=mikiyasarage@gmail.com | status=pending | reg#=REG-1C6BC392
+[2026-03-13 11:44:10] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': '', 'tickets': [{'ticket_id': 7, 'quantity': 1}]}
+[2026-03-13 11:44:10] PARSED: event_id=5 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:44:10] SUCCESS | event_id=5 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-EF2F2F38
+[2026-03-13 11:44:27] RAW_DATA: {'event_id': '5', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '456789', 'special_requests': 'tyuk', 'tickets': [{'ticket_id': 7, 'quantity': 1}]}
+[2026-03-13 11:44:27] PARSED: event_id=5 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:44:27] SUCCESS | event_id=5 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-FF0E383E
+[2026-03-13 11:45:20] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': '', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
+[2026-03-13 11:45:20] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
+[2026-03-13 11:45:20] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-17C4BC5F

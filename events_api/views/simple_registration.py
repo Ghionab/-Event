@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
+from django.db import transaction, models
 from events.models import Event
 from registration.models import Registration, TicketType
 
@@ -16,6 +17,7 @@ User = get_user_model()
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@transaction.atomic
 def simple_register(request):
     """Simple public registration endpoint without authentication"""
     import re
@@ -136,13 +138,12 @@ def simple_register(request):
             quantity = int(ticket_data.get('quantity', 1))
 
             try:
-                ticket_type = TicketType.objects.get(id=ticket_id, event=event, is_active=True)
+                ticket_type = TicketType.objects.select_for_update().get(id=ticket_id, event=event, is_active=True)
             except TicketType.DoesNotExist:
                 continue
 
-            available = ticket_type.quantity_available - ticket_type.quantity_sold
-            if available < quantity:
-                continue
+            if ticket_type.quantity_available < quantity:
+                return HttpResponse(f'Ticket "{ticket_type.name}" is finished', status=400)
 
             # Use Decimal for currency
             ticket_price = ticket_type.price if ticket_type.price else Decimal('0')
@@ -165,14 +166,17 @@ def simple_register(request):
                 status='confirmed' if ticket_price == 0 else 'pending'
             )
             registration_numbers.append(reg.registration_number)
+            
+            # Atomic updates
             ticket_type.quantity_sold += quantity
+            ticket_type.quantity_available -= quantity
             ticket_type.save()
 
             if registration is None:
                 registration = reg
 
     if not registration_numbers:
-        return HttpResponse('No tickets available', status=400)
+        return HttpResponse('Please select at least one valid ticket to complete registration.', status=400)
 
     # Log success
     with open(log_file, 'a') as f:

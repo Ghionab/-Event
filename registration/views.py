@@ -7,8 +7,8 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse, Http404
 from django.urls import reverse
 from django.utils import timezone
-from django.db import models
-from django.db.models import Q, Count
+from django.db import models, transaction
+from django.db.models import Q, Count, F
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
@@ -38,11 +38,12 @@ from .forms import (
 def registration_list(request):
     """List all registrations for the current user"""
     registrations = Registration.objects.filter(
-        models.Q(user=request.user) | models.Q(attendee_email=request.user.email)
+        models.Q(user=request.user) | models.Q(attendee_email__iexact=request.user.email)
     ).order_by('-created_at')
     
     return render(request, 'registration/registration_list.html', {'registrations': registrations})
 
+@transaction.atomic
 def register_for_event(request, event_id):
     """Register for an event with custom form fields and document uploads"""
     event = get_object_or_404(Event, id=event_id)
@@ -109,23 +110,40 @@ def register_for_event(request, event_id):
             registration.event = event
             registration.user = request.user if request.user.is_authenticated else None
             registration.custom_fields = custom_field_data
-
             # Calculate total amount
             if registration.ticket_type:
-                if not registration.ticket_type.can_purchase():
+                # Lock the ticket type row for update to prevent race conditions
+                try:
+                    ticket_type = TicketType.objects.select_for_update().get(id=registration.ticket_type.id)
+                except TicketType.DoesNotExist:
+                    messages.error(request, 'Selected ticket type no longer exists.')
+                    return render(request, 'registration/register_event.html', {
+                        'form': form, 'event': event, 'custom_fields': custom_fields,
+                        'file_fields': file_fields, 'non_file_fields': non_file_fields
+                    })
+
+                if ticket_type.quantity_available <= 0:
+                    messages.error(request, 'Ticket finished') # Display specific message as requested
+                    return render(request, 'registration/register_event.html', {
+                        'form': form, 'event': event, 'custom_fields': custom_fields,
+                        'file_fields': file_fields, 'non_file_fields': non_file_fields
+                    })
+
+                if not ticket_type.can_purchase():
                     messages.error(request, 'Selected ticket type is not available for purchase.')
                     return render(request, 'registration/register_event.html', {
                         'form': form, 'event': event, 'custom_fields': custom_fields,
                         'file_fields': file_fields, 'non_file_fields': non_file_fields
                     })
-                total = registration.ticket_type.price
+                
+                total = ticket_type.price
                 discount = 0
 
                 # Apply promo code if provided
                 promo_code_value = request.POST.get('promo_code', '').strip()
                 if promo_code_value:
                     try:
-                        promo = PromoCode.objects.get(
+                        promo = PromoCode.objects.select_for_update().get(
                             code=promo_code_value.upper(),
                             event=event,
                             is_active=True
@@ -150,6 +168,11 @@ def register_for_event(request, event_id):
 
                 registration.total_amount = total
                 registration.discount_amount = discount
+                
+                # Update ticket count atomically
+                ticket_type.quantity_available -= 1
+                ticket_type.quantity_sold += 1
+                ticket_type.save()
 
             registration.save()
             registration.confirm()
@@ -423,7 +446,7 @@ def add_to_waitlist(request, event_id, ticket_type_id):
 def my_registrations(request):
     """View all registrations for the current user"""
     registrations = Registration.objects.filter(
-        models.Q(user=request.user) | models.Q(attendee_email=request.user.email)
+        models.Q(user=request.user) | models.Q(attendee_email__iexact=request.user.email)
     ).order_by('-created_at')
     
     return render(request, 'registration/my_registrations.html', {'registrations': registrations})
@@ -438,12 +461,12 @@ def attendee_dashboard(request):
     
     # Get user's registrations
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
     
     # Separate upcoming and past
     now = timezone.now()
-    upcoming = registrations.filter(event__start_date__gte=now, status__in=['confirmed', 'checked_in'])
+    upcoming = registrations.filter(event__start_date__gte=now, status__in=['pending', 'confirmed', 'checked_in'])
     past = registrations.filter(event__start_date__lt=now)
     
     # Get saved events (events user is interested in but not registered)
@@ -471,7 +494,7 @@ def attendee_event_detail(request, event_id, registration_id):
         messages.error(request, 'Please log in to view this registration.')
         return redirect('login')
     
-    if registration.user and registration.user != request.user and not request.user.is_staff:
+    if registration.user and registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower() and not request.user.is_staff:
         messages.error(request, 'You do not have permission to view this registration.')
         return redirect('registration:attendee_dashboard')
     
@@ -509,7 +532,7 @@ def badge_view(request, registration_id):
         messages.error(request, 'Please log in to view this badge.')
         return redirect('login')
     
-    if registration.user and registration.user != request.user and not request.user.is_staff:
+    if registration.user and registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower() and not request.user.is_staff:
         messages.error(request, 'You do not have permission to view this badge.')
         return redirect('attendee_dashboard')
     
@@ -547,7 +570,7 @@ def badge_print(request, registration_id):
         messages.error(request, 'Please log in to print this badge.')
         return redirect('login')
     
-    if registration.user and registration.user != request.user and not request.user.is_staff:
+    if registration.user and registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower() and not request.user.is_staff:
         messages.error(request, 'You do not have permission to print this badge.')
         return redirect('attendee_dashboard')
     
@@ -1240,13 +1263,16 @@ def process_bulk_registration(bulk_upload, skip_header=True, send_invitations=Tr
                 if existing:
                     raise ValueError(f'Email {email} already registered')
 
-                # Get default ticket type
-                ticket_type = bulk_upload.event.ticket_types.filter(
+                # Get default ticket type and lock it
+                ticket_type = bulk_upload.event.ticket_types.select_for_update().filter(
                     is_active=True
                 ).first()
 
                 if not ticket_type:
                     raise ValueError('No active ticket type available')
+                
+                if ticket_type.quantity_available <= 0:
+                    raise ValueError(f'Ticket finished for {ticket_type.name}')
 
                 # Create registration
                 registration = Registration.objects.create(
@@ -1257,11 +1283,12 @@ def process_bulk_registration(bulk_upload, skip_header=True, send_invitations=Tr
                     company=company or '',
                     job_title=job_title or '',
                     ticket_type=ticket_type,
-                    total_amount=ticket_type.price,
-                    status=RegistrationStatus.CONFIRMED
+                    status=RegistrationStatus.CONFIRMED,
+                    total_amount=ticket_type.price
                 )
 
-                # Update ticket count
+                # Update ticket counts
+                ticket_type.quantity_available -= 1
                 ticket_type.quantity_sold += 1
                 ticket_type.save()
 

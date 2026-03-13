@@ -91,8 +91,9 @@ def my_registrations_enhanced(request):
     now = timezone.now()
     
     # Get all registrations
+    # Get all registrations
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
     
     # Apply filters
@@ -193,7 +194,7 @@ def cancel_registration_enhanced(request, registration_id):
     registration = get_object_or_404(Registration, id=registration_id)
     
     # Check permission
-    if registration.user != request.user and registration.attendee_email != request.user.email:
+    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
         messages.error(request, 'You do not have permission to cancel this registration.')
         return redirect('registration:attendee_dashboard')
     
@@ -600,7 +601,7 @@ def my_schedule(request):
     
     # Get upcoming registrations
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         event__start_date__gte=now,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event')
@@ -648,10 +649,10 @@ def event_schedule(request, event_id):
     
     # Check if user is registered
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=event,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).first()
     
     if not registration:
@@ -696,10 +697,10 @@ def save_session(request, session_id):
     
     # Check if user is registered for the event
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=session.event,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).first()
     
     if not registration:
@@ -739,10 +740,10 @@ def session_feedback_enhanced(request, session_id):
     
     # Get user's registration
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=session.event,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).first()
     
     if not registration:
@@ -786,9 +787,9 @@ def networking_hub(request):
     
     # Get user's upcoming events
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         event__start_date__gte=timezone.now(),
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event')
     
     # Get recent messages
@@ -1064,10 +1065,10 @@ def preferences_enhanced(request, event_id):
     
     # Check if user is registered
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=event,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).first()
     
     if not registration:
@@ -1155,10 +1156,10 @@ def my_tickets(request):
     user = request.user
     now = timezone.now()
 
-    # Get all confirmed/checked-in registrations for this user
+    # Get all confirmed/checked-in/pending registrations for this user
     all_registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event', 'ticket_type').order_by('event__start_date')
 
     # Separate into upcoming and past
@@ -1194,7 +1195,7 @@ def digital_badge(request, registration_id):
     """Display digital badge with social sharing options"""
     registration = get_object_or_404(Registration, id=registration_id)
 
-    if registration.user != request.user and registration.attendee_email != request.user.email:
+    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
         messages.error(request, 'You do not have permission to view this badge.')
         return redirect('attendee:dashboard')
 
@@ -1230,7 +1231,7 @@ def certificates_list(request):
     user = request.user
 
     checked_in_registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         status=RegistrationStatus.CHECKED_IN
     ).select_related('event').order_by('-event__start_date')
 
@@ -1245,7 +1246,7 @@ def download_certificate(request, registration_id):
     """Generate and download PDF certificate"""
     registration = get_object_or_404(Registration, id=registration_id)
 
-    if registration.user != request.user and registration.attendee_email != request.user.email:
+    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
         messages.error(request, 'You do not have permission to download this certificate.')
         return redirect('attendee:certificates')
 
@@ -1329,10 +1330,10 @@ def event_materials(request, event_id):
     user = request.user
 
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=event,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).first()
 
     if not registration:
@@ -1362,10 +1363,10 @@ def event_feedback(request, event_id):
     user = request.user
 
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=event,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).first()
 
     if not registration:
@@ -1464,9 +1465,9 @@ def export_schedule_ical(request):
     now = timezone.now()
 
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         event__start_date__gte=now,
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event')
 
     cal_lines = [
@@ -1546,7 +1547,7 @@ def attendee_profile_edit(request):
     # Get profile stats
     try:
         all_registrations = Registration.objects.filter(
-            models.Q(user=user) | models.Q(attendee_email=user.email)
+            models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
         )
         
         now = timezone.now()
@@ -1557,7 +1558,7 @@ def attendee_profile_edit(request):
         
         upcoming_events = all_registrations.filter(
             event__start_date__gte=now,
-            status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+            status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
         ).count()
     except:
         events_attended = 0

@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.utils import timezone
 from events.models import Event
@@ -57,11 +57,13 @@ class TicketType(models.Model):
     
     @property
     def available_quantity(self):
-        return self.quantity_available - self.quantity_sold
+        # We now decrement quantity_available directly per user request,
+        # so it represents the true remaining count.
+        return self.quantity_available
     
     @property
     def is_sold_out(self):
-        return self.quantity_sold >= self.quantity_available
+        return self.quantity_available <= 0
     
     def can_purchase(self):
         now = timezone.now()
@@ -722,9 +724,18 @@ class ManualRegistration(models.Model):
     def __str__(self):
         return f"{self.attendee_name} - {self.event.title}"
 
+    @transaction.atomic
     def create_registration(self):
         """Create actual registration from manual entry"""
         if self.registration or not self.ticket_type:
+            return None
+
+        # Lock the ticket type row for update
+        ticket_type = TicketType.objects.select_for_update().get(id=self.ticket_type.id)
+        
+        if ticket_type.quantity_available <= 0:
+            # For manual registration, we might still allow it but usually we should respect the limit
+            # Given the requirement to "prevent overbooking", we block it.
             return None
 
         registration = Registration.objects.create(
@@ -732,8 +743,8 @@ class ManualRegistration(models.Model):
             attendee_name=self.attendee_name,
             attendee_email=self.attendee_email,
             attendee_phone=self.attendee_phone,
-            ticket_type=self.ticket_type,
-            total_amount=self.ticket_type.price,
+            ticket_type=ticket_type,
+            total_amount=ticket_type.price,
             status=RegistrationStatus.CONFIRMED,
         )
 
@@ -741,9 +752,10 @@ class ManualRegistration(models.Model):
         self.status = 'registered'
         self.save()
 
-        # Update ticket count
-        self.ticket_type.quantity_sold += 1
-        self.ticket_type.save()
+        # Update ticket counts atomically
+        ticket_type.quantity_available -= 1
+        ticket_type.quantity_sold += 1
+        ticket_type.save()
 
         return registration
 

@@ -205,3 +205,9 @@
 [2026-03-12 11:00:30] RAW_DATA: {'event_id': '1', 'full_name': 'abe lemesa', 'email': 'admin@eventmanager.com', 'phone': '853902', 'special_requests': ''}
 [2026-03-12 11:00:30] PARSED: event_id=1 (type=str), email=admin@eventmanager.com, name=abe lemesa
 [2026-03-12 11:00:30] SUCCESS | event_id=1 | name=abe lemesa | email=admin@eventmanager.com | status=confirmed | reg#=REG-0A7CB8F6
+[2026-03-12 12:40:07] RAW_DATA: {'event_id': '1', 'full_name': 'Nathan James', 'email': 'jamesnathan7668@gmail.com', 'phone': '0978876565', 'special_requests': 'vukgljb'}
+[2026-03-12 12:40:07] PARSED: event_id=1 (type=str), email=jamesnathan7668@gmail.com, name=Nathan James
+[2026-03-12 12:40:07] SUCCESS | event_id=1 | name=Nathan James | email=jamesnathan7668@gmail.com | status=confirmed | reg#=REG-56768A9E
+[2026-03-12 13:26:51] RAW_DATA: {'event_id': '1', 'full_name': 'abeba kebede', 'email': 'abekebe@gmail.com', 'phone': '0911225127', 'special_requests': "';jqlhjhpi;"}
+[2026-03-12 13:26:51] PARSED: event_id=1 (type=str), email=abekebe@gmail.com, name=abeba kebede
+[2026-03-12 13:26:51] SUCCESS | event_id=1 | name=abeba kebede | email=abekebe@gmail.com | status=confirmed | reg#=REG-92F9B0B5

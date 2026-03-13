@@ -304,6 +304,147 @@ class RegistrationField(models.Model):
         return ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']
 
 
+class TicketPurchase(models.Model):
+    """Represents a single purchase transaction (buyer purchases multiple tickets)"""
+    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ticket_purchases')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='ticket_purchases')
+    
+    purchase_number = models.CharField(max_length=20, unique=True, blank=True)
+    
+    # Payment details
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    promo_code = models.ForeignKey(PromoCode, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Payment status
+    payment_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('completed', 'Completed'),
+            ('failed', 'Failed'),
+            ('refunded', 'Refunded'),
+        ],
+        default='pending'
+    )
+    payment_method = models.CharField(max_length=50, blank=True)
+    payment_reference = models.CharField(max_length=100, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Purchase {self.purchase_number} - {self.buyer.email}"
+    
+    def save(self, *args, **kwargs):
+        if not self.purchase_number:
+            self.purchase_number = f"PUR-{uuid.uuid4().hex[:8].upper()}"
+        super().save(*args, **kwargs)
+    
+    def get_ticket_count(self):
+        """Get total number of tickets in this purchase"""
+        return self.tickets.count()
+    
+    def get_attendee_count(self):
+        """Get number of unique attendees"""
+        return self.tickets.values('attendee_email').distinct().count()
+
+
+class Ticket(models.Model):
+    """Individual ticket (one attendee per ticket)"""
+    purchase = models.ForeignKey(TicketPurchase, on_delete=models.CASCADE, related_name='tickets')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='tickets')
+    ticket_type = models.ForeignKey(TicketType, on_delete=models.SET_NULL, null=True)
+    
+    ticket_number = models.CharField(max_length=20, unique=True, blank=True)
+    
+    # Attendee information (can differ from buyer)
+    attendee_name = models.CharField(max_length=255)
+    attendee_email = models.EmailField()
+    attendee_phone = models.CharField(max_length=20, blank=True)
+    
+    # Status
+    status = models.CharField(
+        max_length=20,
+        choices=RegistrationStatus.choices,
+        default=RegistrationStatus.CONFIRMED
+    )
+    
+    # Check-in
+    checked_in_at = models.DateTimeField(null=True, blank=True)
+    checked_in_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='ticket_checkins'
+    )
+    
+    # QR Code for check-in
+    qr_code = models.CharField(max_length=100, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"Ticket {self.ticket_number} - {self.attendee_name}"
+    
+    def save(self, *args, **kwargs):
+        if not self.ticket_number:
+            self.ticket_number = f"TKT-{uuid.uuid4().hex[:8].upper()}"
+        if not self.qr_code:
+            self.qr_code = str(uuid.uuid4().hex[:16])
+        super().save(*args, **kwargs)
+    
+    def check_in(self, checked_by=None):
+        """Check in the attendee"""
+        if self.status == RegistrationStatus.CONFIRMED:
+            self.status = RegistrationStatus.CHECKED_IN
+            self.checked_in_at = timezone.now()
+            self.checked_in_by = checked_by
+            self.save()
+            return True
+        return False
+    
+    def generate_qr_code_image(self):
+        """Generate QR code image as base64"""
+        import qrcode
+        from io import BytesIO
+        import base64
+
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(self.qr_code)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        return base64.b64encode(buffer.getvalue()).decode()
+
+
+class TicketAnswer(models.Model):
+    """Answers to custom registration questions for each ticket"""
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(RegistrationField, on_delete=models.CASCADE, related_name='ticket_answers')
+    answer = models.TextField()
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['ticket', 'question']
+    
+    def __str__(self):
+        return f"{self.ticket.ticket_number} - {self.question.label}"
+
+
 class RegistrationDocument(models.Model):
     """Uploaded documents for pre-registration (PDF, Excel, etc.)"""
     registration = models.ForeignKey(
@@ -600,7 +741,7 @@ class SessionAttendance(models.Model):
 # =============================================================================
 
 class BulkRegistrationUpload(models.Model):
-    """Bulk registration upload from Excel/CSV files"""
+    """Bulk registration upload from Excel/CSV files - Enterprise Edition"""
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='bulk_uploads')
     uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
@@ -610,7 +751,19 @@ class BulkRegistrationUpload(models.Model):
     file_name = models.CharField(max_length=255)
     file_size = models.IntegerField()
 
-    # Status
+    # Wizard state
+    WIZARD_STEPS = [
+        ('uploaded', 'File Uploaded'),
+        ('mapped', 'Columns Mapped'),
+        ('validated', 'Data Validated'),
+        ('configured', 'Options Configured'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ]
+    current_step = models.CharField(max_length=20, choices=WIZARD_STEPS, default='uploaded')
+    
+    # Status (legacy compatibility)
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('processing', 'Processing'),
@@ -619,11 +772,38 @@ class BulkRegistrationUpload(models.Model):
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
+    # Column mapping (JSON: {file_column: system_field})
+    column_mapping = models.JSONField(default=dict, blank=True)
+    detected_columns = models.JSONField(default=list, blank=True)  # List of columns found in file
+    
+    # Import options
+    import_options = models.JSONField(default=dict, blank=True)
+    # Options include:
+    # - duplicate_handling: 'skip', 'update', 'allow'
+    # - ticket_assignment_mode: 'same_for_all', 'per_row', 'default'
+    # - default_ticket_type_id: int
+    # - send_emails: bool
+    # - skip_header: bool
+    
+    # Validation results
+    validation_summary = models.JSONField(default=dict, blank=True)
+    # Summary includes: valid_count, warning_count, error_count
+    
     # Results
     total_rows = models.IntegerField(default=0)
+    valid_rows = models.IntegerField(default=0)
+    warning_rows = models.IntegerField(default=0)
+    error_rows = models.IntegerField(default=0)
     success_count = models.IntegerField(default=0)
+    skipped_count = models.IntegerField(default=0)
     error_count = models.IntegerField(default=0)
     error_log = models.TextField(blank=True)
+
+    # Ticket assignment
+    default_ticket_type = models.ForeignKey(
+        TicketType, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='bulk_uploads'
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -642,22 +822,60 @@ class BulkRegistrationUpload(models.Model):
             'failed': 'danger',
         }
         return colors.get(self.status, 'secondary')
+    
+    def get_step_number(self):
+        """Get current step number (1-6)"""
+        step_map = {
+            'uploaded': 1,
+            'mapped': 2,
+            'validated': 3,
+            'configured': 4,
+            'processing': 5,
+            'completed': 6,
+            'failed': 6,
+        }
+        return step_map.get(self.current_step, 1)
 
 
 class BulkRegistrationRow(models.Model):
-    """Individual row from bulk registration upload"""
+    """Individual row from bulk registration upload - Enterprise Edition"""
     bulk_upload = models.ForeignKey(BulkRegistrationUpload, on_delete=models.CASCADE, related_name='rows')
 
     # Row data
     row_number = models.IntegerField()
     row_data = models.JSONField(default=dict)  # Original row data
+    mapped_data = models.JSONField(default=dict, blank=True)  # Data after column mapping
 
     # Registration link (if created)
     registration = models.OneToOneField(Registration, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Ticket assignment
+    assigned_ticket_type = models.ForeignKey(
+        TicketType, on_delete=models.SET_NULL, null=True, blank=True
+    )
 
-    # Status
+    # Validation
+    VALIDATION_STATUS = [
+        ('pending', 'Pending'),
+        ('valid', 'Valid'),
+        ('warning', 'Warning'),
+        ('error', 'Error'),
+    ]
+    validation_status = models.CharField(max_length=20, choices=VALIDATION_STATUS, default='pending')
+    validation_errors = models.JSONField(default=list, blank=True)  # List of error messages
+    validation_warnings = models.JSONField(default=list, blank=True)  # List of warning messages
+    
+    # Duplicate detection
+    is_duplicate = models.BooleanField(default=False)
+    duplicate_of = models.ForeignKey(
+        Registration, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='duplicate_bulk_rows'
+    )
+
+    # Processing status
     STATUS_CHOICES = [
         ('pending', 'Pending'),
+        ('skipped', 'Skipped'),
         ('success', 'Success'),
         ('failed', 'Failed'),
     ]
@@ -675,7 +893,51 @@ class BulkRegistrationRow(models.Model):
         unique_together = ['bulk_upload', 'row_number']
 
     def __str__(self):
-        return f"Row {self.row_number} - {self.status}"
+        return f"Row {self.row_number} - {self.validation_status}"
+    
+    def get_validation_icon(self):
+        """Get icon for validation status"""
+        icons = {
+            'valid': 'bi-check-circle-fill text-green-600',
+            'warning': 'bi-exclamation-triangle-fill text-yellow-600',
+            'error': 'bi-x-circle-fill text-red-600',
+            'pending': 'bi-clock-fill text-gray-400',
+        }
+        return icons.get(self.validation_status, 'bi-circle')
+
+
+class BulkImportAuditLog(models.Model):
+    """Audit trail for bulk import operations"""
+    bulk_upload = models.ForeignKey(
+        BulkRegistrationUpload, on_delete=models.CASCADE,
+        related_name='audit_logs'
+    )
+    
+    # Action details
+    ACTION_TYPES = [
+        ('upload', 'File Uploaded'),
+        ('mapping', 'Columns Mapped'),
+        ('validation', 'Data Validated'),
+        ('configuration', 'Options Configured'),
+        ('execution', 'Import Executed'),
+        ('completion', 'Import Completed'),
+        ('error', 'Error Occurred'),
+    ]
+    action_type = models.CharField(max_length=20, choices=ACTION_TYPES)
+    action_details = models.JSONField(default=dict, blank=True)
+    
+    # User and timestamp
+    performed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    performed_at = models.DateTimeField(auto_now_add=True)
+    
+    # Results
+    result_summary = models.TextField(blank=True)
+    
+    class Meta:
+        ordering = ['-performed_at']
+    
+    def __str__(self):
+        return f"{self.get_action_type_display()} - {self.performed_at}"
 
 
 class ManualRegistration(models.Model):

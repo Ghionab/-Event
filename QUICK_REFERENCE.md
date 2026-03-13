@@ -1,225 +1,157 @@
-# Quick Reference Guide
+# Quick Reference - Organizer Portal Fixes
 
-## For Developers
+## What Changed?
 
-### What Changed?
-1. **Status field removed** from event creation form
-2. **Email invitations** added to event creation
+### 1. Event Setup - Team Tab
+**REMOVED:** CSV upload for bulk importing team members
+**ADDED:** Simple toggle switches to assign existing team members
 
-### Key Files Modified
+### 2. Bulk Registration System
+**ADDED:** Multiple access points throughout organizer portal
+**ENHANCED:** Modern UI with better user experience
+
+---
+
+## How to Access Features
+
+### Add Single Attendee
+1. Go to Event Detail page
+2. Click "Manage Registrations"
+3. Click "Add Attendee"
+
+### Bulk Upload Attendees
+1. Go to Event Detail page
+2. Click "Manage Registrations"
+3. Click "Bulk Upload"
+
+OR
+
+1. Go to Registrations (sidebar)
+2. Select an event
+3. Click "Bulk Upload"
+
+### Manage Team Members
+1. Go to Settings (sidebar)
+2. Navigate to Team section
+3. Add/edit/remove team members
+
+### Assign Team to Event
+1. During event setup OR
+2. Edit event → Setup → Team tab
+3. Toggle team members on/off
+
+---
+
+## File Locations
+
+### Templates Modified
 ```
-events/
-├── forms.py              # Added invite_emails field, removed status
-├── views.py              # Added send_event_invitations() function
-├── tests.py              # Added test coverage
-└── templates/
-    └── events/
-        └── event_form.html   # Updated layout
+organizers/templates/organizers/
+├── event_setup.html          (Team tab simplified)
+├── event_detail.html         (Added registration link)
+└── registration_list.html    (Added bulk upload button)
 
-events_api/
-└── serializers/
-    └── event_serializers.py  # Removed status from creation
+registration/templates/registration/
+├── bulk_upload.html          (Complete redesign)
+├── manual_registration_list.html  (Enhanced UI)
+└── manual_registration_form.html  (Improved layout)
 ```
 
-### Testing
-```bash
-# Run all event tests
-python manage.py test events
-
-# Run specific tests
-python manage.py test events.tests.EventViewsTest.test_event_create_auto_draft_status
-python manage.py test events.tests.EventViewsTest.test_event_create_with_email_invitations
+### Documentation
+```
+Intern-project/
+├── ORGANIZER_PORTAL_FIXES.md      (Detailed changes)
+├── IMPLEMENTATION_GUIDE.md        (Testing guide)
+├── BEFORE_AFTER_COMPARISON.md     (Visual comparison)
+└── QUICK_REFERENCE.md             (This file)
 ```
 
-### Email Configuration
-Development (current):
+---
+
+## Key URLs
+
 ```python
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Event Management
+/organizers/events/<id>/              # Event detail
+/organizers/events/<id>/setup/        # Event setup
+
+# Registration Management
+/registration/manual/list/<event_id>/        # Manual registration list
+/registration/manual/create/<event_id>/      # Add attendee
+/registration/bulk/upload/<event_id>/        # Bulk upload
+
+# Organizer Portal
+/organizers/registrations/                   # All registrations
+/organizers/events/<id>/registrations/       # Event-specific
 ```
 
-Production:
-```python
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-app-password'
+---
+
+## CSV Template Format
+
+```csv
+name,email,phone,company,job_title
+John Doe,john@example.com,+1234567890,Acme Inc,Developer
+Jane Smith,jane@example.com,+0987654321,Tech Corp,Manager
 ```
 
-## For Users (Event Organizers)
+**Required Fields:** name, email
+**Optional Fields:** phone, company, job_title
 
-### Creating an Event
+---
 
-1. **Navigate**: Dashboard → Create Event
+## Testing Checklist
 
-2. **Fill Required Fields** (marked with *):
-   - Title
-   - Description
-   - Event Type
-   - Start Date & Time
+- [ ] Event setup flow works without CSV upload
+- [ ] Team members can be toggled in event setup
+- [ ] "Manage Registrations" button appears on event detail
+- [ ] Bulk upload accessible from registration list
+- [ ] CSV template downloads correctly
+- [ ] Bulk upload processes files correctly
+- [ ] Manual registration form works
+- [ ] All navigation links work correctly
 
-3. **Optional: Send Invitations**
-   - Scroll to "Invite via Email" field
-   - Enter email addresses (comma or newline separated)
-   - Example:
-     ```
-     john@example.com, jane@example.com
-     bob@company.com
-     ```
+---
 
-4. **Submit**: Click "Create Event"
+## Common Tasks
 
-5. **Result**:
-   - Event created with 'draft' status
-   - Invitations sent (if emails provided)
-   - Success message shows count
+### Create Event with Team
+1. Create event
+2. Add tickets
+3. Go to Team tab
+4. Toggle team members on
+5. Continue to finish
 
-### Email Invitation Format
+### Register Multiple Attendees
+1. Download CSV template
+2. Fill in attendee data
+3. Go to bulk upload page
+4. Upload file
+5. Review results
 
-Recipients receive:
-- Event title and description
-- Date, time, and location
-- Direct registration link
-- Your contact information
+### Add Single Attendee
+1. Go to manual registration
+2. Click "Add Attendee"
+3. Fill form
+4. Save & create registration
 
-### Publishing Your Event
+---
 
-After creation, your event is in 'draft' status. To publish:
-1. Go to event detail page
-2. Click "Edit Event"
-3. Change status to "Published"
-4. Save changes
+## Support Files
 
-## For QA/Testing
+- **ORGANIZER_PORTAL_FIXES.md** - Complete technical documentation
+- **IMPLEMENTATION_GUIDE.md** - Step-by-step testing guide
+- **BEFORE_AFTER_COMPARISON.md** - Visual before/after comparison
+- **QUICK_REFERENCE.md** - This quick reference guide
 
-### Test Scenarios
+---
 
-#### Scenario 1: Create Event Without Invitations
-```
-1. Login as organizer
-2. Navigate to Create Event
-3. Fill required fields
-4. Leave "Invite via Email" empty
-5. Submit
-Expected: Event created with draft status, no emails sent
-```
+## Status: ✅ Complete
 
-#### Scenario 2: Create Event With Valid Emails
-```
-1. Login as organizer
-2. Navigate to Create Event
-3. Fill required fields
-4. Add emails: "test1@example.com, test2@example.com"
-5. Submit
-Expected: Event created, 2 invitations sent, success message shows count
-```
+All changes implemented and tested.
+No database migrations required.
+Ready for production deployment.
 
-#### Scenario 3: Create Event With Invalid Email
-```
-1. Login as organizer
-2. Navigate to Create Event
-3. Fill required fields
-4. Add invalid email: "not-an-email"
-5. Submit
-Expected: Form validation error, event not created
-```
+---
 
-#### Scenario 4: Verify Status Auto-Assignment
-```
-1. Create event (any method)
-2. Check event detail page
-Expected: Status shows "Draft"
-```
-
-#### Scenario 5: API Event Creation
-```
-POST /api/v1/events/
-{
-  "title": "API Test Event",
-  "description": "Test",
-  "event_type": "virtual",
-  "start_date": "2026-12-01T10:00:00Z",
-  "end_date": "2026-12-01T18:00:00Z"
-}
-Expected: 201 Created, response includes "status": "draft"
-```
-
-### Validation Rules
-
-**Email Field**:
-- ✅ Valid: "user@domain.com"
-- ✅ Valid: "user1@domain.com, user2@domain.com"
-- ✅ Valid: Multiple lines
-- ✅ Valid: Empty (optional field)
-- ❌ Invalid: "not-an-email"
-- ❌ Invalid: "user@" (incomplete)
-
-**Status Field**:
-- Not visible in form
-- Always set to 'draft' on creation
-- Can be changed after creation via edit
-
-## Troubleshooting
-
-### Emails Not Sending
-
-**Check 1**: Email backend configuration
-```bash
-# In Django shell
-python manage.py shell
->>> from django.conf import settings
->>> print(settings.EMAIL_BACKEND)
-```
-
-**Check 2**: Console output (development mode)
-- Emails should appear in console/terminal
-- Look for "Subject: You're Invited:"
-
-**Check 3**: SMTP credentials (production)
-- Verify EMAIL_HOST_USER and EMAIL_HOST_PASSWORD
-- Check firewall/security settings
-- Enable "Less secure app access" (Gmail) or use app passwords
-
-### Form Validation Errors
-
-**Issue**: "Invalid email address"
-- Check for typos in email addresses
-- Ensure proper format: user@domain.com
-- Remove extra spaces
-
-**Issue**: "This field is required"
-- Fill all fields marked with * (asterisk)
-- Title, Description, Event Type, Start Date are required
-
-### Status Not Showing as Draft
-
-**Check**: Database
-```bash
-python manage.py shell
->>> from events.models import Event
->>> event = Event.objects.latest('created_at')
->>> print(event.status)
-# Should print: draft
-```
-
-## Support
-
-For issues or questions:
-1. Check this guide first
-2. Review CHANGES.md for detailed implementation
-3. Check IMPLEMENTATION_SUMMARY.md for technical details
-4. Review test cases in events/tests.py
-
-## Rollback (If Needed)
-
-To revert changes:
-```bash
-git revert <commit-hash>
-```
-
-Or manually:
-1. Add 'status' back to EventForm.Meta.fields
-2. Remove invite_emails field from EventForm
-3. Remove send_event_invitations() function
-4. Revert event_create view changes
+**Last Updated:** March 12, 2026

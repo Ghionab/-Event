@@ -1,0 +1,647 @@
+{% extends 'participant/base.html' %}
+
+{% block title %}Purchase Tickets - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'events:event_detail' event.id %}" class="text-indigo-600 hover:text-indigo-800">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Event
+        </a>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div class="flex-1">
+                <div class="flex items-center">
+                    <div id="step1-indicator" class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                        1
+                    </div>
+                    <div class="flex-1 h-1 bg-indigo-600 mx-2"></div>
+                </div>
+                <p class="text-sm mt-2 font-medium text-indigo-600">Select Tickets</p>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center">
+                    <div id="step2-indicator" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">
+                        2
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+                </div>
+                <p class="text-sm mt-2 font-medium text-gray-500">Attendee Info</p>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center">
+                    <div id="step3-indicator" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">
+                        3
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-300 mx-2"></div>
+                </div>
+                <p class="text-sm mt-2 font-medium text-gray-500">Questions</p>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center">
+                    <div id="step4-indicator" class="w-10 h-10 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center font-bold">
+                        4
+                    </div>
+                </div>
+                <p class="text-sm mt-2 font-medium text-gray-500">Review & Pay</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="hidden mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-exclamation-circle text-red-600"></i>
+            <p class="text-red-700" id="errorText"></p>
+        </div>
+    </div>
+
+    <!-- Step 1: Select Tickets -->
+    <div id="step1" class="bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold mb-6">Select Your Tickets</h2>
+        
+        <div class="space-y-4">
+            {% for ticket_type in ticket_types %}
+            <div class="border border-gray-200 rounded-lg p-6 hover:border-indigo-500 transition">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-900">{{ ticket_type.name }}</h3>
+                        <p class="text-gray-600 mt-1">{{ ticket_type.description }}</p>
+                        {% if ticket_type.benefits %}
+                        <div class="mt-2 text-sm text-gray-500">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                            {{ ticket_type.benefits|linebreaks }}
+                        </div>
+                        {% endif %}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Available: {{ ticket_type.available_quantity }} / {{ ticket_type.quantity_available }}
+                        </p>
+                    </div>
+                    <div class="ml-6 text-right">
+                        <p class="text-2xl font-bold text-indigo-600">
+                            {% if ticket_type.price == 0 %}
+                            FREE
+                            {% else %}
+                            ${{ ticket_type.price }}
+                            {% endif %}
+                        </p>
+                        <div class="mt-4">
+                            <label class="text-sm text-gray-600">Quantity:</label>
+                            <input type="number" 
+                                   min="0" 
+                                   max="{{ ticket_type.available_quantity }}"
+                                   value="0"
+                                   data-ticket-id="{{ ticket_type.id }}"
+                                   data-ticket-name="{{ ticket_type.name }}"
+                                   data-ticket-price="{{ ticket_type.price }}"
+                                   class="ticket-quantity w-20 px-3 py-2 border border-gray-300 rounded-lg ml-2"
+                                   onchange="updateTicketSelection()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-8 flex justify-between items-center">
+            <div>
+                <p class="text-lg font-semibold">Total Tickets: <span id="totalTickets">0</span></p>
+                <p class="text-2xl font-bold text-indigo-600">Total: $<span id="totalAmount">0.00</span></p>
+            </div>
+            <button onclick="goToStep2()" 
+                    id="step1NextBtn"
+                    disabled
+                    class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+                Next: Attendee Information
+                <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Step 2: Attendee Information -->
+    <div id="step2" class="hidden bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold mb-6">Attendee Information</h2>
+        
+        <!-- Use Same Info Checkbox -->
+        <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+            <label class="flex items-center cursor-pointer">
+                <input type="checkbox" 
+                       id="useSameInfo" 
+                       onchange="toggleSameInfo()"
+                       class="form-checkbox h-5 w-5 text-indigo-600">
+                <span class="ml-3 text-gray-700 font-medium">
+                    Use the same information for all tickets
+                </span>
+            </label>
+        </div>
+
+        <div id="attendeeFormsContainer" class="space-y-6">
+            <!-- Attendee forms will be dynamically generated here -->
+        </div>
+
+        <div class="mt-8 flex justify-between">
+            <button onclick="goToStep1()" 
+                    class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </button>
+            <button onclick="goToStep3()" 
+                    id="step2NextBtn"
+                    class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                Next: Additional Questions
+                <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Step 3: Custom Questions -->
+    <div id="step3" class="hidden bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold mb-6">Additional Information</h2>
+        
+        {% if custom_questions %}
+        <div id="customQuestionsContainer" class="space-y-6">
+            <!-- Custom questions will be dynamically generated per ticket -->
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-8">No additional questions required.</p>
+        {% endif %}
+
+        <div class="mt-8 flex justify-between">
+            <button onclick="goToStep2()" 
+                    class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </button>
+            <button onclick="goToStep4()" 
+                    class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                Next: Review & Payment
+                <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Step 4: Review & Payment -->
+    <div id="step4" class="hidden bg-white rounded-2xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold mb-6">Review Your Order</h2>
+        
+        <div id="orderSummary" class="space-y-4 mb-6">
+            <!-- Order summary will be generated here -->
+        </div>
+
+        <!-- Promo Code -->
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Promo Code (Optional)</label>
+            <div class="flex gap-2">
+                <input type="text" 
+                       id="promoCode" 
+                       placeholder="Enter promo code"
+                       class="flex-1 px-4 py-3 border border-gray-300 rounded-lg">
+                <button onclick="applyPromoCode()" 
+                        class="bg-gray-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-700 transition">
+                    Apply
+                </button>
+            </div>
+            <p id="promoMessage" class="mt-2 text-sm"></p>
+        </div>
+
+        <!-- Total -->
+        <div class="mt-6 p-6 bg-indigo-50 rounded-lg">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-700">Subtotal:</span>
+                <span class="font-semibold">$<span id="reviewSubtotal">0.00</span></span>
+            </div>
+            <div id="discountRow" class="hidden flex justify-between items-center mb-2 text-green-600">
+                <span>Discount:</span>
+                <span class="font-semibold">-$<span id="reviewDiscount">0.00</span></span>
+            </div>
+            <div class="flex justify-between items-center text-xl font-bold text-indigo-600 pt-2 border-t border-indigo-200">
+                <span>Total:</span>
+                <span>$<span id="reviewTotal">0.00</span></span>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-between">
+            <button onclick="goToStep3()" 
+                    class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </button>
+            <button onclick="submitPurchase()" 
+                    id="submitBtn"
+                    class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition">
+                <i class="fas fa-check mr-2"></i> Complete Purchase
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global state
+let selectedTickets = [];
+let attendeeData = [];
+let customAnswers = {};
+let currentStep = 1;
+let userInfo = null;
+let appliedPromo = null;
+
+// Load user info for auto-fill
+fetch('/registration/api/user-info/')
+    .then(res => res.json())
+    .then(data => {
+        if (data.authenticated) {
+            userInfo = data;
+        }
+    });
+
+function updateTicketSelection() {
+    selectedTickets = [];
+    let total = 0;
+    let count = 0;
+    
+    document.querySelectorAll('.ticket-quantity').forEach(input => {
+        const quantity = parseInt(input.value) || 0;
+        if (quantity > 0) {
+            const ticketId = input.dataset.ticketId;
+            const ticketName = input.dataset.ticketName;
+            const ticketPrice = parseFloat(input.dataset.ticketPrice);
+            
+            for (let i = 0; i < quantity; i++) {
+                selectedTickets.push({
+                    ticket_type_id: ticketId,
+                    ticket_name: ticketName,
+                    price: ticketPrice
+                });
+                total += ticketPrice;
+                count++;
+            }
+        }
+    });
+    
+    document.getElementById('totalTickets').textContent = count;
+    document.getElementById('totalAmount').textContent = total.toFixed(2);
+    document.getElementById('step1NextBtn').disabled = count === 0;
+}
+
+function goToStep1() {
+    showStep(1);
+}
+
+function goToStep2() {
+    if (selectedTickets.length === 0) {
+        showError('Please select at least one ticket');
+        return;
+    }
+    
+    // Generate attendee forms
+    generateAttendeeForms();
+    showStep(2);
+}
+
+function goToStep3() {
+    // Validate attendee information
+    if (!validateAttendeeInfo()) {
+        showError('Please fill in all required attendee information');
+        return;
+    }
+    
+    // Generate custom questions
+    generateCustomQuestions();
+    showStep(3);
+}
+
+function goToStep4() {
+    // Collect custom answers
+    collectCustomAnswers();
+    
+    // Generate order summary
+    generateOrderSummary();
+    showStep(4);
+}
+
+function showStep(step) {
+    // Hide all steps
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`step${i}`).classList.add('hidden');
+        const indicator = document.getElementById(`step${i}-indicator`);
+        indicator.classList.remove('bg-indigo-600', 'text-white');
+        indicator.classList.add('bg-gray-300', 'text-gray-600');
+    }
+    
+    // Show current step
+    document.getElementById(`step${step}`).classList.remove('hidden');
+    const indicator = document.getElementById(`step${step}-indicator`);
+    indicator.classList.remove('bg-gray-300', 'text-gray-600');
+    indicator.classList.add('bg-indigo-600', 'text-white');
+    
+    currentStep = step;
+    hideError();
+}
+
+function generateAttendeeForms() {
+    const container = document.getElementById('attendeeFormsContainer');
+    container.innerHTML = '';
+    
+    selectedTickets.forEach((ticket, index) => {
+        const formHtml = `
+            <div class="border border-gray-200 rounded-lg p-6">
+                <h3 class="font-bold text-lg mb-4">Ticket ${index + 1}: ${ticket.ticket_name}</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Full Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="attendee_name_${index}"
+                               value="${index === 0 && userInfo ? userInfo.name : ''}"
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                               placeholder="John Doe">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Email <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" 
+                               id="attendee_email_${index}"
+                               value="${index === 0 && userInfo ? userInfo.email : ''}"
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                               placeholder="john@example.com">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Phone Number
+                        </label>
+                        <input type="tel" 
+                               id="attendee_phone_${index}"
+                               value="${index === 0 && userInfo ? userInfo.phone : ''}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                               placeholder="+1 234 567 8900">
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML += formHtml;
+    });
+}
+
+function toggleSameInfo() {
+    const useSame = document.getElementById('useSameInfo').checked;
+    
+    if (useSame && selectedTickets.length > 0) {
+        const name = document.getElementById('attendee_name_0').value;
+        const email = document.getElementById('attendee_email_0').value;
+        const phone = document.getElementById('attendee_phone_0').value;
+        
+        for (let i = 1; i < selectedTickets.length; i++) {
+            document.getElementById(`attendee_name_${i}`).value = name;
+            document.getElementById(`attendee_email_${i}`).value = email;
+            document.getElementById(`attendee_phone_${i}`).value = phone;
+        }
+    }
+}
+
+function validateAttendeeInfo() {
+    attendeeData = [];
+    
+    for (let i = 0; i < selectedTickets.length; i++) {
+        const name = document.getElementById(`attendee_name_${i}`).value.trim();
+        const email = document.getElementById(`attendee_email_${i}`).value.trim();
+        const phone = document.getElementById(`attendee_phone_${i}`).value.trim();
+        
+        if (!name || !email) {
+            return false;
+        }
+        
+        attendeeData.push({
+            ticket_type_id: selectedTickets[i].ticket_type_id,
+            attendee_name: name,
+            attendee_email: email,
+            attendee_phone: phone
+        });
+    }
+    
+    return true;
+}
+
+function generateCustomQuestions() {
+    const container = document.getElementById('customQuestionsContainer');
+    const questions = {{ custom_questions|safe }};
+    
+    if (!questions || questions.length === 0) {
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    selectedTickets.forEach((ticket, ticketIndex) => {
+        const sectionHtml = `
+            <div class="border border-gray-200 rounded-lg p-6">
+                <h3 class="font-bold text-lg mb-4">Ticket ${ticketIndex + 1}: ${ticket.ticket_name}</h3>
+                <div class="space-y-4" id="questions_ticket_${ticketIndex}">
+                    <!-- Questions will be added here -->
+                </div>
+            </div>
+        `;
+        container.innerHTML += sectionHtml;
+        
+        // Add questions for this ticket
+        questions.forEach(question => {
+            const questionHtml = generateQuestionField(question, ticketIndex);
+            document.getElementById(`questions_ticket_${ticketIndex}`).innerHTML += questionHtml;
+        });
+    });
+}
+
+function generateQuestionField(question, ticketIndex) {
+    const fieldId = `question_${question.id}_ticket_${ticketIndex}`;
+    const required = question.required ? '<span class="text-red-500">*</span>' : '';
+    
+    let inputHtml = '';
+    
+    switch (question.field_type) {
+        case 'text':
+        case 'email':
+        case 'phone':
+            inputHtml = `<input type="${question.field_type}" id="${fieldId}" ${question.required ? 'required' : ''} 
+                         class="w-full px-4 py-3 border border-gray-300 rounded-lg" 
+                         placeholder="${question.placeholder || ''}">`;
+            break;
+        case 'textarea':
+            inputHtml = `<textarea id="${fieldId}" ${question.required ? 'required' : ''} rows="3"
+                         class="w-full px-4 py-3 border border-gray-300 rounded-lg" 
+                         placeholder="${question.placeholder || ''}"></textarea>`;
+            break;
+        case 'select':
+            const options = question.options.split(',').map(opt => opt.trim());
+            inputHtml = `<select id="${fieldId}" ${question.required ? 'required' : ''} 
+                         class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                         <option value="">-- Select --</option>
+                         ${options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                         </select>`;
+            break;
+        default:
+            inputHtml = `<input type="text" id="${fieldId}" ${question.required ? 'required' : ''} 
+                         class="w-full px-4 py-3 border border-gray-300 rounded-lg">`;
+    }
+    
+    return `
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                ${question.label} ${required}
+            </label>
+            ${question.help_text ? `<p class="text-sm text-gray-500 mb-2">${question.help_text}</p>` : ''}
+            ${inputHtml}
+        </div>
+    `;
+}
+
+function collectCustomAnswers() {
+    const questions = {{ custom_questions|safe }};
+    customAnswers = {};
+    
+    selectedTickets.forEach((ticket, ticketIndex) => {
+        customAnswers[ticketIndex] = {};
+        
+        questions.forEach(question => {
+            const fieldId = `question_${question.id}_ticket_${ticketIndex}`;
+            const element = document.getElementById(fieldId);
+            if (element) {
+                customAnswers[ticketIndex][question.id] = element.value;
+            }
+        });
+    });
+}
+
+function generateOrderSummary() {
+    const container = document.getElementById('orderSummary');
+    container.innerHTML = '';
+    
+    let subtotal = 0;
+    
+    selectedTickets.forEach((ticket, index) => {
+        const attendee = attendeeData[index];
+        subtotal += ticket.price;
+        
+        const itemHtml = `
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="font-bold">${ticket.ticket_name}</h4>
+                        <p class="text-sm text-gray-600 mt-1">${attendee.attendee_name}</p>
+                        <p class="text-sm text-gray-600">${attendee.attendee_email}</p>
+                    </div>
+                    <p class="font-bold text-indigo-600">$${ticket.price.toFixed(2)}</p>
+                </div>
+            </div>
+        `;
+        container.innerHTML += itemHtml;
+    });
+    
+    document.getElementById('reviewSubtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('reviewTotal').textContent = subtotal.toFixed(2);
+}
+
+function applyPromoCode() {
+    const code = document.getElementById('promoCode').value.trim();
+    if (!code) return;
+    
+    const subtotal = selectedTickets.reduce((sum, t) => sum + t.price, 0);
+    
+    fetch('/registration/api/validate-promo/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            code: code,
+            event_id: {{ event.id }},
+            total_amount: subtotal
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.valid) {
+            appliedPromo = data;
+            document.getElementById('discountRow').classList.remove('hidden');
+            document.getElementById('reviewDiscount').textContent = data.discount_amount.toFixed(2);
+            document.getElementById('reviewTotal').textContent = data.discounted_total.toFixed(2);
+            document.getElementById('promoMessage').textContent = 'Promo code applied successfully!';
+            document.getElementById('promoMessage').className = 'mt-2 text-sm text-green-600';
+        } else {
+            document.getElementById('promoMessage').textContent = data.error || 'Invalid promo code';
+            document.getElementById('promoMessage').className = 'mt-2 text-sm text-red-600';
+        }
+    });
+}
+
+function submitPurchase() {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+    
+    // Prepare tickets data
+    const tickets = attendeeData.map((attendee, index) => ({
+        ...attendee,
+        custom_answers: customAnswers[index] || {}
+    }));
+    
+    const data = {
+        tickets: tickets,
+        promo_code: appliedPromo ? document.getElementById('promoCode').value.trim() : ''
+    };
+    
+    fetch('{% url "registration:enhanced_purchase" event.id %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = data.redirect_url;
+        } else {
+            showError(data.error || 'Purchase failed. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Complete Purchase';
+        }
+    })
+    .catch(error => {
+        showError('An error occurred. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Complete Purchase';
+    });
+}
+
+function showError(message) {
+    document.getElementById('errorText').textContent = message;
+    document.getElementById('errorMessage').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function hideError() {
+    document.getElementById('errorMessage').classList.add('hidden');
+}
+
+// Serialize custom questions for JavaScript
+const customQuestionsData = [
+    {% for question in custom_questions %}
+    {
+        id: {{ question.id }},
+        field_name: '{{ question.field_name }}',
+        field_type: '{{ question.field_type }}',
+        label: '{{ question.label|escapejs }}',
+        help_text: '{{ question.help_text|escapejs }}',
+        required: {{ question.required|lower }},
+        options: '{{ question.options|escapejs }}',
+        placeholder: '{{ question.placeholder|escapejs }}'
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+</script>
+{% endblock %}

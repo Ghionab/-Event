@@ -24,7 +24,8 @@ from event_project.decorators import (
 from .models import (
     Registration, TicketType, PromoCode, RegistrationField, 
     RegistrationDocument, CheckIn, AttendeeNotification, Badge,
-    BulkRegistrationUpload, BulkRegistrationRow, ManualRegistration
+    BulkRegistrationUpload, BulkRegistrationRow, ManualRegistration,
+    RegistrationStatus
 )
 from events.models import Event
 from .forms import (
@@ -1142,9 +1143,13 @@ def bulk_registration_upload(request, event_id):
     else:
         form = BulkUploadForm()
 
+    # Get upload history
+    uploads = BulkRegistrationUpload.objects.filter(event=event).order_by('-created_at')[:10]
+
     return render(request, 'registration/bulk_upload.html', {
         'event': event,
         'form': form,
+        'uploads': uploads,
     })
 
 

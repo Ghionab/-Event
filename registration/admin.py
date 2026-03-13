@@ -3,8 +3,61 @@ from .models import (
     Registration, TicketType, PromoCode, RegistrationField,
     Waitlist, Badge, CheckIn, AttendeePreference, AttendeeMessage,
     SessionAttendance, RegistrationDocument, BulkRegistrationUpload,
-    BulkRegistrationRow, ManualRegistration
+    BulkRegistrationRow, ManualRegistration, TicketPurchase, Ticket, TicketAnswer,
+    BulkImportAuditLog
 )
+
+
+@admin.register(TicketPurchase)
+class TicketPurchaseAdmin(admin.ModelAdmin):
+    list_display = ['purchase_number', 'buyer', 'event', 'payment_status', 'total_amount', 'created_at']
+    list_filter = ['payment_status', 'event', 'created_at']
+    search_fields = ['purchase_number', 'buyer__email', 'event__title']
+    readonly_fields = ['purchase_number', 'created_at', 'updated_at']
+    fieldsets = (
+        ('Purchase Info', {
+            'fields': ('purchase_number', 'buyer', 'event', 'payment_status')
+        }),
+        ('Payment Details', {
+            'fields': ('total_amount', 'discount_amount', 'promo_code', 'payment_method', 'payment_reference')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(Ticket)
+class TicketAdmin(admin.ModelAdmin):
+    list_display = ['ticket_number', 'purchase', 'attendee_name', 'attendee_email', 'status', 'checked_in_at']
+    list_filter = ['status', 'event', 'ticket_type', 'created_at']
+    search_fields = ['ticket_number', 'attendee_name', 'attendee_email', 'purchase__purchase_number']
+    readonly_fields = ['ticket_number', 'qr_code', 'created_at', 'updated_at']
+    fieldsets = (
+        ('Ticket Info', {
+            'fields': ('ticket_number', 'purchase', 'event', 'ticket_type', 'status')
+        }),
+        ('Attendee Info', {
+            'fields': ('attendee_name', 'attendee_email', 'attendee_phone')
+        }),
+        ('Check-in', {
+            'fields': ('checked_in_at', 'checked_in_by', 'qr_code'),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(TicketAnswer)
+class TicketAnswerAdmin(admin.ModelAdmin):
+    list_display = ['ticket', 'question', 'answer', 'created_at']
+    list_filter = ['question__event', 'created_at']
+    search_fields = ['ticket__ticket_number', 'question__label', 'answer']
+    readonly_fields = ['created_at']
 
 
 @admin.register(Registration)
@@ -52,8 +105,24 @@ class BulkRegistrationUploadAdmin(admin.ModelAdmin):
 
 @admin.register(BulkRegistrationRow)
 class BulkRegistrationRowAdmin(admin.ModelAdmin):
-    list_display = ['bulk_upload', 'row_number', 'status', 'registration', 'processed_at']
-    list_filter = ['status', 'bulk_upload__event']
+    list_display = ['bulk_upload', 'row_number', 'validation_status', 'status', 'registration', 'processed_at']
+    list_filter = ['validation_status', 'status', 'bulk_upload__event', 'is_duplicate']
+    search_fields = ['mapped_data', 'validation_errors', 'error_message']
+    readonly_fields = ['created_at', 'processed_at']
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('bulk_upload', 'registration', 'assigned_ticket_type')
+
+
+@admin.register(BulkImportAuditLog)
+class BulkImportAuditLogAdmin(admin.ModelAdmin):
+    list_display = ['bulk_upload', 'action_type', 'performed_by', 'performed_at']
+    list_filter = ['action_type', 'performed_at', 'bulk_upload__event']
+    search_fields = ['result_summary', 'action_details']
+    readonly_fields = ['performed_at']
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('bulk_upload', 'performed_by')
     search_fields = ['row_data']
 
 

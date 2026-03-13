@@ -1,0 +1,309 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Enterprise Bulk Registration - Step 4: Configure Options{% endblock %}
+
+{% block header %}
+<div class="flex items-center justify-between">
+    <div class="flex items-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mr-4 shadow-xl">
+            <i class="bi bi-gear text-white text-4xl"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Import Configuration</h1>
+            <p class="text-sm text-gray-600 mt-1">Configure how to handle duplicates and assign tickets</p>
+        </div>
+    </div>
+    <a href="{% url 'registration:bulk_wizard_validation' event.id bulk_upload.id %}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Validation
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Progress Indicator -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Upload File</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Map Columns</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Validate Data</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                <span class="ml-3 text-sm font-medium text-indigo-600">Configure</span>
+            </div>
+            <div class="w-16 h-1 bg-gray-200 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center font-bold">5</div>
+                <span class="ml-3 text-sm font-medium text-gray-500">Import</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Configuration Section -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-6">
+                <h3 class="text-xl font-bold text-white flex items-center">
+                    <i class="bi bi-gear mr-3"></i>Step 4: Configure Import Options
+                </h3>
+                <p class="text-blue-50 text-sm mt-2">Set up how to handle duplicates, assign tickets, and send notifications</p>
+            </div>
+            
+            <div class="p-8">
+                <form method="post" id="optionsForm" class="space-y-8">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex">
+                                <i class="bi bi-exclamation-triangle-fill text-red-600 mr-2"></i>
+                                <div class="text-sm text-red-700">
+                                    {{ form.non_field_errors.0 }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Duplicate Handling -->
+                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-200">
+                        <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                            <i class="bi bi-exclamation-triangle text-orange-600 mr-2"></i>Duplicate Email Handling
+                        </h4>
+                        <p class="text-sm text-gray-600 mb-4">{{ form.duplicate_handling.help_text }}</p>
+                        
+                        <div class="space-y-3">
+                            {% for choice in form.duplicate_handling %}
+                                <label class="flex items-start cursor-pointer group p-4 rounded-lg border-2 border-gray-200 hover:border-orange-300 transition-all">
+                                    {{ choice.tag }}
+                                    <div class="ml-3">
+                                        <span class="text-sm font-semibold text-gray-800 group-hover:text-orange-600 transition">{{ choice.choice_label }}</span>
+                                        <p class="text-xs text-gray-600 mt-1">
+                                            {% if choice.choice_value == 'skip' %}
+                                                Recommended for most cases. Duplicate emails will be ignored and not imported.
+                                            {% elif choice.choice_value == 'update' %}
+                                                Update existing registration data with new information from the file.
+                                            {% else %}
+                                                Allow multiple registrations with the same email address.
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Ticket Assignment -->
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                        <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                            <i class="bi bi-ticket text-blue-600 mr-2"></i>Ticket Assignment
+                        </h4>
+                        <p class="text-sm text-gray-600 mb-4">{{ form.ticket_assignment_mode.help_text }}</p>
+                        
+                        <div class="space-y-3 mb-6">
+                            {% for choice in form.ticket_assignment_mode %}
+                                <label class="flex items-start cursor-pointer group p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-all">
+                                    {{ choice.tag }}
+                                    <div class="ml-3">
+                                        <span class="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition">{{ choice.choice_label }}</span>
+                                        <p class="text-xs text-gray-600 mt-1">
+                                            {% if choice.choice_value == 'same_for_all' %}
+                                                All imported attendees will receive the same ticket type that you select below.
+                                            {% elif choice.choice_value == 'per_row' %}
+                                                Use the ticket type specified in each row of your file (if mapped).
+                                            {% else %}
+                                                Use ticket type from file when available, otherwise use the default below.
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </label>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.default_ticket_type.label }}</label>
+                            {{ form.default_ticket_type }}
+                            <p class="text-xs text-gray-600 mt-1">{{ form.default_ticket_type.help_text }}</p>
+                            {% if form.default_ticket_type.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.default_ticket_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Email Notifications -->
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                        <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                            <i class="bi bi-envelope text-green-600 mr-2"></i>Email Notifications
+                        </h4>
+                        
+                        <label class="flex items-start cursor-pointer group p-4 rounded-lg border-2 border-gray-200 hover:border-green-300 transition-all">
+                            {{ form.send_emails }}
+                            <div class="ml-3">
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-green-600 transition">{{ form.send_emails.label }}</span>
+                                <p class="text-xs text-gray-600 mt-1">{{ form.send_emails.help_text }}</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-4 pt-6 border-t border-gray-200">
+                        <button type="submit" class="flex-1 px-8 py-4 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center text-lg">
+                            <i class="bi bi-check-circle mr-3"></i>Save Configuration & Continue
+                        </button>
+                        <a href="{% url 'registration:bulk_wizard_validation' event.id bulk_upload.id %}" class="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 font-semibold flex items-center justify-center">
+                            <i class="bi bi-arrow-left mr-2"></i>Back
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Import Summary -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-clipboard-data mr-2"></i>Import Summary
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">File:</span>
+                        <span class="font-medium text-gray-900 text-sm truncate max-w-32">{{ bulk_upload.original_filename }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Total Rows:</span>
+                        <span class="font-bold text-gray-900">{{ bulk_upload.total_rows }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-green-600">Valid:</span>
+                        <span class="font-bold text-green-600">{{ bulk_upload.valid_rows }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-yellow-600">Warnings:</span>
+                        <span class="font-bold text-yellow-600">{{ bulk_upload.warning_rows }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-red-600">Errors:</span>
+                        <span class="font-bold text-red-600">{{ bulk_upload.error_rows }}</span>
+                    </div>
+                    <hr class="border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Ready to Import:</span>
+                        <span class="font-bold text-indigo-600">{{ bulk_upload.valid_rows|add:bulk_upload.warning_rows }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Tips -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 p-6 shadow-md">
+            <h4 class="text-base font-bold text-blue-900 mb-4 flex items-center">
+                <i class="bi bi-lightbulb-fill text-blue-600 mr-2 text-lg"></i>Configuration Tips
+            </h4>
+            <ul class="space-y-3 text-sm text-blue-900">
+                <li class="flex items-start">
+                    <i class="bi bi-check2-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span><strong>Skip duplicates</strong> is recommended for most imports</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-check2-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span><strong>Same ticket for all</strong> is fastest for uniform events</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-check2-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span><strong>Email notifications</strong> help attendees know they're registered</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-info-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>You can always send emails later if needed</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Available Ticket Types -->
+        {% if event.ticket_types.all %}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-ticket-perforated mr-2"></i>Available Tickets
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    {% for ticket_type in event.ticket_types.all %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ ticket_type.name }}</p>
+                                <p class="text-xs text-gray-600">${{ ticket_type.price }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-600">{{ ticket_type.available_quantity }} available</p>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                    {% if ticket_type.is_sold_out %}bg-red-100 text-red-800
+                                    {% elif ticket_type.can_purchase %}bg-green-100 text-green-800
+                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {% if ticket_type.is_sold_out %}Sold Out
+                                    {% elif ticket_type.can_purchase %}Available
+                                    {% else %}Not Available{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle ticket assignment mode changes
+    const ticketModeRadios = document.querySelectorAll('input[name="ticket_assignment_mode"]');
+    const defaultTicketSelect = document.querySelector('select[name="default_ticket_type"]');
+    const defaultTicketContainer = defaultTicketSelect.closest('.bg-white');
+    
+    function updateTicketTypeVisibility() {
+        const selectedMode = document.querySelector('input[name="ticket_assignment_mode"]:checked').value;
+        
+        if (selectedMode === 'per_row') {
+            defaultTicketContainer.style.opacity = '0.5';
+            defaultTicketSelect.disabled = true;
+        } else {
+            defaultTicketContainer.style.opacity = '1';
+            defaultTicketSelect.disabled = false;
+        }
+    }
+    
+    ticketModeRadios.forEach(radio => {
+        radio.addEventListener('change', updateTicketTypeVisibility);
+    });
+    
+    // Initial state
+    updateTicketTypeVisibility();
+});
+</script>
+{% endblock %}

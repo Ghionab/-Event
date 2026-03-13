@@ -15,6 +15,11 @@ def attendee_context(request):
     )
     unread_messages_count = unread_messages_qs.count()
 
+    # Get the latest 5 messages for the dropdown (both read and unread)
+    recent_messages = AttendeeMessage.objects.filter(
+        recipient=request.user
+    ).order_by('-created_at')[:5]
+
     unread_notifications_qs = AttendeeNotification.objects.filter(
         user=request.user,
         is_read=False
@@ -28,4 +33,5 @@ def attendee_context(request):
         'unread_messages_count': unread_messages_count,
         'unread_notifications_count': unread_notifications_count,
         'recent_notifications': recent_notifications,
+        'recent_messages': recent_messages,
     }

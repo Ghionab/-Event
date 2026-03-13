@@ -78,12 +78,10 @@
     {% if page_obj.has_other_pages %}
     <div class="mt-8 flex justify-center pb-8">
         <nav class="flex gap-1 shadow-sm">
-            {% if page_obj.has_previous %}<a href="?search={{ search_query }}&page={{ page_obj.previous_page_number }}"
-                class="px-4 py-2 bg-white border rounded-l-lg hover:bg-gray-50 text-sm font-medium">Previous</a>{% endif
-            %}
-            <span class="px-4 py-2 bg-gray-50 border-t border-b text-sm font-medium text-gray-700">Page {{
-                page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-            {% if page_obj.has_next %}<a href="?search={{ search_query }}&page={{ page_obj.next_page_number }}"
+            {% if page_obj.has_previous %}<a href="?search={{ search_query }}&event={{ request.GET.event }}&page={{ page_obj.previous_page_number }}"
+                class="px-4 py-2 bg-white border rounded-l-lg hover:bg-gray-50 text-sm font-medium">Previous</a>{% endif %}
+            <span class="px-4 py-2 bg-gray-50 border-t border-b text-sm font-medium text-gray-700">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a href="?search={{ search_query }}&event={{ request.GET.event }}&page={{ page_obj.next_page_number }}"
                 class="px-4 py-2 bg-white border rounded-r-lg hover:bg-gray-50 text-sm font-medium">Next</a>{% endif %}
         </nav>
     </div>
@@ -92,7 +90,11 @@
     <div class="bg-white rounded-xl shadow p-12 text-center text-gray-500 py-20">
         <i class="bi bi-search text-5xl mb-4 opacity-30"></i>
         <h3 class="text-lg font-medium text-gray-900">No attendees found</h3>
-        <p class="mt-1">Try adjusting your search criteria.</p>
+        <p class="mt-1 mb-4">Try adjusting your search criteria.</p>
+        <a href="{% url 'attendee:attendee_directory' %}" 
+           class="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium">
+            Clear all filters
+        </a>
     </div>
     {% endif %}
 </div>

@@ -1,75 +1,149 @@
-﻿{% extends 'participant/base.html' %}
+{% extends 'participant/base.html' %}
 
 {% block title %}My Dashboard - EventHub{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Welcome back, {{ user.first_name|default:user.email }}!</h1>
-        <p class="mt-2 text-gray-600">Manage your events, schedule, and networking</p>
+    <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">Welcome back, {{ user.first_name|default:user.email }}!</h1>
+            <p class="mt-2 text-lg text-gray-600">Your personal event hub for discovery and management.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'participant_events' %}" class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all duration-200 font-bold">
+                <i class="bi bi-search mr-2"></i> Explore Events
+            </a>
+        </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
-                    <i class="bi bi-calendar-event text-indigo-600 text-2xl"></i>
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all group">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-indigo-50 rounded-xl p-3 group-hover:bg-indigo-600 transition-colors">
+                    <i class="bi bi-calendar-event text-indigo-600 text-xl group-hover:text-white transition-colors"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Total Events</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ stats.total_events }}</p>
-                </div>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total</span>
             </div>
+            <p class="text-3xl font-black text-gray-900">{{ stats.total_events }}</p>
+            <p class="text-sm font-medium text-gray-500 mt-1">Events Joined</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
-                    <i class="bi bi-calendar-check text-green-600 text-2xl"></i>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all group">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-green-50 rounded-xl p-3 group-hover:bg-green-600 transition-colors">
+                    <i class="bi bi-calendar-check text-green-600 text-xl group-hover:text-white transition-colors"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Upcoming</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ stats.upcoming_events }}</p>
-                </div>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active</span>
             </div>
+            <p class="text-3xl font-black text-gray-900">{{ stats.upcoming_events }}</p>
+            <p class="text-sm font-medium text-gray-500 mt-1">Upcoming</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
-                    <i class="bi bi-check-circle text-blue-600 text-2xl"></i>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all group">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-blue-50 rounded-xl p-3 group-hover:bg-blue-600 transition-colors">
+                    <i class="bi bi-check-circle text-blue-600 text-xl group-hover:text-white transition-colors"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Attended</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ stats.past_events }}</p>
-                </div>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Done</span>
             </div>
+            <p class="text-3xl font-black text-gray-900">{{ stats.past_events }}</p>
+            <p class="text-sm font-medium text-gray-500 mt-1">Attended</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
-                    <i class="bi bi-bookmark text-yellow-600 text-2xl"></i>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all group">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-amber-50 rounded-xl p-3 group-hover:bg-amber-600 transition-colors">
+                    <i class="bi bi-bookmark text-amber-600 text-xl group-hover:text-white transition-colors"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Saved Sessions</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ stats.saved_sessions }}</p>
-                </div>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saved</span>
             </div>
+            <p class="text-3xl font-black text-gray-900">{{ stats.saved_sessions }}</p>
+            <p class="text-sm font-medium text-gray-500 mt-1">Sessions</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
-                    <i class="bi bi-envelope text-purple-600 text-2xl"></i>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all group col-span-2 md:col-span-1">
+            <div class="flex items-center justify-between mb-3">
+                <div class="bg-purple-50 rounded-xl p-3 group-hover:bg-purple-600 transition-colors">
+                    <i class="bi bi-chat-dots text-purple-600 text-xl group-hover:text-white transition-colors"></i>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-500">Messages</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ stats.unread_messages }}</p>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Inbox</span>
+            </div>
+            <p class="text-3xl font-black text-gray-900">{{ stats.unread_messages }}</p>
+            <p class="text-sm font-medium text-gray-500 mt-1">New Messages</p>
+        </div>
+    </div>
+
+    <!-- Discover Section (Trending/Popular) -->
+    <div class="mb-12">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-lightning-charge-fill text-amber-500"></i>
+                    Trending & Popular
+                </h2>
+                <p class="text-gray-500">Top picks based on community activity</p>
+            </div>
+            <a href="{% url 'participant_events' %}" class="text-indigo-600 hover:text-indigo-800 font-bold text-sm flex items-center gap-1 group">
+                Browse All <i class="bi bi-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for event in popular_events %}
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                <div class="relative aspect-video overflow-hidden">
+                    {% if event.banner_image %}
+                        <img src="{{ event.banner_image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <i class="bi bi-image text-white/30 text-4xl"></i>
+                        </div>
+                    {% endif %}
+                    
+                    {% if event.popularity_tag %}
+                    <div class="absolute top-4 left-4">
+                        <span class="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg {{ event.tag_class }}">
+                            {{ event.popularity_tag }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="absolute bottom-4 right-4">
+                        <span class="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-gray-900 shadow-sm">
+                            {{ event.price_range }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex items-center gap-2 text-xs font-bold text-indigo-600 uppercase tracking-widest mb-2">
+                        <span>{{ event.get_event_type_display }}</span>
+                        <span class="text-gray-300">•</span>
+                        <span>{{ event.start_date|date:"M d" }}</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 line-clamp-1 mb-3 group-hover:text-indigo-600 transition-colors">
+                        <a href="{% url 'participant_event_detail' event.id %}">{{ event.title }}</a>
+                    </h3>
+                    
+                    <div class="flex items-center justify-between mt-6">
+                        <div class="flex -space-x-2">
+                            <!-- Avatar placeholder for social proof -->
+                            <div class="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">+{{ event.tickets_sold }}</div>
+                        </div>
+                        <a href="{% url 'participant_event_detail' event.id %}" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 text-gray-900 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                            <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-span-full py-12 text-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+                <i class="bi bi-search text-gray-300 text-4xl mb-3"></i>
+                <p class="text-gray-500 font-medium">No trending events at the moment.</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -77,161 +151,143 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Upcoming Events -->
         <div class="lg:col-span-2">
-            <div class="bg-white rounded-lg shadow">
-                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                    <h2 class="text-xl font-semibold text-gray-900">Upcoming Events</h2>
-                    <a href="{% url 'attendee:my_registrations' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                        View All <i class="bi bi-arrow-right ml-1"></i>
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-8 py-6 border-b border-gray-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">My Upcoming Events</h2>
+                        <p class="text-sm text-gray-500">Your registered event schedule</p>
+                    </div>
+                    <a href="{% url 'attendee:my_registrations' %}" class="text-indigo-600 hover:text-indigo-800 font-bold text-sm">
+                        View All
                     </a>
                 </div>
-                <div class="p-6">
+                
+                <div class="p-8">
                     {% if upcoming_registrations %}
-                        <div class="space-y-4">
+                        <div class="space-y-6">
                             {% for registration in upcoming_registrations %}
-                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex-1">
-                                        <div class="flex items-start gap-3">
-                                            {% if registration.event.logo %}
-                                            <img src="{{ registration.event.logo.url }}" alt="{{ registration.event.title }}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 flex-shrink-0">
-                                            {% endif %}
-                                            <div>
-                                                <h3 class="text-lg font-semibold text-gray-900">
-                                                    <a href="{% url 'attendee:registration_detail' registration.id %}" class="hover:text-indigo-600">
-                                                        {{ registration.event.title }}
-                                                    </a>
-                                                </h3>
-                                                <div class="mt-2 space-y-1 text-sm text-gray-600">
-                                                    <p><i class="bi bi-calendar mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }}</p>
-                                                    <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual Event" }}</p>
-                                                    <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name|default:"General" }}</p>
-                                                    <p><i class="bi bi-cash-coin mr-2"></i>
-                                                        {% if registration.display_total_amount %}
-                                                            ${{ registration.display_total_amount|floatformat:2 }}
-                                                        {% else %}
-                                                            Free
-                                                        {% endif %}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
+                            <div class="group relative flex flex-col md:flex-row md:items-center gap-6 p-6 rounded-2xl border border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/30 transition-all duration-300">
+                                <div class="flex-shrink-0">
+                                    {% if registration.event.logo %}
+                                    <img src="{{ registration.event.logo.url }}" alt="{{ registration.event.title }}" class="h-20 w-20 object-cover rounded-2xl shadow-sm">
+                                    {% else %}
+                                    <div class="h-20 w-20 bg-indigo-100 rounded-2xl flex items-center justify-center">
+                                        <i class="bi bi-calendar-event text-indigo-600 text-2xl"></i>
                                     </div>
-                                    <div class="ml-4 flex-shrink-0">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                                            {% if registration.status == 'confirmed' %}bg-green-100 text-green-800
-                                            {% elif registration.status == 'checked_in' %}bg-blue-100 text-blue-800
-                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider
+                                            {% if registration.status == 'confirmed' %}bg-green-100 text-green-700
+                                            {% elif registration.status == 'checked_in' %}bg-blue-100 text-blue-700
+                                            {% else %}bg-gray-100 text-gray-700{% endif %}">
                                             {{ registration.get_status_display }}
                                         </span>
+                                        <span class="text-xs font-bold text-gray-400">#{{ registration.registration_number }}</span>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
+                                        {{ registration.event.title }}
+                                    </h3>
+                                    <div class="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500 font-medium">
+                                        <span class="flex items-center gap-2"><i class="bi bi-calendar3 text-indigo-500"></i> {{ registration.event.start_date|date:"F d, Y" }}</span>
+                                        <span class="flex items-center gap-2"><i class="bi bi-geo-alt text-indigo-500"></i> {{ registration.event.venue_name|default:"Virtual Event" }}</span>
                                     </div>
                                 </div>
-                                <div class="mt-4 flex gap-2">
+                                
+                                <div class="flex flex-col md:flex-row gap-2 mt-4 md:mt-0">
                                     <a href="{% url 'attendee:registration_detail' registration.id %}" 
-                                       class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                        <i class="bi bi-eye mr-1"></i> View Details
-                                    </a>
-                                    <a href="{% url 'attendee:event_schedule' registration.event.id %}" 
-                                       class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                        <i class="bi bi-calendar3 mr-1"></i> Schedule
+                                       class="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                                        Details
                                     </a>
                                     <a href="{% url 'attendee:ticket_preview' registration.id %}" 
-                                       class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
-                                        <i class="bi bi-file-earmark-pdf"></i> Ticket
+                                       class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100">
+                                        <i class="bi bi-ticket-perforated mr-2"></i> Ticket
                                     </a>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="text-center py-12">
-                            <i class="bi bi-calendar-x text-gray-400 text-5xl mb-4"></i>
-                            <p class="text-gray-500 mb-4">No upcoming events</p>
-                            <a href="/events/" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                        <div class="text-center py-16">
+                            <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="bi bi-calendar-x text-gray-300 text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">No upcoming events yet</h3>
+                            <p class="text-gray-500 mb-8 max-w-xs mx-auto">Start exploring and join amazing events happening around you.</p>
+                            <a href="{% url 'participant_events' %}" class="inline-flex items-center px-8 py-3 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
                                 <i class="bi bi-search mr-2"></i> Browse Events
                             </a>
                         </div>
                     {% endif %}
                 </div>
             </div>
-
-            <!-- Past Events -->
-            {% if past_registrations %}
-            <div class="bg-white rounded-lg shadow mt-8">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-xl font-semibold text-gray-900">Past Events</h2>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-3">
-                        {% for registration in past_registrations %}
-                        <div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
-                            <div>
-                                <h4 class="font-medium text-gray-900">{{ registration.event.title }}</h4>
-                                <p class="text-sm text-gray-500">{{ registration.event.start_date|date:"F d, Y" }}</p>
-                            </div>
-                            <a href="{% url 'attendee:registration_detail' registration.id %}" 
-                               class="text-indigo-600 hover:text-indigo-800 text-sm">
-                                View <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
 
         <!-- Sidebar -->
-        <div class="space-y-6">
-            <!-- Quick Actions -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                <div class="space-y-3">
-                    <a href="/events/" 
-                       class="block w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-center font-medium">
-                        <i class="bi bi-search mr-2"></i> Browse Events
+        <div class="space-y-8">
+            <!-- Personalized Section -->
+            <div class="bg-indigo-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-200 group">
+                <div class="relative z-10">
+                    <h3 class="text-2xl font-bold mb-2">Grow your network</h3>
+                    <p class="text-indigo-200 text-sm mb-6 leading-relaxed">Connect with other attendees and build meaningful professional relationships.</p>
+                    <a href="{% url 'attendee:networking_hub' %}" class="inline-flex items-center px-6 py-3 bg-white text-indigo-900 rounded-2xl font-bold text-sm hover:bg-indigo-50 transition-all group-hover:scale-105">
+                        Networking Hub <i class="bi bi-arrow-right ml-2"></i>
                     </a>
-                    <a href="{% url 'attendee:my_schedule' %}" 
-                       class="block w-full px-4 py-3 bg-white border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 text-center font-medium">
-                        <i class="bi bi-calendar3 mr-2"></i> My Schedule
+                </div>
+                <!-- Abstract decorative element -->
+                <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
+                <div class="absolute -top-10 -left-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
+            </div>
+
+            <!-- Profile Completion Card -->
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center">
+                        {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" class="w-full h-full object-cover rounded-2xl">
+                        {% else %}
+                            <i class="bi bi-person text-gray-400 text-3xl"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-gray-900">Your Profile</h4>
+                        <p class="text-xs text-green-600 font-bold uppercase tracking-wider">Attendee Account</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Profile Completion</span>
+                        <span class="font-bold text-indigo-600">85%</span>
+                    </div>
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-indigo-600 rounded-full" style="width: 85%"></div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-3">
+                    <a href="{% url 'attendee:profile' %}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 rounded-2xl text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="bi bi-person-gear"></i> Manage Account
                     </a>
-                    <a href="{% url 'attendee:networking_hub' %}" 
-                       class="block w-full px-4 py-3 bg-white border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 text-center font-medium">
-                        <i class="bi bi-people mr-2"></i> Networking
-                    </a>
-                    <a href="{% url 'attendee:saved_events' %}" 
-                       class="block w-full px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-center font-medium">
-                        <i class="bi bi-bookmark mr-2"></i> Saved Events
+                    <a href="{% url 'attendee:my_schedule' %}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 rounded-2xl text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors">
+                        <i class="bi bi-calendar-week"></i> Full Schedule
                     </a>
                 </div>
             </div>
 
-            <!-- Messages Preview -->
-            {% if stats.unread_messages > 0 %}
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Messages</h3>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        {{ stats.unread_messages }} new
-                    </span>
-                </div>
-                <a href="{% url 'attendee:messages' %}" 
-                   class="block w-full px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 text-center font-medium">
-                    View Messages
-                </a>
-            </div>
-            {% endif %}
-
-            <!-- Profile Completion -->
-            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow p-6 text-white">
-                <h3 class="text-lg font-semibold mb-2">Complete Your Profile</h3>
-                <p class="text-sm text-indigo-100 mb-4">Add more details to enhance your networking experience</p>
-                <a href="{% url 'attendee:settings' %}" 
-                   class="inline-flex items-center px-4 py-2 bg-white text-indigo-600 rounded-lg hover:bg-indigo-50 font-medium text-sm">
-                    Update Profile <i class="bi bi-arrow-right ml-2"></i>
+            <!-- Quick Help / Stats -->
+            <div class="bg-amber-50 rounded-3xl p-8 border border-amber-100">
+                <h4 class="text-lg font-bold text-amber-900 mb-4 flex items-center gap-2">
+                    <i class="bi bi-question-circle"></i> Need help?
+                </h4>
+                <p class="text-sm text-amber-800 mb-6 leading-relaxed">Have questions about your registrations or the event portal? Our support team is here to help.</p>
+                <a href="#" class="text-amber-900 font-bold text-sm flex items-center gap-2 hover:underline">
+                    Visit Help Center <i class="bi bi-arrow-up-right"></i>
                 </a>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
-

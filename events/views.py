@@ -102,6 +102,11 @@ def event_detail(request, event_id):
     from registration.forms import RegistrationForm
     from registration.models import Registration
     event = get_object_or_404(Event, id=event_id, is_public=True)
+    
+    # Increment view count
+    Event.objects.filter(id=event.id).update(views_count=F('views_count') + 1)
+    event.refresh_from_db()
+
     # Get organizer profile for branding
     organizer_profile = None
     try:
@@ -137,7 +142,13 @@ def event_detail(request, event_id):
 def event_landing(request, slug):
     """Public event landing page with SEO-friendly URL"""
     from registration.forms import RegistrationForm
+    from django.db.models import F
     event = get_object_or_404(Event, slug=slug, is_public=True, status='published')
+
+    # Increment view count
+    Event.objects.filter(id=event.id).update(views_count=F('views_count') + 1)
+    event.refresh_from_db()
+
     # Get organizer profile for branding
     organizer_profile = None
     try:

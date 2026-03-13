@@ -1,25 +1,30 @@
-﻿{% extends 'participant/base.html' %}
+{% extends 'participant/base.html' %}
 
 {% block title %}Ticket Preview - {{ registration.event.title }}{% endblock %}
 
 {% block extra_css %}
 @media print {
-    nav, .no-print {
+    nav, footer, .no-print, .toast-container {
         display: none !important;
     }
     body {
         background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .ticket-wrapper {
         margin: 0 !important;
         padding: 0 !important;
+        max-width: none !important;
     }
     .ticket-card {
         box-shadow: none !important;
-        border: 2px solid #e5e7eb !important;
+        border: 1px solid #eee !important;
+        margin: 0 auto !important;
+        transform: none !important;
     }
     @page {
-        margin: 2cm;
+        margin: 0.5cm;
         size: auto;
     }
 }
@@ -37,10 +42,6 @@
                 class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium">
                 <i class="bi bi-file-earmark-pdf"></i> Download PDF
             </a>
-            <button onclick="window.print()"
-                class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 font-medium">
-                <i class="bi bi-printer"></i> Print
-            </button>
             <a href="{% url 'attendee:registration_detail' registration.id %}"
                 class="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 font-medium">
                 <i class="bi bi-arrow-left"></i> Back
@@ -48,7 +49,9 @@
         </div>
     </div>
 
-    {% include 'participant/partials/ticket_pass.html' %}
+    <div id="ticket-to-print">
+        {% include 'participant/partials/ticket_pass.html' %}
+    </div>
 
     <div class="mt-6 text-xs text-gray-400 no-print">
         Present this ticket at the event entrance for check-in.

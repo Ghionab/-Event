@@ -113,25 +113,25 @@
                                 </div>
                             </div>
                             <div class="max-h-64 overflow-y-auto">
-                                <!-- Sample notifications - replace with dynamic content -->
-                                <div class="p-3 hover:bg-gray-50 border-b border-gray-100">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-2 h-2 bg-indigo-600 rounded-full mt-2 flex-shrink-0"></div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm text-gray-900">Event reminder: Tech Conference 2026</p>
-                                            <p class="text-xs text-gray-500 mt-1">2 hours ago</p>
+                                {% if recent_notifications %}
+                                    {% for notification in recent_notifications %}
+                                    <a href="{% if notification.link %}{{ notification.link }}{% else %}{% url 'attendee:mark_notification_read' notification.id %}{% endif %}" 
+                                       class="block p-3 hover:bg-gray-50 border-b border-gray-100 transition">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-2 h-2 bg-indigo-600 rounded-full mt-2 flex-shrink-0"></div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm text-gray-900 font-medium">{{ notification.title }}</p>
+                                                <p class="text-xs text-gray-500 truncate">{{ notification.message }}</p>
+                                                <p class="text-xs text-gray-400 mt-1">{{ notification.created_at|timesince }} ago</p>
+                                            </div>
                                         </div>
+                                    </a>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="p-6 text-center text-gray-500 italic">
+                                        No new notifications
                                     </div>
-                                </div>
-                                <div class="p-3 hover:bg-gray-50">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-2 h-2 bg-gray-300 rounded-full mt-2 flex-shrink-0"></div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm text-gray-900">Registration confirmed</p>
-                                            <p class="text-xs text-gray-500 mt-1">1 day ago</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

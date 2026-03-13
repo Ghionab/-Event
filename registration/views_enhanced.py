@@ -117,9 +117,10 @@ def handle_ticket_purchase_submission(request, event, custom_questions):
                 except (RegistrationField.DoesNotExist, ValueError):
                     continue
             
-            # Update ticket sold count
-            ticket_type.quantity_sold += 1
-            ticket_type.save()
+            # Update ticket sold count atomically
+            from django.db.models import F
+            TicketType.objects.filter(id=ticket_type.id).update(quantity_sold=F('quantity_sold') + 1)
+            ticket_type.refresh_from_db()
             
             # Add to total
             total_amount += float(ticket_type.price or 0)

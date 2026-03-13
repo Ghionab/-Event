@@ -6,13 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db import models
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta
 
 from .models import (
     Registration, RegistrationStatus, AttendeePreference,
-    SessionAttendance, AttendeeMessage, Badge
+    SessionAttendance, AttendeeMessage, Badge, AttendeeNotification
 )
 from events.models import Event, EventSession, Speaker
 from users.models import User
@@ -28,15 +28,20 @@ def attendee_dashboard(request):
     user = request.user
     now = timezone.now()
     
-    # Get all registrations
+    # Get all registrations where the user is either the purchaser OR the attendee
     all_registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
     
     # Separate upcoming and past events
     upcoming_registrations_qs = all_registrations.filter(
         event__start_date__gte=now,
-        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[
+            RegistrationStatus.PENDING, 
+            RegistrationStatus.CONFIRMED, 
+            RegistrationStatus.CHECKED_IN,
+            RegistrationStatus.WAITLISTED
+        ]
     )
     upcoming_registrations = upcoming_registrations_qs[:5]
     
@@ -90,9 +95,9 @@ def my_registrations_enhanced(request):
     user = request.user
     now = timezone.now()
     
-    # Get all registrations
+    # Show tickets where the user is either the purchaser OR the attendee
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
     
     # Apply filters
@@ -101,17 +106,16 @@ def my_registrations_enhanced(request):
         registrations = registrations.filter(event__start_date__gte=now)
     elif filter_type == 'past':
         registrations = registrations.filter(event__start_date__lt=now)
-    elif filter_type == 'cancelled':
-        registrations = registrations.filter(status=RegistrationStatus.CANCELLED)
-    
-    # Search
+        
+    # Apply search
     search_query = request.GET.get('search', '')
     if search_query:
         registrations = registrations.filter(
             models.Q(event__title__icontains=search_query) |
-            models.Q(registration_number__icontains=search_query)
+            models.Q(registration_number__icontains=search_query) |
+            models.Q(attendee_name__icontains=search_query)
         )
-    
+        
     # Pagination
     paginator = Paginator(registrations, 10)
     page_number = request.GET.get('page')
@@ -134,10 +138,13 @@ def registration_detail_enhanced(request, registration_id):
         id=registration_id
     )
     
-    # Check permission
-    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
+    # Check permission (Allow if user is purchaser OR attendee)
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to view this registration.')
-        return redirect('registration:attendee_dashboard')
+        return redirect('attendee:dashboard')
     
     # Get event sessions
     sessions = registration.event.sessions.all().order_by('start_time')
@@ -192,21 +199,24 @@ def cancel_registration_enhanced(request, registration_id):
     """Cancel a registration with confirmation"""
     registration = get_object_or_404(Registration, id=registration_id)
     
-    # Check permission
-    if registration.user != request.user and registration.attendee_email != request.user.email:
+    # Check permission (Allow if user is purchaser OR attendee)
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to cancel this registration.')
-        return redirect('registration:attendee_dashboard')
+        return redirect('attendee:dashboard')
     
     # Check if event has started
     if registration.event.start_date < timezone.now():
         messages.error(request, 'Cannot cancel registration for events that have already started.')
-        return redirect('registration:registration_detail_enhanced', registration_id=registration.id)
+        return redirect('attendee:registration_detail', registration_id=registration.id)
     
     if request.method == 'POST':
         reason = request.POST.get('reason', '')
         registration.cancel(reason=reason)
         messages.success(request, 'Registration cancelled successfully.')
-        return redirect('registration:my_registrations_enhanced')
+        return redirect('attendee:my_registrations')
     
     context = {
         'registration': registration,
@@ -220,10 +230,13 @@ def download_ticket(request, registration_id):
     """Download ticket as PDF"""
     registration = get_object_or_404(Registration, id=registration_id)
     
-    # Check permission
-    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
+    # Check permission (Allow if user is purchaser OR attendee)
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to download this ticket.')
-        return redirect('registration:attendee_dashboard')
+        return redirect('attendee:dashboard')
 
     try:
         from reportlab.lib.pagesizes import A4
@@ -356,7 +369,11 @@ def ticket_preview(request, registration_id):
         id=registration_id
     )
 
-    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
+    # Check permission (Allow if user is purchaser OR attendee)
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to view this ticket.')
         return redirect('attendee:dashboard')
 
@@ -492,16 +509,14 @@ def event_detail_enhanced(request, event_id):
     }
     available_ticket_types = []
     for ticket in ticket_types:
-        sold_count = max(sold_counts.get(ticket.id, 0), ticket.quantity_sold or 0)
-        ticket.computed_sold = sold_count
-        ticket.computed_available = max(0, ticket.quantity_available - sold_count)
-        ticket.computed_sold_out = ticket.computed_available <= 0
-        ticket.on_sale = (
-            ticket.is_active and
-            (not ticket.sales_start or ticket.sales_start <= now) and
-            (not ticket.sales_end or now <= ticket.sales_end)
-        )
-        if ticket.on_sale and not ticket.computed_sold_out:
+        # Use the dynamic properties from the model
+        ticket.computed_sold = ticket.quantity_sold
+        ticket.computed_available = ticket.remaining_tickets
+        ticket.computed_sold_out = ticket.is_sold_out
+        
+        ticket.on_sale = ticket.can_purchase()
+        
+        if ticket.is_active:
             available_ticket_types.append(ticket)
     
     # Check if user is registered
@@ -566,7 +581,7 @@ def save_event(request, event_id):
     user.notification_preferences['saved_events'] = saved_events
     user.save()
     
-    return redirect('registration:event_detail_enhanced', event_id=event_id)
+    return redirect('attendee:event_detail', event_id=event_id)
 
 
 @login_required
@@ -600,7 +615,7 @@ def my_schedule(request):
     
     # Get upcoming registrations
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         event__start_date__gte=now,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event')
@@ -648,7 +663,7 @@ def event_schedule(request, event_id):
     
     # Check if user is registered
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=event,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
@@ -656,7 +671,7 @@ def event_schedule(request, event_id):
     
     if not registration:
         messages.error(request, 'You must be registered for this event to view the schedule.')
-        return redirect('registration:event_detail_enhanced', event_id=event_id)
+        return redirect('attendee:event_detail', event_id=event_id)
     
     # Get all sessions
     sessions = event.sessions.all().order_by('start_time')
@@ -696,7 +711,7 @@ def save_session(request, session_id):
     
     # Check if user is registered for the event
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=session.event,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
@@ -739,7 +754,7 @@ def session_feedback_enhanced(request, session_id):
     
     # Get user's registration
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=session.event,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
@@ -747,7 +762,7 @@ def session_feedback_enhanced(request, session_id):
     
     if not registration:
         messages.error(request, 'You must be registered for this event.')
-        return redirect('registration:event_detail_enhanced', event_id=session.event.id)
+        return redirect('attendee:event_detail', event_id=session.event.id)
     
     # Get or create attendance
     attendance, created = SessionAttendance.objects.get_or_create(
@@ -764,7 +779,7 @@ def session_feedback_enhanced(request, session_id):
             attendance.feedback = feedback
             attendance.save()
             messages.success(request, 'Thank you for your feedback!')
-            return redirect('registration:event_schedule', event_id=session.event.id)
+            return redirect('attendee:event_schedule', event_id=session.event.id)
     
     context = {
         'session': session,
@@ -786,7 +801,7 @@ def networking_hub(request):
     
     # Get user's upcoming events
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         event__start_date__gte=timezone.now(),
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event')
@@ -819,9 +834,9 @@ def browse_attendees(request):
     event_id_raw = request.GET.get('event', '').strip()
     now = timezone.now()
 
-    # Events the user is registered for (by user or email)
+    # Events the user is registered for (by purchaser, user or email)
     user_regs = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     )
     common_events = Event.objects.filter(
@@ -881,7 +896,7 @@ def attendee_profile(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     
     common_events = Event.objects.filter(
-        registrations__user=request.user
+        registrations__purchaser=request.user
     ).filter(
         registrations__user=profile_user
     ).distinct()
@@ -944,11 +959,11 @@ def send_connection_request(request, user_id):
         )
         
         messages.success(request, f'Connection request sent to {recipient.email}')
-        return redirect('registration:networking_hub')
+        return redirect('attendee:networking_hub')
     
     # Get common events
     common_events = Event.objects.filter(
-        registrations__user=request.user
+        registrations__purchaser=request.user
     ).filter(
         registrations__user=recipient
     ).distinct()
@@ -1022,11 +1037,11 @@ def send_message_enhanced(request, recipient_id):
         )
         
         messages.success(request, f'Message sent to {recipient.email}')
-        return redirect('registration:messages_enhanced')
+        return redirect('attendee:messages')
     
     # Get common events
     common_events = Event.objects.filter(
-        registrations__user=request.user
+        registrations__purchaser=request.user
     ).filter(
         registrations__user=recipient
     ).distinct()
@@ -1049,7 +1064,7 @@ def mark_message_read_enhanced(request, message_id):
         message.read_at = timezone.now()
         message.save()
     
-    return redirect('registration:messages_enhanced')
+    return redirect('attendee:messages')
 
 
 # =============================================================================
@@ -1064,7 +1079,7 @@ def preferences_enhanced(request, event_id):
     
     # Check if user is registered
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=event,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
@@ -1072,7 +1087,7 @@ def preferences_enhanced(request, event_id):
     
     if not registration:
         messages.error(request, 'You must be registered for this event.')
-        return redirect('registration:event_detail_enhanced', event_id=event_id)
+        return redirect('attendee:event_detail', event_id=event_id)
     
     # Get or create preferences
     prefs, created = AttendeePreference.objects.get_or_create(
@@ -1098,7 +1113,7 @@ def preferences_enhanced(request, event_id):
         prefs.save()
         
         messages.success(request, 'Preferences saved successfully!')
-        return redirect('registration:registration_detail_enhanced', registration_id=registration.id)
+        return redirect('attendee:registration_detail', registration_id=registration.id)
     
     # Get tracks for selection
     tracks = event.tracks.all()
@@ -1136,7 +1151,7 @@ def account_settings(request):
         
         user.save()
         messages.success(request, 'Settings saved successfully!')
-        return redirect('registration:account_settings')
+        return redirect('attendee:settings')
     
     context = {
         'user': user,
@@ -1155,10 +1170,10 @@ def my_tickets(request):
     user = request.user
     now = timezone.now()
 
-    # Get all confirmed/checked-in registrations for this user
+    # Get all registrations where the user is purchaser OR attendee
+    # Include all statuses so user can see their pending/waitlisted items too
     all_registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
-        status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('event__start_date')
 
     # Separate into upcoming and past
@@ -1194,7 +1209,11 @@ def digital_badge(request, registration_id):
     """Display digital badge with social sharing options"""
     registration = get_object_or_404(Registration, id=registration_id)
 
-    if registration.user != request.user and registration.attendee_email != request.user.email:
+    # Check permission (Allow if user is purchaser OR attendee)
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to view this badge.')
         return redirect('attendee:dashboard')
 
@@ -1229,8 +1248,9 @@ def certificates_list(request):
     """List all events where attendee has checked-in status"""
     user = request.user
 
+    # Get registrations where the user is purchaser OR attendee
     checked_in_registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         status=RegistrationStatus.CHECKED_IN
     ).select_related('event').order_by('-event__start_date')
 
@@ -1245,7 +1265,11 @@ def download_certificate(request, registration_id):
     """Generate and download PDF certificate"""
     registration = get_object_or_404(Registration, id=registration_id)
 
-    if registration.user != request.user and registration.attendee_email != request.user.email:
+    # Check permission (Allow if user is purchaser OR attendee)
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to download this certificate.')
         return redirect('attendee:certificates')
 
@@ -1328,8 +1352,9 @@ def event_materials(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
 
+    # Get registration where user is purchaser OR attendee
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=event,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
@@ -1361,8 +1386,9 @@ def event_feedback(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
 
+    # Get registration where user is purchaser OR attendee
     registration = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
         event=event,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
@@ -1407,7 +1433,7 @@ def notifications_list(request):
     user = request.user
     filter_type = request.GET.get('filter', 'all')
 
-    notifications = AttendeeNotification.objects.filter(user=user)
+    notifications = AttendeeNotification.objects.filter(user=user).order_by('-created_at')
     if filter_type == 'unread':
         notifications = notifications.filter(is_read=False)
 
@@ -1463,8 +1489,9 @@ def export_schedule_ical(request):
     user = request.user
     now = timezone.now()
 
+    # Get registrations where user is purchaser OR attendee
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email),
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         event__start_date__gte=now,
         status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event')
@@ -1543,156 +1570,4 @@ def attendee_profile_edit(request):
             else:
                 messages.error(request, f'Error updating profile: {str(e)}')
     
-    # Get profile stats
-    try:
-        all_registrations = Registration.objects.filter(
-            models.Q(user=user) | models.Q(attendee_email=user.email)
-        )
-        
-        now = timezone.now()
-        events_attended = all_registrations.filter(
-            event__end_date__lt=now,
-            status=RegistrationStatus.CHECKED_IN
-        ).count()
-        
-        upcoming_events = all_registrations.filter(
-            event__start_date__gte=now,
-            status__in=[RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
-        ).count()
-    except:
-        events_attended = 0
-        upcoming_events = 0
-    
-    # Get certificates count (placeholder)
-    certificates_count = 0
-    
-    context = {
-        'user': user,
-        'events_attended': events_attended,
-        'upcoming_events': upcoming_events,
-        'certificates_count': certificates_count,
-    }
-    
-    return render(request, 'participant/profile.html', context)
-
-
-@login_required
-def account_settings(request):
-    """Account settings view with tabs for different settings categories"""
-    user = request.user
-    
-    if request.method == 'POST':
-        action = request.POST.get('action', 'change_password')  # Default action
-        
-        if action == 'change_password':
-            # Handle password change
-            current_password = request.POST.get('current_password')
-            new_password = request.POST.get('new_password')
-            confirm_password = request.POST.get('confirm_password')
-            
-            if not current_password or not new_password or not confirm_password:
-                return JsonResponse({'success': False, 'error': 'All password fields are required'})
-            
-            if not user.check_password(current_password):
-                return JsonResponse({'success': False, 'error': 'Current password is incorrect'})
-            
-            if new_password != confirm_password:
-                return JsonResponse({'success': False, 'error': 'New passwords do not match'})
-            
-            if len(new_password) < 8:
-                return JsonResponse({'success': False, 'error': 'Password must be at least 8 characters long'})
-            
-            try:
-                user.set_password(new_password)
-                user.save()
-                return JsonResponse({'success': True, 'message': 'Password updated successfully!'})
-            except Exception as e:
-                return JsonResponse({'success': False, 'error': f'Error updating password: {str(e)}'})
-        
-        elif action == 'update_notifications':
-            # Handle notification preferences
-            try:
-                # Get notification preferences from form
-                event_reminders = request.POST.get('event_reminders') == 'on'
-                ticket_confirmations = request.POST.get('ticket_confirmations') == 'on'
-                event_updates = request.POST.get('event_updates') == 'on'
-                marketing_notifications = request.POST.get('marketing_notifications') == 'on'
-                weekly_newsletter = request.POST.get('weekly_newsletter') == 'on'
-                
-                # Update user notification preferences (you can store this in user.notification_preferences JSON field)
-                if not user.notification_preferences:
-                    user.notification_preferences = {}
-                
-                user.notification_preferences.update({
-                    'event_reminders': event_reminders,
-                    'ticket_confirmations': ticket_confirmations,
-                    'event_updates': event_updates,
-                    'marketing_notifications': marketing_notifications,
-                    'weekly_newsletter': weekly_newsletter,
-                })
-                user.save()
-                
-                return JsonResponse({'success': True, 'message': 'Notification preferences updated!'})
-            except Exception as e:
-                return JsonResponse({'success': False, 'error': f'Error updating notifications: {str(e)}'})
-        
-        elif action == 'update_privacy':
-            # Handle privacy settings
-            try:
-                public_profile = request.POST.get('public_profile') == 'on'
-                hide_email = request.POST.get('hide_email') == 'on'
-                hide_phone = request.POST.get('hide_phone') == 'on'
-                analytics_sharing = request.POST.get('analytics_sharing') == 'on'
-                
-                # Update user privacy preferences
-                if not user.notification_preferences:
-                    user.notification_preferences = {}
-                
-                user.notification_preferences.update({
-                    'public_profile': public_profile,
-                    'hide_email': hide_email,
-                    'hide_phone': hide_phone,
-                    'analytics_sharing': analytics_sharing,
-                })
-                user.save()
-                
-                return JsonResponse({'success': True, 'message': 'Privacy settings updated!'})
-            except Exception as e:
-                return JsonResponse({'success': False, 'error': f'Error updating privacy settings: {str(e)}'})
-        
-        elif action == 'update_preferences':
-            # Handle general preferences
-            try:
-                language = request.POST.get('language', 'en')
-                timezone_pref = request.POST.get('timezone', 'UTC')
-                theme = request.POST.get('theme', 'light')
-                email_format = request.POST.get('email_format', 'html')
-                
-                # Update user general preferences
-                if not user.notification_preferences:
-                    user.notification_preferences = {}
-                
-                user.notification_preferences.update({
-                    'language': language,
-                    'timezone': timezone_pref,
-                    'theme': theme,
-                    'email_format': email_format,
-                })
-                user.save()
-                
-                return JsonResponse({'success': True, 'message': 'Preferences updated!'})
-            except Exception as e:
-                return JsonResponse({'success': False, 'error': f'Error updating preferences: {str(e)}'})
-        
-        else:
-            return JsonResponse({'success': False, 'error': 'Invalid action'})
-    
-    # Get current preferences for display
-    preferences = user.notification_preferences or {}
-    
-    context = {
-        'user': user,
-        'preferences': preferences,
-    }
-    
-    return render(request, 'participant/account_settings.html', context)
+    return render(request, 'participant/profile_edit.html', {'user': user})

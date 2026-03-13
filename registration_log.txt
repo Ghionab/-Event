@@ -211,3 +211,48 @@
 [2026-03-12 13:26:51] RAW_DATA: {'event_id': '1', 'full_name': 'abeba kebede', 'email': 'abekebe@gmail.com', 'phone': '0911225127', 'special_requests': "';jqlhjhpi;"}
 [2026-03-12 13:26:51] PARSED: event_id=1 (type=str), email=abekebe@gmail.com, name=abeba kebede
 [2026-03-12 13:26:51] SUCCESS | event_id=1 | name=abeba kebede | email=abekebe@gmail.com | status=confirmed | reg#=REG-92F9B0B5
+[2026-03-13 13:23:41] RAW_DATA: {'event_id': '1', 'full_name': 'griee qkdl', 'email': 'test@xample.com', 'phone': '853902', 'special_requests': ''}
+[2026-03-13 13:23:41] PARSED: event_id=1 (type=str), email=test@xample.com, name=griee qkdl
+[2026-03-13 13:23:41] SUCCESS | event_id=1 | name=griee qkdl | email=test@xample.com | status=confirmed | reg#=REG-6E3A0227
+[2026-03-13 14:47:17] RAW_DATA: {'event_id': '2', 'full_name': 'test trial', 'email': 'test@xample.com', 'phone': '853902', 'special_requests': ''}
+[2026-03-13 14:47:17] PARSED: event_id=2 (type=str), email=test@xample.com, name=test trial
+[2026-03-13 14:47:17] SUCCESS | event_id=2 | name=test trial | email=test@xample.com | status=confirmed | reg#=REG-B2B4CAC2
+[2026-03-13 15:07:48] RAW_DATA: {'event_id': '2', 'full_name': 'fjhdvs jqkl', 'email': 'test@xample.com', 'phone': '12345', 'special_requests': '', 'tickets': [{'ticket_id': None, 'quantity': 1}]}
+[2026-03-13 15:07:48] PARSED: event_id=2 (type=str), email=test@xample.com, name=fjhdvs jqkl
+[2026-03-13 15:12:56] RAW_DATA: {'event_id': '2', 'full_name': 'fkhnkj lgjfh', 'email': 'test@xample.com', 'phone': '23578', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantity': 1}]}
+[2026-03-13 15:12:56] PARSED: event_id=2 (type=str), email=test@xample.com, name=fkhnkj lgjfh
+[2026-03-13 15:12:56] SUCCESS | event_id=2 | name=fkhnkj lgjfh | email=test@xample.com | status=pending | reg#=REG-5CE0AF77
+[2026-03-13 15:14:06] RAW_DATA: {'event_id': '2', 'full_name': 'fhk giuoj', 'email': 'test@xample.com', 'phone': '8765422468', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantity': 1}]}
+[2026-03-13 15:14:06] PARSED: event_id=2 (type=str), email=test@xample.com, name=fhk giuoj
+[2026-03-13 15:14:06] SUCCESS | event_id=2 | name=fhk giuoj | email=test@xample.com | status=pending | reg#=REG-E0B545FB
+[2026-03-13 15:14:54] RAW_DATA: {'event_id': '2', 'full_name': '0987jhhfd kkjhg', 'email': 'z@example.com', 'phone': '9876532110', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantity': 1}]}
+[2026-03-13 15:14:54] PARSED: event_id=2 (type=str), email=z@example.com, name=0987jhhfd kkjhg
+[2026-03-13 15:14:54] SUCCESS | event_id=2 | name=0987jhhfd kkjhg | email=z@example.com | status=pending | reg#=REG-ABBD2D63
+[2026-03-13 15:28:41] RAW_DATA: {'event_id': '3', 'full_name': 'falhk hlsfak', 'email': 'test@xample.com', 'phone': '098765432134', 'special_requests': ''}
+[2026-03-13 15:28:41] PARSED: event_id=3 (type=str), email=test@xample.com, name=falhk hlsfak
+[2026-03-13 15:28:41] SUCCESS | event_id=3 | name=falhk hlsfak | email=test@xample.com | status=waitlisted | reg#=REG-47381B93
+[2026-03-13 15:38:05] RAW_DATA: {'event_id': '1', 'full_name': 'gjki gjklk', 'email': 'test@xample.com', 'phone': '09875258643', 'special_requests': '', 'tickets': [{'ticket_id': 1, 'ticket_name': 'vip', 'quantity': 1}]}
+[2026-03-13 15:38:05] PARSED: event_id=1 (type=str), email=test@xample.com, name=gjki gjklk
+[2026-03-13 15:38:05] SUCCESS | event_id=1 | name=gjki gjklk | email=test@xample.com | status=pending | reg#=REG-A7BF89E2
+[2026-03-13 15:58:36] RAW_DATA: {'event_id': '2', 'for_myself': 'false', 'full_name': 'rtui f8i', 'email': 'z@gmail.com', 'phone': '098765434567', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantity'
+[2026-03-13 15:58:36] PARSED: event_id=2 (type=str), email=z@gmail.com, name=rtui f8i
+[2026-03-13 15:59:39] RAW_DATA: {'event_id': '2', 'for_myself': 'true', 'full_name': 'test trial', 'email': 'test@xample.com', 'phone': '+15550000000', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quan
+[2026-03-13 15:59:39] PARSED: event_id=2 (type=str), email=test@xample.com, name=test trial
+[2026-03-13 16:13:28] RAW_DATA: {'event_id': '2', 'for_myself': 'false', 'full_name': 'rryhu fhhurd', 'email': 'z@gmail.com', 'phone': '0987655789', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantit
+[2026-03-13 16:13:28] PARSED: event_id=2 (type=str), email=z@gmail.com, name=rryhu fhhurd
+[2026-03-13 16:13:28] SUCCESS | event_id=2 | name=rryhu fhhurd | email=z@gmail.com | status=pending | reg#=REG-9FE89BD6
+[2026-03-13 16:20:53] RAW_DATA: {'event_id': '2', 'for_myself': 'false', 'full_name': 'ghjk goh', 'email': 'z@example.com', 'phone': '09887765445', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantity
+[2026-03-13 16:20:53] PARSED: event_id=2 (type=str), email=z@example.com, name=ghjk goh
+[2026-03-13 16:20:53] SUCCESS | event_id=2 | name=ghjk goh | email=z@example.com | status=pending | reg#=REG-66AF1E51
+[2026-03-13 16:46:25] RAW_DATA: {'event_id': '2', 'for_myself': 'false', 'full_name': 'kulu beka', 'email': 'k@example.com', 'phone': '09463822873', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantit
+[2026-03-13 16:46:25] PARSED: event_id=2 (type=str), email=k@example.com, name=kulu beka
+[2026-03-13 16:46:25] SUCCESS | event_id=2 | name=kulu beka | email=k@example.com | status=pending | reg#=REG-2301BD2B
+[2026-03-13 16:48:09] RAW_DATA: {'event_id': '2', 'for_myself': 'true', 'full_name': 'test trial', 'email': 'test@xample.com', 'phone': '853902', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantity':
+[2026-03-13 16:48:09] PARSED: event_id=2 (type=str), email=test@xample.com, name=test trial
+[2026-03-13 16:48:09] SUCCESS | event_id=2 | name=test trial | email=test@xample.com | status=pending | reg#=REG-8AC43BC4
+[2026-03-13 16:48:57] RAW_DATA: {'event_id': '2', 'for_myself': 'false', 'full_name': 'sadio mane', 'email': 'sa@gmail.com', 'phone': '0978654323', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'ticket_name': 'vip', 'quantity
+[2026-03-13 16:48:57] PARSED: event_id=2 (type=str), email=sa@gmail.com, name=sadio mane
+[2026-03-13 16:48:57] SUCCESS | event_id=2 | name=sadio mane | email=sa@gmail.com | status=pending | reg#=REG-324B0709
+[2026-03-13 16:52:33] RAW_DATA: {'event_id': '3', 'for_myself': 'false', 'full_name': 'hjhf hjhj', 'email': 'hj@gmail.com', 'phone': '123456789876', 'special_requests': ''}
+[2026-03-13 16:52:33] PARSED: event_id=3 (type=str), email=hj@gmail.com, name=hjhf hjhj
+[2026-03-13 16:52:33] SUCCESS | event_id=3 | name=hjhf hjhj | email=hj@gmail.com | status=waitlisted | reg#=REG-C56B2277

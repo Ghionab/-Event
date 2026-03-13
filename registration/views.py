@@ -114,7 +114,7 @@ def register_for_event(request, event_id):
             # Calculate total amount
             if registration.ticket_type:
                 if not registration.ticket_type.can_purchase():
-                    messages.error(request, 'Selected ticket type is not available for purchase.')
+                    messages.error(request, f'Selected ticket "{registration.ticket_type.name}" is not available. Only {registration.ticket_type.remaining_tickets} left.')
                     return render(request, 'registration/register_event.html', {
                         'form': form, 'event': event, 'custom_fields': custom_fields,
                         'file_fields': file_fields, 'non_file_fields': non_file_fields
@@ -1266,9 +1266,10 @@ def process_bulk_registration(bulk_upload, skip_header=True, send_invitations=Tr
                     status=RegistrationStatus.CONFIRMED
                 )
 
-                # Update ticket count
-                ticket_type.quantity_sold += 1
-                ticket_type.save()
+                # Update ticket count atomically
+                from django.db.models import F
+                TicketType.objects.filter(id=ticket_type.id).update(quantity_sold=F('quantity_sold') + 1)
+                ticket_type.refresh_from_db()
 
                 # Send invitation if requested
                 if send_invitations:

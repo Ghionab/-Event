@@ -283,3 +283,9 @@
 [2026-03-13 11:45:20] RAW_DATA: {'event_id': '7', 'full_name': 'Mikiyas Arage', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': '', 'tickets': [{'ticket_id': 9, 'quantity': 1}]}
 [2026-03-13 11:45:20] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=Mikiyas Arage
 [2026-03-13 11:45:20] SUCCESS | event_id=7 | name=Mikiyas Arage | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-17C4BC5F
+[2026-03-13 12:17:42] RAW_DATA: {'event_id': '7', 'full_name': 'now', 'email': 'mikiyasarage1@gmail.com', 'phone': '09619963', 'special_requests': '', 'tickets': [{'ticket_id': 10, 'quantity': 1}]}
+[2026-03-13 12:17:42] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=now
+[2026-03-13 12:17:42] SUCCESS | event_id=7 | name=now | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-A0F0B4EB
+[2026-03-13 12:31:03] RAW_DATA: {'event_id': '7', 'full_name': 'check', 'email': 'mikiyasarage1@gmail.com', 'phone': '456789', 'special_requests': 'sdfghjk', 'tickets': [{'ticket_id': 10, 'quantity': 1}]}
+[2026-03-13 12:31:03] PARSED: event_id=7 (type=str), email=mikiyasarage1@gmail.com, name=check
+[2026-03-13 12:31:03] SUCCESS | event_id=7 | name=check | email=mikiyasarage1@gmail.com | status=pending | reg#=REG-14068353

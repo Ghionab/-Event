@@ -254,7 +254,7 @@ View and manage all event registrations across your events
                             </span>
                         </td>
                         <td class="px-4 py-3">
-                            <p class="text-sm font-medium text-gray-900">${{ reg.total_amount }}</p>
+                            <p class="text-sm font-medium text-gray-900">${{ reg.ticket_type.price|default:0.00|floatformat:2 }}</p>
                             {% if reg.promo_code %}
                             <p class="text-xs text-emerald-600 font-medium"><i class="bi bi-tag mr-1"></i>{{ reg.promo_code.code }}</p>
                             {% endif %}

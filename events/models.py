@@ -252,6 +252,23 @@ class EventSession(models.Model):
         return [s.name for s in self.speakers.all()]
 
 
+class Session(models.Model):
+    """Dynamic sessions for an event"""
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='dynamic_sessions')
+    title = models.CharField(max_length=255)
+    speaker_name = models.CharField(max_length=255)
+    speaker_profile_picture = models.ImageField(upload_to='speakers/', blank=True, null=True)
+    speaker_bio = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        
+    def __str__(self):
+        return f"{self.title} - {self.speaker_name}"
+
+
 class Room(models.Model):
     """Event rooms/venues"""
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='rooms')

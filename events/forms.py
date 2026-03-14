@@ -1,5 +1,6 @@
 from django import forms
-from .models import Event, EventSession, Speaker, Track, Room, Sponsor
+from .models import Event, EventSession, Speaker, Track, Room, Sponsor, Session
+from django.forms import inlineformset_factory
 
 class EventForm(forms.ModelForm):
     # Email invitation field (not part of the model)
@@ -90,6 +91,22 @@ class EventSessionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if event:
             self.fields['track'].queryset = Track.objects.filter(event=event)
+
+class SessionForm(forms.ModelForm):
+    class Meta:
+        model = Session
+        fields = ['title', 'speaker_name', 'speaker_profile_picture', 'speaker_bio']
+        widgets = {
+            'speaker_bio': forms.Textarea(attrs={'rows': 2}),
+        }
+
+SessionFormSet = inlineformset_factory(
+    Event, 
+    Session, 
+    form=SessionForm, 
+    extra=0, 
+    can_delete=True
+)
 
 class SpeakerForm(forms.ModelForm):
     class Meta:

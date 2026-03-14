@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Sum, Count, Q
 from django.db.models.functions import TruncDate
+from django.db import transaction
 from django.core.paginator import Paginator
 from django.urls import reverse
 from decimal import Decimal
@@ -13,7 +14,7 @@ from .models import (
     OrganizerProfile, OrganizerTeamMember, EventAnalytics,
     EventTemplate, OrganizerNotification, OrganizerPayout
 )
-from events.models import Event, EventSession, Sponsor
+from events.models import Event, EventSession, Session, Sponsor
 from registration.models import Registration, TicketType, CheckIn, RegistrationStatus
 from communication.models import EmailTemplate, EmailLog, ScheduledEmail, LivePoll, LiveQA
 from communication.forms import EmailTemplateForm, ScheduledEmailForm, LivePollForm
@@ -209,6 +210,31 @@ def event_create(request):
             event.organizer = request.user
             event.status = 'published'  # Auto-publish on creation
             event.save()
+            
+            # Handle dynamic sessions
+            try:
+                num_sessions = int(request.POST.get('num_sessions', 0))
+                for i in range(num_sessions):
+                    title = request.POST.get(f'session_{i}_title')
+                    speaker_name = request.POST.get(f'session_{i}_speaker_name')
+                    
+                    if title and speaker_name:
+                        session = Session(
+                            event=event,
+                            title=title,
+                            speaker_name=speaker_name,
+                            speaker_bio=request.POST.get(f'session_{i}_speaker_bio', '')
+                        )
+                        
+                        # Handle file upload for profile picture
+                        profile_pic = request.FILES.get(f'session_{i}_profile_picture')
+                        if profile_pic:
+                            session.speaker_profile_picture = profile_pic
+                            
+                        session.save()
+            except ValueError:
+                pass # Invalid num_sessions
+                
             messages.success(request, 'Event created and published successfully!')
             # Redirect to event setup wizard
             return redirect('organizer_event_setup', event_id=event.id)
@@ -579,6 +605,9 @@ def event_detail(request, event_id):
 
     # Ticket types
     ticket_types = TicketType.objects.filter(event=event)
+    
+    # Dynamic Sessions
+    dynamic_sessions = event.dynamic_sessions.all()
 
     # Calculate ticket sales with actual amounts from registrations
     ticket_sales = []
@@ -619,6 +648,7 @@ def event_detail(request, event_id):
         'total_registrations': total_registrations,
         'total_confirmed': total_confirmed,
         'checked_in_count': checked_in_count,
+        'dynamic_sessions': dynamic_sessions,
     }
     return render(request, 'organizers/event_detail.html', context)
 
@@ -628,7 +658,7 @@ def event_detail(request, event_id):
 def event_edit(request, event_id):
     """Edit an existing event"""
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
-    from events.forms import EventForm
+    from events.forms import EventForm, SessionFormSet
 
     # Handle ticket actions
     if request.method == 'POST':
@@ -670,11 +700,17 @@ def event_edit(request, event_id):
 
         elif action == 'save_event':
             form = EventForm(request.POST, request.FILES, instance=event)
-            if form.is_valid():
-                event = form.save(commit=False)
-                event.status = 'published' # Enforce live status on edit
-                event.save()
-                form.save_m2m()
+            session_formset = SessionFormSet(request.POST, request.FILES, instance=event)
+            if form.is_valid() and session_formset.is_valid():
+                with transaction.atomic():
+                    event = form.save(commit=False)
+                    event.status = 'published' # Enforce live status on edit
+                    event.save()
+                    form.save_m2m()
+                    
+                    # Save dynamic sessions
+                    session_formset.save()
+                
                 messages.success(request, 'Event updated successfully!')
                 return redirect('organizer_event_list')
             else:
@@ -686,6 +722,9 @@ def event_edit(request, event_id):
     if 'form' not in locals():
         form = EventForm(instance=event)
     
+    if 'session_formset' not in locals():
+        session_formset = SessionFormSet(instance=event)
+    
     # Get existing tickets
     tickets = TicketType.objects.filter(event=event)
 
@@ -695,6 +734,7 @@ def event_edit(request, event_id):
 
     return render(request, 'organizers/event_edit.html', {
         'form': form,
+        'session_formset': session_formset,
         'title': 'Edit Event',
         'event': event,
         'tickets': tickets,
@@ -724,19 +764,19 @@ def analytics(request, event_id=None):
     
     if event_id:
         event = get_object_or_404(Event, id=event_id, organizer=request.user)
-        analytics, _ = EventAnalytics.objects.get_or_create(event=event)
+        analytics_obj, _ = EventAnalytics.objects.get_or_create(event=event)
         metrics = _compute_event_metrics(event)
-        analytics.total_registrations = metrics['total_registrations']
-        analytics.confirmed_registrations = metrics['confirmed_registrations']
-        analytics.cancelled_registrations = metrics['cancelled_registrations']
-        analytics.checked_in_count = metrics['checked_in_count']
-        analytics.total_revenue = metrics['total_revenue']
-        analytics.total_refunds = metrics['total_refunds']
-        analytics.tickets_sold_by_type = metrics['tickets_sold_by_type']
-        analytics.recent_activity = metrics['recent_activity']
-        if not analytics.traffic_sources and metrics['total_registrations']:
-            analytics.traffic_sources = {'direct': metrics['total_registrations']}
-        analytics.save(update_fields=[
+        analytics_obj.total_registrations = metrics['total_registrations']
+        analytics_obj.confirmed_registrations = metrics['confirmed_registrations']
+        analytics_obj.cancelled_registrations = metrics['cancelled_registrations']
+        analytics_obj.checked_in_count = metrics['checked_in_count']
+        analytics_obj.total_revenue = metrics['total_revenue']
+        analytics_obj.total_refunds = metrics['total_refunds']
+        analytics_obj.tickets_sold_by_type = metrics['tickets_sold_by_type']
+        analytics_obj.recent_activity = metrics['recent_activity']
+        if not analytics_obj.traffic_sources and metrics['total_registrations']:
+            analytics_obj.traffic_sources = {'direct': metrics['total_registrations']}
+        analytics_obj.save(update_fields=[
             'total_registrations',
             'confirmed_registrations',
             'cancelled_registrations',
@@ -748,17 +788,17 @@ def analytics(request, event_id=None):
             'updated_at',
         ])
 
-        total_views = analytics.total_views or 0
+        total_views = analytics_obj.total_views or 0
         conversion_rate = (metrics['total_registrations'] / total_views * 100) if total_views else 0
         attendance_rate = (metrics['checked_in_count'] / metrics['total_registrations'] * 100) if metrics['total_registrations'] else 0
         revenue_per_attendee = (metrics['total_revenue'] / metrics['total_registrations']) if metrics['total_registrations'] else Decimal('0')
-        traffic_sources = analytics.traffic_sources or {}
+        traffic_sources = analytics_obj.traffic_sources or {}
         traffic_sources_total = sum(traffic_sources.values()) or 1
         tickets_sold_by_type = metrics['tickets_sold_by_type']
         tickets_sold_total = sum(tickets_sold_by_type.values()) or 1
         return render(request, 'organizers/analytics_detail.html', {
             'event': event,
-            'analytics': analytics,
+            'analytics': analytics_obj,
             'conversion_rate': conversion_rate,
             'attendance_rate': attendance_rate,
             'revenue_per_attendee': revenue_per_attendee,

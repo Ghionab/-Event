@@ -184,6 +184,16 @@
                            placeholder="Leave empty for unlimited">
                 </div>
 
+                <!-- Number of Sessions -->
+                <div>
+                    <label for="num_sessions" class="block text-sm font-medium text-gray-700 mb-2">
+                        Number of Sessions & Speakers
+                    </label>
+                    <input type="number" name="num_sessions" id="num_sessions" min="0" value="0"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                           placeholder="e.g. 2">
+                </div>
+
                 <!-- Is Public -->
                 <div class="md:col-span-2">
                     <label class="flex items-center">
@@ -198,6 +208,11 @@
                 </div>
             </div>
 
+            <!-- Dynamic Sessions Container -->
+            <div id="sessions_container" class="space-y-6 mt-6">
+                <!-- Session chunks will be injected here -->
+            </div>
+
             <!-- Submit Buttons -->
             <div class="flex items-center justify-end gap-4 pt-6 border-t">
                 <a href="{% url 'organizer_event_list' %}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
@@ -210,4 +225,56 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const numSessionsInput = document.getElementById('num_sessions');
+        const sessionsContainer = document.getElementById('sessions_container');
+
+        function updateSessions() {
+            const count = parseInt(numSessionsInput.value) || 0;
+            const currentCount = sessionsContainer.children.length;
+
+            if (count > currentCount) {
+                // Add sessions
+                for (let i = currentCount; i < count; i++) {
+                    const sessionHTML = `
+                        <div class="card border border-gray-200 shadow-sm session-block" id="session_block_${i}">
+                            <div class="card-header bg-gray-50 border-b border-gray-200 py-3">
+                                <h4 class="card-title text-sm text-gray-700">Session ${i + 1}</h4>
+                            </div>
+                            <div class="card-body grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Session Title *</label>
+                                    <input type="text" name="session_${i}_title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Speaker Name *</label>
+                                    <input type="text" name="session_${i}_speaker_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture (optional)</label>
+                                    <input type="file" name="session_${i}_profile_picture" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Speaker Bio</label>
+                                    <textarea name="session_${i}_speaker_bio" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    sessionsContainer.insertAdjacentHTML('beforeend', sessionHTML);
+                }
+            } else if (count < currentCount) {
+                // Remove sessions starting from the end
+                for (let i = currentCount - 1; i >= count; i--) {
+                    sessionsContainer.removeChild(sessionsContainer.children[i]);
+                }
+            }
+        }
+
+        numSessionsInput.addEventListener('change', updateSessions);
+        numSessionsInput.addEventListener('keyup', updateSessions);
+    });
+</script>
 {% endblock %}

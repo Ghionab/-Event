@@ -60,6 +60,7 @@ urlpatterns = [
     path('analytics/', views.analytics, name='organizer_analytics'),
     path('analytics/<int:event_id>/', views.analytics, name='organizer_analytics_event'),
     path('team/', views.team_members, name='organizer_team'),
+    path('team/<int:member_id>/edit/', views.edit_team_member, name='organizer_edit_team_member'),
     path('templates/', views.templates, name='organizer_templates'),
     path('templates/create/', views.template_create, name='organizer_template_create'),
     path('templates/<int:template_id>/', views.template_detail, name='organizer_template_detail'),

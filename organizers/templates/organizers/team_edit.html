@@ -1,0 +1,195 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Edit Team Member - Event Organizer{% endblock %}
+
+{% block header %}Edit Team Member{% endblock %}
+
+{% block subtitle %}Update team member details, events, and credentials{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center text-sm text-gray-500 mb-6">
+        <a href="{% url 'organizer_team' %}" class="hover:text-indigo-600 transition">
+            <i class="bi bi-people mr-1"></i>Team Members
+        </a>
+        <i class="bi bi-chevron-right mx-2 text-xs"></i>
+        <span class="text-gray-700">Edit Member</span>
+    </nav>
+
+    <!-- Edit Team Member Card -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                <i class="bi bi-pencil-square"></i>
+                Edit Team Member
+            </h3>
+        </div>
+
+        <div class="p-6">
+            <!-- Member Info Display -->
+            <div class="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center">
+                    <span class="text-indigo-600 font-semibold text-lg">
+                        {{ team_member.user.first_name|default:team_member.user.email|slice:":1"|upper }}
+                    </span>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">{{ team_member.user.get_full_name|default:team_member.user.email }}</p>
+                    <p class="text-sm text-gray-500">{{ team_member.user.email }}</p>
+                </div>
+            </div>
+
+            <form method="post" action="{% url 'organizer_edit_team_member' team_member.id %}" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Event Selection (Multi-select) -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">
+                        Assigned Events <span class="text-red-500">*</span>
+                        <span class="text-xs text-gray-500 font-normal ml-2">Select one or more events</span>
+                    </label>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-48 overflow-y-auto">
+                        {% if events %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {% for event in events %}
+                            <label class="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-indigo-300 hover:shadow-sm cursor-pointer transition-all {% if event.id in assigned_event_ids %}border-indigo-300 bg-indigo-50{% endif %}">
+                                <input type="checkbox" name="events" value="{{ event.id }}"
+                                    {% if event.id in assigned_event_ids %}checked{% endif %}
+                                    class="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate">{{ event.title }}</p>
+                                    <p class="text-xs text-gray-500">{{ event.start_date|date:"M d, Y" }}</p>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-sm text-gray-500 text-center py-4">No published events available.</p>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-gray-500">Team member will be assigned to all selected events.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Role Selection -->
+                    <div class="space-y-2">
+                        <label for="role" class="block text-sm font-medium text-gray-700">
+                            Role Assignment <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select name="role" id="role" required
+                                class="block w-full pl-10 pr-4 py-3 text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none cursor-pointer hover:bg-white hover:border-gray-300">
+                                <option value="coordinator" {% if team_member.role == 'coordinator' %}selected{% endif %}>Coordinator</option>
+                                <option value="usher" {% if team_member.role == 'usher' %}selected{% endif %}>Usher</option>
+                            </select>
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="bi bi-person-badge text-gray-400"></i>
+                            </div>
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="bi bi-chevron-down text-gray-400 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Password (Optional) -->
+                    <div class="space-y-2">
+                        <label for="new_password" class="block text-sm font-medium text-gray-700">
+                            Change Password
+                            <span class="text-xs text-gray-500 font-normal ml-1">(Optional)</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" name="new_password" id="new_password"
+                                placeholder="Leave blank to keep current password"
+                                minlength="6"
+                                class="block w-full pl-10 pr-12 py-3 text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-gray-400 hover:bg-white hover:border-gray-300">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="bi bi-lock text-gray-400"></i>
+                            </div>
+                            <button type="button" onclick="toggleEditPassword()"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                                <i class="bi bi-eye" id="edit-password-toggle-icon"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500">Enter a new password only if you want to change it. Minimum 6 characters.</p>
+                    </div>
+                </div>
+
+                <!-- Status Toggle -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">
+                        Member Status
+                    </label>
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                        <div class="relative inline-block">
+                            <input type="checkbox" name="is_active" id="is_active" 
+                                {% if team_member.is_active %}checked{% endif %}
+                                class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </div>
+                        <label for="is_active" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                            {% if team_member.is_active %}Active{% else %}Inactive{% endif %}
+                        </label>
+                        <span class="text-xs text-gray-500 ml-2" id="status-text">
+                            {% if team_member.is_active %}
+                            Member can access the system and perform their assigned duties
+                            {% else %}
+                            Member cannot access the system until reactivated
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                    <a href="{% url 'organizer_team' %}"
+                        class="inline-flex items-center px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                        <i class="bi bi-arrow-left mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 transform hover:-translate-y-0.5">
+                        <i class="bi bi-check-lg mr-2"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update status text when toggle changes
+const statusToggle = document.getElementById('is_active');
+const statusLabel = document.querySelector('label[for="is_active"]');
+const statusText = document.getElementById('status-text');
+
+if (statusToggle) {
+    statusToggle.addEventListener('change', function() {
+        if (this.checked) {
+            statusLabel.textContent = 'Active';
+            statusText.textContent = 'Member can access the system and perform their assigned duties';
+        } else {
+            statusLabel.textContent = 'Inactive';
+            statusText.textContent = 'Member cannot access the system until reactivated';
+        }
+    });
+}
+
+// Toggle password visibility
+function toggleEditPassword() {
+    const passwordInput = document.getElementById('new_password');
+    const toggleIcon = document.getElementById('edit-password-toggle-icon');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+    }
+}
+</script>
+{% endblock %}

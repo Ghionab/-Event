@@ -14,7 +14,7 @@ from .models import (
     OrganizerProfile, OrganizerTeamMember, EventAnalytics,
     EventTemplate, OrganizerNotification, OrganizerPayout
 )
-from events.models import Event, EventSession, Session, Sponsor
+from events.models import Event, EventSession, Session, SessionSpeaker, Sponsor
 from registration.models import Registration, TicketType, CheckIn, RegistrationStatus
 from communication.models import EmailTemplate, EmailLog, ScheduledEmail, LivePoll, LiveQA
 from communication.forms import EmailTemplateForm, ScheduledEmailForm, LivePollForm
@@ -211,29 +211,77 @@ def event_create(request):
             event.status = 'published'  # Auto-publish on creation
             event.save()
             
-            # Handle dynamic sessions
+            # Handle dynamic sessions with multiple speakers support
             try:
                 num_sessions = int(request.POST.get('num_sessions', 0))
                 for i in range(num_sessions):
                     title = request.POST.get(f'session_{i}_title')
-                    speaker_name = request.POST.get(f'session_{i}_speaker_name')
                     
-                    if title and speaker_name:
+                    # Only create session if title is provided
+                    if title:
                         session = Session(
                             event=event,
-                            title=title,
-                            speaker_name=speaker_name,
-                            speaker_bio=request.POST.get(f'session_{i}_speaker_bio', '')
+                            title=title
                         )
                         
-                        # Handle file upload for profile picture
-                        profile_pic = request.FILES.get(f'session_{i}_profile_picture')
-                        if profile_pic:
-                            session.speaker_profile_picture = profile_pic
+                        # Handle session timing fields (optional) - datetime format (YYYY-MM-DDTHH:MM)
+                        session_start = request.POST.get(f'session_{i}_start_time')
+                        session_end = request.POST.get(f'session_{i}_end_time')
+                        if session_start:
+                            from datetime import datetime
+                            try:
+                                # Parse datetime from YYYY-MM-DDTHH:MM format
+                                session.session_start_time = datetime.strptime(session_start, '%Y-%m-%dT%H:%M')
+                            except ValueError:
+                                pass
+                        if session_end:
+                            try:
+                                session.session_end_time = datetime.strptime(session_end, '%Y-%m-%dT%H:%M')
+                            except ValueError:
+                                pass
                             
                         session.save()
+                        
+                        # Handle unified speakers for this session
+                        speaker_index = 0
+                        while True:
+                            speaker_name = request.POST.get(f'session_{i}_speaker_{speaker_index}_name')
+                            if speaker_name is None:
+                                break  # No more speakers
+                            
+                            if speaker_name.strip():  # Only create if name is provided
+                                session_speaker = SessionSpeaker(
+                                    session=session,
+                                    speaker_name=speaker_name,
+                                    speaker_bio=request.POST.get(f'session_{i}_speaker_{speaker_index}_bio', '')
+                                )
+                                
+                                # Handle speaker start/end time (time only - HH:MM)
+                                speaker_start = request.POST.get(f'session_{i}_speaker_{speaker_index}_start_time')
+                                speaker_end = request.POST.get(f'session_{i}_speaker_{speaker_index}_end_time')
+                                if speaker_start:
+                                    from datetime import datetime
+                                    try:
+                                        session_speaker.speaker_start_time = datetime.strptime(speaker_start, '%H:%M').time()
+                                    except ValueError:
+                                        pass
+                                if speaker_end:
+                                    try:
+                                        session_speaker.speaker_end_time = datetime.strptime(speaker_end, '%H:%M').time()
+                                    except ValueError:
+                                        pass
+                                
+                                # Handle speaker profile picture
+                                speaker_pic = request.FILES.get(f'session_{i}_speaker_{speaker_index}_picture')
+                                if speaker_pic:
+                                    session_speaker.speaker_profile_picture = speaker_pic
+                                
+                                session_speaker.save()
+                            
+                            speaker_index += 1
+                            
             except ValueError:
-                pass # Invalid num_sessions
+                pass  # Invalid num_sessions
                 
             messages.success(request, 'Event created and published successfully!')
             # Redirect to event setup wizard
@@ -658,7 +706,7 @@ def event_detail(request, event_id):
 def event_edit(request, event_id):
     """Edit an existing event"""
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
-    from events.forms import EventForm, SessionFormSet
+    from events.forms import EventForm, SessionFormSet, SessionSpeakerFormSet
 
     # Handle ticket actions
     if request.method == 'POST':
@@ -700,30 +748,114 @@ def event_edit(request, event_id):
 
         elif action == 'save_event':
             form = EventForm(request.POST, request.FILES, instance=event)
-            session_formset = SessionFormSet(request.POST, request.FILES, instance=event)
-            if form.is_valid() and session_formset.is_valid():
-                with transaction.atomic():
-                    event = form.save(commit=False)
-                    event.status = 'published' # Enforce live status on edit
-                    event.save()
-                    form.save_m2m()
+            session_formset = SessionFormSet(request.POST, request.FILES, instance=event, prefix='sessions')
+            
+            # Validate all speaker formsets for EXISTING sessions upfront
+            speaker_formsets = {}
+            all_speaker_formsets_valid = True
+            speaker_formset_errors = []
+            
+            for session_form in session_formset.forms:
+                if session_form.instance.pk:
+                    prefix = f'speakers_{session_form.instance.pk}'
+                    speaker_formset = SessionSpeakerFormSet(
+                        request.POST, request.FILES,
+                        instance=session_form.instance,
+                        prefix=prefix
+                    )
+                    speaker_formsets[session_form.instance.pk] = speaker_formset
+                    if not speaker_formset.is_valid():
+                        all_speaker_formsets_valid = False
+                        speaker_formset_errors.append(f"Session '{session_form.instance.title}' speakers: {speaker_formset.errors}")
+                        print(f"DEBUG: Speaker formset {prefix} errors: {speaker_formset.errors}")
+            
+            print(f"DEBUG: Form valid: {form.is_valid()}")
+            print(f"DEBUG: Session formset valid: {session_formset.is_valid()}")
+            print(f"DEBUG: All speaker formsets valid: {all_speaker_formsets_valid}")
+            
+            if not form.is_valid():
+                print(f"DEBUG: Event form errors: {form.errors}")
+            if not session_formset.is_valid():
+                print(f"DEBUG: Session formset errors: {session_formset.errors}")
+                print(f"DEBUG: Session formset non-form errors: {session_formset.non_form_errors()}")
+            
+            if form.is_valid() and session_formset.is_valid() and all_speaker_formsets_valid:
+                try:
+                    with transaction.atomic():
+                        event = form.save(commit=False)
+                        event.status = 'published' # Enforce live status on edit
+                        event.save()
+                        form.save_m2m()
+                        
+                        # Save dynamic sessions
+                        sessions = session_formset.save()
+                        
+                        # Save speaker formsets for existing sessions
+                        for session_id, speaker_formset in speaker_formsets.items():
+                            speaker_formset.save()
+                        
+                        # Handle new sessions' speakers
+                        new_sessions = [s for s in sessions if s.pk not in speaker_formsets]
+                        for new_session in new_sessions:
+                            speaker_prefix = f'speakers_{new_session.id}'
+                            new_speaker_formset = SessionSpeakerFormSet(
+                                request.POST, request.FILES,
+                                instance=new_session,
+                                prefix=speaker_prefix
+                            )
+                            if new_speaker_formset.is_valid():
+                                new_speaker_formset.save()
+                                print(f"DEBUG: Saved speakers for new session {new_session.id}")
+                        
+                        print(f"DEBUG: Saved {len(sessions)} sessions successfully")
                     
-                    # Save dynamic sessions
-                    session_formset.save()
-                
-                messages.success(request, 'Event updated successfully!')
-                return redirect('organizer_event_list')
+                    messages.success(request, 'Event updated successfully!')
+                    return redirect('organizer_event_list')
+                except Exception as e:
+                    print(f"DEBUG: Error saving event: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
+                    messages.error(request, f'Error saving event: {str(e)}')
             else:
-                # If form is invalid, we fall through to the render below with the form errors
-                pass
-            # If form is not valid, it will fall through to be rendered with errors
+                # Form is invalid - collect errors for display
+                error_messages = []
+                if not form.is_valid():
+                    for field, errors in form.errors.items():
+                        for error in errors:
+                            error_messages.append(f"{field}: {error}")
+                if not session_formset.is_valid():
+                    for i, errors in enumerate(session_formset.errors):
+                        if errors:
+                            for field, error_list in errors.items():
+                                for error in error_list:
+                                    error_messages.append(f"Session {i+1} - {field}: {error}")
+                    if session_formset.non_form_errors():
+                        error_messages.extend(session_formset.non_form_errors())
+                
+                # Add speaker formset errors
+                error_messages.extend(speaker_formset_errors)
+                
+                for error in error_messages:
+                    messages.error(request, error)
+                
+                print(f"DEBUG: Form validation failed with {len(error_messages)} errors")
 
     # If it's a GET request or form validation failed, initialize/re-use the form
     if 'form' not in locals():
         form = EventForm(instance=event)
     
     if 'session_formset' not in locals():
-        session_formset = SessionFormSet(instance=event)
+        session_formset = SessionFormSet(instance=event, prefix='sessions')
+    
+    # Build speaker formsets for each session
+    session_speaker_formsets = {}
+    for session_form in session_formset.forms:
+        if session_form.instance.pk:
+            prefix = f'speakers_{session_form.instance.pk}'
+            session_speaker_formsets[session_form.instance.pk] = SessionSpeakerFormSet(
+                instance=session_form.instance,
+                prefix=prefix
+            )
     
     # Get existing tickets
     tickets = TicketType.objects.filter(event=event)
@@ -735,6 +867,7 @@ def event_edit(request, event_id):
     return render(request, 'organizers/event_edit.html', {
         'form': form,
         'session_formset': session_formset,
+        'session_speaker_formsets': session_speaker_formsets,
         'title': 'Edit Event',
         'event': event,
         'tickets': tickets,

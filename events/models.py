@@ -256,9 +256,19 @@ class Session(models.Model):
     """Dynamic sessions for an event"""
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='dynamic_sessions')
     title = models.CharField(max_length=255)
-    speaker_name = models.CharField(max_length=255)
+    
+    # Legacy speaker fields (kept for backward compatibility, now optional)
+    speaker_name = models.CharField(max_length=255, blank=True, null=True)
     speaker_profile_picture = models.ImageField(upload_to='speakers/', blank=True, null=True)
     speaker_bio = models.TextField(blank=True)
+    
+    # Session timing fields (optional) - Date and Time
+    session_start_time = models.DateTimeField(null=True, blank=True)
+    session_end_time = models.DateTimeField(null=True, blank=True)
+    
+    # Primary speaker time window (optional) - Time only (Hours:Minutes)
+    speaker_start_time = models.TimeField(null=True, blank=True)
+    speaker_end_time = models.TimeField(null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -266,7 +276,39 @@ class Session(models.Model):
         ordering = ['created_at']
         
     def __str__(self):
-        return f"{self.title} - {self.speaker_name}"
+        if self.speaker_name:
+            return f"{self.title} - {self.speaker_name}"
+        return self.title
+    
+    @property
+    def all_speakers(self):
+        """Return all speakers for this session (from SessionSpeaker model)"""
+        return self.session_speakers.all().order_by('display_order', 'id')
+
+
+class SessionSpeaker(models.Model):
+    """Individual speakers assigned to a session (supports multiple speakers per session)"""
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='session_speakers')
+    
+    # Speaker details (all optional)
+    speaker_name = models.CharField(max_length=255, blank=True, null=True)
+    speaker_bio = models.TextField(blank=True, null=True)
+    speaker_profile_picture = models.ImageField(upload_to='speakers/', blank=True, null=True)
+    
+    # Speaking time window (optional) - Time only (Hours:Minutes)
+    speaker_start_time = models.TimeField(null=True, blank=True)
+    speaker_end_time = models.TimeField(null=True, blank=True)
+    
+    # Display order for multiple speakers
+    display_order = models.PositiveIntegerField(default=0)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['display_order', 'id']
+        
+    def __str__(self):
+        return f"{self.speaker_name or 'Unnamed Speaker'} - {self.session.title}"
 
 
 class Room(models.Model):

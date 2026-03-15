@@ -1,5 +1,5 @@
 from django import forms
-from .models import Event, EventSession, Speaker, Track, Room, Sponsor, Session
+from .models import Event, EventSession, Speaker, Track, Room, Sponsor, Session, SessionSpeaker
 from django.forms import inlineformset_factory
 
 class EventForm(forms.ModelForm):
@@ -95,16 +95,77 @@ class EventSessionForm(forms.ModelForm):
 class SessionForm(forms.ModelForm):
     class Meta:
         model = Session
-        fields = ['title', 'speaker_name', 'speaker_profile_picture', 'speaker_bio']
+        fields = ['title', 'speaker_name', 'speaker_profile_picture', 'speaker_bio',
+                  'session_start_time', 'session_end_time', 'speaker_start_time', 'speaker_end_time']
         widgets = {
             'speaker_bio': forms.Textarea(attrs={'rows': 2}),
+            'session_start_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'session_end_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'speaker_start_time': forms.TimeInput(attrs={'type': 'time'}),
+            'speaker_end_time': forms.TimeInput(attrs={'type': 'time'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make all speaker-related fields optional in the form
+        self.fields['speaker_name'].required = False
+        self.fields['speaker_bio'].required = False
+        self.fields['speaker_profile_picture'].required = False
+        self.fields['session_start_time'].required = False
+        self.fields['session_end_time'].required = False
+        self.fields['speaker_start_time'].required = False
+        self.fields['speaker_end_time'].required = False
+        
+        # Add help text for optional fields
+        self.fields['speaker_name'].help_text = 'Optional: Primary speaker for this session'
+        self.fields['speaker_bio'].help_text = 'Optional: Brief biography of the speaker'
+        self.fields['speaker_profile_picture'].help_text = 'Optional: Speaker profile image'
+        self.fields['session_start_time'].help_text = 'Optional: Session start date and time'
+        self.fields['session_end_time'].help_text = 'Optional: Session end date and time'
+        self.fields['speaker_start_time'].help_text = "Optional: Primary speaker's start time (HH:MM)"
+        self.fields['speaker_end_time'].help_text = "Optional: Primary speaker's end time (HH:MM)"
+
+
+class SessionSpeakerForm(forms.ModelForm):
+    """Form for adding individual speakers to a session"""
+    class Meta:
+        model = SessionSpeaker
+        fields = ['speaker_name', 'speaker_bio', 'speaker_profile_picture', 
+                  'speaker_start_time', 'speaker_end_time']
+        widgets = {
+            'speaker_bio': forms.Textarea(attrs={'rows': 2}),
+            'speaker_start_time': forms.TimeInput(attrs={'type': 'time'}),
+            'speaker_end_time': forms.TimeInput(attrs={'type': 'time'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make all fields optional
+        for field in self.fields.values():
+            field.required = False
+        
+        # Add help text
+        self.fields['speaker_name'].help_text = 'Optional: Speaker name'
+        self.fields['speaker_bio'].help_text = 'Optional: Speaker biography'
+        self.fields['speaker_profile_picture'].help_text = 'Optional: Profile picture'
+        self.fields['speaker_start_time'].help_text = 'Optional: Speaker start time (HH:MM)'
+        self.fields['speaker_end_time'].help_text = 'Optional: Speaker end time (HH:MM)'
+
 
 SessionFormSet = inlineformset_factory(
     Event, 
     Session, 
     form=SessionForm, 
     extra=0, 
+    can_delete=True
+)
+
+# Formset for managing speakers within a session
+SessionSpeakerFormSet = inlineformset_factory(
+    Session,
+    SessionSpeaker,
+    form=SessionSpeakerForm,
+    extra=1,
     can_delete=True
 )
 

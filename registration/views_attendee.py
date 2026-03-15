@@ -457,13 +457,21 @@ def event_search(request):
 
 def event_detail_enhanced(request, event_id):
     """Enhanced event detail page"""
+    print(f"DEBUG: event_detail_enhanced called for event_id={event_id}")
+    
     event = get_object_or_404(Event, id=event_id, status='published')
     
-    # Get sessions preview
-    sessions = event.sessions.all().order_by('start_time')[:5]
+    # Get all Session objects (dynamic_sessions) for this event - for Sessions & Speakers section
+    dynamic_sessions = event.dynamic_sessions.all().order_by('created_at')
+    print(f"DEBUG: Found {dynamic_sessions.count()} dynamic sessions")
+    
+    # Get EventSession objects for schedule preview
+    event_sessions = event.sessions.all().order_by('start_time')[:5]
+    print(f"DEBUG: Found {event_sessions.count()} event sessions")
     
     # Get featured speakers
     speakers = event.speakers.filter(is_confirmed=True, is_featured=True)[:4]
+    print(f"DEBUG: Found {speakers.count()} featured speakers")
     
     # Get attendee count
     attendee_count = Registration.objects.filter(
@@ -529,9 +537,16 @@ def event_detail_enhanced(request, event_id):
         start_date__gte=timezone.now()
     ).exclude(id=event.id).order_by('start_date')[:3]
     
+    # Get all event sessions for the template
+    sessions = event.sessions.all().order_by('start_time')
+    
+    # Get dynamic sessions with speaker info for Sessions & Speakers section
+    dynamic_sessions = event.dynamic_sessions.all().order_by('created_at')
+    
     context = {
         'event': event,
         'sessions': sessions,
+        'dynamic_sessions': dynamic_sessions,
         'speakers': speakers,
         'attendee_count': attendee_count,
         'ticket_types': available_ticket_types,

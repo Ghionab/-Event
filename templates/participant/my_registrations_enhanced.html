@@ -27,6 +27,10 @@
                     class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'upcoming' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
                     Upcoming
                 </a>
+                <a href="?filter=waitlisted"
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'waitlisted' %}border-amber-500 text-amber-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    Waitlisted
+                </a>
                 <a href="?filter=past"
                     class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'past' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
                     Past
@@ -80,7 +84,17 @@
                                 <p><i class="bi bi-calendar mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }}
                                 </p>
                                 <p><i class="bi bi-geo-alt mr-2"></i>{{ registration.event.venue_name|default:"Virtual Event" }}</p>
-                                <p><i class="bi bi-ticket mr-2"></i>{{ registration.ticket_type.name|default:"General" }} &middot; {{ registration.registration_number }}</p>
+                                <p><i class="bi bi-ticket mr-2"></i>
+                                    {% if registration.ticket_type %}
+                                        {{ registration.ticket_type.name }}
+                                    {% else %}
+                                        <span class="text-amber-600">No ticket - Waitlisted</span>
+                                    {% endif %}
+                                    &middot; {{ registration.registration_number }}
+                                </p>
+                                {% if registration.purchaser == user and registration.user != user %}
+                                <p class="text-indigo-600"><i class="bi bi-gift mr-2"></i>Purchased for: {{ registration.attendee_name }}</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -90,10 +104,16 @@
                         {% if registration.status == 'confirmed' %}bg-green-100 text-green-800
                         {% elif registration.status == 'checked_in' %}bg-blue-100 text-blue-800
                         {% elif registration.status == 'cancelled' %}bg-red-100 text-red-800
+                        {% elif registration.status == 'waitlisted' %}bg-amber-100 text-amber-800
                         {% elif registration.status == 'pending' %}bg-yellow-100 text-yellow-800
                         {% else %}bg-gray-100 text-gray-800{% endif %}">
-                        {{ registration.get_status_display }}
+                        {% if registration.status == 'waitlisted' %}
+                            <i class="bi bi-clock-history mr-1"></i> Waitlisted
+                        {% else %}
+                            {{ registration.get_status_display }}
+                        {% endif %}
                     </span>
+                    {% if registration.ticket_type and registration.status != 'waitlisted' %}
                     <a href="{% url 'attendee:ticket_preview' registration.id %}" 
                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center shadow transition mr-2">
                         <i class="bi bi-eye mr-2"></i> Ticket
@@ -103,6 +123,7 @@
                        class="bg-white border hover:bg-gray-50 text-indigo-700 px-4 py-2 rounded-lg font-medium text-sm flex items-center shadow-sm transition">
                         <i class="bi bi-download mr-2"></i> Download
                     </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

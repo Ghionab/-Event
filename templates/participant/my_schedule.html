@@ -7,10 +7,12 @@
             <h1 class="text-3xl font-bold text-gray-900">My Schedule</h1>
             <p class="mt-1 text-gray-600">Your saved sessions across all events</p>
         </div>
-        <a href="{% url 'attendee:export_schedule' %}"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
-            <i class="bi bi-download mr-2"></i>Export to Calendar
-        </a>
+        <div class="flex gap-2">
+            <a href="{% url 'attendee:export_schedule' %}"
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                <i class="bi bi-calendar-plus mr-2"></i>Export to iCal
+            </a>
+        </div>
     </div>
 
     {% if conflicts %}
@@ -40,6 +42,11 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
+                    <a href="{% url 'attendee:add_to_google_calendar' item.session.id %}"
+                        class="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 text-sm"
+                        title="Add to Google Calendar - Get phone notifications!" target="_blank">
+                        <i class="bi bi-google mr-1"></i>Google Calendar
+                    </a>
                     <a href="{% url 'attendee:session_feedback' item.session.id %}"
                         class="text-indigo-600 hover:text-indigo-800 text-sm" title="Rate Session">
                         <i class="bi bi-star"></i>

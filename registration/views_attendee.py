@@ -9,6 +9,7 @@ from django.db import models
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 from .models import (
     Registration, RegistrationStatus, AttendeePreference,
@@ -26,11 +27,12 @@ from django.db.models import Count, F, Q, ExpressionWrapper, IntegerField
 
 @login_required
 def attendee_dashboard(request):
-    """Enhanced attendee dashboard with comprehensive overview and popular events"""
+    """Enhanced attendee dashboard with comprehensive overview and popular events.
+    Shows events where user is attendee, purchaser, or email matches."""
     user = request.user
     now = timezone.now()
     
-    # 1. USER'S EVENTS
+    # 1. USER'S EVENTS (as attendee, purchaser, or email match)
     all_registrations = Registration.objects.filter(
         models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
@@ -114,14 +116,17 @@ def attendee_dashboard(request):
 
 @login_required
 def my_registrations_enhanced(request):
-    """Enhanced registration list with filtering and search"""
+    """Enhanced registration list with filtering and search.
+    Shows registrations where user is attendee, purchaser, or email matches."""
     user = request.user
     now = timezone.now()
     
-    # Get all registrations
-    # Get all registrations
+    # Get all registrations where user is attendee, purchaser, or email matches
+    # This ensures users see tickets they bought for themselves AND for others
     registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
+        models.Q(user=user) | 
+        models.Q(attendee_email__iexact=user.email) |
+        models.Q(purchaser=user)  # Include tickets purchased for others
     ).select_related('event', 'ticket_type').order_by('-created_at')
     
     # Apply filters
@@ -130,6 +135,10 @@ def my_registrations_enhanced(request):
         registrations = registrations.filter(event__start_date__gte=now)
     elif filter_type == 'past':
         registrations = registrations.filter(event__start_date__lt=now)
+    elif filter_type == 'waitlisted':
+        registrations = registrations.filter(status='waitlisted')
+    elif filter_type == 'cancelled':
+        registrations = registrations.filter(status='cancelled')
         
     # Apply search
     search_query = request.GET.get('search', '')
@@ -1311,14 +1320,22 @@ def account_settings(request):
 
 @login_required
 def my_tickets(request):
-    """Display all purchased tickets including upcoming and past events"""
+    """Display all purchased tickets including upcoming and past events.
+    Shows tickets where user is attendee, purchaser, or email matches.
+    Excludes waitlisted registrations (those without actual tickets)."""
     user = request.user
     now = timezone.now()
 
-    # Get all confirmed/checked-in/pending registrations for this user
+    # Get all confirmed/checked-in/pending registrations for this user that have tickets
+    # Include tickets where user is purchaser (bought for others) or attendee
+    # Exclude waitlisted registrations (those without tickets)
     all_registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
+        models.Q(user=user) | 
+        models.Q(attendee_email__iexact=user.email) |
+        models.Q(purchaser=user),  # Include tickets purchased for others
         status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+    ).exclude(
+        ticket_type__isnull=True  # Exclude registrations without tickets (waitlisted)
     ).select_related('event', 'ticket_type').order_by('event__start_date')
 
     # Separate into upcoming and past
@@ -1633,6 +1650,19 @@ def export_schedule_ical(request):
         status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     ).select_related('event')
 
+    def escape_ical_text(value):
+        """
+        Escape text per RFC 5545 so mobile calendars can parse it reliably.
+        """
+        if not value:
+            return ""
+        text = str(value)
+        text = text.replace("\\", "\\\\")
+        text = text.replace(";", "\\;")
+        text = text.replace(",", "\\,")
+        text = text.replace("\r\n", "\\n").replace("\n", "\\n")
+        return text
+
     cal_lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
@@ -1648,13 +1678,27 @@ def export_schedule_ical(request):
                 id__in=prefs.saved_sessions, event=reg.event
             ).order_by('start_time')
             for session in sessions:
+                # Normalize to UTC and format with Z suffix
+                if timezone.is_aware(session.start_time):
+                    start_utc = timezone.localtime(session.start_time, timezone.utc)
+                else:
+                    start_utc = session.start_time
+                if timezone.is_aware(session.end_time):
+                    end_utc = timezone.localtime(session.end_time, timezone.utc)
+                else:
+                    end_utc = session.end_time
+
+                dtstamp = timezone.now()
+
                 cal_lines.extend([
                     "BEGIN:VEVENT",
-                    f"DTSTART:{session.start_time.strftime('%Y%m%dT%H%M%SZ')}",
-                    f"DTEND:{session.end_time.strftime('%Y%m%dT%H%M%SZ')}",
-                    f"SUMMARY:{session.title}",
-                    f"DESCRIPTION:{session.description[:200] if session.description else ''}",
-                    f"LOCATION:{session.location or reg.event.venue_name or ''}",
+                    f"UID:eventhub-{session.id}-{reg.id}@eventportal",
+                    f"DTSTAMP:{dtstamp.strftime('%Y%m%dT%H%M%SZ')}",
+                    f"DTSTART:{start_utc.strftime('%Y%m%dT%H%M%SZ')}",
+                    f"DTEND:{end_utc.strftime('%Y%m%dT%H%M%SZ')}",
+                    f"SUMMARY:{escape_ical_text(session.title)}",
+                    f"DESCRIPTION:{escape_ical_text(session.description[:200] if session.description else '')}",
+                    f"LOCATION:{escape_ical_text(session.location or reg.event.venue_name or '')}",
                     "END:VEVENT",
                 ])
 
@@ -1663,6 +1707,62 @@ def export_schedule_ical(request):
     response = HttpResponse('\r\n'.join(cal_lines), content_type='text/calendar')
     response['Content-Disposition'] = 'attachment; filename="my_schedule.ics"'
     return response
+
+
+@login_required
+def add_to_google_calendar(request, session_id):
+    """
+    Generate Google Calendar 'Add Event' URL for a specific session.
+    Redirects user to Google Calendar with pre-filled event details.
+    """
+    from django.urls import reverse
+    
+    # Get the session
+    session = get_object_or_404(EventSession, id=session_id)
+    event = session.event
+    user = request.user
+    
+    # Check if user is registered for this event
+    registration = Registration.objects.filter(
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
+        event=event,
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+    ).first()
+    
+    if not registration:
+        messages.error(request, 'You must be registered for this event to add sessions to your calendar.')
+        return redirect('attendee:my_schedule')
+    
+    # Format dates for Google Calendar (UTC format: YYYYMMDDTHHMMSSZ)
+    start_time = session.start_time
+    end_time = session.end_time
+    
+    if timezone.is_aware(start_time):
+        start_time = timezone.localtime(start_time, timezone.utc)
+    if timezone.is_aware(end_time):
+        end_time = timezone.localtime(end_time, timezone.utc)
+    
+    start_str = start_time.strftime('%Y%m%dT%H%M%SZ')
+    end_str = end_time.strftime('%Y%m%dT%H%M%SZ')
+    
+    # Build Google Calendar URL
+    base_url = 'https://calendar.google.com/calendar/render'
+    
+    # Prepare event details
+    title = quote(f"{event.title}: {session.title}")
+    details = quote(f"Session: {session.title}\\nEvent: {event.title}\\n\\n{session.description or ''}")
+    location = quote(session.location or event.venue_name or '')
+    
+    # Build the action=TEMPLATE URL
+    google_url = (
+        f"{base_url}?action=TEMPLATE"
+        f"&text={title}"
+        f"&dates={start_str}/{end_str}"
+        f"&details={details}"
+        f"&location={location}"
+    )
+    
+    return HttpResponseRedirect(google_url)
 
 
 # =============================================================================

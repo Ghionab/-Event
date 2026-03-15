@@ -8,28 +8,28 @@
 
 {% block content %}
 <div class="mb-6 flex flex-wrap gap-4 items-center justify-between">
-    <a href="{% url 'organizer_registration_list' %}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 transition">
+    <a href="{% url 'organizers:organizer_registration_list' %}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 transition">
         <i class="bi bi-arrow-left mr-2"></i>Back to Registrations
     </a>
     <div class="flex gap-2">
-        <a href="{% url 'organizer_registration_edit' registration.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <a href="{% url 'organizers:organizer_registration_edit' registration.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
             <i class="bi bi-pencil mr-2"></i>Edit
         </a>
         {% if registration.status != 'checked_in' and registration.status != 'cancelled' and registration.status != 'refunded' %}
-        <a href="{% url 'organizer_registration_checkin' registration.id %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" onclick="return confirm('Check in {{ registration.attendee_name }}?')">
+        <a href="{% url 'organizers:organizer_registration_checkin' registration.id %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" onclick="return confirm('Check in {{ registration.attendee_name }}?')">
             <i class="bi bi-check-circle mr-2"></i>Check In
         </a>
         {% endif %}
-        <a href="{% url 'organizer_registration_resend_ticket' registration.id %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+        <a href="{% url 'organizers:organizer_registration_resend_ticket' registration.id %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
             <i class="bi bi-envelope mr-2"></i>Resend Ticket
         </a>
         {% if registration.status == 'confirmed' %}
-        <a href="{% url 'organizer_registration_refund' registration.id %}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+        <a href="{% url 'organizers:organizer_registration_refund' registration.id %}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
             <i class="bi bi-currency-dollar mr-2"></i>Refund
         </a>
         {% endif %}
         {% if registration.status != 'cancelled' and registration.status != 'refunded' %}
-        <a href="{% url 'organizer_registration_cancel' registration.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+        <a href="{% url 'organizers:organizer_registration_cancel' registration.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
             <i class="bi bi-x-circle mr-2"></i>Cancel
         </a>
         {% endif %}
@@ -100,7 +100,7 @@
                         <label class="block text-sm font-medium text-gray-500 mb-1">Event</label>
                         <p class="text-lg font-medium text-gray-900">{{ registration.event.title }}</p>
                         <p class="text-sm text-gray-500">{{ registration.event.start_date|date:"F d, Y" }} at {{ registration.event.start_date|date:"g:i A" }}</p>
-                        <a href="{% url 'organizer_event_detail' registration.event.id %}" class="text-sm text-indigo-600 hover:text-indigo-800 mt-2 inline-block">
+                        <a href="{% url 'organizers:organizer_event_detail' registration.event.id %}" class="text-sm text-indigo-600 hover:text-indigo-800 mt-2 inline-block">
                             View Event <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -228,7 +228,7 @@
                     <i class="bi bi-clock text-gray-300 text-4xl mb-3"></i>
                     <p class="text-gray-500">Not checked in yet</p>
                     {% if registration.status != 'cancelled' and registration.status != 'refunded' %}
-                    <a href="{% url 'organizer_registration_checkin' registration.id %}" class="mt-3 inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" onclick="return confirm('Check in {{ registration.attendee_name }}?')">
+                    <a href="{% url 'organizers:organizer_registration_checkin' registration.id %}" class="mt-3 inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" onclick="return confirm('Check in {{ registration.attendee_name }}?')">
                         <i class="bi bi-check-circle mr-2"></i>Check In Now
                     </a>
                     {% endif %}
@@ -268,11 +268,11 @@
                     <i class="bi bi-envelope text-blue-600"></i>
                     <span class="text-sm font-medium">Email Attendee</span>
                 </a>
-                <a href="{% url 'organizer_event_registration_list' registration.event.id %}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                <a href="{% url 'organizers:organizer_event_registration_list' registration.event.id %}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
                     <i class="bi bi-people text-indigo-600"></i>
                     <span class="text-sm font-medium">View Event Registrations</span>
                 </a>
-                <a href="{% url 'organizer_registration_export' %}?event={{ registration.event.id }}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                <a href="{% url 'organizers:organizer_registration_export' %}?event={{ registration.event.id }}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
                     <i class="bi bi-download text-green-600"></i>
                     <span class="text-sm font-medium">Export Event Registrations</span>
                 </a>

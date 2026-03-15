@@ -2,6 +2,8 @@ from django.urls import path
 from . import views
 from . import views_auth
 
+app_name = 'organizers'
+
 urlpatterns = [
     path('', views_auth.organizer_login, name='organizer_login'),
     path('login/', views_auth.organizer_login, name='organizer_login'),

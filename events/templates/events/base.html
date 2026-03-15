@@ -42,8 +42,8 @@
                     <li><a href="{% url 'home' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-house"></i> Home</a></li>
                     <li><a href="{% url 'event_list' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-calendar-event"></i> Events</a></li>
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'organizer_dashboard' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-                        <li><a href="{% url 'organizer_event_list' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-calendar-check"></i> My Events</a></li>
+                        <li><a href="{% url 'organizers:organizer_dashboard' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                        <li><a href="{% url 'organizers:organizer_event_list' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-calendar-check"></i> My Events</a></li>
                         <li><a href="{% url 'registration:registration_list' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-person-badge"></i> Registrations</a></li>
                         <li><a href="{% url 'communication:email_templates' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-envelope"></i> Communication</a></li>
                         <li><a href="{% url 'business:sponsor_list' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50 transition flex items-center gap-2"><i class="bi bi-currency-dollar"></i> Business</a></li>
@@ -66,8 +66,8 @@
                 <li><a href="{% url 'home' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-house mr-2"></i> Home</a></li>
                 <li><a href="{% url 'event_list' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-calendar-event mr-2"></i> Events</a></li>
                 {% if user.is_authenticated %}
-                    <li><a href="{% url 'organizer_dashboard' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-speedometer2 mr-2"></i> Dashboard</a></li>
-                    <li><a href="{% url 'organizer_event_list' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-calendar-check mr-2"></i> My Events</a></li>
+                    <li><a href="{% url 'organizers:organizer_dashboard' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-speedometer2 mr-2"></i> Dashboard</a></li>
+                    <li><a href="{% url 'organizers:organizer_event_list' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-calendar-check mr-2"></i> My Events</a></li>
                     <li><a href="{% url 'registration:registration_list' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-person-badge mr-2"></i> Registrations</a></li>
                     <li><a href="{% url 'communication:email_templates' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-envelope mr-2"></i> Communication</a></li>
                     <li><a href="{% url 'business:sponsor_list' %}" class="block px-4 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-50"><i class="bi bi-currency-dollar mr-2"></i> Business</a></li>

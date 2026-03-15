@@ -24,7 +24,7 @@
                     <p class="text-indigo-100 text-sm mt-1">{{ recent_questions|length }} questions across {{ sessions|length }} sessions</p>
                 </div>
             </div>
-            <a href="{% url 'organizer_communication_dashboard' %}" class="inline-flex items-center text-sm text-indigo-100 hover:text-white transition-colors duration-200">
+            <a href="{% url 'organizers:organizer_communication_dashboard' %}" class="inline-flex items-center text-sm text-indigo-100 hover:text-white transition-colors duration-200">
                 <i class="bi bi-arrow-left mr-2"></i>Back to Communication
             </a>
         </div>
@@ -74,7 +74,7 @@
         <div class="divide-y divide-gray-100">
             {% if sessions %}
             {% for session in sessions %}
-            <a href="{% url 'organizer_live_qa_session' session.id %}" class="flex items-center justify-between p-4 hover:bg-gray-50/80 transition-colors duration-200 group">
+            <a href="{% url 'organizers:organizer_live_qa_session' session.id %}" class="flex items-center justify-between p-4 hover:bg-gray-50/80 transition-colors duration-200 group">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
                         <i class="bi bi-question-circle text-white"></i>

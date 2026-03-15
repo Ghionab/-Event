@@ -8,7 +8,9 @@ from django.utils import timezone
 from django.db.models import Q, Count
 from events.models import Event
 from registration.models import Registration, CheckIn, RegistrationStatus
+from advanced.models import UsherAssignment
 from .decorators import staff_required
+from django.contrib.auth import logout as django_logout
 
 
 @staff_required
@@ -16,16 +18,38 @@ def event_list(request):
     """
     Display list of events for staff member
     """
-    # Show all events that have registrations (past, present, and future)
-    # This ensures staff can check in attendees for any event
-    if request.user.role in ['admin', 'organizer']:
-        # For ADMIN and ORGANIZER, show all events with registrations
+    user = request.user
+
+    if user.role == 'usher':
+        return redirect('staff:usher_validation')
+    
+    # Get user's assigned venues if they are an usher
+    assigned_venues = []
+    if user.role == 'usher':
+        usher_assignments = UsherAssignment.objects.filter(
+            user=user,
+            is_active=True
+        )
+        assigned_venues = list(
+            usher_assignments.values_list('venue_name', flat=True)
+        )
+        assigned_events = Event.objects.filter(
+            usher_assignments__user=user,
+            usher_assignments__is_active=True
+        ).distinct()
+    else:
+        assigned_events = None
+    
+    # Show events based on role
+    if user.role in ['admin', 'organizer']:
         events = Event.objects.filter(
             registrations__isnull=False
         ).distinct().order_by('-start_date')
+    elif assigned_events is not None:
+        # Usher - only show assigned events
+        events = assigned_events.order_by('-start_date')
     else:
-        # For STAFF, show all events with registrations
-        # TODO: Implement event team assignment filtering
+        # Regular staff - show all events
         events = Event.objects.filter(
             registrations__isnull=False
         ).distinct().order_by('-start_date')
@@ -51,7 +75,8 @@ def event_list(request):
     
     context = {
         'events': events_with_stats,
-        'staff_user': request.user,
+        'staff_user': user,
+        'assigned_venues': assigned_venues,
     }
     return render(request, 'staff/event_list.html', context)
 
@@ -62,6 +87,19 @@ def event_dashboard(request, event_id):
     Main dashboard for a specific event with QR scanner and attendee list
     """
     event = get_object_or_404(Event, id=event_id)
+    user = request.user
+    
+    # Get assigned venues for ushers
+    assigned_venues = []
+    if user.role == 'usher':
+        usher_assignments = UsherAssignment.objects.filter(
+            user=user,
+            event=event,
+            is_active=True
+        )
+        assigned_venues = list(
+            usher_assignments.values_list('venue_name', flat=True)
+        )
     
     # Get all confirmed registrations
     registrations = Registration.objects.filter(
@@ -90,7 +128,8 @@ def event_dashboard(request, event_id):
         'total_checked_in': total_checked_in,
         'check_in_rate': check_in_rate,
         'search_query': search_query,
-        'staff_user': request.user,
+        'staff_user': user,
+        'assigned_venues': assigned_venues,
     }
     return render(request, 'staff/event_dashboard.html', context)
 
@@ -115,10 +154,20 @@ def manual_checkin(request, registration_id):
         
         if success:
             # Log check-in
+            location = ''
+            if request.user.role == 'usher':
+                assignment = UsherAssignment.objects.filter(
+                    user=request.user,
+                    event=registration.event,
+                    is_active=True
+                ).order_by('-assigned_at').first()
+                location = assignment.venue_name if assignment else ''
+
             CheckIn.objects.create(
                 registration=registration,
                 checked_in_by=request.user,
                 method='manual',
+                location=location,
                 notes=f'Manual check-in by {request.user.email}'
             )
             
@@ -183,10 +232,20 @@ def qr_checkin(request, event_id):
     
     if success:
         # Log check-in
+        location = ''
+        if request.user.role == 'usher':
+            assignment = UsherAssignment.objects.filter(
+                user=request.user,
+                event=event,
+                is_active=True
+            ).order_by('-assigned_at').first()
+            location = assignment.venue_name if assignment else ''
+
         CheckIn.objects.create(
             registration=registration,
             checked_in_by=request.user,
             method='qr_scan',
+            location=location,
             notes='QR code scan via staff portal'
         )
         
@@ -241,3 +300,177 @@ def checkin_stats(request, event_id):
         'check_in_rate': (total_checked_in / (total_registered + total_checked_in) * 100) if (total_registered + total_checked_in) > 0 else 0,
         'recent_checkins': recent_checkins_data
     })
+
+
+@staff_required
+def usher_validation(request):
+    """Usher-only ticket validation page (no event selection)."""
+    if request.user.role != 'usher':
+        return redirect('staff:event_list')
+
+    assignment = UsherAssignment.objects.filter(
+        user=request.user,
+        is_active=True
+    ).select_related('event').order_by('-assigned_at').first()
+
+    if not assignment:
+        return render(request, 'staff/usher_validation.html', {
+            'assignment': None,
+        })
+
+    return render(request, 'staff/usher_validation.html', {
+        'assignment': assignment,
+    })
+
+
+@staff_required
+def usher_manual_checkin(request):
+    """Check-in by registration number for ushers (scoped to active assignment event)."""
+    if request.user.role != 'usher':
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+
+    ticket_id = request.POST.get('ticket_id', '').strip().upper()
+    if not ticket_id:
+        return JsonResponse({'success': False, 'message': 'Ticket ID is required'})
+
+    assignment = UsherAssignment.objects.filter(
+        user=request.user,
+        is_active=True
+    ).select_related('event').order_by('-assigned_at').first()
+
+    if not assignment:
+        return JsonResponse({'success': False, 'message': 'No active usher assignment found'})
+
+    try:
+        registration = Registration.objects.get(
+            registration_number=ticket_id,
+            event=assignment.event,
+        )
+    except Registration.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Ticket not found for your assigned event'})
+
+    if registration.status == RegistrationStatus.CHECKED_IN:
+        return JsonResponse({
+            'success': False,
+            'message': f'{registration.attendee_name} is already checked in',
+            'checked_in_at': registration.checked_in_at.isoformat() if registration.checked_in_at else None
+        })
+
+    if registration.status != RegistrationStatus.CONFIRMED:
+        return JsonResponse({
+            'success': False,
+            'message': f'Registration status is {registration.get_status_display()}. Only confirmed registrations can be checked in.'
+        })
+
+    success = registration.check_in(checked_by=request.user)
+    if not success:
+        return JsonResponse({'success': False, 'message': 'Check-in failed. Registration must be confirmed.'})
+
+    CheckIn.objects.create(
+        registration=registration,
+        checked_in_by=request.user,
+        method='manual',
+        location=assignment.venue_name,
+        notes='Manual ticket ID entry via usher validation'
+    )
+
+    return JsonResponse({
+        'success': True,
+        'message': f'{registration.attendee_name} checked in successfully',
+        'checked_in_at': registration.checked_in_at.isoformat() if registration.checked_in_at else None,
+        'registration': {
+            'id': registration.id,
+            'attendee_name': registration.attendee_name,
+            'status': registration.status,
+            'registration_number': registration.registration_number,
+        }
+    })
+
+
+@staff_required
+def usher_qr_checkin(request):
+    """Check-in by QR code for ushers (scoped to active assignment event)."""
+    if request.user.role != 'usher':
+        return JsonResponse({'success': False, 'message': 'Unauthorized'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
+
+    qr_code = request.POST.get('qr_code', '').strip()
+    if not qr_code:
+        return JsonResponse({'success': False, 'message': 'QR code is required'})
+
+    assignment = UsherAssignment.objects.filter(
+        user=request.user,
+        is_active=True
+    ).select_related('event').order_by('-assigned_at').first()
+
+    if not assignment:
+        return JsonResponse({'success': False, 'message': 'No active usher assignment found'})
+
+    try:
+        registration = Registration.objects.get(
+            qr_code=qr_code,
+            event=assignment.event,
+        )
+    except Registration.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Invalid QR code or registration not found for your assigned event'})
+
+    if registration.status == RegistrationStatus.CHECKED_IN:
+        return JsonResponse({
+            'success': False,
+            'message': f'{registration.attendee_name} is already checked in',
+            'checked_in_at': registration.checked_in_at.isoformat() if registration.checked_in_at else None
+        })
+
+    if registration.status != RegistrationStatus.CONFIRMED:
+        return JsonResponse({
+            'success': False,
+            'message': f'Registration status is {registration.get_status_display()}. Only confirmed registrations can be checked in.'
+        })
+
+    success = registration.check_in(checked_by=request.user)
+    if not success:
+        return JsonResponse({'success': False, 'message': 'Check-in failed. Registration must be confirmed.'})
+
+    CheckIn.objects.create(
+        registration=registration,
+        checked_in_by=request.user,
+        method='qr_scan',
+        location=assignment.venue_name,
+        notes='QR scan via usher validation'
+    )
+
+    return JsonResponse({
+        'success': True,
+        'message': f'{registration.attendee_name} checked in successfully',
+        'checked_in_at': registration.checked_in_at.isoformat() if registration.checked_in_at else None,
+        'registration': {
+            'id': registration.id,
+            'attendee_name': registration.attendee_name,
+            'status': registration.status,
+            'registration_number': registration.registration_number,
+        }
+    })
+
+ 
+ @ s t a f f _ r e q u i r e d 
+ d e f   s t a f f _ l o g o u t ( r e q u e s t ) : 
+         \  
+ \ \ C u s t o m  
+ l o g o u t  
+ v i e w  
+ f o r  
+ s t a f f  
+ t h a t  
+ i m m e d i a t e l y  
+ r e d i r e c t s  
+ t o  
+ l o g i n . \ \ \ 
+         d j a n g o _ l o g o u t ( r e q u e s t ) 
+         r e t u r n   r e d i r e c t ( ' s t a f f _ l o g i n ' ) 
+  
+ 

@@ -9,7 +9,8 @@ from datetime import datetime, timedelta
 from .models import (
     Vendor, VendorContact, Contract, VendorPayment,
     TeamMember, Task, TaskComment, TeamNotification,
-    AuditLog, DataExport, PrivacySetting, SecurityEvent
+    AuditLog, DataExport, PrivacySetting, SecurityEvent,
+    UsherAssignment
 )
 from .forms import (
     VendorForm, VendorContactForm, ContractForm, VendorPaymentForm,
@@ -18,6 +19,8 @@ from .forms import (
 )
 from events.models import Event
 from users.models import User
+import secrets
+import string
 
 
 # ============ Vendor Views ============
@@ -771,3 +774,195 @@ def data_export_download(request, pk):
         return response
     
     return HttpResponseForbidden('File not found.')
+
+
+# ============ Usher Assignment Views ============
+
+def generate_temp_password(length=12):
+    """Generate a random temporary password"""
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+
+@login_required
+def usher_list(request):
+    """List all usher assignments for events organized by current user"""
+    can_manage_ushers = (
+        request.user.is_superuser
+        or request.user.is_staff
+        or request.user.role in ['admin', 'staff']
+        or getattr(request.user, 'is_organizer', False)
+    )
+
+    if not can_manage_ushers:
+        messages.error(request, 'You do not have permission to view usher assignments.')
+        return redirect('organizers:organizer_dashboard')
+    
+    if getattr(request.user, 'is_organizer', False) and request.user.role not in ['admin', 'staff'] and not request.user.is_staff and not request.user.is_superuser:
+        assignments = UsherAssignment.objects.filter(
+            event__organizer=request.user
+        ).select_related('event', 'user')
+        events = Event.objects.filter(organizer=request.user)
+    else:
+        assignments = UsherAssignment.objects.select_related('event', 'user')
+        events = Event.objects.all()
+    
+    event_id = request.GET.get('event')
+    if event_id:
+        assignments = assignments.filter(event_id=event_id)
+
+    return render(request, 'advanced/usher_list.html', {
+        'assignments': assignments,
+        'events': events
+    })
+
+
+@login_required
+def usher_create(request):
+    """Create new usher assignment with manually entered credentials"""
+    can_manage_ushers = (
+        request.user.is_superuser
+        or request.user.is_staff
+        or request.user.role in ['admin', 'staff']
+        or getattr(request.user, 'is_organizer', False)
+    )
+
+    if not can_manage_ushers:
+        messages.error(request, 'You do not have permission to create usher assignments.')
+        return redirect('organizers:organizer_dashboard')
+
+    event_id = request.GET.get('event')
+    event = None
+    if event_id:
+        if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
+            event = get_object_or_404(Event, pk=event_id)
+        else:
+            event = get_object_or_404(Event, pk=event_id, organizer=request.user)
+    
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        event_id_post = request.POST.get('event')
+        venue_name = request.POST.get('venue_name')
+        
+        if not email or not password:
+            messages.error(request, 'Email and password are required.')
+            return redirect('advanced:usher_create')
+        
+        if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
+            event = get_object_or_404(Event, pk=event_id_post)
+        else:
+            event = get_object_or_404(Event, pk=event_id_post, organizer=request.user)
+        
+        # Check if user exists or create new
+        user = User.objects.filter(email=email).first()
+        if not user:
+            # Create new user with usher role
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                role='usher',
+                first_name=request.POST.get('first_name', ''),
+                last_name=request.POST.get('last_name', '')
+            )
+        else:
+            # Update existing user
+            user.set_password(password)
+            user.role = 'usher'
+            user.is_active = True
+            user.save()
+        
+        # Create usher assignment with venue name
+        assignment = UsherAssignment.objects.create(
+            user=user,
+            event=event,
+            venue_name=venue_name or event.venue_name,
+            temp_password=''  # No temp password stored since manually set
+        )
+        
+        messages.success(request, f'Usher assigned successfully to {venue_name or event.venue_name}.')
+        
+        return redirect('advanced:usher_list')
+    
+    # Get events for form
+    if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
+        events = Event.objects.all()
+    else:
+        events = Event.objects.filter(organizer=request.user)
+    
+    return render(request, 'advanced/usher_form.html', {
+        'event': event,
+        'events': events,
+        'action': 'Create'
+    })
+
+
+@login_required
+def usher_update(request, pk):
+    """Update usher assignment (venue, status)"""
+    can_manage_ushers = (
+        request.user.is_superuser
+        or request.user.is_staff
+        or request.user.role in ['admin', 'staff']
+        or getattr(request.user, 'is_organizer', False)
+    )
+
+    if not can_manage_ushers:
+        messages.error(request, 'You do not have permission to update usher assignments.')
+        return redirect('organizers:organizer_dashboard')
+
+    if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
+        assignment = get_object_or_404(UsherAssignment, pk=pk)
+    else:
+        assignment = get_object_or_404(UsherAssignment, pk=pk, event__organizer=request.user)
+    
+    if request.method == 'POST':
+        # Update venue name
+        assignment.venue_name = request.POST.get('venue_name', assignment.venue_name)
+        
+        # Update status
+        assignment.is_active = request.POST.get('is_active') == 'on'
+        assignment.save()
+        
+        messages.success(request, 'Usher assignment updated.')
+        return redirect('advanced:usher_list')
+    
+    return render(request, 'advanced/usher_form.html', {
+        'assignment': assignment,
+        'event': assignment.event,
+        'action': 'Update'
+    })
+
+
+@login_required
+def usher_delete(request, pk):
+    """Delete usher assignment"""
+    can_manage_ushers = (
+        request.user.is_superuser
+        or request.user.is_staff
+        or request.user.role in ['admin', 'staff']
+        or getattr(request.user, 'is_organizer', False)
+    )
+
+    if not can_manage_ushers:
+        messages.error(request, 'You do not have permission to delete usher assignments.')
+        return redirect('organizers:organizer_dashboard')
+
+    if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
+        assignment = get_object_or_404(UsherAssignment, pk=pk)
+    else:
+        assignment = get_object_or_404(UsherAssignment, pk=pk, event__organizer=request.user)
+    
+    if request.method == 'POST':
+        user = assignment.user
+        assignment.delete()
+        
+        # Optionally deactivate the user if they have no other assignments
+        if not UsherAssignment.objects.filter(user=user).exists():
+            user.is_active = False
+            user.save()
+        
+        messages.success(request, 'Usher assignment removed.')
+        return redirect('advanced:usher_list')
+    
+    return render(request, 'advanced/usher_confirm_delete.html', {'assignment': assignment})

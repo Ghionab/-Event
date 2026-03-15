@@ -140,7 +140,7 @@ def registrations_list(request):
     user = request.user
 
     regs = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email=user.email)
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
 
     filter_type = request.GET.get('filter', 'all')

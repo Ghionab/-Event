@@ -59,10 +59,11 @@ MIDDLEWARE = [
 ]
 
 # CSRF settings for staff portal
-CSRF_USE_SESSIONS = True
+CSRF_USE_SESSIONS = False  # Use cookies instead of sessions for CSRF
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_NAME = 'csrftoken'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -90,6 +91,16 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8002",
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 # URL configuration for staff portal
 ROOT_URLCONF = 'event_project.urls_staff'

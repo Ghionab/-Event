@@ -8,6 +8,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.contrib.auth import views as auth_views
+from staff import views
 
 urlpatterns = [
     # Redirect root to staff login
@@ -20,9 +21,7 @@ urlpatterns = [
         extra_context={'next': '/staff/events/'}
     ), name='staff_login'),
     
-    path('staff/logout/', auth_views.LogoutView.as_view(
-        next_page='/staff/login/'
-    ), name='staff_logout'),
+    path('staff/logout/', views.staff_logout, name='staff_logout'),
     
     # Staff portal routes
     path('staff/', include('staff.urls')),

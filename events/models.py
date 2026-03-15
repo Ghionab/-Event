@@ -30,7 +30,7 @@ class Event(models.Model):
     status = models.CharField(
         max_length=20,
         choices=EventStatus.choices,
-        default=EventStatus.DRAFT
+        default=EventStatus.PUBLISHED
     )
     
     # Dates

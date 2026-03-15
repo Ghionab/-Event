@@ -230,12 +230,7 @@
                         <i class="fas fa-chair mr-1"></i>${available} left
                     </span>
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" class="ticket-checkbox rounded text-indigo-600" 
-                               data-ticket-id="${ticket.id}" 
-                               data-ticket-name="${ticket.name}"
-                               data-price="${price}" 
-                               ${available <= 0 ? 'disabled' : ''} 
-                               onchange="updateTotal()">
+                        <input type="checkbox" class="ticket-checkbox rounded text-indigo-600" data-ticket-id="${ticket.id}" data-price="${price}" ${available <= 0 ? 'disabled' : ''} onchange="updateTotal()">
                         <span class="${available <= 0 ? 'text-gray-400' : ''}">${available <= 0 ? 'Sold out' : 'Select'}</span>
                     </label>
                 </div>

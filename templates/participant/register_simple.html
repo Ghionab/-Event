@@ -152,13 +152,13 @@
                         }
                     });
 
-                    // Add tickets from sessionStorage if available
-                    const savedTickets = sessionStorage.getItem('selectedTickets');
-                    if (savedTickets) {
+                    // Add tickets from sessionStorage
+                    const selectedTickets = sessionStorage.getItem('selectedTickets');
+                    if (selectedTickets) {
                         try {
-                            data.tickets = JSON.parse(savedTickets);
+                            data['tickets'] = JSON.parse(selectedTickets);
                         } catch (e) {
-                            console.error('Error parsing tickets from sessionStorage:', e);
+                            console.error('Error parsing selected tickets:', e);
                         }
                     }
                     

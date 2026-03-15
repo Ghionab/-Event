@@ -41,4 +41,10 @@ urlpatterns = [
     path('privacy/', views.privacy_settings, name='privacy_settings'),
     path('privacy/export/', views.data_export_request, name='data_export_request'),
     path('privacy/export/<int:pk>/', views.data_export_download, name='data_export_download'),
+    
+    # Usher Assignment URLs
+    path('ushers/', views.usher_list, name='usher_list'),
+    path('ushers/create/', views.usher_create, name='usher_create'),
+    path('ushers/<int:pk>/update/', views.usher_update, name='usher_update'),
+    path('ushers/<int:pk>/delete/', views.usher_delete, name='usher_delete'),
 ]

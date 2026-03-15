@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db.models import Count
 from django.utils import timezone
 from django.template.loader import render_to_string
+from django.db import transaction
 from .forms import EventForm, EventSessionForm, SpeakerForm, TrackForm, RoomForm, SponsorForm, SpeakerSessionAssignmentForm
 from .models import Event, EventSession, Speaker, Track, Room, Sponsor
 from registration.models import TicketType
@@ -120,11 +121,26 @@ def event_detail(request, event_id):
         form = RegistrationForm(request.POST)
         form.fields['ticket_type'].queryset = ticket_types
         if form.is_valid():
-            registration = form.save(commit=False)
-            registration.event = event
-            registration.user = request.user if request.user.is_authenticated else None
-            registration.save()
-            registration_success = True
+            try:
+                with transaction.atomic():
+                    registration = form.save(commit=False)
+                    registration.event = event
+                    registration.user = request.user if request.user.is_authenticated else None
+                    
+                    # Lock and decrement inventory
+                    ticket_type = TicketType.objects.select_for_update().get(id=registration.ticket_type.id)
+                    if ticket_type.quantity_available <= 0:
+                        messages.error(request, 'Ticket finished')
+                        registration_errors = {'ticket_type': ['This ticket is sold out.']}
+                    else:
+                        ticket_type.quantity_available -= 1
+                        ticket_type.quantity_sold += 1
+                        ticket_type.save()
+                        registration.save()
+                        registration.confirm()
+                        registration_success = True
+            except Exception as e:
+                registration_errors = {'__all__': [f"Registration failed: {str(e)}"]}
         else:
             registration_errors = form.errors
     else:
@@ -166,11 +182,26 @@ def event_landing(request, slug):
         form = RegistrationForm(request.POST)
         form.fields['ticket_type'].queryset = ticket_types
         if form.is_valid():
-            registration = form.save(commit=False)
-            registration.event = event
-            registration.user = request.user if request.user.is_authenticated else None
-            registration.save()
-            registration_success = True
+            try:
+                with transaction.atomic():
+                    registration = form.save(commit=False)
+                    registration.event = event
+                    registration.user = request.user if request.user.is_authenticated else None
+                    
+                    # Lock and decrement inventory
+                    ticket_type = TicketType.objects.select_for_update().get(id=registration.ticket_type.id)
+                    if ticket_type.quantity_available <= 0:
+                        messages.error(request, 'Ticket finished')
+                        registration_errors = {'ticket_type': ['This ticket is sold out.']}
+                    else:
+                        ticket_type.quantity_available -= 1
+                        ticket_type.quantity_sold += 1
+                        ticket_type.save()
+                        registration.save()
+                        registration.confirm()
+                        registration_success = True
+            except Exception as e:
+                registration_errors = {'__all__': [f"Registration failed: {str(e)}"]}
         else:
             registration_errors = form.errors
     else:

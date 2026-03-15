@@ -435,7 +435,7 @@
                 
                 <!-- Brand -->
                 <div class="sidebar-header">
-                    <a href="{% url 'organizer_dashboard' %}" class="sidebar-brand">
+                    <a href="{% url 'organizers:organizer_dashboard' %}" class="sidebar-brand">
                         <i class="bi bi-calendar-event text-indigo-400 text-2xl"></i>
                         <span class="font-bold text-xl">EventHub</span>
                     </a>
@@ -444,15 +444,15 @@
                 <!-- Navigation -->
                 <nav class="sidebar-nav">
                     <div class="nav-section">
-                        <a href="{% url 'organizer_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'organizer_dashboard' %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'organizer_dashboard' %}active{% endif %}">
                             <i class="bi bi-grid-1x2"></i>
                             <span>Dashboard</span>
                         </a>
-                        <a href="{% url 'organizer_event_list' %}" class="nav-item {% if request.resolver_match.url_name == 'organizer_event_list' or request.resolver_match.url_name == 'organizer_event_detail' %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_event_list' %}" class="nav-item {% if request.resolver_match.url_name == 'organizer_event_list' or request.resolver_match.url_name == 'organizer_event_detail' %}active{% endif %}">
                             <i class="bi bi-calendar-check"></i>
                             <span>My Events</span>
                         </a>
-                        <a href="{% url 'organizer_event_create' %}" class="nav-item {% if request.resolver_match.url_name == 'organizer_event_create' %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_event_create' %}" class="nav-item {% if request.resolver_match.url_name == 'organizer_event_create' %}active{% endif %}">
                             <i class="bi bi-plus-circle"></i>
                             <span>Create Event</span>
                         </a>
@@ -460,15 +460,15 @@
 
                     <div class="nav-section-title">Management</div>
                     <div class="nav-section">
-                        <a href="{% url 'organizer_registration_list' %}" class="nav-item {% if 'registration' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_registration_list' %}" class="nav-item {% if 'registration' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-person-badge"></i>
                             <span>Registrations</span>
                         </a>
-                        <a href="{% url 'organizer_communication_dashboard' %}" class="nav-item {% if 'communication' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_communication_dashboard' %}" class="nav-item {% if 'communication' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-envelope"></i>
                             <span>Communication</span>
                         </a>
-                        <a href="{% url 'organizer_sponsor_list' %}" class="nav-item {% if 'sponsor' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_sponsor_list' %}" class="nav-item {% if 'sponsor' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-currency-dollar"></i>
                             <span>Sponsors</span>
                         </a>
@@ -492,6 +492,10 @@
                             <i class="bi bi-people"></i>
                             <span>Team</span>
                         </a>
+                        <a href="{% url 'advanced:usher_list' %}" class="nav-item {% if 'usher' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="bi bi-person-badge"></i>
+                            <span>Usher Management</span>
+                        </a>
                         <a href="{% url 'advanced:task_list' %}" class="nav-item {% if 'task' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-list-check"></i>
                             <span>Tasks</span>
@@ -500,15 +504,15 @@
 
                     <div class="nav-section-title">System</div>
                     <div class="nav-section">
-                        <a href="{% url 'organizer_analytics' %}" class="nav-item {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_analytics' %}" class="nav-item {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-bar-chart-line"></i>
                             <span>Analytics</span>
                         </a>
-                        <a href="{% url 'organizer_settings' %}" class="nav-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_settings' %}" class="nav-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-gear"></i>
                             <span>Settings</span>
                         </a>
-                        <a href="{% url 'organizer_notifications' %}" class="nav-item {% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_notifications' %}" class="nav-item {% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="bi bi-bell"></i>
                             <span>Notifications</span>
                         </a>
@@ -516,7 +520,7 @@
                             <i class="bi bi-house"></i>
                             <span>Back to Home</span>
                         </a>
-                        <form method="post" action="{% url 'organizer_logout' %}" id="logoutForm">
+                        <form method="post" action="{% url 'organizers:organizer_logout' %}" id="logoutForm">
                             {% csrf_token %}
                             <button type="submit" class="nav-item w-full text-left text-red-400 hover:text-red-300 hover:bg-red-500/10">
                                 <i class="bi bi-box-arrow-right"></i>
@@ -537,7 +541,7 @@
                     <p class="text-sm text-gray-500">{% block subtitle %}Welcome back!{% endblock %}</p>
                 </div>
                 <div class="header-actions">
-                    <a href="{% url 'organizer_notifications' %}" class="relative p-2 text-gray-400 hover:text-gray-600">
+                    <a href="{% url 'organizers:organizer_notifications' %}" class="relative p-2 text-gray-400 hover:text-gray-600">
                         <i class="bi bi-bell text-xl"></i>
                         <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                     </a>
@@ -553,11 +557,11 @@
                             <i class="bi bi-chevron-down text-gray-400"></i>
                         </div>
                         <div class="user-dropdown hidden" id="userDropdown">
-                            <a href="{% url 'organizer_settings' %}">
+                            <a href="{% url 'organizers:organizer_settings' %}">
                                 <i class="bi bi-gear text-sm text-gray-500"></i>
                                 <span>Profile &amp; Settings</span>
                             </a>
-                            <a href="{% url 'organizer_logout' %}">
+                            <a href="{% url 'organizers:organizer_logout' %}">
                                 <i class="bi bi-box-arrow-right text-sm text-gray-500"></i>
                                 <span>Logout</span>
                             </a>

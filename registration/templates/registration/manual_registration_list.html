@@ -31,13 +31,6 @@
                             <div class="text-xs text-gray-500">Advanced wizard with validation & mapping</div>
                         </div>
                     </a>
-                    <a href="{% url 'registration:bulk_registration_upload' event.id %}" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition">
-                        <i class="bi bi-upload mr-3 text-lg"></i>
-                        <div>
-                            <div class="font-semibold">Quick Upload</div>
-                            <div class="text-xs text-gray-500">Simple CSV/Excel upload</div>
-                        </div>
-                    </a>
                 </div>
             </div>
         </div>
@@ -133,9 +126,6 @@
             <div class="flex gap-3 justify-center">
                 <a href="{% url 'registration:manual_registration_create' event.id %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
                     <i class="bi bi-person-plus mr-2"></i>Add One Attendee
-                </a>
-                <a href="{% url 'registration:bulk_registration_upload' event.id %}" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
-                    <i class="bi bi-upload mr-2"></i>Upload in Bulk
                 </a>
             </div>
         </div>

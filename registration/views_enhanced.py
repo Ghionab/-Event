@@ -102,7 +102,7 @@ def handle_ticket_purchase_submission(request, event, custom_questions):
                 attendee_name=attendee_name,
                 attendee_email=attendee_email,
                 attendee_phone=attendee_phone,
-                status='confirmed' if float(ticket_type.price or 0) == 0 else 'pending'
+                status='confirmed'  # Always confirmed until payment integration
             )
             
             # Save custom question answers

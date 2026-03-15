@@ -176,7 +176,6 @@ def register_for_event(request, event_id):
                 ticket_type.save()
 
             registration.save()
-            registration.confirm()
 
             # Notify ushers assigned to this venue
             venue_name = getattr(event, 'venue_name', '')

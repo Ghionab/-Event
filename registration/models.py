@@ -127,7 +127,7 @@ class Registration(models.Model):
     status = models.CharField(
         max_length=20,
         choices=RegistrationStatus.choices,
-        default=RegistrationStatus.PENDING
+        default=RegistrationStatus.CONFIRMED
     )
     
     # Payment details
@@ -186,6 +186,7 @@ class Registration(models.Model):
                 self.ticket_type.quantity_sold += 1
                 self.ticket_type.save()
             self.save()
+        # If already confirmed, do nothing
     
     def cancel(self, reason=''):
         """Cancel the registration"""

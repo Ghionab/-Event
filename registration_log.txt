@@ -317,3 +317,21 @@
 [2026-03-14 16:15:57] RAW_DATA: {'event_id': '2', 'full_name': 'faggot', 'email': 'demo@example.com', 'phone': '5864485', 'special_requests': 'gjjvgjgkfcvg', 'tickets': [{'ticket_id': 2, 'quantity': 1}]}
 [2026-03-14 16:15:57] PARSED: event_id=2 (type=str), email=demo@example.com, name=faggot
 [2026-03-14 16:15:57] SUCCESS | event_id=2 | name=faggot | email=demo@example.com | status=pending | reg#=REG-C6377319
+[2026-03-14 17:51:08] RAW_DATA: {'event_id': '1', 'full_name': 'nathanium', 'email': 'nathanjames7668@gmail.com', 'phone': '8972630689', 'special_requests': 'jklaggyiigHVbh', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-14 17:51:08] PARSED: event_id=1 (type=str), email=nathanjames7668@gmail.com, name=nathanium
+[2026-03-14 17:51:08] SUCCESS | event_id=1 | name=nathanium | email=nathanjames7668@gmail.com | status=pending | reg#=REG-C97FEA1D
+[2026-03-14 18:03:45] RAW_DATA: {'event_id': '1', 'full_name': 'yfhhj', 'email': 'nathanjames7668@gmail.com', 'phone': '8972630689', 'special_requests': 'kjgklulkgu', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-14 18:03:45] PARSED: event_id=1 (type=str), email=nathanjames7668@gmail.com, name=yfhhj
+[2026-03-14 18:03:45] SUCCESS | event_id=1 | name=yfhhj | email=nathanjames7668@gmail.com | status=pending | reg#=REG-378C0374
+[2026-03-14 18:20:10] RAW_DATA: {'event_id': '1', 'full_name': 'HJFFGFGF', 'email': 'abekebe@gmail.com', 'phone': '0911225127', 'special_requests': 'LIGIVYYGKUYUGJ', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-14 18:20:10] PARSED: event_id=1 (type=str), email=abekebe@gmail.com, name=HJFFGFGF
+[2026-03-14 18:20:10] SUCCESS | event_id=1 | name=HJFFGFGF | email=abekebe@gmail.com | status=pending | reg#=REG-457CE5B8
+[2026-03-14 18:41:14] RAW_DATA: {'event_id': '1', 'full_name': 'bella', 'email': 'jamesnathan7668@gmail.com', 'phone': '7879043878', 'special_requests': 'sjk.bk;va/jjbl/jba/qv', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-14 18:41:14] PARSED: event_id=1 (type=str), email=jamesnathan7668@gmail.com, name=bella
+[2026-03-14 18:41:14] SUCCESS | event_id=1 | name=bella | email=jamesnathan7668@gmail.com | status=pending | reg#=REG-53274AD1
+[2026-03-14 18:42:24] RAW_DATA: {'event_id': '1', 'full_name': 'natt', 'email': 'nathanjames7668@gmail.com', 'phone': '2890769623', 'special_requests': 'hjkdcabjjkasc', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-14 18:42:24] PARSED: event_id=1 (type=str), email=nathanjames7668@gmail.com, name=natt
+[2026-03-14 18:42:24] SUCCESS | event_id=1 | name=natt | email=nathanjames7668@gmail.com | status=pending | reg#=REG-37FF88EB
+[2026-03-14 19:11:30] RAW_DATA: {'event_id': '1', 'full_name': 'hgffk', 'email': 'nathanjames7668@gmail.com', 'phone': '2890769623', 'special_requests': 'bnmchf', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-14 19:11:30] PARSED: event_id=1 (type=str), email=nathanjames7668@gmail.com, name=hgffk
+[2026-03-14 19:11:30] SUCCESS | event_id=1 | name=hgffk | email=nathanjames7668@gmail.com | status=confirmed | reg#=REG-0FEA9982

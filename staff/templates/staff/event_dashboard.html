@@ -9,165 +9,298 @@
         width: 100%;
         max-width: 500px;
         margin: 0 auto;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
     }
     
     #qr-reader__dashboard_section_csr {
         display: none !important;
     }
     
-    .scanner-container {
-        background: white;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    .scanner-status {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        border-radius: 1rem;
+        border: 2px dashed var(--success-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .scanner-status.inactive {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border-color: #d1d5db;
+    }
+    
+    .recent-checkins {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .checkin-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-left: 3px solid var(--success-color);
+    }
+    
+    .checkin-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--success-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 {% csrf_token %}
-<!-- Back Button -->
-<div class="mb-3">
-    <a href="{% url 'staff:event_list' %}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left"></i> Back to Events
+
+<!-- Navigation -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <a href="{% url 'staff:event_list' %}" class="btn btn-outline-secondary btn-modern">
+        <i class="bi bi-arrow-left me-2"></i>Back to Events
     </a>
+    <button class="btn btn-outline-primary btn-modern" onclick="refreshPage()">
+        <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+    </button>
 </div>
 
 <!-- Event Header -->
-<div class="stats-card">
-    <h3 class="mb-3">{{ event.title }}</h3>
-    <p class="text-muted mb-0">
-        <i class="fas fa-calendar"></i> {{ event.start_date|date:"F d, Y" }}
-        {% if event.venue_name %}
-        | <i class="fas fa-map-marker-alt"></i> {{ event.venue_name }}
-        {% endif %}
-    </p>
-</div>
-
-<!-- Stats Dashboard -->
-<div class="row">
-    <div class="col-md-4">
-        <div class="stats-card text-center">
-            <i class="fas fa-users text-primary" style="font-size: 30px;"></i>
-            <div class="stats-number text-primary" id="total-registered">{{ total_registered }}</div>
-            <div class="text-muted">Total Registered</div>
+<div class="modern-card">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+            <i class="bi bi-calendar-event text-primary fs-3"></i>
+        </div>
+        <div>
+            <h2 class="mb-1">{{ event.title }}</h2>
+            <div class="text-muted">
+                <i class="bi bi-calendar3 me-2"></i>{{ event.start_date|date:"F d, Y" }}
+                {% if event.venue_name %}
+                <span class="mx-2">•</span>
+                <i class="bi bi-geo-alt me-2"></i>{{ event.venue_name }}
+                {% endif %}
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="stats-card text-center">
-            <i class="fas fa-check-circle text-success" style="font-size: 30px;"></i>
-            <div class="stats-number text-success" id="total-checked-in">{{ total_checked_in }}</div>
-            <div class="text-muted">Checked In</div>
+    
+    <!-- Live Stats -->
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon text-info">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stats-number text-info" id="total-registered">{{ total_registered }}</div>
+                <div class="stats-label">Total Registered</div>
+            </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="stats-card text-center">
-            <i class="fas fa-chart-line text-info" style="font-size: 30px;"></i>
-            <div class="stats-number text-info" id="check-in-rate">{{ check_in_rate|floatformat:0 }}%</div>
-            <div class="text-muted">Check-in Rate</div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon text-success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stats-number text-success" id="total-checked-in">{{ total_checked_in }}</div>
+                <div class="stats-label">Checked In</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon text-primary">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="stats-number text-primary" id="check-in-rate">{{ check_in_rate|floatformat:0 }}%</div>
+                <div class="stats-label">Check-in Rate</div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- QR Scanner Section -->
 <div class="scanner-container">
-    <h4 class="mb-3 text-center">
-        <i class="fas fa-qrcode"></i> QR Code Scanner
-    </h4>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0">
+            <i class="bi bi-qr-code me-2"></i>QR Code Scanner
+        </h4>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success" id="scanner-status">Ready</span>
+        </div>
+    </div>
     
-    <button id="start-scan-btn" class="btn btn-scan" onclick="startScanner()">
-        <i class="fas fa-camera"></i> Start Scanning
-    </button>
+    <div class="scanner-status inactive" id="scanner-display">
+        <div class="mb-3">
+            <i class="bi bi-camera text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h5 class="text-muted mb-2">Camera Scanner Ready</h5>
+        <p class="text-muted mb-3">Tap the button below to start scanning QR codes</p>
+        <button id="start-scan-btn" class="btn btn-scan" onclick="startScanner()">
+            <i class="bi bi-camera me-2"></i>Start Scanning
+        </button>
+    </div>
     
     <div id="qr-reader" style="display: none;"></div>
     
-    <button id="stop-scan-btn" class="btn btn-danger" style="display: none; width: 100%; padding: 15px; border-radius: 10px;" onclick="stopScanner()">
-        <i class="fas fa-stop"></i> Stop Scanner
+    <button id="stop-scan-btn" class="btn btn-danger btn-modern" style="display: none; width: 100%;" onclick="stopScanner()">
+        <i class="bi bi-stop-circle me-2"></i>Stop Scanner
     </button>
 </div>
 
-<!-- Search Box -->
-<div class="search-box">
-    <form method="get" action="">
-        <div class="input-group">
-            <span class="input-group-text bg-white">
-                <i class="fas fa-search"></i>
-            </span>
+<!-- Search and Filters -->
+<div class="search-container">
+    <form method="get" action="" class="row g-3 align-items-end">
+        <div class="col-md-8">
+            <label for="search" class="form-label fw-semibold">
+                <i class="bi bi-search me-2"></i>Search Attendees
+            </label>
             <input type="text" 
-                   class="form-control" 
+                   class="form-control search-input" 
+                   id="search"
                    name="search" 
                    placeholder="Search by name, email, or registration number..." 
                    value="{{ search_query }}">
-            <button class="btn btn-primary" type="submit">Search</button>
-            {% if search_query %}
-            <a href="{% url 'staff:event_dashboard' event.id %}" class="btn btn-outline-secondary">Clear</a>
-            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-modern flex-grow-1" type="submit">
+                    <i class="bi bi-search me-2"></i>Search
+                </button>
+                {% if search_query %}
+                <a href="{% url 'staff:event_dashboard' event.id %}" class="btn btn-outline-secondary btn-modern">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+                {% endif %}
+            </div>
         </div>
     </form>
 </div>
 
 <!-- Attendee List -->
-<h4 class="mb-3">
-    <i class="fas fa-list"></i> Attendee List
-    <span class="badge bg-secondary">{{ registrations.count }}</span>
-</h4>
-
-{% if registrations %}
-    {% for registration in registrations %}
-    <div class="attendee-card {% if registration.status == 'checked_in' %}checked-in{% endif %}" 
-         id="registration-{{ registration.id }}">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h5 class="mb-1">{{ registration.attendee_name }}</h5>
-                <p class="text-muted mb-1">
-                    <i class="fas fa-envelope"></i> {{ registration.attendee_email }}
-                </p>
-                <p class="text-muted mb-0">
-                    <i class="fas fa-ticket-alt"></i> {{ registration.ticket_type.name|default:"General" }}
-                    | <i class="fas fa-hashtag"></i> {{ registration.registration_number }}
-                </p>
-            </div>
-            <div class="col-md-3">
-                {% if registration.status == 'checked_in' %}
-                    <span class="badge-status badge-checked-in">
-                        <i class="fas fa-check-circle"></i> CHECKED IN
-                    </span>
-                    <br>
-                    <small class="text-muted">
-                        {{ registration.checked_in_at|date:"M d, Y H:i" }}
-                    </small>
-                {% else %}
-                    <span class="badge-status badge-confirmed">
-                        <i class="fas fa-clock"></i> CONFIRMED
-                    </span>
-                {% endif %}
-            </div>
-            <div class="col-md-3 text-end">
-                {% if registration.status == 'confirmed' %}
-                <button class="btn btn-checkin" 
-                        onclick="manualCheckin({{ registration.id }}, '{{ registration.attendee_name|escapejs }}')">
-                    <i class="fas fa-check"></i> Check In
-                </button>
-                {% else %}
-                <button class="btn btn-checkin" disabled>
-                    <i class="fas fa-check-circle"></i> Checked In
-                </button>
-                {% endif %}
-            </div>
+<div class="modern-card">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h4 class="mb-0">
+            <i class="bi bi-people me-2"></i>Attendee List
+        </h4>
+        <div class="d-flex align-items-center gap-3">
+            {% if search_query %}
+            <small class="text-muted">
+                Showing results for "{{ search_query }}"
+            </small>
+            {% endif %}
+            <span class="badge bg-secondary fs-6">{{ registrations.count }} Found</span>
         </div>
     </div>
-    {% endfor %}
-{% else %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i>
-        {% if search_query %}
-            No attendees found matching "{{ search_query }}".
-        {% else %}
-            No registered attendees for this event yet.
-        {% endif %}
-    </div>
-{% endif %}
+
+    {% if registrations %}
+        <div class="row g-3">
+            {% for registration in registrations %}
+            <div class="col-12">
+                <div class="attendee-card {% if registration.status == 'checked_in' %}checked-in{% endif %}" 
+                     id="registration-{{ registration.id }}">
+                    <div class="row align-items-center g-3">
+                        <!-- Attendee Info -->
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="flex-shrink-0">
+                                    <div class="checkin-avatar">
+                                        {{ registration.attendee_name|first|upper }}
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="attendee-name mb-1">{{ registration.attendee_name }}</h5>
+                                    <div class="attendee-details">
+                                        <i class="bi bi-envelope"></i>
+                                        {{ registration.attendee_email }}
+                                    </div>
+                                    <div class="attendee-details">
+                                        <i class="bi bi-ticket"></i>
+                                        {{ registration.ticket_type.name|default:"General" }}
+                                        <span class="mx-2">•</span>
+                                        <i class="bi bi-hash"></i>
+                                        {{ registration.registration_number }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="col-lg-3">
+                            {% if registration.status == 'checked_in' %}
+                                <div class="status-badge status-checked-in mb-2">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Checked In
+                                </div>
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ registration.checked_in_at|date:"M d, H:i" }}
+                                </small>
+                            {% else %}
+                                <div class="status-badge status-confirmed">
+                                    <i class="bi bi-clock"></i>
+                                    Confirmed
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Action -->
+                        <div class="col-lg-3 text-end">
+                            {% if registration.status == 'confirmed' %}
+                            <button class="btn btn-checkin btn-modern w-100" 
+                                    onclick="manualCheckin({{ registration.id }}, '{{ registration.attendee_name|escapejs }}')">
+                                <i class="bi bi-check-circle me-2"></i>Check In
+                            </button>
+                            {% else %}
+                            <button class="btn btn-checkin btn-modern w-100" disabled>
+                                <i class="bi bi-check-circle-fill me-2"></i>Checked In
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                {% if search_query %}
+                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                {% else %}
+                <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                {% endif %}
+            </div>
+            <h5 class="text-muted mb-3">
+                {% if search_query %}
+                    No attendees found
+                {% else %}
+                    No registered attendees
+                {% endif %}
+            </h5>
+            <p class="text-muted mb-4">
+                {% if search_query %}
+                    No attendees match your search criteria "{{ search_query }}".
+                {% else %}
+                    No attendees have registered for this event yet.
+                {% endif %}
+            </p>
+            {% if search_query %}
+            <a href="{% url 'staff:event_dashboard' event.id %}" class="btn btn-outline-primary btn-modern">
+                <i class="bi bi-arrow-left me-2"></i>Show All Attendees
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
 
 {% endblock %}
 
@@ -198,45 +331,31 @@ function getCookie(name) {
 }
 
 function getCSRFToken() {
-    // Use the token from Django template first
     if (csrftoken && csrftoken !== 'NOTPROVIDED') {
         return csrftoken;
     }
-    
-    // Try to get from cookie
-    let token = getCookie('csrftoken');
-    
-    // If not in cookie, try to get from meta tag or input
-    if (!token) {
-        const metaTag = document.querySelector('meta[name="csrf-token"]');
-        if (metaTag) {
-            token = metaTag.getAttribute('content');
-        }
-    }
-    
-    // If still not found, try hidden input
-    if (!token) {
-        const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
-        if (input) {
-            token = input.value;
-        }
-    }
-    
-    return token;
+    return getCookie('csrftoken');
 }
 
 function startScanner() {
     if (isScanning) return;
     
-    document.getElementById('start-scan-btn').style.display = 'none';
-    document.getElementById('qr-reader').style.display = 'block';
-    document.getElementById('stop-scan-btn').style.display = 'block';
+    const scannerDisplay = document.getElementById('scanner-display');
+    const qrReader = document.getElementById('qr-reader');
+    const stopBtn = document.getElementById('stop-scan-btn');
+    const statusBadge = document.getElementById('scanner-status');
+    
+    scannerDisplay.style.display = 'none';
+    qrReader.style.display = 'block';
+    stopBtn.style.display = 'block';
+    statusBadge.textContent = 'Scanning';
+    statusBadge.className = 'badge bg-warning';
     
     html5QrCode = new Html5Qrcode("qr-reader");
     
     const config = { 
         fps: 10, 
-        qrbox: { width: 250, height: 250 },
+        qrbox: { width: 280, height: 280 },
         aspectRatio: 1.0
     };
     
@@ -247,6 +366,8 @@ function startScanner() {
         onScanError
     ).then(() => {
         isScanning = true;
+        statusBadge.textContent = 'Active';
+        statusBadge.className = 'badge bg-success';
     }).catch(err => {
         console.error('Error starting scanner:', err);
         showAlert('danger', 'Failed to start camera. Please check permissions.');
@@ -255,35 +376,41 @@ function startScanner() {
 }
 
 function stopScanner() {
+    const scannerDisplay = document.getElementById('scanner-display');
+    const qrReader = document.getElementById('qr-reader');
+    const stopBtn = document.getElementById('stop-scan-btn');
+    const statusBadge = document.getElementById('scanner-status');
+    
+    const resetUI = () => {
+        scannerDisplay.style.display = 'block';
+        qrReader.style.display = 'none';
+        stopBtn.style.display = 'none';
+        statusBadge.textContent = 'Ready';
+        statusBadge.className = 'badge bg-success';
+    };
+    
     if (!html5QrCode || !isScanning) {
-        resetScannerUI();
+        resetUI();
         return;
     }
     
     html5QrCode.stop().then(() => {
         isScanning = false;
-        resetScannerUI();
+        resetUI();
     }).catch(err => {
         console.error('Error stopping scanner:', err);
-        resetScannerUI();
+        isScanning = false;
+        resetUI();
     });
-}
-
-function resetScannerUI() {
-    document.getElementById('start-scan-btn').style.display = 'block';
-    document.getElementById('qr-reader').style.display = 'none';
-    document.getElementById('stop-scan-btn').style.display = 'none';
 }
 
 function onScanSuccess(decodedText, decodedResult) {
     console.log('QR Code detected:', decodedText);
     
-    // Stop scanner temporarily
     if (html5QrCode && isScanning) {
         html5QrCode.pause();
     }
     
-    // Process check-in via API
     processQRCheckin(decodedText);
 }
 
@@ -292,7 +419,6 @@ function onScanError(errorMessage) {
 }
 
 function processQRCheckin(qrCode) {
-    // Process check-in via staff portal endpoint
     fetch(`/staff/events/{{ event.id }}/qr-checkin/`, {
         method: 'POST',
         headers: {
@@ -305,34 +431,56 @@ function processQRCheckin(qrCode) {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            showAlert('success', `✓ ${result.message}`);
+            // VALID TICKET - Play success sound
+            if (window.audioFeedback) {
+                window.audioFeedback.valid();
+            }
+            
+            showAlert('success', `✅ VALID - ${result.registration.attendee_name}`, 2000);
             updateRegistrationUI(result.registration.id, true);
             refreshStats();
         } else {
-            showAlert('warning', result.message);
+            // INVALID TICKET - Play error sound
+            if (window.audioFeedback) {
+                window.audioFeedback.invalid();
+            }
+            
+            showAlert('danger', `❌ INVALID - ${result.message}`, 3000);
         }
         
-        // Resume scanner after 2 seconds
+        // Resume scanner after shorter delay
         setTimeout(() => {
             if (html5QrCode && isScanning) {
                 html5QrCode.resume();
             }
-        }, 2000);
+        }, 1000);
     })
     .catch(error => {
         console.error('Check-in error:', error);
-        showAlert('danger', 'Check-in failed. Please try again.');
+        
+        // INVALID - System error
+        if (window.audioFeedback) {
+            window.audioFeedback.invalid();
+        }
+        
+        showAlert('danger', '❌ INVALID - System Error', 3000);
         setTimeout(() => {
             if (html5QrCode && isScanning) {
                 html5QrCode.resume();
             }
-        }, 2000);
+        }, 1000);
     });
 }
 
 function manualCheckin(registrationId, attendeeName) {
     if (!confirm(`Check in ${attendeeName}?`)) {
         return;
+    }
+    
+    const button = document.querySelector(`#registration-${registrationId} .btn-checkin`);
+    if (button) {
+        button.innerHTML = '<div class="spinner"></div> Checking In...';
+        button.disabled = true;
     }
     
     fetch(`/staff/checkin/${registrationId}/`, {
@@ -346,16 +494,40 @@ function manualCheckin(registrationId, attendeeName) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showAlert('success', `✓ ${data.attendee_name} checked in successfully!`);
+            // VALID - Play success sound
+            if (window.audioFeedback) {
+                window.audioFeedback.valid();
+            }
+            
+            showAlert('success', `✅ VALID - ${data.attendee_name} checked in`, 2000);
             updateRegistrationUI(registrationId, true);
             refreshStats();
         } else {
-            showAlert('warning', data.message);
+            // INVALID - Play error sound
+            if (window.audioFeedback) {
+                window.audioFeedback.invalid();
+            }
+            
+            showAlert('danger', `❌ INVALID - ${data.message}`, 3000);
+            if (button) {
+                button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Check In';
+                button.disabled = false;
+            }
         }
     })
     .catch(error => {
         console.error('Check-in error:', error);
-        showAlert('danger', 'Check-in failed. Please try again.');
+        
+        // INVALID - System error
+        if (window.audioFeedback) {
+            window.audioFeedback.invalid();
+        }
+        
+        showAlert('danger', '❌ INVALID - System Error', 3000);
+        if (button) {
+            button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Check In';
+            button.disabled = false;
+        }
     });
 }
 
@@ -364,15 +536,15 @@ function updateRegistrationUI(registrationId, checkedIn) {
     if (card) {
         if (checkedIn) {
             card.classList.add('checked-in');
-            const statusBadge = card.querySelector('.badge-status');
+            const statusBadge = card.querySelector('.status-badge');
             if (statusBadge) {
-                statusBadge.className = 'badge-status badge-checked-in';
-                statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> CHECKED IN';
+                statusBadge.className = 'status-badge status-checked-in mb-2';
+                statusBadge.innerHTML = '<i class="bi bi-check-circle-fill"></i> Checked In';
             }
             const button = card.querySelector('.btn-checkin');
             if (button) {
                 button.disabled = true;
-                button.innerHTML = '<i class="fas fa-check-circle"></i> Checked In';
+                button.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Checked In';
             }
         }
     }
@@ -393,7 +565,7 @@ function refreshStats() {
     });
 }
 
-function showAlert(type, message) {
+function showAlert(type, message, autoHideMs = 5000) {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-floating alert-dismissible fade show`;
     alertDiv.role = 'alert';
@@ -404,12 +576,36 @@ function showAlert(type, message) {
     
     document.body.appendChild(alertDiv);
     
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
+    // Auto-hide after specified time
+    const hideTimeout = setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.classList.remove('show');
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 150); // Wait for fade out animation
+        }
+    }, autoHideMs);
+    
+    // Clear timeout if manually closed
+    alertDiv.addEventListener('closed.bs.alert', () => {
+        clearTimeout(hideTimeout);
+    });
+}
+
+function refreshPage() {
+    location.reload();
 }
 
 // Auto-refresh stats every 30 seconds
 setInterval(refreshStats, 30000);
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (html5QrCode && isScanning) {
+        html5QrCode.stop();
+    }
+});
 </script>
 {% endblock %}

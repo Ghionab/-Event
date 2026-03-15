@@ -154,7 +154,7 @@ def public_register(request):
                 attendee_email=email,
                 attendee_phone=phone,
                 special_requests=special_requests,
-                status='confirmed' if float(ticket_type.price or 0) == 0 else 'pending'
+                status='confirmed'  # Always confirmed until payment integration
             )
             registration_numbers.append(reg.registration_number)
 

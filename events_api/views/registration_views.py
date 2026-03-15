@@ -258,7 +258,7 @@ class PublicRegisterView(APIView):
                 attendee_phone=phone,
                 special_requests=special_requests,
                 total_amount=ticket_total,
-                status='confirmed' if ticket_price == 0 else 'pending'
+                status='confirmed'  # Always confirmed until payment integration
             )
             registration_numbers.append(reg.registration_number)
 

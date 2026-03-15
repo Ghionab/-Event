@@ -456,21 +456,11 @@ def usher_qr_checkin(request):
         }
     })
 
- 
- @ s t a f f _ r e q u i r e d 
- d e f   s t a f f _ l o g o u t ( r e q u e s t ) : 
-         \  
- \ \ C u s t o m  
- l o g o u t  
- v i e w  
- f o r  
- s t a f f  
- t h a t  
- i m m e d i a t e l y  
- r e d i r e c t s  
- t o  
- l o g i n . \ \ \ 
-         d j a n g o _ l o g o u t ( r e q u e s t ) 
-         r e t u r n   r e d i r e c t ( ' s t a f f _ l o g i n ' ) 
-  
- 
+
+@staff_required
+def staff_logout(request):
+    """
+    Custom logout view for staff that immediately redirects to login.
+    """
+    django_logout(request)
+    return redirect('staff_login')

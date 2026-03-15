@@ -4,7 +4,7 @@ URL patterns for admin-only security and system management functions
 from django.urls import path
 from . import admin_views
 
-app_name = 'admin'
+app_name = 'system_admin'
 
 urlpatterns = [
     # Security Dashboard

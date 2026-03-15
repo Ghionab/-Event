@@ -206,7 +206,7 @@ class RegistrationModelTest(TestCase):
         )
         self.assertIsNotNone(reg.registration_number)
         self.assertTrue(reg.qr_code)
-        self.assertEqual(reg.status, RegistrationStatus.PENDING)
+        self.assertEqual(reg.status, RegistrationStatus.CONFIRMED)
     
     def test_registration_confirm(self):
         """Test confirming a registration"""

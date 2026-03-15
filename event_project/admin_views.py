@@ -93,7 +93,7 @@ def admin_toggle_staff(request, user_id):
     
     if user == request.user:
         messages.error(request, 'You cannot modify your own staff status.')
-        return redirect('admin:user_detail', user_id=user_id)
+        return redirect('system_admin:user_detail', user_id=user_id)
     
     user.is_staff = not user.is_staff
     user.save()
@@ -101,7 +101,7 @@ def admin_toggle_staff(request, user_id):
     status = 'granted' if user.is_staff else 'revoked'
     messages.success(request, f'Staff access {status} for {user.email}.')
     
-    return redirect('admin:user_detail', user_id=user_id)
+    return redirect('system_admin:user_detail', user_id=user_id)
 
 @security_admin_required
 def admin_toggle_superuser(request, user_id):
@@ -110,7 +110,7 @@ def admin_toggle_superuser(request, user_id):
     
     if user == request.user:
         messages.error(request, 'You cannot modify your own superuser status.')
-        return redirect('admin:user_detail', user_id=user_id)
+        return redirect('system_admin:user_detail', user_id=user_id)
     
     user.is_superuser = not user.is_superuser
     user.save()
@@ -118,7 +118,7 @@ def admin_toggle_superuser(request, user_id):
     status = 'granted' if user.is_superuser else 'revoked'
     messages.success(request, f'Superuser access {status} for {user.email}.')
     
-    return redirect('admin:user_detail', user_id=user_id)
+    return redirect('system_admin:user_detail', user_id=user_id)
 
 @security_admin_required
 def admin_system_logs(request):

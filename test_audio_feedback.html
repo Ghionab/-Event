@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Feedback Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .success { background: #10b981; color: white; }
+        .error { background: #ef4444; color: white; }
+        .warning { background: #f59e0b; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Staff Portal Audio Feedback Test</h1>
+    <p>Click the buttons below to test the different beep sounds:</p>
+    
+    <button class="success" onclick="testValid()">✅ VALID Ticket Sound</button>
+    <button class="error" onclick="testInvalid()">❌ INVALID Ticket Sound</button>
+    
+    <div id="status" style="margin-top: 20px; padding: 10px; background: #f3f4f6; border-radius: 8px;">
+        <strong>Status:</strong> Click any button to initialize audio and test sounds.
+    </div>
+
+    <script>
+        // Audio feedback for scanning operations
+        class AudioFeedback {
+            constructor() {
+                this.audioContext = null;
+                this.isEnabled = true;
+                this.initAudio();
+            }
+            
+            async initAudio() {
+                try {
+                    // Create audio context on first user interaction
+                    document.addEventListener('click', this.enableAudio.bind(this), { once: true });
+                    document.addEventListener('touchstart', this.enableAudio.bind(this), { once: true });
+                } catch (error) {
+                    console.warn('Audio feedback not available:', error);
+                    this.isEnabled = false;
+                }
+            }
+            
+            async enableAudio() {
+                if (!this.audioContext) {
+                    try {
+                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        if (this.audioContext.state === 'suspended') {
+                            await this.audioContext.resume();
+                        }
+                        document.getElementById('status').innerHTML = '<strong>Status:</strong> Audio initialized successfully! 🔊';
+                    } catch (error) {
+                        console.warn('Could not initialize audio context:', error);
+                        this.isEnabled = false;
+                        document.getElementById('status').innerHTML = '<strong>Status:</strong> Audio not available in this browser 🔇';
+                    }
+                }
+            }
+            
+            playBeep(frequency = 800, duration = 200, type = 'success') {
+                if (!this.isEnabled || !this.audioContext) {
+                    document.getElementById('status').innerHTML = '<strong>Status:</strong> Audio not available 🔇';
+                    return;
+                }
+                
+                try {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    // Different sounds for different types
+            playSuccessSound() {
+                // Classic "ding-dong" success sound - two ascending tones
+                try {
+                    const now = this.audioContext.currentTime;
+                    
+                    // First tone (lower)
+                    const osc1 = this.audioContext.createOscillator();
+                    const gain1 = this.audioContext.createGain();
+                    osc1.connect(gain1);
+                    gain1.connect(this.audioContext.destination);
+                    
+                    osc1.frequency.setValueAtTime(523, now); // C5
+                    osc1.type = 'sine';
+                    
+                    gain1.gain.setValueAtTime(0, now);
+                    gain1.gain.linearRampToValueAtTime(0.15, now + 0.01);
+                    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    
+                    osc1.start(now);
+                    osc1.stop(now + 0.15);
+                    
+                    // Second tone (higher) - slightly delayed
+                    const osc2 = this.audioContext.createOscillator();
+                    const gain2 = this.audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(this.audioContext.destination);
+                    
+                    osc2.frequency.setValueAtTime(659, now + 0.1); // E5
+                    osc2.type = 'sine';
+                    
+                    gain2.gain.setValueAtTime(0, now + 0.1);
+                    gain2.gain.linearRampToValueAtTime(0.15, now + 0.11);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    
+                    osc2.start(now + 0.1);
+                    osc2.stop(now + 0.3);
+                    
+                    document.getElementById('status').innerHTML = '<strong>Status:</strong> Playing VALID ticket sound ✅';
+                } catch (error) {
+                    console.warn('Could not play success sound:', error);
+                    document.getElementById('status').innerHTML = '<strong>Status:</strong> Error playing sound: ' + error.message;
+                }
+            }
+            
+            playErrorSound() {
+                // Classic "buzzer" error sound - harsh descending tone
+                try {
+                    const now = this.audioContext.currentTime;
+                    
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    // Start high and descend rapidly for harsh "wrong" sound
+                    oscillator.frequency.setValueAtTime(400, now);
+                    oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.5);
+                    oscillator.type = 'sawtooth'; // Harsh sound
+                    
+                    // Envelope - longer and more attention-grabbing
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(0.2, now + 0.02);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    
+                    oscillator.start(now);
+                    oscillator.stop(now + 0.5);
+                    
+                    document.getElementById('status').innerHTML = '<strong>Status:</strong> Playing INVALID ticket sound ❌';
+                } catch (error) {
+                    console.warn('Could not play error sound:', error);
+                    document.getElementById('status').innerHTML = '<strong>Status:</strong> Error playing sound: ' + error.message;
+                }
+            }
+                    
+                    // Envelope for smooth sound
+                    gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.1, this.audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration / 1000);
+                    
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + duration / 1000);
+                    
+                } catch (error) {
+                    console.warn('Could not play beep:', error);
+                    document.getElementById('status').innerHTML = '<strong>Status:</strong> Error playing sound: ' + error.message;
+                }
+            }
+            
+            // Convenience methods
+            valid() {
+                this.playSuccessSound();
+            }
+            
+            invalid() {
+                this.playErrorSound();
+            }
+        }
+        
+        // Global audio feedback instance
+        window.audioFeedback = new AudioFeedback();
+        
+        function testValid() {
+            window.audioFeedback.valid();
+        }
+        
+        function testInvalid() {
+            window.audioFeedback.invalid();
+        }
+    </script>
+</body>
+</html>

@@ -297,6 +297,7 @@
         document.querySelectorAll('.ticket-checkbox:checked').forEach(checkbox => {
             selectedTickets.push({
                 ticket_id: parseInt(checkbox.dataset.ticketId),
+                ticket_name: checkbox.dataset.ticketName,
                 quantity: 1
             });
         });

@@ -1,19 +1,17 @@
-"""
-Simple public registration API for participant portal
-"""
 import json
-import ast
+import uuid
+import re
+from datetime import datetime
 from decimal import Decimal
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from django.db import transaction, models
 from events.models import Event
-from registration.models import Registration, TicketType
+from registration.models import Registration, TicketType, RegistrationStatus
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
-
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -26,85 +24,69 @@ def simple_register(request):
 
     log_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'registration_log.txt')
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    # Check content type
-    content_type = request.content_type or ''
-
-    # Handle both JSON and Form data
-    if 'application/json' in content_type:
-        try:
-            data = json.loads(request.body)
-        except Exception as e:
-            return HttpResponse(f'Invalid JSON: {str(e)}', status=400)
-    else:
-        # Form data - tickets might be a string representation of a list
-        tickets_raw = request.POST.get('tickets', '[]')
-        try:
-            # Try to parse as JSON first
-            if tickets_raw.startswith('['):
-                tickets = json.loads(tickets_raw)
-            else:
-                # Try ast.literal_eval for string representation
-                tickets = ast.literal_eval(tickets_raw)
-        except:
-            tickets = []
-
-        data = {
-            'event_id': request.POST.get('event_id'),
-            'full_name': request.POST.get('full_name', ''),
-            'email': request.POST.get('email', ''),
-            'phone': request.POST.get('phone', ''),
-            'special_requests': request.POST.get('special_requests', ''),
-            'tickets': tickets,
-        }
-
-    # Log raw data
-    with open(log_file, 'a') as f:
-        f.write(f'[{timestamp}] RAW: {str(data)[:200]}\n')
-
-    event_id = data.get('event_id')
-    full_name = data.get('full_name', '')
-    email = data.get('email', '')
-    phone = data.get('phone', '')
-    special_requests = data.get('special_requests', '')
-    tickets = data.get('tickets', [])
-
-    # Log parsed values
-    with open(log_file, 'a') as f:
-        f.write(f'[{timestamp}] PARSED: event_id={event_id}, email={email}, name={full_name}, tickets={tickets}\n')
-        f.write(f'[{timestamp}] DEBUG: tickets type={type(tickets)}, len={len(tickets)}, bool={bool(tickets)}\n')
-
-    if not event_id:
-        return HttpResponse('Event ID is required', status=400)
-
-    if not email:
-        return HttpResponse('Email is required', status=400)
-
-    # Explicitly check if tickets has data
-    with open(log_file, 'a') as f:
-        if isinstance(tickets, list) and len(tickets) > 0:
-            f.write(f'[{timestamp}] DEBUG: Processing {len(tickets)} ticket(s)\n')
+    log_file = 'registration_log.txt'
+    
+    # Identify content type
+    content_type = request.META.get('CONTENT_TYPE', '')
+    
+    if request.method == 'POST':
+        if 'application/json' in content_type:
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return HttpResponse('Invalid JSON', status=400)
         else:
-            f.write(f'[{timestamp}] DEBUG: No tickets to process, will create free registration\n')
+            # Handle form data
+            tickets_raw = request.POST.get('tickets', '[]')
+            try:
+                tickets = json.loads(tickets_raw)
+            except json.JSONDecodeError:
+                tickets = []
+                
+            data = {
+                'event_id': request.POST.get('event_id') or event_id,
+                'full_name': request.POST.get('full_name', ''),
+                'email': request.POST.get('email', ''),
+                'phone': request.POST.get('phone', ''),
+                'special_requests': request.POST.get('special_requests', ''),
+                'tickets': tickets,
+                'for_myself': request.POST.get('for_myself') == 'true',
+            }
 
-    # Validate email format
-    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    if not re.match(email_pattern, email):
-        return HttpResponse('Please enter a valid email address', status=400)
+        event_id = data.get('event_id')
+        full_name = data.get('full_name', '')
+        email = data.get('email', '')
+        phone = data.get('phone', '')
+        special_requests = data.get('special_requests', '')
+        tickets = data.get('tickets', [])
+        is_for_self = data.get('for_myself', True)
 
-    # Get event
-    try:
-        event = Event.objects.get(id=int(event_id), is_public=True, status='published')
-    except (Event.DoesNotExist, ValueError):
-        return HttpResponse('Event not found', status=404)
-
-    # Find or create user (prefer authenticated user when available)
-    if request.user.is_authenticated:
-        user = request.user
+        if not event_id:
+            return HttpResponse('Event ID is required', status=400)
         if not email:
-            email = user.email
-    else:
-        user, created = User.objects.get_or_create(
+            return HttpResponse('Email is required', status=400)
+
+        # Validate email format
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            return HttpResponse('Please enter a valid email address', status=400)
+
+        # Get event
+        try:
+            event = Event.objects.get(id=int(event_id), is_public=True, status='published')
+        except (Event.DoesNotExist, ValueError):
+            return HttpResponse('Event not found', status=404)
+
+        # Identify purchaser and attendee
+        # Explicitly get user if request.user is not authenticated
+        from django.contrib.auth import get_user
+        purchaser = request.user if request.user.is_authenticated else get_user(request)
+        if not purchaser.is_authenticated:
+            purchaser = None
+        
+        # Identify attendee user (the one the ticket is for)
+        # Find or create attendee user by email
+        attendee_user, created = User.objects.get_or_create(
             email=email,
             defaults={
                 'first_name': full_name.split()[0] if full_name else '',
@@ -156,8 +138,8 @@ def simple_register(request):
 
             reg = Registration.objects.create(
                 event=event,
-                user=user,
-                ticket_type=ticket_type,
+                user=attendee_user,
+                purchaser=purchaser,
                 attendee_name=full_name,
                 attendee_email=email,
                 attendee_phone=phone,
@@ -165,6 +147,7 @@ def simple_register(request):
                 total_amount=ticket_total,
                 status='confirmed'  # Always confirmed until payment integration
             )
+            registration = reg
             registration_numbers.append(reg.registration_number)
             
             # Atomic updates

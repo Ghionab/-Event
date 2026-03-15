@@ -60,7 +60,7 @@
                                 <p
                                     class="text-sm truncate {% if thread.unread_count > 0 %}font-semibold text-gray-900{% else %}text-gray-500{% endif %}">
                                     {% if thread.last_message.sender == request.user %}You: {% endif %}{{
-                                    thread.last_message.content }}
+                                    thread.last_message.message }}
                                 </p>
                             </div>
                         </a>
@@ -120,7 +120,7 @@
                     <div class="flex {% if msg.sender == request.user %}justify-end{% else %}justify-start{% endif %}">
                         <div
                             class="max-w-[70%] {% if msg.sender == request.user %}bg-indigo-600 text-white rounded-l-2xl rounded-tr-2xl{% else %}bg-white border border-gray-200 text-gray-800 shadow-sm rounded-r-2xl rounded-tl-2xl{% endif %} p-4 relative group">
-                            <p class="text-sm leading-relaxed whitespace-pre-wrap">{{ msg.content }}</p>
+                            <p class="text-sm leading-relaxed whitespace-pre-wrap">{{ msg.message }}</p>
                             <span
                                 class="text-[10px] mt-2 block {% if msg.sender == request.user %}text-indigo-200 text-right{% else %}text-gray-400 font-medium text-left{% endif %}">
                                 {{ msg.created_at|date:"g:i A" }}
@@ -142,7 +142,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="next"
                         value="{% url 'attendee:messages' %}?thread={{ selected_thread.id }}">
-                    <textarea name="content" required placeholder="Type a message..." rows="1"
+                    <textarea name="message" required placeholder="Type a message..." rows="1"
                         class="w-full bg-gray-50 border border-gray-200 rounded-full pl-5 pr-14 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none overflow-hidden"
                         oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
                         onkeydown="if(event.keyCode == 13 && !event.shiftKey) { event.preventDefault(); this.form.submit(); }"></textarea>

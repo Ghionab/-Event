@@ -105,11 +105,14 @@ def public_register(request):
             f.write(msg + '\n')
         return Response({'error': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # Find or create user by email
+    # Identify purchaser and attendee
+    purchaser = request.user if request.user.is_authenticated else None
+    is_for_self = request.data.get('for_myself', True)
+
+    # Find or create attendee user by email
     user, created = User.objects.get_or_create(
         email=email,
-        defaults={
-            'first_name': full_name.split()[0] if full_name else '',
+        defaults={            'first_name': full_name.split()[0] if full_name else '',
             'last_name': ' '.join(full_name.split()[1:]) if len(full_name.split()) > 1 else '',
         }
     )
@@ -117,17 +120,28 @@ def public_register(request):
     # Create registration
     registration = None
     registration_numbers = []
+    is_notified_later = False
 
-    # If no tickets provided, create a basic registration
+    # Check if event has any active ticket types
+    has_event_tickets = TicketType.objects.filter(event=event, is_active=True).exists()
+
+    # If no tickets provided, handle based on event ticket status
     if not tickets:
+        status_to_set = 'confirmed'
+        if not has_event_tickets:
+            # Registration for event without tickets - register for notification
+            status_to_set = 'waitlisted'
+            is_notified_later = True
+
         reg = Registration.objects.create(
             event=event,
             user=user,
+            purchaser=purchaser,
             attendee_name=full_name,
             attendee_email=email,
             attendee_phone=phone,
             special_requests=special_requests,
-            status='confirmed'
+            status=status_to_set
         )
         registration = reg
         registration_numbers.append(reg.registration_number)
@@ -139,7 +153,7 @@ def public_register(request):
             try:
                 ticket_type = TicketType.objects.select_for_update().get(id=ticket_id, event=event, is_active=True)
             except TicketType.DoesNotExist:
-                continue
+                return Response({'error': f'Ticket type {ticket_id} not found'}, status=status.HTTP_404_NOT_FOUND)
 
             # Check availability
             if ticket_type.available_quantity < quantity:
@@ -149,6 +163,7 @@ def public_register(request):
             reg = Registration.objects.create(
                 event=event,
                 user=user,
+                purchaser=purchaser,
                 ticket_type=ticket_type,
                 attendee_name=full_name,
                 attendee_email=email,
@@ -177,9 +192,38 @@ def public_register(request):
     with open(log_file, 'a') as f:
         f.write(msg + '\n')
 
+    # Send notifications
+    if is_notified_later:
+        # 1. System Notification
+        from registration.models import AttendeeNotification
+        AttendeeNotification.objects.create(
+            user=user,
+            notification_type='event_update',
+            title=f"Registration Received: {event.title}",
+            message=f"Thank you for registering for {event.title}. We will notify you as soon as tickets become available.",
+            related_event=event
+        )
+        
+        # 2. Email Notification
+        try:
+            from registration.views_success import send_no_ticket_notification
+            send_no_ticket_notification(registration)
+        except Exception as e:
+            with open(log_file, 'a') as f:
+                f.write(f'[{timestamp}] NOTIFICATION ERROR: {str(e)}\n')
+    else:
+        # Standard registration email (can be added here if needed, but simple_register has it)
+        try:
+            from registration.views_success import send_qr_email_direct
+            send_qr_email_direct(registration)
+        except Exception as e:
+            with open(log_file, 'a') as f:
+                f.write(f'[{timestamp}] EMAIL ERROR: {str(e)}\n')
+
     return Response({
         'id': registration.id,
         'registration_number': registration.registration_number,
         'message': 'Registration successful!',
-        'status': registration.status
+        'status': registration.status,
+        'is_waitlisted': is_notified_later
     })

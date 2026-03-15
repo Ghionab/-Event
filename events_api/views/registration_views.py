@@ -231,6 +231,10 @@ class PublicRegisterView(APIView):
         # Create registration
         registration = None
         registration_numbers = []
+        is_notified_later = False
+
+        # Check if event has any active ticket types
+        has_event_tickets = TicketType.objects.filter(event=event, is_active=True).exists()
 
         for ticket_data in tickets:
             ticket_id = ticket_data.get('ticket_id')
@@ -262,15 +266,21 @@ class PublicRegisterView(APIView):
             )
             registration_numbers.append(reg.registration_number)
 
-            # Update quantity sold
-            ticket_type.quantity_sold += quantity
-            ticket_type.save()
+            # Update quantity sold atomically
+            from django.db.models import F
+            TicketType.objects.filter(id=ticket_id).update(quantity_sold=F('quantity_sold') + quantity)
+            ticket_type.refresh_from_db()
 
             if registration is None:
                 registration = reg
 
         # If no tickets provided or no valid tickets, create a basic registration
         if not tickets or not registration_numbers:
+            status_to_set = 'confirmed'
+            if not has_event_tickets:
+                status_to_set = 'waitlisted'
+                is_notified_later = True
+
             reg = Registration.objects.create(
                 event=event,
                 user=user,
@@ -279,13 +289,39 @@ class PublicRegisterView(APIView):
                 attendee_phone=phone,
                 special_requests=special_requests,
                 total_amount=0,
-                status='confirmed'
+                status=status_to_set
             )
             registration = reg
             registration_numbers.append(reg.registration_number)
 
         if not registration_numbers:
             return Response({'error': 'No tickets available or invalid tickets'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Send notifications
+        if is_notified_later:
+            # 1. System Notification
+            from registration.models import AttendeeNotification
+            AttendeeNotification.objects.create(
+                user=user,
+                notification_type='event_update',
+                title=f"Registration Received: {event.title}",
+                message=f"Thank you for registering for {event.title}. We will notify you as soon as tickets become available.",
+                related_event=event
+            )
+            
+            # 2. Email Notification
+            try:
+                from registration.views_success import send_no_ticket_notification
+                send_no_ticket_notification(registration)
+            except Exception:
+                pass
+        else:
+            # Standard registration email
+            try:
+                from registration.views_success import send_qr_email_direct
+                send_qr_email_direct(registration)
+            except Exception:
+                pass
 
         # Calculate total for response
         total = sum(

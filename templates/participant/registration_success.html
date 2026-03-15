@@ -1,4 +1,4 @@
-﻿{% load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,12 +45,63 @@
                 <i class="fas fa-check text-white text-4xl"></i>
             </div>
             <h1 class="text-4xl font-bold text-gray-800 mb-2">Registration Successful!</h1>
-            <p class="text-gray-600">Your ticket has been confirmed</p>
+            {% if registration.status == 'waitlisted' %}
+                <p class="text-gray-600">You will be notified when tickets become available.</p>
+            {% else %}
+                <p class="text-gray-600">Your ticket has been confirmed</p>
+            {% endif %}
         </div>
 
-        <!-- Ticket -->
+        <!-- Registration Info -->
         <div class="mb-6">
-            {% include 'participant/partials/ticket_pass.html' %}
+            {% if registration.status == 'waitlisted' %}
+                <!-- Summary View for No-Ticket Events -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 uppercase tracking-wider">
+                                    Registration Received
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-400 font-mono">#{{ registration.registration_number }}</p>
+                            </div>
+                        </div>
+
+                        <h2 class="text-3xl font-black text-gray-900 mb-2">{{ registration.event.title }}</h2>
+                        <p class="text-gray-500 mb-8">
+                            <i class="far fa-calendar-alt mr-2"></i>{{ registration.event.start_date|date:"F d, Y" }} &middot; {{ registration.event.start_date|date:"g:i A" }}
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-6 border-t border-gray-100">
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Registrant Details</h4>
+                                <p class="text-lg font-bold text-gray-900">{{ registration.attendee_name }}</p>
+                                <p class="text-gray-600">{{ registration.attendee_email }}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Event Location</h4>
+                                <p class="text-lg font-bold text-gray-900">{{ registration.event.venue_name|default:"Virtual Event" }}</p>
+                                {% if registration.event.city or registration.event.country %}
+                                    <p class="text-gray-600">{{ registration.event.city }}{% if registration.event.city and registration.event.country %}, {% endif %}{{ registration.event.country }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-100 flex items-start gap-3">
+                            <i class="fas fa-clock text-amber-500 mt-1"></i>
+                            <div>
+                                <p class="text-amber-800 font-bold text-sm">Waiting for Ticket Availability</p>
+                                <p class="text-amber-700 text-xs">We've saved your interest. You'll be the first to know when tickets are released for this event.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Standard Ticket View -->
+                {% include 'participant/partials/ticket_pass.html' %}
+            {% endif %}
         </div>
 
         <!-- Important Information -->
@@ -60,44 +111,61 @@
                 Important Information
             </h4>
             <ul class="space-y-2 text-sm text-blue-800">
-                <li class="flex items-start">
-                    <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
-                    <span>A confirmation email with your QR code has been sent to <strong>{{ registration.attendee_email }}</strong></span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
-                    <span>Please save or print this ticket for your records</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
-                    <span>Bring a valid ID along with this QR code to the event</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
-                    <span>Arrive at least 15 minutes before the event starts</span>
-                </li>
+                {% if registration.status == 'waitlisted' %}
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                        <span>A confirmation email has been sent to <strong>{{ registration.attendee_email }}</strong></span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                        <span>You will be notified as soon as tickets become available for this event.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                        <span>You can track your registration status in your dashboard.</span>
+                    </li>
+                {% else %}
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                        <span>A confirmation email with your QR code has been sent to <strong>{{ registration.attendee_email }}</strong></span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                        <span>Please save or print this ticket for your records</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                        <span>Bring a valid ID along with this QR code to the event</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-blue-600 mr-2 mt-1"></i>
+                        <span>Arrive at least 15 minutes before the event starts</span>
+                    </li>
+                {% endif %}
             </ul>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex flex-wrap gap-4 justify-center no-print">
-            <a href="{% url 'attendee:ticket_preview' registration.id %}" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
-                <i class="fas fa-print mr-2"></i>
-                Print Ticket
-            </a>
-            
-            <a href="{% url 'attendee:ticket_preview' registration.id %}" 
-               class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
-                <i class="fas fa-file-pdf mr-2"></i>
-                Ticket
-            </a>
+            {% if registration.status != 'waitlisted' %}
+                <a href="{% url 'attendee:ticket_preview' registration.id %}" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
+                    <i class="fas fa-print mr-2"></i>
+                    Print Ticket
+                </a>
+                
+                <a href="{% url 'attendee:ticket_preview' registration.id %}" 
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
+                    <i class="fas fa-file-pdf mr-2"></i>
+                    Ticket
+                </a>
+            {% endif %}
             
             <button onclick="sendEmail()" 
                     id="emailBtn"
                     class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center shadow-lg transition">
                 <i class="fas fa-envelope mr-2"></i>
-                <span id="emailBtnText">Resend Email</span>
+                <span id="emailBtnText">{% if registration.status == 'waitlisted' %}Resend Confirmation{% else %}Resend Email{% endif %}</span>
             </button>
             
             <a href="/events/{{ event.id }}/" 

@@ -29,10 +29,9 @@ urlpatterns = [
     path('session/<int:session_id>/save/', views_attendee.save_session, name='save_session'),
     path('session/<int:session_id>/feedback/', views_attendee.session_feedback_enhanced, name='session_feedback'),
 
-    # Tickets & Badges
+    # Tickets
     path('tickets/', views_attendee.my_tickets, name='my_tickets'),
     path('tickets/<int:registration_id>/preview/', views_attendee.ticket_preview, name='ticket_preview'),
-    path('tickets/<int:registration_id>/badge/', views_attendee.digital_badge, name='digital_badge'),
 
     # Certificates & Post-Event
     path('certificates/', views_attendee.certificates_list, name='certificates'),

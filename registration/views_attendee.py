@@ -6,16 +6,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db import models
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta
 
 from .models import (
     Registration, RegistrationStatus, AttendeePreference,
-    SessionAttendance, AttendeeMessage, Badge
+    SessionAttendance, AttendeeMessage, Badge, AttendeeNotification,
+    TicketType
 )
 from events.models import Event, EventSession, Speaker
 from users.models import User
+from django.db.models import Count, F, Q, ExpressionWrapper, IntegerField
 
 
 # =============================================================================
@@ -24,60 +26,86 @@ from users.models import User
 
 @login_required
 def attendee_dashboard(request):
-    """Enhanced attendee dashboard with comprehensive overview"""
+    """Enhanced attendee dashboard with comprehensive overview and popular events"""
     user = request.user
     now = timezone.now()
     
-    # Get all registrations
+    # 1. USER'S EVENTS
     all_registrations = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).select_related('event', 'ticket_type').order_by('-created_at')
     
-    # Separate upcoming and past events
     upcoming_registrations_qs = all_registrations.filter(
         event__start_date__gte=now,
-        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+        status__in=[
+            RegistrationStatus.PENDING, 
+            RegistrationStatus.CONFIRMED, 
+            RegistrationStatus.CHECKED_IN,
+            RegistrationStatus.WAITLISTED
+        ]
     )
     upcoming_registrations = upcoming_registrations_qs[:5]
-    
-    past_registrations_qs = all_registrations.filter(
-        event__start_date__lt=now
-    )
-    past_registrations = past_registrations_qs[:5]
 
-    # Add display totals for upcoming registrations
-    for reg in upcoming_registrations:
-        total = reg.total_amount or 0
-        if (not total) and reg.ticket_type and reg.ticket_type.price:
-            total = reg.ticket_type.price
-        reg.display_total_amount = total
+    # 2. POPULAR & TRENDING EVENTS
+    # Logic: Score = (total_tickets_sold * 2) + views_count
+    # We annotate the queryset with the ticket count
+    popular_events = Event.objects.filter(
+        status='published',
+        is_public=True,
+        start_date__gte=now
+    ).annotate(
+        tickets_sold=Count('registrations', filter=Q(registrations__status__in=['confirmed', 'checked_in'])),
+    ).annotate(
+        popularity_score=ExpressionWrapper(
+            F('tickets_sold') * 2 + F('views_count'),
+            output_field=IntegerField()
+        )
+    ).order_by('-popularity_score', '-created_at')[:6]
+
+    # Add tags and metadata to popular events
+    for event in popular_events:
+        # Determine Tag
+        if event.popularity_score > 50:
+            event.popularity_tag = "🔥 Hot Event"
+            event.tag_class = "bg-red-100 text-red-700"
+        elif event.popularity_score > 20:
+            event.popularity_tag = "⭐ Popular"
+            event.tag_class = "bg-amber-100 text-amber-700"
+        elif event.created_at > now - timedelta(days=7):
+            event.popularity_tag = "📈 Trending"
+            event.tag_class = "bg-blue-100 text-blue-700"
+        else:
+            event.popularity_tag = None
+        
+        # Format price range
+        ticket_prices = TicketType.objects.filter(event=event, is_active=True).values_list('price', flat=True)
+        if ticket_prices:
+            min_p = min(ticket_prices)
+            max_p = max(ticket_prices)
+            event.price_range = f"${min_p}" if min_p == max_p else f"${min_p} - ${max_p}"
+        else:
+            event.price_range = "Free"
+
+    # 3. STATS & OTHER DATA
+    unread_messages = AttendeeMessage.objects.filter(recipient=user, is_read=False).count()
     
-    # Get unread messages count
-    unread_messages = AttendeeMessage.objects.filter(
-        recipient=user,
-        is_read=False
-    ).count()
-    
-    # Get saved sessions count
     saved_sessions_count = 0
     for reg in upcoming_registrations:
         prefs = AttendeePreference.objects.filter(user=user, event=reg.event).first()
         if prefs and prefs.saved_sessions:
             saved_sessions_count += len(prefs.saved_sessions)
     
-    # Quick stats
     stats = {
         'total_events': all_registrations.count(),
         'upcoming_events': upcoming_registrations_qs.count(),
-        'past_events': past_registrations_qs.filter(status=RegistrationStatus.CHECKED_IN).count(),
+        'past_events': all_registrations.filter(event__start_date__lt=now, status=RegistrationStatus.CHECKED_IN).count(),
         'unread_messages': unread_messages,
         'saved_sessions': saved_sessions_count,
     }
 
-    
     context = {
         'upcoming_registrations': upcoming_registrations,
-        'past_registrations': past_registrations,
+        'popular_events': popular_events,
         'stats': stats,
     }
     
@@ -102,17 +130,16 @@ def my_registrations_enhanced(request):
         registrations = registrations.filter(event__start_date__gte=now)
     elif filter_type == 'past':
         registrations = registrations.filter(event__start_date__lt=now)
-    elif filter_type == 'cancelled':
-        registrations = registrations.filter(status=RegistrationStatus.CANCELLED)
-    
-    # Search
+        
+    # Apply search
     search_query = request.GET.get('search', '')
     if search_query:
         registrations = registrations.filter(
             models.Q(event__title__icontains=search_query) |
-            models.Q(registration_number__icontains=search_query)
+            models.Q(registration_number__icontains=search_query) |
+            models.Q(attendee_name__icontains=search_query)
         )
-    
+        
     # Pagination
     paginator = Paginator(registrations, 10)
     page_number = request.GET.get('page')
@@ -135,10 +162,13 @@ def registration_detail_enhanced(request, registration_id):
         id=registration_id
     )
     
-    # Check permission
-    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
+    # Check permission (Allow if user is purchaser OR attendee)
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to view this registration.')
-        return redirect('registration:attendee_dashboard')
+        return redirect('attendee:dashboard')
     
     # Get event sessions
     sessions = registration.event.sessions.all().order_by('start_time')
@@ -196,18 +226,18 @@ def cancel_registration_enhanced(request, registration_id):
     # Check permission
     if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
         messages.error(request, 'You do not have permission to cancel this registration.')
-        return redirect('registration:attendee_dashboard')
+        return redirect('attendee:dashboard')
     
     # Check if event has started
     if registration.event.start_date < timezone.now():
         messages.error(request, 'Cannot cancel registration for events that have already started.')
-        return redirect('registration:registration_detail_enhanced', registration_id=registration.id)
+        return redirect('attendee:registration_detail', registration_id=registration.id)
     
     if request.method == 'POST':
         reason = request.POST.get('reason', '')
         registration.cancel(reason=reason)
         messages.success(request, 'Registration cancelled successfully.')
-        return redirect('registration:my_registrations_enhanced')
+        return redirect('attendee:my_registrations')
     
     context = {
         'registration': registration,
@@ -218,13 +248,16 @@ def cancel_registration_enhanced(request, registration_id):
 
 @login_required
 def download_ticket(request, registration_id):
-    """Download ticket as PDF"""
+    """Download ticket as PDF matching the HTML design exactly using ReportLab"""
     registration = get_object_or_404(Registration, id=registration_id)
     
     # Check permission
-    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to download this ticket.')
-        return redirect('registration:attendee_dashboard')
+        return redirect('attendee:dashboard')
 
     try:
         from reportlab.lib.pagesizes import A4
@@ -233,6 +266,7 @@ def download_ticket(request, registration_id):
         from reportlab.lib.utils import ImageReader
         from io import BytesIO
         import base64
+        import qrcode
 
         def safe_hex(value, fallback):
             if isinstance(value, str) and value.startswith('#') and len(value) == 7:
@@ -244,9 +278,7 @@ def download_ticket(request, registration_id):
         secondary = safe_hex(getattr(event, 'secondary_color', None), '#7c3aed')
 
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = (
-            f'attachment; filename="ticket_{registration.registration_number}.pdf"'
-        )
+        response['Content-Disposition'] = f'attachment; filename="ticket_{registration.registration_number}.pdf"'
 
         c = canvas.Canvas(response, pagesize=A4)
         width, height = A4
@@ -255,62 +287,162 @@ def download_ticket(request, registration_id):
         c.setFillColor(HexColor('#f8fafc'))
         c.rect(0, 0, width, height, fill=1, stroke=0)
 
-        # Card container
-        margin = 40
-        card_w = width - (margin * 2)
-        card_h = 420
-        card_x = margin
+        # Main Ticket Card
+        margin = 50
+        card_w = 500
+        card_h = 300
+        card_x = (width - card_w) / 2
         card_y = (height - card_h) / 2
-        c.setFillColor(HexColor('#ffffff'))
+
+        # Card Shadow/Border
         c.setStrokeColor(HexColor('#e5e7eb'))
         c.setLineWidth(1)
-        c.roundRect(card_x, card_y, card_w, card_h, 16, fill=1, stroke=1)
-
-        # Accent stripe
-        accent_w = 140
-        c.setFillColor(HexColor(primary))
-        c.roundRect(card_x, card_y, accent_w, card_h, 16, fill=1, stroke=0)
-
-        # EventHub label
-        c.setFillColor(HexColor('#e0e7ff'))
-        c.setFont('Helvetica-Bold', 9)
-        c.drawString(card_x + 20, card_y + card_h - 30, 'EVENTHUB PASS')
-
-        # Ticket type
-        ticket_type = registration.ticket_type.name if registration.ticket_type else 'General Admission'
         c.setFillColor(HexColor('#ffffff'))
-        c.setFont('Helvetica-Bold', 16)
-        c.drawString(card_x + 20, card_y + card_h - 60, ticket_type)
+        c.roundRect(card_x, card_y, card_w, card_h, 20, fill=1, stroke=1)
 
-        # Registration number
-        c.setFont('Helvetica', 9)
-        c.setFillColor(HexColor('#e0e7ff'))
-        c.drawString(card_x + 20, card_y + card_h - 80, registration.registration_number)
+        # LEFT SIDE (Branding & QR)
+        left_w = card_w * 0.35
+        # Draw background for left side
+        c.setFillColor(HexColor(primary))
+        # Use simple rect for left side background instead of PathObject to avoid version issues
+        # We overlap slightly and the card's roundRect will clip or we just draw it inside
+        c.roundRect(card_x, card_y, left_w, card_h, 20, fill=1, stroke=0)
+        # Cover the right rounded corners of the left stripe to make it a clean "cut"
+        c.rect(card_x + left_w - 20, card_y, 20, card_h, fill=1, stroke=0)
 
-        # Right side content
-        right_x = card_x + accent_w + 30
-        right_y = card_y + card_h - 40
+        # EventHub Pass Label
+        c.setFillColor(HexColor('#ffffff'), alpha=0.2)
+        c.roundRect(card_x + (left_w/2) - 40, card_y + card_h - 40, 80, 15, 7, fill=1, stroke=0)
+        c.setFillColor(HexColor('#ffffff'))
+        c.setFont('Helvetica-Bold', 7)
+        c.drawCentredString(card_x + (left_w/2), card_y + card_h - 35, 'EVENTHUB PASS')
 
+        # QR Code
+        qr = qrcode.QRCode(version=1, box_size=10, border=2)
+        qr.add_data(registration.qr_code)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        
+        qr_buffer = BytesIO()
+        qr_img.save(qr_buffer, format="PNG")
+        qr_image_reader = ImageReader(qr_buffer)
+        
+        qr_size = 100
+        qr_x = card_x + (left_w - qr_size) / 2
+        qr_y = card_y + (card_h / 2) - 30
+        
+        # QR White Background
+        c.setFillColor(HexColor('#ffffff'))
+        c.roundRect(qr_x - 5, qr_y - 5, qr_size + 10, qr_size + 10, 10, fill=1, stroke=0)
+        c.drawImage(qr_image_reader, qr_x, qr_y, qr_size, qr_size)
+
+        # Ticket ID
+        c.setFillColor(HexColor('#ffffff'), alpha=0.7)
+        c.setFont('Helvetica-Bold', 7)
+        c.drawCentredString(card_x + (left_w/2), qr_y - 20, 'TICKET ID')
+        c.setFillColor(HexColor('#ffffff'))
+        c.setFont('Courier-Bold', 9)
+        c.drawCentredString(card_x + (left_w/2), qr_y - 35, registration.registration_number)
+
+        # RIGHT SIDE (Details)
+        right_x = card_x + left_w + 25
+        
+        # Category Badge
+        cat = registration.ticket_type.ticket_category.upper() if registration.ticket_type and registration.ticket_type.ticket_category else "GENERAL"
+        c.setFillColor(HexColor('#f5f3ff'))
+        c.roundRect(right_x, card_y + card_h - 45, 80, 15, 4, fill=1, stroke=0)
+        c.setFillColor(HexColor(primary))
+        c.setFont('Helvetica-Bold', 7)
+        c.drawString(right_x + 10, card_y + card_h - 40, f"{cat} ACCESS")
+
+        # Event Title
         c.setFillColor(HexColor('#111827'))
-        c.setFont('Helvetica-Bold', 18)
-        c.drawString(right_x, right_y, event.title)
+        c.setFont('Helvetica-Bold', 22)
+        c.drawString(right_x, card_y + card_h - 80, event.title.upper())
 
-        c.setFont('Helvetica', 10)
-        c.setFillColor(HexColor('#6b7280'))
-        c.drawString(right_x, right_y - 18, event.start_date.strftime('%B %d, %Y - %I:%M %p'))
-        venue = event.venue_name or 'Virtual Event'
-        c.drawString(right_x, right_y - 34, venue)
+        # Details Grid with Icons
+        def draw_icon_box(x, y, bg_color, icon_type):
+            # Box
+            c.setFillColor(HexColor(bg_color))
+            c.roundRect(x, y - 30, 30, 30, 8, fill=1, stroke=0)
+            # Simple vector icon representations
+            c.setStrokeColor(HexColor('#ffffff'))
+            c.setLineWidth(1.5)
+            if icon_type == 'user':
+                c.circle(x + 15, y - 12, 4, stroke=1, fill=0)
+                c.arc(x + 8, y - 25, x + 22, y - 15, 0, 180)
+            elif icon_type == 'date':
+                c.rect(x + 8, y - 24, 14, 14, stroke=1, fill=0)
+                c.line(x + 8, y - 14, x + 22, y - 14)
+                c.line(x + 12, y - 10, x + 12, y - 14)
+                c.line(x + 18, y - 10, x + 18, y - 14)
+            elif icon_type == 'loc':
+                c.circle(x + 15, y - 12, 5, stroke=1, fill=0)
+                c.line(x + 15, y - 17, x + 15, y - 25)
+                c.circle(x + 15, y - 12, 1.5, stroke=1, fill=1)
 
-        # Attendee block
-        c.setFont('Helvetica', 9)
+        # Attendee Section
+        draw_icon_box(right_x, card_y + card_h - 105, '#eef2ff', 'user')
+        text_start_x = right_x + 40
         c.setFillColor(HexColor('#9ca3af'))
-        c.drawString(right_x, right_y - 70, 'ATTENDEE')
-        c.setFont('Helvetica-Bold', 12)
+        c.setFont('Helvetica-Bold', 7)
+        c.drawString(text_start_x, card_y + card_h - 110, 'ATTENDEE')
         c.setFillColor(HexColor('#111827'))
-        c.drawString(right_x, right_y - 88, registration.attendee_name)
-        c.setFont('Helvetica', 9)
+        c.setFont('Helvetica-Bold', 12)
+        c.drawString(text_start_x, card_y + card_h - 125, registration.attendee_name)
         c.setFillColor(HexColor('#6b7280'))
-        c.drawString(right_x, right_y - 104, registration.attendee_email)
+        c.setFont('Helvetica', 9)
+        c.drawString(text_start_x, card_y + card_h - 140, registration.attendee_email)
+
+        # Date & Time Section
+        draw_icon_box(right_x + 160, card_y + card_h - 105, '#ecfdf5', 'date')
+        text_start_x = right_x + 200
+        c.setFillColor(HexColor('#9ca3af'))
+        c.setFont('Helvetica-Bold', 7)
+        c.drawString(text_start_x, card_y + card_h - 110, 'DATE & TIME')
+        c.setFillColor(HexColor('#111827'))
+        c.setFont('Helvetica-Bold', 12)
+        c.drawString(text_start_x, card_y + card_h - 125, event.start_date.strftime('%b %d, %Y'))
+        c.setFillColor(HexColor('#6b7280'))
+        c.setFont('Helvetica', 9)
+        c.drawString(text_start_x, card_y + card_h - 140, event.start_date.strftime('%I:%M %p EST'))
+
+        # Location Section
+        draw_icon_box(right_x, card_y + card_h - 170, '#fff1f2', 'loc')
+        text_start_x = right_x + 40
+        c.setFillColor(HexColor('#9ca3af'))
+        c.setFont('Helvetica-Bold', 7)
+        c.drawString(text_start_x, card_y + card_h - 175, 'LOCATION')
+        c.setFillColor(HexColor('#111827'))
+        c.setFont('Helvetica-Bold', 12)
+        c.drawString(text_start_x, card_y + card_h - 190, event.venue_name or 'Virtual Event')
+        c.setFillColor(HexColor('#6b7280'))
+        c.setFont('Helvetica', 9)
+        loc_text = f"{event.address or ''} {event.city or ''}, {event.country or ''}"
+        c.drawString(text_start_x, card_y + card_h - 205, loc_text[:50])
+
+        # Perforation line
+        c.setDash(3, 3)
+        c.setStrokeColor(HexColor('#e5e7eb'))
+        c.line(card_x + left_w, card_y + 20, card_x + left_w, card_y + card_h - 20)
+        c.setDash(1, 0)
+
+        # Footer
+        c.setFillColor(HexColor('#9ca3af'))
+        c.setFont('Helvetica-Bold', 7)
+        c.drawString(right_x, card_y + 35, 'VERIFIED EVENTHUB DIGITAL PASS')
+        c.setFillColor(HexColor('#d1d5db'))
+        c.setFont('Helvetica-Oblique', 7)
+        c.drawString(right_x, card_y + 22, 'Please present this pass at the registration desk for check-in.')
+
+        c.showPage()
+        c.save()
+        return response
+
+    except Exception as e:
+        print(f"PDF Error: {str(e)}")
+        messages.error(request, f"Could not generate PDF: {str(e)}. Please try printing from the browser instead.")
+        return redirect('attendee:ticket_preview', registration_id=registration_id)
 
         # Status badge
         status_text = registration.get_status_display()
@@ -357,7 +489,11 @@ def ticket_preview(request, registration_id):
         id=registration_id
     )
 
-    if registration.user != request.user and registration.attendee_email.lower() != request.user.email.lower():
+    # Check permission (Allow if user is purchaser OR attendee)
+    is_purchaser = registration.purchaser == request.user
+    is_attendee = registration.user == request.user or registration.attendee_email.lower() == request.user.email.lower()
+    
+    if not (is_purchaser or is_attendee):
         messages.error(request, 'You do not have permission to view this ticket.')
         return redirect('attendee:dashboard')
 
@@ -493,16 +629,14 @@ def event_detail_enhanced(request, event_id):
     }
     available_ticket_types = []
     for ticket in ticket_types:
-        sold_count = max(sold_counts.get(ticket.id, 0), ticket.quantity_sold or 0)
-        ticket.computed_sold = sold_count
-        ticket.computed_available = max(0, ticket.quantity_available - sold_count)
-        ticket.computed_sold_out = ticket.computed_available <= 0
-        ticket.on_sale = (
-            ticket.is_active and
-            (not ticket.sales_start or ticket.sales_start <= now) and
-            (not ticket.sales_end or now <= ticket.sales_end)
-        )
-        if ticket.on_sale and not ticket.computed_sold_out:
+        # Use the dynamic properties from the model
+        ticket.computed_sold = ticket.quantity_sold
+        ticket.computed_available = ticket.remaining_tickets
+        ticket.computed_sold_out = ticket.is_sold_out
+        
+        ticket.on_sale = ticket.can_purchase()
+        
+        if ticket.is_active:
             available_ticket_types.append(ticket)
     
     # Check if user is registered
@@ -567,7 +701,7 @@ def save_event(request, event_id):
     user.notification_preferences['saved_events'] = saved_events
     user.save()
     
-    return redirect('registration:event_detail_enhanced', event_id=event_id)
+    return redirect('attendee:event_detail', event_id=event_id)
 
 
 @login_required
@@ -657,7 +791,7 @@ def event_schedule(request, event_id):
     
     if not registration:
         messages.error(request, 'You must be registered for this event to view the schedule.')
-        return redirect('registration:event_detail_enhanced', event_id=event_id)
+        return redirect('attendee:event_detail', event_id=event_id)
     
     # Get all sessions
     sessions = event.sessions.all().order_by('start_time')
@@ -748,7 +882,7 @@ def session_feedback_enhanced(request, session_id):
     
     if not registration:
         messages.error(request, 'You must be registered for this event.')
-        return redirect('registration:event_detail_enhanced', event_id=session.event.id)
+        return redirect('attendee:event_detail', event_id=session.event.id)
     
     # Get or create attendance
     attendance, created = SessionAttendance.objects.get_or_create(
@@ -765,7 +899,7 @@ def session_feedback_enhanced(request, session_id):
             attendance.feedback = feedback
             attendance.save()
             messages.success(request, 'Thank you for your feedback!')
-            return redirect('registration:event_schedule', event_id=session.event.id)
+            return redirect('attendee:event_schedule', event_id=session.event.id)
     
     context = {
         'session': session,
@@ -820,15 +954,18 @@ def browse_attendees(request):
     event_id_raw = request.GET.get('event', '').strip()
     now = timezone.now()
 
-    # Events the user is registered for (by user or email)
+    # Events the user is registered for (by purchaser, user or email)
     user_regs = Registration.objects.filter(
-        models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
+        models.Q(purchaser=user) | models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
     )
     common_events = Event.objects.filter(
         registrations__in=user_regs
     ).distinct().order_by('start_date')
-    common_events = common_events.filter(start_date__gte=now)
+    # Include ongoing events (end_date in future) and upcoming events
+    common_events = common_events.filter(
+        models.Q(end_date__gte=now) | models.Q(start_date__gte=now)
+    )
 
     event_filter_id = None
     if event_id_raw:
@@ -882,7 +1019,7 @@ def attendee_profile(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
     
     common_events = Event.objects.filter(
-        registrations__user=request.user
+        registrations__purchaser=request.user
     ).filter(
         registrations__user=profile_user
     ).distinct()
@@ -945,11 +1082,11 @@ def send_connection_request(request, user_id):
         )
         
         messages.success(request, f'Connection request sent to {recipient.email}')
-        return redirect('registration:networking_hub')
+        return redirect('attendee:networking_hub')
     
     # Get common events
     common_events = Event.objects.filter(
-        registrations__user=request.user
+        registrations__purchaser=request.user
     ).filter(
         registrations__user=recipient
     ).distinct()
@@ -964,37 +1101,54 @@ def send_connection_request(request, user_id):
 
 @login_required
 def messages_enhanced(request):
-    """Enhanced messaging interface"""
+    """Enhanced threaded messaging interface"""
     user = request.user
     
-    # Get all messages
-    received = AttendeeMessage.objects.filter(
-        recipient=user
-    ).select_related('sender', 'event').order_by('-created_at')
+    # Get all messages where user is sender or recipient
+    all_messages = AttendeeMessage.objects.filter(
+        Q(sender=user) | Q(recipient=user)
+    ).select_related('sender', 'recipient', 'event').order_by('-created_at')
     
-    sent = AttendeeMessage.objects.filter(
-        sender=user
-    ).select_related('recipient', 'event').order_by('-created_at')
+    # Group into threads (by other user)
+    threads = {}
+    for msg in all_messages:
+        other_user = msg.recipient if msg.sender == user else msg.sender
+        if other_user.id not in threads:
+            threads[other_user.id] = {
+                'user': other_user,
+                'last_message': msg,
+                'unread_count': 0
+            }
+        if not msg.is_read and msg.recipient == user:
+            threads[other_user.id]['unread_count'] += 1
+            
+    threads_data = list(threads.values())
     
-    # Filter
-    filter_type = request.GET.get('filter', 'received')
-    if filter_type == 'sent':
-        messages_list = sent
-    else:
-        messages_list = received
+    # Selected thread
+    selected_thread_id = request.GET.get('thread')
+    selected_thread = None
+    thread_messages = []
     
-    # Pagination
-    paginator = Paginator(messages_list, 20)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    # Unread count
-    unread_count = received.filter(is_read=False).count()
+    if selected_thread_id:
+        selected_thread = get_object_or_404(User, id=selected_thread_id)
+        # Get conversation between user and selected_thread
+        thread_messages = AttendeeMessage.objects.filter(
+            (Q(sender=user) & Q(recipient=selected_thread)) |
+            (Q(sender=selected_thread) & Q(recipient=user))
+        ).order_by('created_at')
+        
+        # Mark as read
+        AttendeeMessage.objects.filter(
+            sender=selected_thread,
+            recipient=user,
+            is_read=False
+        ).update(is_read=True, read_at=timezone.now())
     
     context = {
-        'page_obj': page_obj,
-        'filter_type': filter_type,
-        'unread_count': unread_count,
+        'threads_data': threads_data,
+        'selected_thread': selected_thread,
+        'thread_messages': thread_messages,
+        'unread_count': sum(t['unread_count'] for t in threads_data),
     }
     
     return render(request, 'participant/messages_enhanced.html', context)
@@ -1023,11 +1177,16 @@ def send_message_enhanced(request, recipient_id):
         )
         
         messages.success(request, f'Message sent to {recipient.email}')
-        return redirect('registration:messages_enhanced')
+        
+        next_url = request.POST.get('next')
+        if next_url:
+            return redirect(next_url)
+            
+        return redirect('attendee:messages')
     
     # Get common events
     common_events = Event.objects.filter(
-        registrations__user=request.user
+        registrations__purchaser=request.user
     ).filter(
         registrations__user=recipient
     ).distinct()
@@ -1050,7 +1209,7 @@ def mark_message_read_enhanced(request, message_id):
         message.read_at = timezone.now()
         message.save()
     
-    return redirect('registration:messages_enhanced')
+    return redirect('attendee:messages')
 
 
 # =============================================================================
@@ -1073,7 +1232,7 @@ def preferences_enhanced(request, event_id):
     
     if not registration:
         messages.error(request, 'You must be registered for this event.')
-        return redirect('registration:event_detail_enhanced', event_id=event_id)
+        return redirect('attendee:event_detail', event_id=event_id)
     
     # Get or create preferences
     prefs, created = AttendeePreference.objects.get_or_create(
@@ -1099,7 +1258,7 @@ def preferences_enhanced(request, event_id):
         prefs.save()
         
         messages.success(request, 'Preferences saved successfully!')
-        return redirect('registration:registration_detail_enhanced', registration_id=registration.id)
+        return redirect('attendee:registration_detail', registration_id=registration.id)
     
     # Get tracks for selection
     tracks = event.tracks.all()
@@ -1137,7 +1296,7 @@ def account_settings(request):
         
         user.save()
         messages.success(request, 'Settings saved successfully!')
-        return redirect('registration:account_settings')
+        return redirect('attendee:settings')
     
     context = {
         'user': user,
@@ -1230,6 +1389,7 @@ def certificates_list(request):
     """List all events where attendee has checked-in status"""
     user = request.user
 
+    # Get registrations where the user is purchaser OR attendee
     checked_in_registrations = Registration.objects.filter(
         models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         status=RegistrationStatus.CHECKED_IN
@@ -1329,6 +1489,7 @@ def event_materials(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
 
+    # Get registration where user is purchaser OR attendee
     registration = Registration.objects.filter(
         models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
@@ -1362,6 +1523,7 @@ def event_feedback(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     user = request.user
 
+    # Get registration where user is purchaser OR attendee
     registration = Registration.objects.filter(
         models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
     ).filter(
@@ -1408,7 +1570,7 @@ def notifications_list(request):
     user = request.user
     filter_type = request.GET.get('filter', 'all')
 
-    notifications = AttendeeNotification.objects.filter(user=user)
+    notifications = AttendeeNotification.objects.filter(user=user).order_by('-created_at')
     if filter_type == 'unread':
         notifications = notifications.filter(is_read=False)
 
@@ -1464,6 +1626,7 @@ def export_schedule_ical(request):
     user = request.user
     now = timezone.now()
 
+    # Get registrations where user is purchaser OR attendee
     registrations = Registration.objects.filter(
         models.Q(user=user) | models.Q(attendee_email__iexact=user.email),
         event__start_date__gte=now,

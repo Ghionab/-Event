@@ -70,6 +70,11 @@ class Event(models.Model):
     contact_email = models.EmailField(blank=True)
     contact_phone = models.CharField(max_length=20, blank=True)
     
+    # Popularity Metrics
+    views_count = models.PositiveIntegerField(default=0)
+    # Note: tickets_sold is calculated from registrations or ticket_types, 
+    # but we'll use a property for ranking if needed, or a field for performance.
+    
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

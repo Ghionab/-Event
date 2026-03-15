@@ -242,17 +242,21 @@ urlpatterns = [
 
     path('accounts/profile/', RedirectView.as_view(url='/profile/', permanent=True), name='account_profile'),
 
-    # API endpoints (public) - participant specific, must come first
-    path('api/v1/', include('events_api.urls_participant')),
-    # Simple registration API - completely CSRF exempt
-    path('api/v1/register/', simple_register_api, name='api-public-register'),
-    # QR code email API
-    path('api/v1/send-qr-email/', csrf_exempt(lambda request: __import__('registration.views_success', fromlist=['send_qr_email']).send_qr_email(request)), name='api-send-qr-email'),
-    # Include main API for tickets (GET)
-    path('api/v1/', include('events_api.urls')),
-
     # API Documentation (read-only for participants)
     path('api/docs/', TemplateView.as_view(template_name='participant/api_docs.html'), name='participant_api_docs'),
+
+    # Simple registration API - completely CSRF exempt
+    # This MUST come before include('events_api.urls_participant') to override the default public register
+    path('api/v1/register/', simple_register_api, name='api-public-register-v1'),
+
+    # API endpoints (public) - participant specific
+    path('api/v1/', include('events_api.urls_participant')),
+    
+    # QR code email API
+    path('api/v1/send-qr-email/', csrf_exempt(lambda request: __import__('registration.views_success', fromlist=['send_qr_email']).send_qr_email(request)), name='api-send-qr-email'),
+    
+    # Include main API for tickets (GET)
+    path('api/v1/', include('events_api.urls')),
 
     # Attendee portal routes (authenticated)
     path('attendee/', include('registration.urls_attendee')),

@@ -43,8 +43,7 @@
                     {% else %}<i class="bi bi-megaphone text-gray-500 text-lg"></i>{% endif %}
                 </div>
                 <div class="flex-1">
-                    <h3 class="font-medium text-gray-900 {% if not notification.is_read %}font-semibold{% endif %}">{{
-                        notification.title }}</h3>
+                    <h3 class="font-medium text-gray-900 {% if not notification.is_read %}font-semibold{% endif %}">{{ notification.title }}</h3>
                     <p class="text-sm text-gray-600 mt-0.5">{{ notification.message }}</p>
                     <p class="text-xs text-gray-400 mt-2">{{ notification.created_at|timesince }} ago</p>
                 </div>

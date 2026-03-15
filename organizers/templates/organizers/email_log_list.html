@@ -8,10 +8,10 @@
 
 {% block content %}
 <div class="mb-6 flex items-center justify-between">
-    <a href="{% url 'organizer_communication_dashboard' %}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 transition">
+    <a href="{% url 'organizers:organizer_communication_dashboard' %}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 transition">
         <i class="bi bi-arrow-left mr-2"></i>Back to Communication
     </a>
-    <a href="{% url 'organizer_send_email' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+    <a href="{% url 'organizers:organizer_send_email' %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
         <i class="bi bi-send mr-2"></i>Send Email
     </a>
 </div>
@@ -42,7 +42,7 @@
                 <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
                     <i class="bi bi-funnel mr-2"></i>Filter
                 </button>
-                <a href="{% url 'organizer_email_log_list' %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">Clear</a>
+                <a href="{% url 'organizers:organizer_email_log_list' %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">Clear</a>
             </div>
         </form>
     </div>
@@ -98,7 +98,7 @@
             <i class="bi bi-envelope text-gray-300 text-5xl mb-4"></i>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No Emails Sent Yet</h3>
             <p class="text-gray-500 mb-6">Email logs will appear here when you send emails.</p>
-            <a href="{% url 'organizer_send_email' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+            <a href="{% url 'organizers:organizer_send_email' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
                 <i class="bi bi-send mr-2"></i>Send Email
             </a>
         </div>

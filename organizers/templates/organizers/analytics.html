@@ -123,7 +123,7 @@
                     <td class="px-6 py-4 text-gray-600">{{ event_metrics|get_item:event.id|get_item:'registrations'|default:"0" }}</td>
                     <td class="px-6 py-4 text-gray-800 font-medium">${{ event_metrics|get_item:event.id|get_item:'revenue'|default:"0.00"|floatformat:2 }}</td>
                     <td class="px-6 py-4 text-right">
-                        <a href="{% url 'organizer_analytics_event' event.id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                        <a href="{% url 'organizers:organizer_analytics_event' event.id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">
                             View Details <i class="bi bi-arrow-right ml-1"></i>
                         </a>
                     </td>

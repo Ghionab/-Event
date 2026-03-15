@@ -178,6 +178,45 @@ def register_for_event(request, event_id):
             registration.save()
             registration.confirm()
 
+            # Notify ushers assigned to this venue
+            venue_name = getattr(event, 'venue_name', '')
+            if venue_name:
+                from advanced.models import UsherAssignment
+                from django.core.mail import send_mail
+                from django.conf import settings
+                
+                usher_assignments = UsherAssignment.objects.filter(
+                    event=event,
+                    venue_name=venue_name,
+                    is_active=True
+                ).select_related('user')
+                
+                for assignment in usher_assignments:
+                    try:
+                        send_mail(
+                            subject=f'New Ticket Sold - {event.title}',
+                            message=f'''Hello,
+
+A new ticket has been sold for your assigned venue ({venue_name}).
+
+Attendee Details:
+- Name: {registration.attendee_name}
+- Email: {registration.attendee_email}
+- Ticket Type: {registration.ticket_type.name if registration.ticket_type else 'N/A'}
+- Registration Number: {registration.registration_number}
+
+You can view and scan this attendee's ticket in the staff portal.
+
+Best regards,
+Event Management Team
+''',
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[assignment.user.email],
+                            fail_silently=True
+                        )
+                    except Exception:
+                        pass  # Email failure shouldn't block registration
+
             # Save uploaded files
             for field in file_fields:
                 field_key = f"custom_{field.field_name}"

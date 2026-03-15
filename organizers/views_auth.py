@@ -49,10 +49,10 @@ def organizer_login(request):
                 else:
                     messages.info(request, 'Please create an organizer profile to access the dashboard.')
                     login(request, user)
-                    return redirect('organizer_create')
+                    return redirect('organizers:organizer_create')
             except:
                 login(request, user)
-                return redirect('organizer_dashboard')
+                return redirect('organizers:organizer_dashboard')
         else:
             messages.error(request, 'Invalid email or password. Please try again.')
 
@@ -63,4 +63,4 @@ def organizer_logout(request):
     """Logout and redirect to login"""
     logout(request)
     messages.info(request, 'You have been logged out successfully.')
-    return redirect('organizer_login')
+    return redirect('organizers:organizer_login')

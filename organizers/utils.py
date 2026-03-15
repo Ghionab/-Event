@@ -22,8 +22,8 @@ def ensure_user_is_organizer(user):
 
 
 def dashboard_url():
-    return reverse('organizer_dashboard')
+    return reverse('organizers:organizer_dashboard')
 
 
 def create_url():
-    return reverse('organizer_create')
+    return reverse('organizers:organizer_create')

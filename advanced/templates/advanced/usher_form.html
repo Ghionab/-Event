@@ -1,0 +1,108 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ action }} Usher - EventHub{% endblock %}
+{% block header %}{{ action }} Usher{% endblock %}
+{% block subtitle %}Assign an usher to a venue with manual login credentials{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <form method="post" class="card">
+        {% csrf_token %}
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                <p class="font-medium">Please correct the errors below.</p>
+            </div>
+            {% endif %}
+
+            <!-- Event Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Event *</label>
+                {% if assignment %}
+                    <input type="hidden" name="event" value="{{ assignment.event.pk }}">
+                    <div class="px-4 py-3 bg-gray-50 rounded-lg">
+                        <span class="text-gray-900 font-medium">{{ assignment.event.title }}</span>
+                    </div>
+                {% else %}
+                    <select name="event" id="eventSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" required>
+                        <option value="">Select an event</option>
+                        {% for event in events %}
+                            <option value="{{ event.pk }}" {% if event.pk == event.id %}selected{% endif %}>{{ event.title }}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+            </div>
+
+            <!-- Usher Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                    <input type="text" name="first_name" value="{{ assignment.user.first_name|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="John">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                    <input type="text" name="last_name" value="{{ assignment.user.last_name|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Doe">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                <input type="email" name="email" value="{{ assignment.user.email|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="usher@example.com" {% if assignment %}readonly{% endif %} required>
+                {% if not assignment %}<p class="text-sm text-gray-500 mt-1">Enter the usher's email. You will share credentials manually.</p>{% endif %}
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
+                <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter password" {% if assignment %}placeholder="Leave blank to keep current"{% endif %} {% if not assignment %}required{% endif %}>
+                <p class="text-sm text-gray-500 mt-1">{% if assignment %}Leave blank to keep current password.{% else %}You will share this password manually with the usher.{% endif %}</p>
+            </div>
+
+            <!-- Venue Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Venue *</label>
+                {% if assignment %}
+                    <input type="text" name="venue_name" value="{{ assignment.venue_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" required>
+                {% else %}
+                    <input type="text" name="venue_name" id="venueName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter venue name" required>
+                    <p class="text-sm text-gray-500 mt-1">The usher will only see attendees for this venue.</p>
+                {% endif %}
+            </div>
+
+            <!-- Status (only for update) -->
+            {% if assignment %}
+            <div class="mb-6">
+                <label class="flex items-center">
+                    <input type="checkbox" name="is_active" {% if assignment.is_active %}checked{% endif %} class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <span class="ml-3 text-sm text-gray-700">Active</span>
+                </label>
+                <p class="text-sm text-gray-500 mt-1">Inactive ushers cannot log in to the staff portal.</p>
+            </div>
+            {% endif %}
+
+            <!-- Info Box -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <i class="bi bi-info-circle text-blue-600 mt-1 mr-3"></i>
+                    <div>
+                        <p class="text-sm text-blue-800 font-medium">How it works</p>
+                        <p class="text-sm text-blue-600 mt-1">
+                            Share the email and password manually with the usher. 
+                            They can only access the staff portal and check-in attendees at their assigned venue.
+                            When a participant buys a ticket for this venue, the data will be sent to this usher.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer flex justify-end gap-3">
+            <a href="{% url 'advanced:usher_list' %}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                Cancel
+            </a>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                {% if assignment %}Update Usher{% else %}Create Usher{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

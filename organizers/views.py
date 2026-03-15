@@ -33,7 +33,7 @@ def organizer_required(view_func):
             return view_func(request, *args, **kwargs)
         except OrganizerProfile.DoesNotExist:
             messages.error(request, 'You need to create an organizer profile first.')
-            return redirect('organizer_create')
+            return redirect('organizers:organizer_create')
     return wrapper
 
 
@@ -148,7 +148,7 @@ def organizer_create(request):
     from .forms import OrganizerProfileForm
 
     if organizer_profile_exists(request.user):
-        return redirect('organizer_dashboard')
+        return redirect('organizers:organizer_dashboard')
     
     if request.method == 'POST':
         form = OrganizerProfileForm(request.POST, request.FILES)
@@ -158,7 +158,7 @@ def organizer_create(request):
             profile.save()
             ensure_user_is_organizer(request.user)
             messages.success(request, 'Organizer profile created successfully!')
-            return redirect('organizer_dashboard')
+            return redirect('organizers:organizer_dashboard')
     else:
         form = OrganizerProfileForm()
     
@@ -211,7 +211,7 @@ def event_create(request):
             event.save()
             messages.success(request, 'Event created and published successfully!')
             # Redirect to event setup wizard
-            return redirect('organizer_event_setup', event_id=event.id)
+            return redirect('organizers:organizer_event_setup', event_id=event.id)
     else:
         form = EventForm(initial=initial)
 
@@ -248,14 +248,14 @@ def event_setup(request, event_id):
                     ticket.is_active = True
                 ticket.save()
                 messages.success(request, 'Ticket added successfully!')
-            return redirect('organizer_event_setup', event_id=event.id)
+            return redirect('organizers:organizer_event_setup', event_id=event.id)
 
         elif action == 'delete_ticket':
             ticket_id = request.POST.get('ticket_id')
             ticket = get_object_or_404(TicketType, id=ticket_id, event=event)
             ticket.delete()
             messages.success(request, 'Ticket deleted successfully!')
-            return redirect('organizer_event_setup', event_id=event.id)
+            return redirect('organizers:organizer_event_setup', event_id=event.id)
 
         elif action == 'send_invitations':
             emails = request.POST.get('emails', '')
@@ -278,7 +278,7 @@ def event_setup(request, event_id):
                 messages.success(request, f'Invitations sent to {len(email_list)} recipient(s)!')
             else:
                 messages.warning(request, 'Please add at least one email or phone number.')
-            return redirect('organizer_event_setup', event_id=event.id)
+            return redirect('organizers:organizer_event_setup', event_id=event.id)
 
         elif action == 'import_team_csv':
             import csv
@@ -290,11 +290,11 @@ def event_setup(request, event_id):
             
             if not csv_file:
                 messages.error(request, 'Please select a CSV file to upload.')
-                return redirect('organizer_event_setup', event_id=event.id)
+                return redirect('organizers:organizer_event_setup', event_id=event.id)
             
             if not csv_file.name.endswith('.csv'):
                 messages.error(request, 'Please upload a valid CSV file.')
-                return redirect('organizer_event_setup', event_id=event.id)
+                return redirect('organizers:organizer_event_setup', event_id=event.id)
             
             try:
                 # Read CSV file
@@ -405,7 +405,7 @@ def event_setup(request, event_id):
             except Exception as e:
                 messages.error(request, f'Error processing CSV file: {str(e)}')
             
-            return redirect('organizer_event_setup', event_id=event.id)
+            return redirect('organizers:organizer_event_setup', event_id=event.id)
 
         elif action == 'finish':
             # Mark event as ready (update status if needed)
@@ -413,7 +413,7 @@ def event_setup(request, event_id):
                 event.status = 'published'
                 event.save()
             messages.success(request, f'Event "{event.title}" is now live!')
-            return redirect('organizer_event_detail', event_id=event.id)
+            return redirect('organizers:organizer_event_detail', event_id=event.id)
 
     context = {
         'event': event,
@@ -430,7 +430,7 @@ def import_team_csv(request, event_id):
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     
     if request.method != 'POST':
-        return redirect('organizer_event_setup', event_id=event.id)
+        return redirect('organizers:organizer_event_setup', event_id=event.id)
     
     import csv
     import io
@@ -442,11 +442,11 @@ def import_team_csv(request, event_id):
     
     if not csv_file:
         messages.error(request, 'Please select a CSV file to upload.')
-        return redirect('organizer_event_setup', event_id=event.id)
+        return redirect('organizers:organizer_event_setup', event_id=event.id)
     
     if not csv_file.name.endswith('.csv'):
         messages.error(request, 'Please upload a valid CSV file.')
-        return redirect('organizer_event_setup', event_id=event.id)
+        return redirect('organizers:organizer_event_setup', event_id=event.id)
     
     try:
         # Read CSV file
@@ -551,7 +551,7 @@ def import_team_csv(request, event_id):
     except Exception as e:
         messages.error(request, f'Error processing CSV file: {str(e)}')
     
-    return redirect('organizer_event_setup', event_id=event.id)
+    return redirect('organizers:organizer_event_setup', event_id=event.id)
 
 
 @login_required
@@ -645,7 +645,7 @@ def event_edit(request, event_id):
                     ticket.is_active = True
                 ticket.save()
                 messages.success(request, 'Ticket added successfully!')
-            return redirect('organizer_event_detail', event_id=event.id)
+            return redirect('organizers:organizer_event_detail', event_id=event.id)
 
         elif action == 'edit_ticket':
             ticket_id = request.POST.get('ticket_id')
@@ -659,14 +659,14 @@ def event_edit(request, event_id):
                     updated_ticket.is_active = True
                 updated_ticket.save()
                 messages.success(request, 'Ticket updated successfully!')
-            return redirect('organizer_event_detail', event_id=event.id)
+            return redirect('organizers:organizer_event_detail', event_id=event.id)
 
         elif action == 'delete_ticket':
             ticket_id = request.POST.get('ticket_id')
             ticket = get_object_or_404(TicketType, id=ticket_id, event=event)
             ticket.delete()
             messages.success(request, 'Ticket deleted successfully!')
-            return redirect('organizer_event_detail', event_id=event.id)
+            return redirect('organizers:organizer_event_detail', event_id=event.id)
 
         elif action == 'save_event':
             form = EventForm(request.POST, request.FILES, instance=event)
@@ -676,7 +676,7 @@ def event_edit(request, event_id):
                 event.save()
                 form.save_m2m()
                 messages.success(request, 'Event updated successfully!')
-                return redirect('organizer_event_list')
+                return redirect('organizers:organizer_event_list')
             else:
                 # If form is invalid, we fall through to the render below with the form errors
                 pass
@@ -711,7 +711,7 @@ def event_delete(request, event_id):
     if request.method == 'POST':
         event.delete()
         messages.success(request, 'Event deleted successfully!')
-        return redirect('organizer_event_list')
+        return redirect('organizers:organizer_event_list')
     
     return render(request, 'organizers/event_confirm_delete.html', {'event': event})
 
@@ -871,7 +871,7 @@ def template_create(request):
             template.organizer = request.organizer
             template.save()
             messages.success(request, 'Template created successfully!')
-            return redirect('organizer_templates')
+            return redirect('organizers:organizer_templates')
         else:
             print("FORM ERRORS:", form.errors)
             messages.error(request, f'Form errors: {form.errors}')
@@ -1113,7 +1113,7 @@ def registration_edit(request, registration_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Registration updated successfully!')
-            return redirect('organizer_registration_detail', registration_id=registration.id)
+            return redirect('organizers:organizer_registration_detail', registration_id=registration.id)
     else:
         form = RegistrationEditForm(instance=registration)
     
@@ -1142,7 +1142,7 @@ def registration_cancel(request, registration_id):
         reason = request.POST.get('reason', '')
         registration.cancel(reason=reason)
         messages.success(request, f'Registration {registration.registration_number} has been cancelled.')
-        return redirect('organizer_registration_list')
+        return redirect('organizers:organizer_registration_list')
     
     return render(request, 'organizers/registration_cancel.html', {
         'registration': registration,
@@ -1174,7 +1174,7 @@ def registration_checkin(request, registration_id):
     else:
         messages.error(request, 'Cannot check in this registration. Invalid status.')
     
-    return redirect('organizer_registration_detail', registration_id=registration.id)
+    return redirect('organizers:organizer_registration_detail', registration_id=registration.id)
 
 
 @login_required
@@ -1203,7 +1203,7 @@ def registration_refund(request, registration_id):
         except Exception as e:
             messages.error(request, f'Error processing refund: {str(e)}')
         
-        return redirect('organizer_registration_detail', registration_id=registration.id)
+        return redirect('organizers:organizer_registration_detail', registration_id=registration.id)
     
     return render(request, 'organizers/registration_refund.html', {
         'registration': registration,
@@ -1227,7 +1227,7 @@ def registration_resend_ticket(request, registration_id):
     # For now, just show success message
     messages.success(request, f'Ticket resent to {registration.attendee_email}.')
     
-    return redirect('organizer_registration_detail', registration_id=registration.id)
+    return redirect('organizers:organizer_registration_detail', registration_id=registration.id)
 
 
 @login_required
@@ -1305,14 +1305,14 @@ def _export_excel(registrations):
 def registration_bulk_action(request):
     """Handle bulk actions on registrations"""
     if request.method != 'POST':
-        return redirect('organizer_registration_list')
+        return redirect('organizers:organizer_registration_list')
     
     action = request.POST.get('action')
     registration_ids = request.POST.getlist('registration_ids')
     
     if not registration_ids:
         messages.warning(request, 'No registrations selected.')
-        return redirect('organizer_registration_list')
+        return redirect('organizers:organizer_registration_list')
     
     organizer = request.organizer
     events = Event.objects.filter(organizer=organizer.user)
@@ -1347,7 +1347,7 @@ def registration_bulk_action(request):
         request.session['bulk_email_registration_ids'] = registration_ids
         messages.info(request, f'{len(registration_ids)} registrations selected. Redirecting to email composition...')
         # Redirect to communication app email composition
-        return redirect('communication:bulk_email') if False else redirect('organizer_registration_list')
+        return redirect('communication:bulk_email') if False else redirect('organizers:organizer_registration_list')
     
     elif action == 'export':
         return _export_csv(registrations)
@@ -1357,7 +1357,7 @@ def registration_bulk_action(request):
         registration_ids_str = ','.join(registration_ids)
         return redirect(f'{reverse("organizer_badge_print_bulk")}?registrations={registration_ids_str}')
     
-    return redirect('organizer_registration_list')
+    return redirect('organizers:organizer_registration_list')
 
 
 @login_required
@@ -1371,18 +1371,18 @@ def badge_print_bulk(request):
     registration_ids_str = request.GET.get('registrations', '')
     if not registration_ids_str:
         messages.error(request, 'No registrations selected for badge printing.')
-        return redirect('organizer_registration_list')
+        return redirect('organizers:organizer_registration_list')
     
     # Parse registration IDs
     try:
         registration_ids = [int(id_str) for id_str in registration_ids_str.split(',') if id_str.strip()]
     except ValueError:
         messages.error(request, 'Invalid registration IDs.')
-        return redirect('organizer_registration_list')
+        return redirect('organizers:organizer_registration_list')
     
     if not registration_ids:
         messages.error(request, 'No valid registrations selected.')
-        return redirect('organizer_registration_list')
+        return redirect('organizers:organizer_registration_list')
     
     # Get registrations belonging to organizer's events
     registrations = Registration.objects.filter(
@@ -1392,7 +1392,7 @@ def badge_print_bulk(request):
     
     if not registrations.exists():
         messages.error(request, 'No valid registrations found for badge printing.')
-        return redirect('organizer_registration_list')
+        return redirect('organizers:organizer_registration_list')
     
     # Generate QR codes for badges
     import qrcode
@@ -1511,7 +1511,7 @@ def email_template_create(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Email template created successfully!')
-            return redirect('organizer_email_template_list')
+            return redirect('organizers:organizer_email_template_list')
     else:
         form = EmailTemplateForm()
     
@@ -1533,7 +1533,7 @@ def email_template_edit(request, template_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Email template updated successfully!')
-            return redirect('organizer_email_template_list')
+            return redirect('organizers:organizer_email_template_list')
     else:
         form = EmailTemplateForm(instance=template)
     
@@ -1578,10 +1578,10 @@ def scheduled_email_create(request):
             # Ensure event belongs to organizer
             if scheduled_email.event.organizer != organizer.user:
                 messages.error(request, 'You do not have permission to schedule emails for this event.')
-                return redirect('organizer_scheduled_email_list')
+                return redirect('organizers:organizer_scheduled_email_list')
             scheduled_email.save()
             messages.success(request, 'Scheduled email created successfully!')
-            return redirect('organizer_scheduled_email_list')
+            return redirect('organizers:organizer_scheduled_email_list')
     else:
         form = ScheduledEmailForm()
         # Filter events to organizer's events
@@ -1616,13 +1616,13 @@ def scheduled_email_edit(request, email_id):
         if action == 'delete':
             scheduled_email.delete()
             messages.success(request, 'Scheduled email deleted successfully!')
-            return redirect('organizer_scheduled_email_list')
+            return redirect('organizers:organizer_scheduled_email_list')
         
         form = ScheduledEmailForm(request.POST, instance=scheduled_email)
         if form.is_valid():
             form.save()
             messages.success(request, 'Scheduled email updated successfully!')
-            return redirect('organizer_scheduled_email_list')
+            return redirect('organizers:organizer_scheduled_email_list')
     else:
         form = ScheduledEmailForm(instance=scheduled_email)
         form.fields['event'].queryset = events
@@ -1653,7 +1653,7 @@ def send_email(request):
         
         if not event_id or not subject or not content:
             messages.error(request, 'Please fill in all required fields.')
-            return redirect('organizer_send_email')
+            return redirect('organizers:organizer_send_email')
         
         try:
             import json
@@ -1686,7 +1686,7 @@ def send_email(request):
                 pass
         
         messages.success(request, f'Email queued for {sent_count} recipients.')
-        return redirect('organizer_email_log_list')
+        return redirect('organizers:organizer_email_log_list')
     
     context = {
         'events': events,
@@ -1760,7 +1760,7 @@ def live_poll_create(request):
             poll = form.save(commit=False)
             if poll.event.organizer != organizer.user:
                 messages.error(request, 'You do not have permission to create polls for this event.')
-                return redirect('organizer_live_poll_list')
+                return redirect('organizers:organizer_live_poll_list')
             
             # Process options for single/multiple choice
             if poll.poll_type in ['single', 'multiple']:
@@ -1770,7 +1770,7 @@ def live_poll_create(request):
             
             poll.save()
             messages.success(request, 'Live poll created successfully!')
-            return redirect('organizer_live_poll_list')
+            return redirect('organizers:organizer_live_poll_list')
     else:
         form = LivePollForm()
         form.fields['event'].queryset = events
@@ -1979,10 +1979,10 @@ def sponsor_create(request):
             # Ensure event belongs to organizer
             if sponsor.event.organizer != organizer.user:
                 messages.error(request, 'You do not have permission to add sponsors to this event.')
-                return redirect('organizer_sponsor_list')
+                return redirect('organizers:organizer_sponsor_list')
             sponsor.save()
             messages.success(request, f'Sponsor "{sponsor.company_name}" created successfully!')
-            return redirect('organizer_sponsor_detail', sponsor_id=sponsor.id)
+            return redirect('organizers:organizer_sponsor_detail', sponsor_id=sponsor.id)
     else:
         form = SponsorForm()
         form.fields['event'].queryset = events
@@ -2013,7 +2013,7 @@ def sponsor_edit(request, sponsor_id):
         if form.is_valid():
             form.save()
             messages.success(request, f'Sponsor "{sponsor.company_name}" updated successfully!')
-            return redirect('organizer_sponsor_detail', sponsor_id=sponsor.id)
+            return redirect('organizers:organizer_sponsor_detail', sponsor_id=sponsor.id)
     else:
         form = SponsorForm(instance=sponsor)
         form.fields['event'].queryset = events
@@ -2044,7 +2044,7 @@ def sponsor_delete(request, sponsor_id):
         company_name = sponsor.company_name
         sponsor.delete()
         messages.success(request, f'Sponsor "{company_name}" deleted successfully!')
-        return redirect('organizer_sponsor_list')
+        return redirect('organizers:organizer_sponsor_list')
     
     return render(request, 'organizers/sponsor_confirm_delete.html', {
         'sponsor': sponsor,

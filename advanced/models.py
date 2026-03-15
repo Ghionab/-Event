@@ -177,6 +177,29 @@ class TeamRole(models.TextChoices):
     TECHNICAL_SUPPORT = 'technical_support', 'Technical Support'
 
 
+class UsherAssignment(models.Model):
+    """Usher assignments to specific event venues with login credentials"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='usher_assignments')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='usher_assignments')
+    
+    # Venue name (from event's venue_name field)
+    venue_name = models.CharField(max_length=255, blank=True, default='')
+    
+    # Auto-generated credentials
+    temp_password = models.CharField(max_length=128)
+    password_set_at = models.DateTimeField(null=True, blank=True)
+    
+    # Status
+    is_active = models.BooleanField(default=True)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'event', 'venue_name']
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.event.title} ({self.venue_name})"
+
+
 class TeamMember(models.Model):
     """Team members for events"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='advanced_team_memberships')

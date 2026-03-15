@@ -1,0 +1,228 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Ticket Validation - Gate Staff Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-3">
+            <i class="fas fa-ticket-alt"></i> Ticket Validation
+        </h2>
+        {% if assignment %}
+        <p class="text-muted mb-4">
+            <strong>{{ assignment.event.title }}</strong><br>
+            Venue: <strong>{{ assignment.venue_name|default:assignment.event.venue_name|default:"Assigned Venue" }}</strong>
+        </p>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            No active usher assignment found. Please contact the organizer.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if assignment %}
+<div class="row g-3">
+    <div class="col-12 col-lg-5">
+        <div class="stats-card">
+            <h5 class="mb-3"><i class="fas fa-hashtag"></i> Validate by Ticket ID</h5>
+            <form id="ticket-id-form" class="mb-2">
+                {% csrf_token %}
+                <div class="input-group input-group-lg">
+                    <input type="text" class="form-control" id="ticket-id-input" name="ticket_id" placeholder="REG-XXXXXXXX" inputmode="text" autocomplete="off" autocapitalize="characters" />
+                    <button class="btn btn-primary" type="submit">
+                        Validate
+                    </button>
+                </div>
+            </form>
+            <div id="manual-result" class="mt-3"></div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-7">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="fas fa-qrcode"></i> Scan QR Code</h5>
+                <div class="d-flex gap-2">
+                    <button id="start-scan-btn" class="btn btn-success btn-sm" type="button">Start</button>
+                    <button id="stop-scan-btn" class="btn btn-outline-secondary btn-sm" type="button" style="display:none;">Stop</button>
+                </div>
+            </div>
+
+            <div id="qr-reader" style="display:none;"></div>
+            <div id="qr-result" class="mt-3"></div>
+
+            <div class="text-muted mt-3" style="font-size: 13px;">
+                If the camera does not open, allow camera permission in your browser settings.
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+let html5QrCode = null;
+let isScanning = false;
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function getCSRFToken() {
+    const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (input && input.value) return input.value;
+    return getCookie('csrftoken');
+}
+
+function showResult(targetId, type, message) {
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    el.innerHTML = `
+        <div class="alert alert-${type} mb-0" role="alert">
+            ${message}
+        </div>
+    `;
+}
+
+async function postFormEncoded(url, data) {
+    const body = new URLSearchParams(data);
+    const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: body.toString(),
+        credentials: 'include'
+    });
+    return resp.json();
+}
+
+const manualForm = document.getElementById('ticket-id-form');
+if (manualForm) {
+    manualForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('ticket-id-input');
+        const ticketId = (input ? input.value : '').trim();
+        if (!ticketId) {
+            showResult('manual-result', 'warning', 'Please enter a Ticket ID.');
+            return;
+        }
+
+        showResult('manual-result', 'info', 'Validating...');
+        try {
+            const result = await postFormEncoded("{% url 'staff:usher_manual_checkin' %}", { ticket_id: ticketId });
+            if (result.success) {
+                showResult('manual-result', 'success', `✓ ${result.message}<div class="mt-2"><strong>${result.registration.registration_number}</strong> — ${result.registration.attendee_name}</div>`);
+                if (input) input.value = '';
+            } else {
+                showResult('manual-result', 'warning', result.message || 'Validation failed.');
+            }
+        } catch (err) {
+            showResult('manual-result', 'danger', 'Request failed. Please try again.');
+        }
+    });
+}
+
+function startScanner() {
+    if (isScanning) return;
+
+    const startBtn = document.getElementById('start-scan-btn');
+    const stopBtn = document.getElementById('stop-scan-btn');
+    const reader = document.getElementById('qr-reader');
+
+    if (startBtn) startBtn.style.display = 'none';
+    if (stopBtn) stopBtn.style.display = 'inline-block';
+    if (reader) reader.style.display = 'block';
+
+    html5QrCode = new Html5Qrcode('qr-reader');
+
+    const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0
+    };
+
+    html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onScanSuccess,
+        () => {}
+    ).then(() => {
+        isScanning = true;
+    }).catch(() => {
+        showResult('qr-result', 'danger', 'Failed to start camera. Please check permissions.');
+        stopScanner();
+    });
+}
+
+function stopScanner() {
+    const startBtn = document.getElementById('start-scan-btn');
+    const stopBtn = document.getElementById('stop-scan-btn');
+    const reader = document.getElementById('qr-reader');
+
+    const resetUI = () => {
+        if (startBtn) startBtn.style.display = 'inline-block';
+        if (stopBtn) stopBtn.style.display = 'none';
+        if (reader) reader.style.display = 'none';
+    };
+
+    if (!html5QrCode || !isScanning) {
+        resetUI();
+        return;
+    }
+
+    html5QrCode.stop().then(() => {
+        isScanning = false;
+        resetUI();
+    }).catch(() => {
+        isScanning = false;
+        resetUI();
+    });
+}
+
+async function onScanSuccess(decodedText) {
+    if (!html5QrCode || !isScanning) return;
+
+    html5QrCode.pause();
+    showResult('qr-result', 'info', 'Validating...');
+
+    try {
+        const result = await postFormEncoded("{% url 'staff:usher_qr_checkin' %}", { qr_code: decodedText });
+        if (result.success) {
+            showResult('qr-result', 'success', `✓ ${result.message}<div class="mt-2"><strong>${result.registration.registration_number}</strong> — ${result.registration.attendee_name}</div>`);
+        } else {
+            showResult('qr-result', 'warning', result.message || 'Validation failed.');
+        }
+    } catch (err) {
+        showResult('qr-result', 'danger', 'Request failed. Please try again.');
+    }
+
+    setTimeout(() => {
+        if (html5QrCode && isScanning) {
+            html5QrCode.resume();
+        }
+    }, 1500);
+}
+
+const startBtn = document.getElementById('start-scan-btn');
+const stopBtn = document.getElementById('stop-scan-btn');
+if (startBtn) startBtn.addEventListener('click', startScanner);
+if (stopBtn) stopBtn.addEventListener('click', stopScanner);
+</script>
+{% endblock %}

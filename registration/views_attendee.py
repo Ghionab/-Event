@@ -595,7 +595,7 @@ def saved_events(request):
 
 @login_required
 def my_schedule(request):
-    """View personal schedule across all events"""
+    """View personal schedule across all events with calendar integration"""
     user = request.user
     now = timezone.now()
     
@@ -608,21 +608,64 @@ def my_schedule(request):
     
     # Get saved sessions for each event
     schedule_items = []
+    calendar_events = []
+    conflict_sessions = []
+    
     for reg in registrations:
+        # Add registered events as calendar events
+        calendar_events.append({
+            'id': f"event_{reg.event.id}",
+            'title': reg.event.title,
+            'start': reg.event.start_date.isoformat(),
+            'end': reg.event.end_date.isoformat(),
+            'extendedProps': {
+                'type': 'registered',
+                'event_title': reg.event.title,
+                'event_id': reg.event.id,
+                'event_type': reg.event.event_type,
+                'location': reg.event.venue_name or 'Virtual',
+                'description': reg.event.description,
+                'registration_id': reg.id
+            }
+        })
+        
+        # Get saved sessions
         prefs = AttendeePreference.objects.filter(user=user, event=reg.event).first()
         if prefs and prefs.saved_sessions:
             sessions = EventSession.objects.filter(
                 id__in=prefs.saved_sessions,
                 event=reg.event
-            ).order_by('start_time')
+            ).select_related('event').prefetch_related('speakers')
+            
             for session in sessions:
-                schedule_items.append({
+                session_data = {
                     'registration': reg,
                     'session': session,
                     'event': reg.event,
+                }
+                schedule_items.append(session_data)
+                
+                # Add session to calendar events
+                speakers = ', '.join([speaker.name for speaker in session.speakers.all()])
+                calendar_events.append({
+                    'id': f"session_{session.id}",
+                    'title': session.title,
+                    'start': session.start_time.isoformat(),
+                    'end': session.end_time.isoformat(),
+                    'extendedProps': {
+                        'type': 'saved',
+                        'event_title': reg.event.title,
+                        'event_id': reg.event.id,
+                        'session_id': session.id,
+                        'event_type': reg.event.event_type,
+                        'location': session.location or reg.event.venue_name,
+                        'speakers': speakers,
+                        'description': session.description or '',
+                        'feedback_url': f"/attendee/session/{session.id}/feedback/"
+                    }
                 })
     
-    # Sort by start time
+    # Sort schedule items by start time
     schedule_items.sort(key=lambda x: x['session'].start_time)
     
     # Detect conflicts
@@ -632,10 +675,19 @@ def my_schedule(request):
             if item['session'].start_time < other['session'].end_time and \
                item['session'].end_time > other['session'].start_time:
                 conflicts.append((i, j))
+                conflict_sessions.append(f"session_{item['session'].id}")
+                conflict_sessions.append(f"session_{other['session'].id}")
+    
+    # Convert calendar events to JSON
+    import json
+    calendar_events_json = json.dumps(calendar_events)
+    conflict_sessions_json = json.dumps(conflict_sessions)
     
     context = {
         'schedule_items': schedule_items,
         'conflicts': conflicts,
+        'calendar_events': calendar_events_json,
+        'conflict_sessions': conflict_sessions_json,
     }
     
     return render(request, 'participant/my_schedule.html', context)
@@ -730,6 +782,53 @@ def save_session(request, session_id):
         'action': action,
         'session_id': session_id
     })
+
+
+@login_required
+def unsave_session(request, session_id):
+    """Unsave a session from personal schedule"""
+    session = get_object_or_404(EventSession, id=session_id)
+    user = request.user
+    
+    # Check if user is registered for the event
+    registration = Registration.objects.filter(
+        models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
+    ).filter(
+        event=session.event,
+        status__in=[RegistrationStatus.PENDING, RegistrationStatus.CONFIRMED, RegistrationStatus.CHECKED_IN]
+    ).first()
+    
+    if not registration:
+        return JsonResponse({'success': False, 'message': 'You must be registered for this event.'})
+    
+    # Get preferences
+    prefs = AttendeePreference.objects.filter(user=user, event=session.event).first()
+    if prefs and prefs.saved_sessions:
+        saved_sessions = prefs.saved_sessions
+        if session_id in saved_sessions:
+            saved_sessions.remove(session_id)
+            prefs.saved_sessions = saved_sessions
+            prefs.save()
+            
+            # Send WebSocket notification
+            try:
+                from channels.layers import get_channel_layer
+                from asgiref.sync import async_to_sync
+                
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f"calendar_{user.id}",
+                    {
+                        'type': 'session_removed',
+                        'event_id': f"session_{session_id}"
+                    }
+                )
+            except Exception:
+                pass  # WebSocket might not be available
+            
+            return JsonResponse({'success': True})
+    
+    return JsonResponse({'success': False, 'message': 'Session not found in saved schedule.'})
 
 
 @login_required

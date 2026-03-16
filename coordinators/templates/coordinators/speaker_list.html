@@ -1,0 +1,97 @@
+{% extends 'coordinators/base.html' %}
+
+{% block title %}Speakers - {{ event.title }}{% endblock %}
+
+{% block page_title %}Speakers - {{ event.title }}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'coordinators:event_detail' event.id %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i>Back to Event
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-microphone me-2"></i>Event Speakers
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if speakers %}
+                    <div class="row">
+                        {% for speaker in speakers %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-3">
+                                            {% if speaker.photo %}
+                                                <img src="{{ speaker.photo.url }}" alt="{{ speaker.name }}" 
+                                                     class="rounded-circle" width="60" height="60">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                                                     style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-user text-white fa-2x"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="mb-1">{{ speaker.name }}</h5>
+                                            {% if speaker.job_title %}
+                                                <p class="text-muted mb-1">{{ speaker.job_title }}</p>
+                                            {% endif %}
+                                            {% if speaker.company %}
+                                                <p class="text-muted mb-2">{{ speaker.company }}</p>
+                                            {% endif %}
+                                            
+                                            {% if speaker.bio %}
+                                                <p class="small text-muted mb-2">{{ speaker.bio|truncatewords:15 }}</p>
+                                            {% endif %}
+                                            
+                                            <div class="mb-2">
+                                                {% if speaker.is_confirmed %}
+                                                    <span class="badge bg-success">Confirmed</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% endif %}
+                                                {% if speaker.is_featured %}
+                                                    <span class="badge bg-info">Featured</span>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            {% if speaker.email or speaker.website %}
+                                            <div class="small">
+                                                {% if speaker.email %}
+                                                <a href="mailto:{{ speaker.email }}" class="text-decoration-none me-3">
+                                                    <i class="fas fa-envelope"></i>
+                                                </a>
+                                                {% endif %}
+                                                {% if speaker.website %}
+                                                <a href="{{ speaker.website }}" target="_blank" class="text-decoration-none">
+                                                    <i class="fas fa-globe"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-microphone-slash fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted mb-3">No Speakers Confirmed</h4>
+                        <p class="text-muted">This event doesn't have any speakers confirmed yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

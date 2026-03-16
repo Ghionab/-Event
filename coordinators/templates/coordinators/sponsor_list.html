@@ -1,0 +1,90 @@
+{% extends 'coordinators/base.html' %}
+
+{% block title %}Sponsors - {{ event.title }}{% endblock %}
+
+{% block page_title %}Sponsors - {{ event.title }}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'coordinators:event_detail' event.id %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i>Back to Event
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-handshake me-2"></i>Event Sponsors
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if sponsors %}
+                    <div class="row">
+                        {% for sponsor in sponsors %}
+                        <div class="col-lg-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start justify-content-between">
+                                        <div class="flex-grow-1">
+                                            <h5 class="mb-2">{{ sponsor.company_name }}</h5>
+                                            
+                                            <div class="mb-2">
+                                                <span class="badge bg-{{ sponsor.tier|default:'secondary' }}">
+                                                    {{ sponsor.get_tier_display }}
+                                                </span>
+                                                {% if sponsor.is_featured %}
+                                                    <span class="badge bg-info">Featured</span>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            {% if sponsor.description %}
+                                                <p class="small text-muted mb-2">{{ sponsor.description|truncatewords:12 }}</p>
+                                            {% endif %}
+                                            
+                                            {% if sponsor.contact_name or sponsor.contact_email %}
+                                            <div class="small text-muted mb-2">
+                                                {% if sponsor.contact_name %}
+                                                <div><strong>Contact:</strong> {{ sponsor.contact_name }}</div>
+                                                {% endif %}
+                                                {% if sponsor.contact_email %}
+                                                <div><strong>Email:</strong> {{ sponsor.contact_email }}</div>
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if sponsor.website %}
+                                            <div class="mt-2">
+                                                <a href="{{ sponsor.website }}" target="_blank" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-external-link-alt me-1"></i>Website
+                                                </a>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if sponsor.logo %}
+                                        <div class="ms-3">
+                                            <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.company_name }}" 
+                                                 class="img-fluid rounded" style="max-height: 80px; max-width: 120px;">
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-handshake-slash fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted mb-3">No Sponsors Confirmed</h4>
+                        <p class="text-muted">This event doesn't have any sponsors confirmed yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'advanced',
     'events_api',
     'theming',
+    'coordinators',
 ]
 
 MIDDLEWARE = [

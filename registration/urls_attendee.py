@@ -2,7 +2,7 @@
 URL configuration for attendee-specific views
 """
 from django.urls import path
-from . import views_attendee
+from . import views_attendee, api_views
 
 app_name = 'attendee'
 
@@ -27,6 +27,7 @@ urlpatterns = [
     path('schedule/<int:event_id>/', views_attendee.event_schedule, name='event_schedule'),
     path('schedule/export/', views_attendee.export_schedule_ical, name='export_schedule'),
     path('session/<int:session_id>/save/', views_attendee.save_session, name='save_session'),
+    path('session/<int:session_id>/unsave/', views_attendee.unsave_session, name='unsave_session'),
     path('session/<int:session_id>/feedback/', views_attendee.session_feedback_enhanced, name='session_feedback'),
 
     # Tickets & Badges
@@ -60,4 +61,11 @@ urlpatterns = [
     path('preferences/<int:event_id>/', views_attendee.preferences_enhanced, name='preferences'),
     path('settings/', views_attendee.account_settings, name='settings'),
     path('profile/', views_attendee.attendee_profile_edit, name='profile'),
+
+    # Calendar API endpoints
+    path('api/calendar/events/', api_views.calendar_events_api, name='calendar_events_api'),
+    path('api/calendar/session/', api_views.save_session_api, name='save_session_api'),
+    path('api/calendar/conflicts/', api_views.calendar_conflicts_api, name='calendar_conflicts_api'),
+    path('api/calendar/stats/', api_views.calendar_stats_api, name='calendar_stats_api'),
+    path('api/calendar/sync/', api_views.calendar_sync_external, name='calendar_sync_external'),
 ]

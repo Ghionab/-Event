@@ -654,8 +654,8 @@ def event_detail(request, event_id):
     # Ticket types
     ticket_types = TicketType.objects.filter(event=event)
     
-    # Dynamic Sessions
-    dynamic_sessions = event.dynamic_sessions.all()
+    # Dynamic Sessions with speakers
+    dynamic_sessions = event.dynamic_sessions.prefetch_related('session_speakers')
 
     # Calculate ticket sales with actual amounts from registrations
     ticket_sales = []
@@ -1045,7 +1045,7 @@ def team_members(request):
         if errors:
             for error in errors:
                 messages.error(request, error)
-            return redirect('organizer_team')
+            return redirect('organizers:organizer_team')
         
         # Check if user already exists
         user = User.objects.filter(email=email).first()
@@ -1059,7 +1059,7 @@ def team_members(request):
             
             if existing_member:
                 messages.warning(request, f'{email} is already a team member.')
-                return redirect('organizer_team')
+                return redirect('organizers:organizer_team')
         else:
             # Create new user
             try:
@@ -1071,7 +1071,7 @@ def team_members(request):
                 )
             except Exception as e:
                 messages.error(request, f'Error creating user: {str(e)}')
-                return redirect('organizer_team')
+                return redirect('organizers:organizer_team')
         
         # Create team member
         try:
@@ -1114,7 +1114,7 @@ def team_members(request):
         except Exception as e:
             messages.error(request, f'Error adding team member: {str(e)}')
         
-        return redirect('organizer_team')
+        return redirect('organizers:organizer_team')
     
     team_members = OrganizerTeamMember.objects.filter(organizer=organizer).prefetch_related('events')
     
@@ -1149,17 +1149,17 @@ def edit_team_member(request, member_id):
         valid_roles = ['coordinator', 'usher']
         if role not in valid_roles:
             messages.error(request, 'Invalid role selected.')
-            return redirect('organizer_edit_team_member', member_id=member_id)
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
         
         # Validate events
         if not event_ids:
             messages.error(request, 'Please select at least one event.')
-            return redirect('organizer_edit_team_member', member_id=member_id)
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
         
         selected_events = Event.objects.filter(id__in=event_ids, organizer=organizer.user)
         if len(selected_events) != len(event_ids):
             messages.error(request, 'One or more selected events are not valid.')
-            return redirect('organizer_edit_team_member', member_id=member_id)
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
         
         try:
             # Update team member
@@ -1174,7 +1174,7 @@ def edit_team_member(request, member_id):
             if new_password:
                 if len(new_password) < 6:
                     messages.error(request, 'Password must be at least 6 characters long.')
-                    return redirect('organizer_edit_team_member', member_id=member_id)
+                    return redirect('organizers:organizer_edit_team_member', member_id=member_id)
                 
                 team_member.user.set_password(new_password)
                 team_member.user.save()
@@ -1182,10 +1182,10 @@ def edit_team_member(request, member_id):
             
             event_count = len(selected_events)
             messages.success(request, f'Team member {team_member.user.email} updated successfully! Assigned to {event_count} event(s) as {role.title()}.')
-            return redirect('organizer_team')
+            return redirect('organizers:organizer_team')
         except Exception as e:
             messages.error(request, f'Error updating team member: {str(e)}')
-            return redirect('organizer_edit_team_member', member_id=member_id)
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
     
     # Get currently assigned event IDs
     assigned_event_ids = list(team_member.events.values_list('id', flat=True))

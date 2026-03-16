@@ -25,7 +25,7 @@
         </div>
 
         <div class="p-6">
-            <form method="post" action="{% url 'organizer_team' %}" class="space-y-6">
+            <form method="post" action="{% url 'organizers:organizer_team' %}" class="space-y-6">
                 {% csrf_token %}
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -179,7 +179,7 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{% url 'organizer_edit_team_member' member.id %}" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
+                                <a href="{% url 'organizers:organizer_edit_team_member' member.id %}" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Remove">

@@ -488,7 +488,7 @@
                             <i class="bi bi-file-earmark-text"></i>
                             <span>Contracts</span>
                         </a>
-                        <a href="{% url 'organizer_team' %}" class="nav-item {% if request.resolver_match.url_name == 'organizer_team' %}active{% endif %}">
+                        <a href="{% url 'organizers:organizer_team' %}" class="nav-item {% if request.resolver_match.url_name == 'organizer_team' %}active{% endif %}">
                             <i class="bi bi-people"></i>
                             <span>Team</span>
                         </a>

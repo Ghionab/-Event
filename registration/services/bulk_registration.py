@@ -379,9 +379,10 @@ class BulkRegistrationService:
             }
         )
         
-        # Update ticket count
-        ticket_type.quantity_sold += 1
-        ticket_type.save()
+        # Update ticket count atomically
+        from django.db.models import F
+        TicketType.objects.filter(id=ticket_type.id).update(quantity_sold=F('quantity_sold') + 1)
+        ticket_type.refresh_from_db()
         
         # Create custom field answers
         self._create_custom_answers(registration, mapped_data)

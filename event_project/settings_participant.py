@@ -83,6 +83,7 @@ TEMPLATES = [
 # CORS settings for participant portal
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8001",
+    "http://127.0.0.1:8001",
     "http://localhost:3000",
 ]
 CORS_ALLOW_CREDENTIALS = True

@@ -12,6 +12,7 @@ from events_api.serializers import (
     TicketTypeSerializer, PromoCodeSerializer
 )
 from events_api.permissions import IsParticipant, IsRegistrationOwner
+from advanced.models import UsherAssignment, TeamMember, TeamRole
 
 
 class TicketTypeViewSet(viewsets.ModelViewSet):
@@ -33,7 +34,7 @@ class PromoCodeViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         event_id = self.kwargs.get('event_pk')
-        return PromoCode.objects.filter(event_id=event_id, is_active=True)
+        return PromoCode.objects.filter(event_id=event_pk, is_active=True)
 
     @action(detail=False, methods=['post'])
     def validate(self, request, event_pk=None):
@@ -62,13 +63,65 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         return RegistrationSerializer
 
     def get_queryset(self):
+        """
+        Return registrations based on user role with privacy rules:
+        - Coordinators and Ushers only see registrations for events they're assigned to
+        - Organizers and Admins see all registrations
+        - Regular users only see their own registrations
+        """
         user = self.request.user
-        if user.role in ['organizer', 'admin', 'staff']:
-            event_id = self.kwargs.get('event_pk')
+        event_id = self.kwargs.get('event_pk')
+        
+        # Regular users only see their own registrations
+        if user.role not in ['organizer', 'admin', 'staff', 'usher']:
+            return Registration.objects.filter(
+                models.Q(user=user) | models.Q(attendee_email__iexact=user.email)
+            )
+        
+        # Organizers and Admins see all registrations (or filtered by event)
+        if user.role in ['organizer', 'admin']:
             if event_id:
                 return Registration.objects.filter(event_id=event_id)
             return Registration.objects.all()
-        return Registration.objects.filter(user=user)
+        
+        # Staff (Coordinators) - only see registrations for events they're assigned to
+        if user.role == 'staff':
+            # Get events where user is a coordinator with registration permissions
+            coordinator_events = TeamMember.objects.filter(
+                user=user,
+                is_active=True,
+                role=TeamRole.COORDINATOR,
+                can_manage_registrations=True
+            ).values_list('event_id', flat=True)
+            
+            if event_id:
+                # If specific event requested, check if user is assigned to it
+                if int(event_id) in list(coordinator_events):
+                    return Registration.objects.filter(event_id=event_id)
+                return Registration.objects.none()
+            else:
+                # Return registrations for all assigned events
+                return Registration.objects.filter(event_id__in=coordinator_events)
+        
+        # Ushers - only see registrations for events they're assigned to
+        if user.role == 'usher':
+            # Get events where user is assigned as an usher
+            usher_events = UsherAssignment.objects.filter(
+                user=user,
+                is_active=True
+            ).values_list('event_id', flat=True)
+            
+            if event_id:
+                # If specific event requested, check if user is assigned to it
+                if int(event_id) in list(usher_events):
+                    return Registration.objects.filter(event_id=event_id)
+                return Registration.objects.none()
+            else:
+                # Return registrations for all assigned events
+                return Registration.objects.filter(event_id__in=usher_events)
+        
+        # Default: return empty queryset
+        return Registration.objects.none()
 
     def perform_create(self, serializer):
         event_id = self.kwargs.get('event_pk')
@@ -231,6 +284,10 @@ class PublicRegisterView(APIView):
         # Create registration
         registration = None
         registration_numbers = []
+        is_notified_later = False
+
+        # Check if event has any active ticket types
+        has_event_tickets = TicketType.objects.filter(event=event, is_active=True).exists()
 
         for ticket_data in tickets:
             ticket_id = ticket_data.get('ticket_id')
@@ -262,15 +319,21 @@ class PublicRegisterView(APIView):
             )
             registration_numbers.append(reg.registration_number)
 
-            # Update quantity sold
-            ticket_type.quantity_sold += quantity
-            ticket_type.save()
+            # Update quantity sold atomically
+            from django.db.models import F
+            TicketType.objects.filter(id=ticket_id).update(quantity_sold=F('quantity_sold') + quantity)
+            ticket_type.refresh_from_db()
 
             if registration is None:
                 registration = reg
 
         # If no tickets provided or no valid tickets, create a basic registration
         if not tickets or not registration_numbers:
+            status_to_set = 'confirmed'
+            if not has_event_tickets:
+                status_to_set = 'waitlisted'
+                is_notified_later = True
+
             reg = Registration.objects.create(
                 event=event,
                 user=user,
@@ -279,13 +342,39 @@ class PublicRegisterView(APIView):
                 attendee_phone=phone,
                 special_requests=special_requests,
                 total_amount=0,
-                status='confirmed'
+                status=status_to_set
             )
             registration = reg
             registration_numbers.append(reg.registration_number)
 
         if not registration_numbers:
             return Response({'error': 'No tickets available or invalid tickets'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Send notifications
+        if is_notified_later:
+            # 1. System Notification
+            from registration.models import AttendeeNotification
+            AttendeeNotification.objects.create(
+                user=user,
+                notification_type='event_update',
+                title=f"Registration Received: {event.title}",
+                message=f"Thank you for registering for {event.title}. We will notify you as soon as tickets become available.",
+                related_event=event
+            )
+            
+            # 2. Email Notification
+            try:
+                from registration.views_success import send_no_ticket_notification
+                send_no_ticket_notification(registration)
+            except Exception:
+                pass
+        else:
+            # Standard registration email
+            try:
+                from registration.views_success import send_qr_email_direct
+                send_qr_email_direct(registration)
+            except Exception:
+                pass
 
         # Calculate total for response
         total = sum(

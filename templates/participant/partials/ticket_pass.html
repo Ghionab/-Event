@@ -1,76 +1,234 @@
-<div class="ticket-card bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col sm:flex-row relative">
-    <!-- Left Side / Top -->
-    <div class="text-white p-6 sm:w-1/3 flex flex-col justify-between items-center sm:items-start text-center sm:text-left relative z-10"
-        style="background: linear-gradient(135deg, {{ registration.event.primary_color|default:'#4f46e5' }}, {{ registration.event.secondary_color|default:'#7c3aed' }});">
+<div class="ticket-card bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row relative max-w-4xl mx-auto my-8 font-sans">
+    <!-- Left Side: Event Branding & QR -->
+    <div class="ticket-branding text-white p-8 md:w-1/3 flex flex-col justify-between items-center text-center relative z-10"
+        style="background: linear-gradient(135deg, {{ registration.event.primary_color|default:'#4f46e5' }} 0%, {{ registration.event.secondary_color|default:'#7c3aed' }} 100%);">
+        
         <div class="w-full">
-            <div class="flex items-center justify-between mb-6">
-                <span class="text-indigo-100 text-xs uppercase tracking-widest font-bold">EventHub Pass</span>
-                <span class="text-xs px-2 py-1 rounded-full bg-white/20">
-                    {{ registration.event.get_event_type_display }}
-                </span>
+            <div class="flex items-center justify-center mb-6">
+                <div class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/30 shadow-sm">
+                    <span class="text-white text-[10px] uppercase tracking-[0.2em] font-black italic">EventHub Pass</span>
+                </div>
             </div>
-            <h2 class="text-2xl font-bold leading-tight mb-2">
-                {% if registration.ticket_type %}
-                    {{ registration.ticket_type.name }}
-                {% else %}
-                    General Admission
+            
+            <div class="ticket-qr-container relative group">
+                {% if qr_code_image %}
+                <div class="qr-bg-box bg-white p-3 rounded-2xl inline-block shadow-2xl transform transition duration-500 hover:scale-105">
+                    <img src="data:image/png;base64,{{ qr_code_image }}" alt="QR Code"
+                        class="ticket-qr-image w-32 h-32 md:w-40 md:h-40 object-cover" style="image-rendering: pixelated;">
+                </div>
+                <div class="mt-4 flex flex-col items-center">
+                    <span class="text-[10px] text-white/70 uppercase tracking-widest font-bold">Ticket ID</span>
+                    <p class="text-sm font-mono font-bold tracking-wider mt-1 bg-black/20 px-3 py-1 rounded-lg border border-white/10">{{ registration.registration_number }}</p>
+                </div>
                 {% endif %}
-            </h2>
-            <p class="text-indigo-100 text-xs font-mono">{{ registration.registration_number }}</p>
-        </div>
-
-        <div class="w-full mt-6">
-            {% if qr_code_image %}
-            <div class="bg-white p-2 rounded-xl inline-block shadow-inner">
-                <img src="data:image/png;base64,{{ qr_code_image }}" alt="QR Code"
-                    class="w-32 h-32 sm:w-full sm:h-auto object-cover" style="image-rendering: pixelated;">
             </div>
-            {% endif %}
-            <p class="mt-3 text-xs text-indigo-100">Scan for fast check-in</p>
         </div>
 
-        <!-- Ticket perforations (visual) -->
-        <div class="hidden sm:block absolute right-0 top-0 bottom-0 w-4 overflow-hidden transform translate-x-1/2">
-            <div class="h-full border-r-4 border-dashed border-white/30"></div>
+        <div class="mt-8 w-full">
+            <p class="text-[10px] text-white/60 uppercase tracking-widest font-black mb-1">Entry Status</p>
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                <span class="text-xs font-bold">{{ registration.get_status_display|upper }}</span>
+            </div>
         </div>
+
+        <!-- Decorative Element -->
+        <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-black/10 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- Right Side / Bottom -->
-    <div class="p-8 sm:w-2/3 flex flex-col justify-between">
-        <div>
-            <div class="flex items-center gap-2 mb-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
-                    {{ registration.get_status_display }}
-                </span>
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
-                    {{ registration.ticket_type.name|default:"General" }}
-                </span>
-            </div>
-            <h1 class="text-2xl font-black text-gray-900 mb-2">{{ registration.event.title }}</h1>
-            <p class="text-sm text-gray-500 mb-6">{{ registration.event.start_date|date:"F d, Y" }} &middot; {{ registration.event.start_date|date:"g:i A" }}</p>
+    <!-- Right Side: Ticket Details -->
+    <div class="p-8 md:p-10 md:w-2/3 flex flex-col justify-between bg-white relative">
+        <!-- Perforation Visual (MD and up) -->
+        <div class="hidden md:block absolute left-0 top-0 bottom-0 w-8 overflow-hidden transform -translate-x-1/2 z-20">
+            <div class="h-full border-r-[3px] border-dashed border-gray-200/80"></div>
+        </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <p class="text-xs uppercase tracking-wider text-gray-400 font-bold">Attendee</p>
-                    <p class="text-lg font-bold text-gray-900">{{ registration.attendee_name }}</p>
-                    {% if registration.attendee_email %}
-                        <p class="text-sm text-gray-500">{{ registration.attendee_email }}</p>
-                    {% elif registration.user %}
-                        <p class="text-sm text-gray-500">{{ registration.user.email }}</p>
-                    {% endif %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600 border border-indigo-100 mb-2">
+                        {{ registration.ticket_type.ticket_category|default:"GENERAL" }} ACCESS
+                    </span>
+                    <h1 class="text-3xl md:text-4xl font-black text-gray-900 leading-tight tracking-tight uppercase">
+                        {{ registration.event.title }}
+                    </h1>
                 </div>
-                <div>
-                    <p class="text-xs uppercase tracking-wider text-gray-400 font-bold">Location</p>
-                    <p class="font-medium text-gray-900">{{ registration.event.venue_name|default:"Virtual Event" }}</p>
-                    {% if registration.event.city or registration.event.country %}
-                    <p class="text-sm text-gray-500">{{ registration.event.city }}{% if registration.event.city and registration.event.country %}, {% endif %}{{ registration.event.country }}</p>
-                    {% endif %}
+                <div class="flex-shrink-0">
+                    <div class="px-4 py-2 bg-gray-50 rounded-2xl border border-gray-100 text-center">
+                        <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Ticket Type</span>
+                        <span class="text-sm font-black text-gray-800">{{ registration.ticket_type.name|default:"General Admission" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Info Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-8 gap-x-12">
+                <!-- Attendee Section -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center flex-shrink-0 border border-indigo-100">
+                        <i class="fas fa-user text-indigo-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-1">Attendee</p>
+                        <p class="text-lg font-black text-gray-900 leading-none">{{ registration.attendee_name }}</p>
+                        <p class="text-sm text-gray-500 mt-1 font-medium">{{ registration.attendee_email }}</p>
+                    </div>
+                </div>
+
+                <!-- Date & Time Section -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0 border border-emerald-100">
+                        <i class="fas fa-calendar-check text-emerald-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-1">Date & Time</p>
+                        <p class="text-lg font-black text-gray-900 leading-none">{{ registration.event.start_date|date:"M d, Y" }}</p>
+                        <p class="text-sm text-gray-500 mt-1 font-medium">{{ registration.event.start_date|date:"g:i A" }} EST</p>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div class="flex items-start gap-4 sm:col-span-2">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center flex-shrink-0 border border-rose-100">
+                        <i class="fas fa-map-marker-alt text-rose-500"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-400 font-black mb-1">Location</p>
+                        <p class="text-lg font-black text-gray-900 leading-none">{{ registration.event.venue_name|default:"Virtual Event" }}</p>
+                        {% if registration.event.address or registration.event.city %}
+                        <p class="text-sm text-gray-500 mt-1 font-medium">
+                            {{ registration.event.address|default:"" }} 
+                            {% if registration.event.city %}{{ registration.event.city }}, {{ registration.event.country }}{% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-8 pt-4 border-t border-dashed border-gray-200 text-xs text-gray-400">
-            <p>Please present this ticket at the registration desk for check-in.</p>
+        <!-- Footer Footer -->
+        <div class="mt-12 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-indigo-600"></div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Verified EventHub Digital Pass</p>
+            </div>
+            <p class="text-[10px] text-gray-300 italic font-medium text-center sm:text-right leading-tight">
+                Please present this digital pass or a printed copy<br>at the registration desk for seamless check-in.
+            </p>
         </div>
     </div>
 </div>
+
+<style>
+    .ticket-card {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+    .ticket-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 30px 60px -12px rgba(0,0,0,0.15);
+    }
+    @media print {
+        /* Use a more reliable way to isolate the ticket */
+        nav, footer, .no-print, .toast-container, .print-hide, .btn, button, .hidden.md\:block {
+            display: none !important;
+        }
+
+        body {
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .ticket-card {
+            display: flex !important;
+            flex-direction: row !important;
+            width: 100% !important;
+            max-width: 850px !important;
+            min-height: 420px !important;
+            margin: 0 auto !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 24px !important;
+            overflow: hidden !important;
+            background: white !important;
+            box-shadow: none !important;
+            transform: none !important;
+            page-break-inside: avoid !important;
+        }
+
+        /* Branding Side (Blue) */
+        .ticket-branding {
+            width: 35% !important;
+            background: {{ registration.event.primary_color|default:'#007bff' }} !important;
+            background-color: {{ registration.event.primary_color|default:'#007bff' }} !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 30px 20px !important;
+            color: white !important;
+        }
+
+        /* Details Side (White) */
+        .ticket-card > div:last-child {
+            width: 65% !important;
+            background: white !important;
+            padding: 40px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+        }
+
+        /* FORCE QR CODE VISIBILITY */
+        .ticket-qr-container {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 auto !important;
+            text-align: center !important;
+        }
+
+        .qr-bg-box {
+            background: white !important;
+            background-color: white !important;
+            display: inline-block !important;
+            padding: 12px !important;
+            border-radius: 16px !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+        }
+
+        .ticket-qr-image {
+            display: block !important;
+            width: 150px !important;
+            height: 150px !important;
+            margin: 0 auto !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        /* Labels & ID */
+        .text-white\/70 { color: white !important; opacity: 0.9 !important; }
+        .bg-black\/20 { 
+            background: rgba(0,0,0,0.2) !important; 
+            background-color: rgba(0,0,0,0.2) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        
+        .bg-indigo-50 { background-color: #f5f3ff !important; }
+        .bg-emerald-50 { background-color: #ecfdf5 !important; }
+        .bg-rose-50 { background-color: #fff1f2 !important; }
+
+        .blur-3xl, .animate-pulse {
+            display: none !important;
+        }
+        
+        @page {
+            size: landscape;
+            margin: 1cm;
+        }
+    }
+</style>

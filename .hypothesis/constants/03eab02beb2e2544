@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\organizers\forms.py
+# hypothesis_version: 6.151.9
+
+['Email Address', 'Full Name', 'Phone Number', 'address', 'attendee_email', 'attendee_name', 'attendee_phone', 'city', 'class', 'company_description', 'company_name', 'country', 'default_description', 'description', 'email', 'event_type', 'facebook_url', 'form-input', 'form-select', 'form-textarea', 'instagram_handle', 'is_public', 'linkedin_url', 'logo', 'name', 'permissions', 'phone', 'placeholder', 'role', 'rows', 'session_template', 'special_requests', 'status', 'twitter_handle', 'website']

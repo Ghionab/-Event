@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\theming\services\portal_renderer.py
+# hypothesis_version: 6.151.9
+
+[0.03928, 0.05, 0.055, 0.0722, 0.2126, 0.7152, 0.9, 1.055, 2.4, 4.5, 12.92, 255.0, 240, 3600, '#', '#007bff', '#28a745', '#343a40', '#6c757d', '#f8f9fa', '/organizer/', '/staff/', 'accent', 'accent_color', 'created_at', 'css_content', 'css_hash', 'current_event_id', 'event', 'event_id', 'expires_at', 'fallback', 'generation_method', 'is_fallback', 'last_updated', 'neutral_dark', 'neutral_light', 'organizer', 'participant', 'portal_type', 'primary', 'primary_color', 'resolver_match', 'secondary', 'secondary_color', 'session', 'staff', 'theme', 'theme_colors', 'theme_css', 'theme_metadata', 'theme_variations', 'wcag_compliant']

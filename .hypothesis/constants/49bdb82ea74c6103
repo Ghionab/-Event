@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\registration\migrations\0005_attendeenotification.py
+# hypothesis_version: 6.151.9
+
+[255, 500, '-created_at', 'AttendeeNotification', 'Check-in Reminder', 'Event Update', 'ID', 'New Message', 'System Announcement', 'announcement', 'checkin_reminder', 'created_at', 'event_update', 'events', 'events.event', 'id', 'is_read', 'link', 'message', 'new_message', 'notification_type', 'ordering', 'read_at', 'registration', 'related_event', 'session_alert', 'title', 'user']

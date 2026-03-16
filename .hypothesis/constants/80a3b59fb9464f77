@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\serializers\event_serializers.py
+# hypothesis_version: 6.151.9
+
+['address', 'banner_image', 'building', 'capacity', 'city', 'color', 'company_name', 'contact_email', 'contact_name', 'contact_phone', 'country', 'created_at', 'description', 'display_order', 'draft', 'end_date', 'event_type', 'floor', 'id', 'is_featured', 'is_owner', 'is_public', 'logo', 'max_attendees', 'name', 'order', 'organizer', 'primary_color', 'request', 'require_approval', 'rooms', 'secondary_color', 'slug', 'sponsors', 'start_date', 'status', 'tier', 'title', 'tracks', 'updated_at', 'venue_name', 'virtual_meeting_url', 'virtual_platform', 'virtual_url', 'website']

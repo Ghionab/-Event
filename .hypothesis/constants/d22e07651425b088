@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\advanced\urls.py
+# hypothesis_version: 6.151.9
+
+['advanced', 'contract_create', 'contract_delete', 'contract_detail', 'contract_list', 'contract_payments', 'contract_update', 'contracts/', 'contracts/<int:pk>/', 'contracts/create/', 'data_export_download', 'data_export_request', 'privacy/', 'privacy/export/', 'privacy_settings', 'task_add_comment', 'task_bulk_update', 'task_create', 'task_delete', 'task_detail', 'task_export', 'task_list', 'task_update', 'tasks/', 'tasks/<int:pk>/', 'tasks/bulk-update/', 'tasks/create/', 'tasks/export/', 'team/', 'team/create/', 'team_list', 'team_member_create', 'team_member_delete', 'team_member_update', 'usher_create', 'usher_delete', 'usher_list', 'usher_update', 'ushers/', 'ushers/create/', 'vendor_contacts', 'vendor_contracts', 'vendor_create', 'vendor_delete', 'vendor_detail', 'vendor_list', 'vendor_update', 'vendors/', 'vendors/<int:pk>/', 'vendors/create/']

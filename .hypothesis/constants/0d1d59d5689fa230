@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\users\forms.py
+# hypothesis_version: 6.151.9
+
+['bio', 'company', 'email', 'job_title', 'password', 'phone', 'role']

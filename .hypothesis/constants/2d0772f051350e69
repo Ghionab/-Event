@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\communication\urls.py
+# hypothesis_version: 6.151.9
+
+['communication', 'email_logs', 'email_template_edit', 'email_templates', 'logs/', 'poll_close', 'poll_create', 'poll_detail', 'poll_list', 'poll_results', 'poll_vote', 'polls/', 'polls/<int:poll_id>/', 'polls/create/', 'push/', 'push/send/', 'push_list', 'push_send', 'qa/', 'qa/<int:event_id>/', 'qa_answer', 'qa_approve', 'qa_ask', 'qa_event', 'qa_list', 'qa_upvote', 'reminder_create', 'reminder_delete', 'reminder_edit', 'reminder_list', 'reminders/', 'reminders/create/', 'scheduled/', 'scheduled/create/', 'scheduled_email_edit', 'scheduled_emails', 'send/', 'send_email', 'send_scheduled_email', 'sms/', 'sms/send/', 'sms_list', 'sms_send', 'templates/', 'templates/create/']

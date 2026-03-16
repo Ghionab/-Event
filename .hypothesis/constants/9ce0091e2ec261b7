@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\registration\views_enhanced.py
+# hypothesis_version: 6.151.9
+
+[400, 500, 'GET', 'Invalid JSON data', 'Invalid promo code', 'No tickets selected', 'POST', 'answers__question', 'application/json', 'attendee_email', 'attendee_name', 'attendee_phone', 'authenticated', 'code', 'completed', 'confirmed', 'custom_answers', 'custom_questions', 'discount_amount', 'discount_type', 'discount_value', 'discounted_total', 'email', 'error', 'event', 'event_id', 'name', 'order', 'original_total', 'pending', 'phone', 'promo_code', 'purchase', 'purchase_number', 'purchases', 'redirect_url', 'success', 'ticket_count', 'ticket_type_id', 'ticket_types', 'tickets', 'total_amount', 'user', 'valid']

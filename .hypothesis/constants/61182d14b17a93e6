@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\views\public_views.py
+# hypothesis_version: 6.151.9
+
+['-start_date', 'Invalid promo code', 'city', 'code', 'country', 'created_at', 'description', 'discount_type', 'discount_value', 'error', 'event_type', 'get', 'is_public', 'ongoing', 'post', 'published', 'retrieve', 'start_date', 'status', 'title', 'valid']

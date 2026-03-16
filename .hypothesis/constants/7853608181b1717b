@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\theming\urls.py
+# hypothesis_version: 6.151.9
+
+['api/', 'api_extract_colors', 'api_theme_detail', 'api_themes', 'cache/stats/', 'cache_stats', 'clear_cache', 'color_palette', 'create_variation', 'event_theme', 'extract-colors/', 'extract_colors', 'generate_theme', 'theme_list', 'theme_preview', 'theme_variations', 'themes/', 'theming']

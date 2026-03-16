@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'business',
     'advanced',
     'events_api',
+    'theming',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +80,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Theme security and analytics middleware
+    'theming.middleware.ThemeSecurityMiddleware',
+    'theming.middleware.ThemeRateLimitMiddleware',
+    'theming.middleware.ThemeAnalyticsMiddleware',
+    'theming.middleware.ThemeCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'event_project.urls'
@@ -211,6 +217,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
         'user': '1000/hour',
+        'theme_generation': '10/hour',  # Custom rate for theme generation
     },
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',

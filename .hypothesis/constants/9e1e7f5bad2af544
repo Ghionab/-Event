@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\registration\urls_attendee.py
+# hypothesis_version: 6.151.9
+
+['attendee', 'attendee_profile', 'browse_attendees', 'cancel_registration', 'certificates', 'certificates/', 'dashboard', 'dashboard/', 'digital_badge', 'download_certificate', 'download_ticket', 'event_detail', 'event_feedback', 'event_materials', 'event_schedule', 'event_search', 'events/search/', 'export_schedule', 'mark_message_read', 'messages', 'messages/', 'my-registrations/', 'my-schedule/', 'my_registrations', 'my_schedule', 'my_tickets', 'networking/', 'networking_hub', 'notifications', 'notifications/', 'preferences', 'profile', 'profile/', 'registration_detail', 'save_event', 'save_session', 'saved-events/', 'saved_events', 'schedule/export/', 'send_message', 'session_feedback', 'settings', 'settings/', 'ticket_preview', 'tickets/']

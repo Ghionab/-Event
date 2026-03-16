@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events\migrations\0003_eventteamassignment.py
+# hypothesis_version: 6.151.9
+
+[100, 254, 255, 'EventTeamAssignment', 'ID', 'Team Member', 'accepted_at', 'email', 'event', 'events', 'events.event', 'id', 'invited_at', 'is_active', 'name', 'ordering', 'role', 'team_assignments', 'unique_together']

@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\business\forms.py
+# hypothesis_version: 6.151.9
+
+['CSV', 'Company Name', 'Contact Name', 'Email', 'Excel', 'Expense description', 'PDF', 'Phone', 'Report name', 'amount', 'benefits', 'booth_location', 'booth_number', 'booth_size', 'category', 'class', 'client_address', 'client_company', 'client_email', 'client_name', 'company_name', 'contact_email', 'contact_name', 'contact_phone', 'csv', 'date', 'description', 'due_date', 'event', 'expense_date', 'export_format', 'filters', 'form-check-input', 'form-control', 'is_confirmed', 'is_scheduled', 'issue_date', 'items', 'logo', 'name', 'notes', 'payment_notes', 'payment_status', 'pdf', 'placeholder', 'planned_amount', 'receipt', 'report_type', 'rows', 'schedule_frequency', 'sponsorship_amount', 'status', 'tax_rate', 'tier', 'type', 'valid_until', 'vendor', 'website', 'xlsx']

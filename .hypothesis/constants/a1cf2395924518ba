@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\organizers\urls.py
+# hypothesis_version: 6.151.9
+
+['analytics/', 'communication/', 'create/', 'dashboard/', 'events/', 'events/create/', 'login/', 'logout', 'logout/', 'notifications/', 'organizer_analytics', 'organizer_create', 'organizer_dashboard', 'organizer_event_edit', 'organizer_event_list', 'organizer_login', 'organizer_logout', 'organizer_payouts', 'organizer_send_email', 'organizer_settings', 'organizer_team', 'organizer_templates', 'organizers', 'payouts/', 'registrations/', 'settings/', 'sponsors/', 'sponsors/create/', 'team/', 'templates/', 'templates/create/', 'tickets/']

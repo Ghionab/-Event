@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\theming\middleware\security_middleware.py
+# hypothesis_version: 6.151.9
+
+[403, 500, '/api/', '/api/v1/events/', '/api/v1/themes/', '/static/themes/', '/theming/', '1; mode=block', '; ', 'Cache-Control', 'Content-Type', 'DENY', 'POST', 'Referrer-Policy', 'X-Frame-Options', 'X-XSS-Protection', 'api_request', "base-uri 'self'", 'color_extraction', "default-src 'self'", 'errors', 'event_theme', 'extract-colors', "font-src 'self'", "form-action 'self'", 'is_valid', 'nosniff', "object-src 'none'", 'request_blocked', "script-src 'self'", 'security_level', 'text/html', 'text/plain', 'theme', 'theme_css_content', 'theme_generation']

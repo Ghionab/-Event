@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\users\migrations\0003_alter_user_role.py
+# hypothesis_version: 6.151.9
+
+['0002_alter_user_role', 'Administrator', 'Attendee', 'Event Organizer', 'Gate Staff', 'Speaker', 'Sponsor', 'Usher', 'admin', 'attendee', 'organizer', 'role', 'speaker', 'sponsor', 'staff', 'user', 'users', 'usher']

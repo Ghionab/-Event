@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\urls\__init__.py
+# hypothesis_version: 6.151.9
+
+['api-event', 'api-event-contracts', 'api-event-promocodes', 'api-event-rooms', 'api-event-sessions', 'api-event-speakers', 'api-event-sponsors', 'api-event-tickets', 'api-event-tracks', 'api-login', 'api-logout', 'api-public-register', 'api-register', 'api-send-qr-email', 'api-user', 'api-vendor', 'auth/login/', 'auth/logout/', 'auth/register/', 'auth/user/', 'cancel', 'check_in', 'create', 'delete', 'destroy', 'events', 'get', 'list', 'post', 'put', 'register/', 'retrieve', 'send-qr-email/', 'update', 'validate', 'vendors']

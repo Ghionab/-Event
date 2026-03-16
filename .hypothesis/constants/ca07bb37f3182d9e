@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\views\event_views.py
+# hypothesis_version: 6.151.9
+
+['-start_date', 'Event unpublished', 'admin', 'city', 'country', 'create', 'created_at', 'description', 'draft', 'error', 'event_pk', 'event_type', 'get', 'is_public', 'list', 'message', 'organizer', 'partial_update', 'post', 'published', 'retrieve', 'start_date', 'status', 'title', 'update']

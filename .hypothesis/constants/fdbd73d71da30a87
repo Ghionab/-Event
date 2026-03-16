@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\views\registration_views.py
+# hypothesis_version: 6.151.9
+
+['0', 'DEFAULT_FROM_EMAIL', 'Email is required', 'Event ID is required', 'Event not found', 'Invalid promo code', 'POST', 'admin', 'attendee_name', 'cancelled', 'checked_in_at', 'code', 'confirmed', 'create', 'discount_type', 'discount_value', 'email', 'error', 'event', 'event_id', 'event_pk', 'first_name', 'full_name', 'id', 'last_name', 'message', 'organizer', 'phone', 'post', 'published', 'qr_image', 'qr_scan', 'quantity', 'registration', 'registration_id', 'registration_number', 'special_requests', 'staff', 'status', 'success', 'ticket_id', 'tickets', 'total_amount', 'valid']

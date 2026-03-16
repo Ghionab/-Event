@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\theming\serializers.py
+# hypothesis_version: 6.151.9
+
+[100, 1024, '#', 'JPEG', 'JPG', 'PNG', 'WebP', 'accent_color', 'access_count', 'cache_key', 'colorthief', 'completed', 'created_at', 'css_content', 'css_hash', 'dominant', 'error_message', 'event.title', 'event_title', 'extracted_colors', 'extraction_algorithm', 'failed', 'generation_method', 'id', 'image', 'is_active', 'is_fallback', 'kmeans', 'last_accessed', 'metadata', 'neutral_dark', 'neutral_light', 'operation_type', 'organizer', 'overall_confidence', 'palette', 'participant', 'pending', 'primary_color', 'processing', 'processing_time_ms', 'secondary_color', 'source_image', 'source_image_path', 'staff', 'status', 'updated_at', 'user.get_full_name', 'user_name', 'variation_type', 'variations', 'wcag_compliant']

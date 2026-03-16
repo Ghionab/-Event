@@ -35,10 +35,13 @@ urlpatterns = [
     path('communication/', include('communication.urls')),
     path('business/', include('business.urls')),
     path('advanced/', include('advanced.urls')),
+    path('theming/', include('theming.urls')),
     # Authentication
     path('accounts/login/', organizer_auth_views.organizer_login, name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/organizers/login/'), name='logout'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/organizers/login/', http_method_names=['get', 'post']), name='participant_logout'),
+    # Register redirect
+    path('register/', RedirectView.as_view(url='/organizers/create/', permanent=False), name='register_redirect'),
     # API v1
     path('api/v1/', include('events_api.urls')),
     # API Documentation

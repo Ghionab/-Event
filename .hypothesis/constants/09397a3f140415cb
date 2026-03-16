@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\users\migrations\0001_initial.py
+# hypothesis_version: 6.151.9
+
+[100, 128, 150, 254, 255, 'Administrator', 'Attendee', 'Event Organizer', 'ID', 'Speaker', 'Sponsor', 'User', 'Users', 'active', 'admin', 'attendee', 'auth', 'auth.group', 'auth.permission', 'bio', 'company', 'created_at', 'date joined', 'date_joined', 'email', 'email address', 'first name', 'first_name', 'groups', 'id', 'is_active', 'is_staff', 'is_superuser', 'is_verified', 'job_title', 'last login', 'last name', 'last_login', 'last_name', 'linkedin_url', 'organizer', 'password', 'phone', 'profile_image', 'profiles/', 'role', 'speaker', 'sponsor', 'staff status', 'superuser status', 'twitter_handle', 'updated_at', 'user', 'user permissions', 'user_permissions', 'user_set', 'verbose_name', 'verbose_name_plural', 'website']

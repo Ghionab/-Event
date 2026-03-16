@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\theming\urls.py
+# hypothesis_version: 6.151.9
+
+['api/', 'api/v1/', 'api_cache_stats', 'api_clear_cache', 'api_color_palette', 'api_extract_colors', 'api_generate_theme', 'api_rate_limits', 'api_theme_analytics', 'api_theme_create', 'api_theme_detail', 'api_theme_export', 'api_theme_import', 'api_theme_logs', 'api_theme_preview', 'api_theme_status', 'api_theme_validate', 'api_theme_variations', 'api_themes_list', 'api_websocket_health', 'api_websocket_info', 'cache/stats/', 'cache_stats', 'clear_cache', 'color_palette', 'create_variation', 'event_theme', 'extract-colors/', 'extract_colors', 'generate_theme', 'legacy_api_themes', 'notifications/bulk/', 'notifications/user/', 'theme_list', 'theme_preview', 'theme_variations', 'themes/', 'themes/algorithms/', 'themes/cache/stats/', 'theming', 'user/rate-limits/', 'websocket/health/', 'websocket/info/', 'websocket/simulate/', 'websocket/test/']

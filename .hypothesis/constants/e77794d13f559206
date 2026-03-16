@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\event_project\admin_views.py
+# hypothesis_version: 6.151.9
+
+[100, '-created_at', '-date_joined', '-last_login', '-timestamp', 'action', 'action_filter', 'active_events', 'active_users', 'cancelled', 'confirmed', 'events', 'granted', 'logs', 'organizer', 'past_events', 'pending', 'problematic_events', 'recent_logins', 'registrations', 'revoked', 'role', 'role_filter', 'search', 'staff', 'staff_users', 'superuser', 'superusers', 'suspicious_activity', 'target_user', 'team_memberships', 'total_events', 'total_registrations', 'total_users', 'upcoming_events', 'user', 'user_filter', 'users']

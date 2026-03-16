@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events\urls.py
+# hypothesis_version: 6.151.9
+
+['<int:event_id>/', '<int:event_id>/edit/', 'create/', 'e/<slug:slug>/', 'event_create', 'event_delete', 'event_detail', 'event_edit', 'event_landing', 'event_list', 'export_agenda', 'export_sessions_ical', 'export_speakers', 'room_create', 'room_delete', 'room_edit', 'room_list', 'session_create', 'session_delete', 'session_edit', 'session_list', 'speaker_create', 'speaker_delete', 'speaker_edit', 'speaker_list', 'sponsor_create', 'sponsor_delete', 'sponsor_edit', 'sponsor_list', 'track_create', 'track_delete', 'track_edit', 'track_list']

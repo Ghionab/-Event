@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\theming\services\color_extractor.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.1, 0.114, 0.15, 0.2, 0.2989, 0.3, 0.4, 0.5, 0.587, 0.6, 0.7, 0.8, 1.0, 1.1, 1.2, 200.0, 255.0, 100, 105, 135, 165, 195, 225, 240, 255, 256, 285, 300, 315, 345, 360, 800, 1000, ', ', 'Black', 'Blue', 'Blue Green', 'Blue Violet', 'Cyan', 'Dark Gray', 'Gray', 'Green', 'JPEG', 'JPG', 'LA', 'Light Gray', 'Magenta', 'Orange', 'P', 'PNG', 'Pink', 'RGB', 'RGBA', 'Red', 'SVG', 'Unknown', 'Violet', 'WEBP', 'White', 'Yellow', 'Yellow Green', 'colorthief', 'hybrid', 'image_resized', 'kmeans', 'num_colors_extracted', 'num_colors_requested', 'transparency']

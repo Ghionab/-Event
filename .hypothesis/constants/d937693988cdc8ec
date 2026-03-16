@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\serializers\session_serializers.py
+# hypothesis_version: 6.151.9
+
+['capacity', 'description', 'end_time', 'event_id', 'id', 'is_featured', 'is_public', 'location', 'recording_url', 'registered_count', 'session_type', 'slides', 'start_time', 'title', 'track', 'track.name', 'track_name']

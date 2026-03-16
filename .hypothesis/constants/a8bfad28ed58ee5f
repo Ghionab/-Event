@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\advanced\admin.py
+# hypothesis_version: 6.151.9
+
+['-created_at', '-is_preferred', 'action', 'amount', 'assigned_to', 'category', 'comment', 'completed_at', 'contact_date', 'contact_name', 'contact_type', 'content_type', 'contract', 'created_at', 'created_by', 'department', 'description', 'due_date', 'email', 'end_date', 'event', 'event__title', 'event_type', 'export_type', 'invoice_number', 'ip_address', 'is_active', 'is_blacklisted', 'is_preferred', 'is_read', 'is_resolved', 'message', 'name', 'new_values', 'notes', 'notification_type', 'object_id', 'old_values', 'paid_date', 'priority', 'rating', 'requested_at', 'role', 'severity', 'start_date', 'status', 'task', 'title', 'updated_at', 'user', 'user__email', 'user_agent', 'vendor', 'vendor__name']

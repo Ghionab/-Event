@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\views\auth_views.py
+# hypothesis_version: 6.151.9
+
+['Invalid credentials', 'Login successful', 'Profile updated', 'email', 'error', 'message', 'password', 'user']

@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\business\urls.py
+# hypothesis_version: 6.151.9
+
+['analytics/', 'analytics_overview', 'budget/', 'budget/create/', 'budget_create', 'budget_edit', 'budget_list', 'business', 'business_dashboard', 'dashboard/', 'event_analytics', 'expense_create', 'expense_delete', 'expense_edit', 'expense_list', 'expenses/', 'expenses/create/', 'export_analytics', 'import_leads', 'invoice_create', 'invoice_detail', 'invoice_edit', 'invoice_list', 'invoice_mark_paid', 'invoice_send', 'invoices/', 'invoices/create/', 'quote_convert', 'quote_create', 'quote_detail', 'quote_edit', 'quote_list', 'quotes/', 'quotes/create/', 'report_create', 'report_detail', 'report_export', 'report_generate', 'report_list', 'reports/', 'reports/create/', 'sponsor_create', 'sponsor_delete', 'sponsor_detail', 'sponsor_edit', 'sponsor_leads', 'sponsor_list', 'sponsor_materials', 'sponsors/', 'sponsors/create/']

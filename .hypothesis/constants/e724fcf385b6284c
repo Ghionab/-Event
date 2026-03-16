@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\serializers\__init__.py
+# hypothesis_version: 6.151.9
+
+['company', 'email', 'first_name', 'id', 'job_title', 'last_name', 'password', 'password_confirm', 'phone', 'role']

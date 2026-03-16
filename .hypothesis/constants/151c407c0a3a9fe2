@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events\migrations\0005_alter_event_status.py
+# hypothesis_version: 6.151.9
+
+['Cancelled', 'Completed', 'Draft', 'Ongoing', 'Published', 'cancelled', 'completed', 'draft', 'event', 'events', 'ongoing', 'published', 'status']

@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\advanced\migrations\0004_alter_usherassignment_unique_together_and_more.py
+# hypothesis_version: 6.151.9
+
+[255, '0003_usherassignment', 'advanced', 'event', 'events', 'locations', 'user', 'usherassignment', 'venue_name']

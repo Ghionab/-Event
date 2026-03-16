@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\advanced\migrations\0002_alter_task_options_task_actual_hours_task_attachment_and_more.py
+# hypothesis_version: 6.151.9
+
+[255, '-priority', '0-100', '0001_initial', 'Comma-separated tags', 'actual_hours', 'advanced', 'assigned_to', 'attachment', 'created_at', 'due_date', 'estimated_hours', 'event', 'events', 'ordering', 'progress_percentage', 'status', 'tags', 'task', 'task_attachments/']

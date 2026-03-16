@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\communication\views.py
+# hypothesis_version: 6.151.9
+
+[100, 160, '-created_at', '-upvotes', '15_minutes', '1_hour', '24_hours', '30_minutes', 'Already upvoted', 'Invalid request', 'POST', 'Poll is closed', 'Question approved!', 'Question rejected!', 'User', 'action', 'all', 'answer', 'approve', 'average', 'can_moderate', 'confirmed', 'content', 'count', 'email', 'errors', 'event', 'event_id', 'events', 'first_name', 'form', 'id', 'is_active', 'logs', 'message', 'message_template', 'multiple', 'object', 'pending', 'platform', 'poll', 'polls', 'pushes', 'question', 'questions', 'rating', 'rating_value', 'recipient_filter', 'reminder', 'reminder_type', 'reminders', 'responses', 'results', 'scheduled', 'selected_options', 'single', 'sms', 'status', 'subject', 'success', 'template', 'templates', 'title', 'total_responses', 'trigger', 'upvotes', 'wordcloud_response', '{}']

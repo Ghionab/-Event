@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\registration\services\bulk_registration.py
+# hypothesis_version: 6.151.9
+
+[1024, 10000, '.csv', '.xls', '.xlsx', '; ', 'Attendee Name', 'CSV file is empty', 'Email', 'File is empty', 'Invalid email format', 'Processing Error', 'Row Number', 'Status', 'Validation Errors', 'Validation Warnings', '[\\s\\-\\(\\)\\+\\.]', 'attendee_email', 'attendee_name', 'attendee_phone', 'bulk_import', 'bulk_updated', 'company', 'completed', 'completion', 'cp1252', 'custom_', 'duplicate_handling', 'error', 'failed', 'ignore', 'imported_by', 'job_title', 'latin1', 'processing', 'r', 'row_number', 'send_emails', 'skip', 'skip_header', 'skipped', 'success', 'ticket_type', 'update', 'updated_by', 'utf-8', 'utf-8-sig', 'valid', 'validated', 'validation', 'warning']

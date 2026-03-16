@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\users\urls.py
+# hypothesis_version: 6.151.9
+
+['login', 'login/', 'logout', 'logout/', 'password-reset/', 'password-reset/done/', 'password_reset', 'password_reset_done', 'profile', 'profile/', 'register', 'register/']

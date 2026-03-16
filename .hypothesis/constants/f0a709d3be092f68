@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\event_project\urls.py
+# hypothesis_version: 6.151.9
+
+['/organizers/login/', '/static/favicon.ico', '^favicon\\.ico$', 'accounts/login/', 'accounts/logout/', 'admin/', 'admin/security/', 'advanced.urls', 'advanced/', 'api/docs/', 'api/schema/', 'api/v1/', 'attendee/', 'business.urls', 'business/', 'communication.urls', 'communication/', 'events.urls', 'events/', 'events_api.urls', 'get', 'home', 'login', 'logout', 'logout/', 'organizers.urls', 'organizers/', 'participant_logout', 'post', 'registration.urls', 'registration/', 'schema', 'swagger-ui', 'theming.urls', 'theming/', 'users.urls', 'users/']

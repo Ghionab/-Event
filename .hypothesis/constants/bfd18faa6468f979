@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\registration\migrations\0006_ticketpurchase_ticket_ticketanswer.py
+# hypothesis_version: 6.151.9
+
+[100, 254, 255, '-created_at', 'Cancelled', 'Checked In', 'Completed', 'Confirmed', 'Failed', 'ID', 'Pending', 'Refunded', 'Ticket', 'TicketAnswer', 'TicketPurchase', 'Waitlisted', 'answer', 'answers', 'attendee_email', 'attendee_name', 'attendee_phone', 'buyer', 'cancelled', 'checked_in', 'checked_in_at', 'checked_in_by', 'completed', 'confirmed', 'created_at', 'discount_amount', 'event', 'events', 'events.event', 'failed', 'id', 'ordering', 'payment_method', 'payment_reference', 'payment_status', 'pending', 'promo_code', 'purchase', 'purchase_number', 'qr_code', 'question', 'refunded', 'registration', 'registration.ticket', 'status', 'ticket', 'ticket_answers', 'ticket_checkins', 'ticket_number', 'ticket_purchases', 'ticket_type', 'tickets', 'total_amount', 'unique_together', 'updated_at', 'waitlisted']

@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\event_project\admin_urls.py
+# hypothesis_version: 6.151.9
+
+['audit/', 'audit_events', 'event_overview', 'events/', 'logs/', 'registrations/', 'security/', 'security_dashboard', 'system_admin', 'system_logs', 'toggle_staff', 'toggle_superuser', 'user_detail', 'user_management', 'users/', 'users/<int:user_id>/']

@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events\models.py
+# hypothesis_version: 6.151.9
+
+[100, 255, 3600, '#007bff', '#6c757d', '-start_date', 'Break', 'Breakout Session', 'Bronze', 'Cancelled', 'Community', 'Completed', 'Draft', 'EventSession', 'Gold', 'Hybrid', 'In-Person', 'Keynote', 'Networking', 'Ongoing', 'Other', 'Panel Discussion', 'Platinum', 'Presentation', 'Published', 'Silver', 'Virtual', 'Workshop', 'break', 'breakout', 'bronze', 'cancelled', 'community', 'completed', 'display_order', 'draft', 'event_banners/', 'event_logos/', 'facebook', 'gold', 'hybrid', 'in_person', 'instagram', 'keynote', 'linkedin', 'name', 'networking', 'ongoing', 'order', 'organized_events', 'other', 'panel', 'platinum', 'presentation', 'published', 'rooms', 'session_slides/', 'sessions', 'silver', 'speaker_profiles', 'speakers', 'speakers/', 'sponsors', 'sponsors/', 'start_time', 'tier', 'tracks', 'twitter', 'virtual', 'workshop', 'youtube']

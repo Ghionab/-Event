@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\users\models.py
+# hypothesis_version: 6.151.9
+
+[100, 255, 'Administrator', 'Attendee', 'Event Organizer', 'Gate Staff', 'Speaker', 'Sponsor', 'User', 'Users', 'Usher', 'admin', 'attendee', 'email', 'email address', 'is_active', 'is_staff', 'is_superuser', 'organizer', 'organizer_profile', 'profiles/', 'speaker', 'sponsor', 'staff', 'usher']

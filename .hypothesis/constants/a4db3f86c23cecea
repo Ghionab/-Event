@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\serializers\vendor_serializers.py
+# hypothesis_version: 6.151.9
+
+['address', 'amount', 'category', 'contact_name', 'contract_file', 'created_at', 'description', 'email', 'end_date', 'event_id', 'flat_rate', 'hourly_rate', 'id', 'is_blacklisted', 'is_preferred', 'name', 'notes', 'payment_terms', 'phone', 'rating', 'review_count', 'signed_by_client', 'signed_by_vendor', 'signed_file', 'start_date', 'status', 'title', 'updated_at', 'vendor', 'vendor.name', 'vendor_name', 'website']

@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\advanced\migrations\0003_usherassignment.py
+# hypothesis_version: 6.151.9
+
+[128, 'ID', 'UsherAssignment', 'advanced', 'assigned_at', 'event', 'events', 'events.event', 'events.room', 'id', 'is_active', 'locations', 'password_set_at', 'temp_password', 'unique_together', 'user', 'usher_assignments', 'ushers']

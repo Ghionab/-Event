@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\event_project\settings.py
+# hypothesis_version: 6.151.9
+
+[1024, 1025, '*', '.csv', '.doc', '.docx', '.gif', '.jpeg', '.jpg', '.pdf', '.png', '.rar', '.rtf', '.txt', '.webp', '.xls', '.xlsx', '.zip', '/api/v1', '/media/', '/organizers/', '/organizers/login/', '1.0.0', '100/hour', '1000/hour', 'APP_DIRS', 'BACKEND', 'DEFAULT_SCHEMA_CLASS', 'DESCRIPTION', 'DIRS', 'ENGINE', 'Event Management API', 'NAME', 'OPTIONS', 'PAGE_SIZE', 'SCHEMA_PATH_PREFIX', 'SERVE_INCLUDE_SCHEMA', 'TITLE', 'UTC', 'VERSION', 'advanced', 'anon', 'business', 'communication', 'context_processors', 'corsheaders', 'db.sqlite3', 'default', 'django.contrib.admin', 'django.contrib.auth', 'drf_spectacular', 'en-us', 'event_project.urls', 'events', 'events_api', 'localhost', 'media', 'organizers', 'registration', 'rest_framework', 'static/', 'templates', 'theming', 'user', 'users', 'users.User']

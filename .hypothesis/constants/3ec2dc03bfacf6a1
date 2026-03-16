@@ -1,0 +1,4 @@
+# file: C:\Users\Vostro 3510\Desktop\intern_project\events_api\serializers\speaker_serializers.py
+# hypothesis_version: 6.151.9
+
+['bio', 'company', 'display_order', 'email', 'event_id', 'facebook', 'id', 'instagram', 'is_confirmed', 'is_featured', 'job_title', 'linkedin', 'name', 'photo', 'twitter', 'website']

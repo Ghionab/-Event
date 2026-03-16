@@ -405,3 +405,10 @@
 [2026-03-15 23:33:25] SUCCESS: reg#=REG-554D662F, amount=$0
 [2026-03-15 23:33:25] CONTENT_TYPE: application/json
 [2026-03-15 23:33:25] REDIRECT: /registration/success/15/
+[2026-03-16 13:31:15] RAW_DATA: {'event_id': '1', 'for_myself': 'true', 'full_name': 'john doe', 'email': 'john@doe.com', 'phone': '0911225127', 'special_requests': 'jkhakvhuj,ewagukj', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-16 13:31:15] PARSED: event_id=1 (type=str), email=john@doe.com, name=john doe
+[2026-03-16 13:31:15] DEBUG: ticket_price=30.00, ticket_total=30.00, quantity=1
+[2026-03-16 13:31:15] CREATED_REG: #REG-B31C5977 for ticket tiru
+[2026-03-16 13:31:15] SUCCESS: reg#=REG-B31C5977, amount=$30.00
+[2026-03-16 13:31:15] CONTENT_TYPE: application/json
+[2026-03-16 13:31:15] REDIRECT: /registration/success/1/

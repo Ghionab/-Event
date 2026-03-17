@@ -64,9 +64,50 @@ class EventCreateSerializer(serializers.ModelSerializer):
 
 
 class EventListSerializer(serializers.ModelSerializer):
+    """Serializer for event list with pricing information"""
+    price_display = serializers.SerializerMethodField()
+    is_free = serializers.SerializerMethodField()
+    has_tickets = serializers.SerializerMethodField()
+    
     class Meta:
         model = Event
         fields = ['id', 'title', 'slug', 'event_type', 'status',
                   'start_date', 'end_date', 'venue_name', 'city',
                   'logo', 'primary_color', 'secondary_color', 'accent_color', 'background_color',
-                  'is_public']
+                  'is_public', 'price_display', 'is_free', 'has_tickets']
+    
+    def get_price_display(self, obj):
+        """Return price range or status for display on browse page"""
+        ticket_types = obj.ticket_types.filter(is_active=True)
+        
+        if not ticket_types.exists():
+            return None  # No tickets available
+        
+        prices = [tt.price for tt in ticket_types if tt.price is not None]
+        
+        if not prices:
+            return None
+        
+        min_price = min(prices)
+        max_price = max(prices)
+        
+        if min_price == 0 and max_price == 0:
+            return 'Free'
+        elif min_price == max_price:
+            return f'${min_price:.2f}'
+        else:
+            return f'From ${min_price:.2f}'
+    
+    def get_is_free(self, obj):
+        """Check if event is truly free (has tickets and all are free)"""
+        ticket_types = obj.ticket_types.filter(is_active=True)
+        
+        if not ticket_types.exists():
+            return False  # No tickets = not a free event
+        
+        # All ticket types must have price=0 to be considered free
+        return all(tt.price == 0 for tt in ticket_types)
+    
+    def get_has_tickets(self, obj):
+        """Check if event has any active tickets"""
+        return obj.ticket_types.filter(is_active=True).exists()

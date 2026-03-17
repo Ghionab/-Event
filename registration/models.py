@@ -1,6 +1,7 @@
 from django.db import models, transaction
 from django.conf import settings
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from events.models import Event
 import uuid
 
@@ -54,6 +55,31 @@ class TicketType(models.Model):
     
     def __str__(self):
         return f"{self.event.title} - {self.name}"
+    
+    def clean(self):
+        """Validate that total ticket quantities don't exceed event max_attendees"""
+        super().clean()
+        
+        if self.event and self.event.max_attendees:
+            # Get sum of quantities from all OTHER ticket types for this event
+            other_tickets_total = self.event.ticket_types.filter(
+                is_active=True
+            ).exclude(
+                pk=self.pk if self.pk else None
+            ).aggregate(
+                total=models.Sum('quantity_available')
+            )['total'] or 0
+            
+            total_with_this = other_tickets_total + self.quantity_available
+            
+            if total_with_this > self.event.max_attendees:
+                raise ValidationError({
+                    'quantity_available': (
+                        f'Total ticket quantities ({total_with_this}) exceed '
+                        f'event maximum attendees ({self.event.max_attendees}). '
+                        f'Other ticket types already have {other_tickets_total} tickets.'
+                    )
+                })
     
     @property
     def remaining_tickets(self):
@@ -143,6 +169,7 @@ class Registration(models.Model):
     # Payment details
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    quantity = models.IntegerField(default=1, help_text="Number of tickets purchased")
     promo_code = models.ForeignKey(
         PromoCode, on_delete=models.SET_NULL, null=True, blank=True
     )

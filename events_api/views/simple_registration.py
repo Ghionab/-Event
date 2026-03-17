@@ -162,26 +162,26 @@ def simple_register(request):
                     with open(log_file, 'a') as f:
                         f.write(f'[{timestamp}] DEBUG: ticket_price={ticket_price}, ticket_total={ticket_total}, quantity={quantity}\n')
 
-                    # Create a registration for EACH ticket (quantity can be > 1)
-                    for i in range(quantity):
-                        reg = Registration.objects.create(
-                            event=event,
-                            user=attendee_user,
-                            purchaser=purchaser,
-                            ticket_type=ticket_type,  # CRITICAL: Link the ticket type!
-                            attendee_name=full_name,
-                            attendee_email=email,
-                            attendee_phone=phone,
-                            special_requests=special_requests,
-                            total_amount=ticket_price,  # Price per ticket
-                            status='confirmed'  # Always confirmed until payment integration
-                        )
-                        registration = reg
-                        registration_numbers.append(reg.registration_number)
-                        
-                        # Log each registration
-                        with open(log_file, 'a') as f:
-                            f.write(f'[{timestamp}] CREATED_REG: #{reg.registration_number} for ticket {ticket_type.name}\n')
+                    # Create a SINGLE registration with quantity
+                    reg = Registration.objects.create(
+                        event=event,
+                        user=attendee_user,
+                        purchaser=purchaser,
+                        ticket_type=ticket_type,  # CRITICAL: Link ticket type!
+                        attendee_name=full_name,
+                        attendee_email=email,
+                        attendee_phone=phone,
+                        special_requests=special_requests,
+                        total_amount=ticket_total,  # Total amount for all tickets
+                        quantity=quantity,  # Store quantity
+                        status='confirmed'  # Always confirmed until payment integration
+                    )
+                    registration = reg
+                    registration_numbers.append(reg.registration_number)
+                    
+                    # Log the registration with quantity
+                    with open(log_file, 'a') as f:
+                        f.write(f'[{timestamp}] CREATED_REG: #{reg.registration_number} for ticket {ticket_type.name} (qty={quantity})\n')
                     
                     # Atomic updates
                     ticket_type.quantity_sold += quantity

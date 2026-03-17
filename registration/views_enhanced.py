@@ -65,13 +65,14 @@ def handle_ticket_purchase_submission(request, event, custom_questions):
         total_amount = 0
         discount_amount = 0
         
-        # Process each ticket
+        # Process each ticket entry
         for ticket_data in tickets_data:
-            ticket_type_id = ticket_data.get('ticket_type_id')
+            ticket_type_id = ticket_data.get('ticket_type_id') or ticket_data.get('ticket_id')
             attendee_name = ticket_data.get('attendee_name', '').strip()
             attendee_email = ticket_data.get('attendee_email', '').strip()
             attendee_phone = ticket_data.get('attendee_phone', '').strip()
             custom_answers = ticket_data.get('custom_answers', {})
+            quantity = int(ticket_data.get('quantity', 1))  # Get quantity, default to 1
             
             # Validate required fields
             if not attendee_name or not attendee_email:
@@ -87,43 +88,46 @@ def handle_ticket_purchase_submission(request, event, custom_questions):
                 purchase.delete()
                 return JsonResponse({'error': f'Invalid ticket type: {ticket_type_id}'}, status=400)
             
-            # Check availability
-            if not ticket_type.can_purchase():
+            # Check availability for the total quantity
+            if ticket_type.remaining_tickets < quantity:
                 purchase.delete()
                 return JsonResponse({
-                    'error': f'Ticket type "{ticket_type.name}" is not available for purchase'
+                    'error': f'Not enough tickets available for "{ticket_type.name}". '
+                             f'Requested: {quantity}, Available: {ticket_type.remaining_tickets}'
                 }, status=400)
             
-            # Create the ticket
-            ticket = Ticket.objects.create(
-                purchase=purchase,
-                event=event,
-                ticket_type=ticket_type,
-                attendee_name=attendee_name,
-                attendee_email=attendee_email,
-                attendee_phone=attendee_phone,
-                status='confirmed'  # Always confirmed until payment integration
-            )
+            # Create individual ticket records for each quantity
+            for i in range(quantity):
+                ticket = Ticket.objects.create(
+                    purchase=purchase,
+                    event=event,
+                    ticket_type=ticket_type,
+                    attendee_name=attendee_name,
+                    attendee_email=attendee_email,
+                    attendee_phone=attendee_phone,
+                    status='confirmed'
+                )
+                
+                # Save custom question answers (only for first ticket if same attendee)
+                if i == 0:
+                    for question_id, answer in custom_answers.items():
+                        try:
+                            question = custom_questions.get(id=int(question_id))
+                            TicketAnswer.objects.create(
+                                ticket=ticket,
+                                question=question,
+                                answer=str(answer)
+                            )
+                        except (RegistrationField.DoesNotExist, ValueError):
+                            continue
             
-            # Save custom question answers
-            for question_id, answer in custom_answers.items():
-                try:
-                    question = custom_questions.get(id=int(question_id))
-                    TicketAnswer.objects.create(
-                        ticket=ticket,
-                        question=question,
-                        answer=str(answer)
-                    )
-                except (RegistrationField.DoesNotExist, ValueError):
-                    continue
-            
-            # Update ticket sold count atomically
+            # Update ticket sold count by the total quantity
             from django.db.models import F
-            TicketType.objects.filter(id=ticket_type.id).update(quantity_sold=F('quantity_sold') + 1)
+            TicketType.objects.filter(id=ticket_type.id).update(quantity_sold=F('quantity_sold') + quantity)
             ticket_type.refresh_from_db()
             
-            # Add to total
-            total_amount += float(ticket_type.price or 0)
+            # Add to total (price * quantity)
+            total_amount += float(ticket_type.price or 0) * quantity
         
         # Apply promo code if provided
         if promo_code_value:

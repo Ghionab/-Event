@@ -712,10 +712,14 @@
         // Get selected tickets
         const selectedTickets = [];
         document.querySelectorAll('.ticket-checkbox:checked').forEach(checkbox => {
+            const ticketId = parseInt(checkbox.dataset.ticketId);
+            const qtyEl = document.getElementById(`qty-${ticketId}`);
+            const quantity = parseInt(qtyEl.textContent) || 1;
+            
             selectedTickets.push({
-                ticket_id: parseInt(checkbox.dataset.ticketId),
+                ticket_id: ticketId,
                 ticket_name: checkbox.dataset.ticketName,
-                quantity: 1
+                quantity: quantity
             });
         });
 

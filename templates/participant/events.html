@@ -133,7 +133,10 @@
                         <span class="truncate">${event.venue_name || 'TBD'} ${event.city ? ', ' + event.city : ''}</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-indigo-600 font-bold">${event.price || 'Free'}</span>
+                        ${event.has_tickets 
+                            ? `<span class="${event.is_free ? 'text-green-600' : 'text-indigo-600'} font-bold">${event.price_display || 'Price TBD'}</span>`
+                            : `<span class="text-gray-500 font-medium text-sm"><i class="fas fa-info-circle mr-1"></i>Tickets coming soon</span>`
+                        }
                         <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm">
                             View Details
                         </button>

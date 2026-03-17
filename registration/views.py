@@ -11,6 +11,7 @@ from django.db import models, transaction
 from django.db.models import Q, Count, F
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 # Import security decorators
 from event_project.decorators import (
@@ -58,6 +59,24 @@ def register_for_event(request, event_id):
     non_file_fields = [f for f in custom_fields if f.field_type != 'file']
 
     if request.method == 'POST':
+        # Parse JSON data if content type is application/json
+        if request.content_type == 'application/json':
+            try:
+                data = json.loads(request.body)
+                tickets_data = data.get('tickets', [])
+                if tickets_data:
+                    # Get quantity from first ticket (for single ticket type purchases)
+                    quantity = int(tickets_data[0].get('quantity', 1))
+                    ticket_id = tickets_data[0].get('ticket_id')
+                    # Update request.POST for form processing
+                    post_data = request.POST.copy()
+                    post_data['quantity'] = quantity
+                    if ticket_id:
+                        post_data['ticket_type'] = ticket_id
+                    request.POST = post_data
+            except (json.JSONDecodeError, ValueError, IndexError):
+                pass
+        
         form = RegistrationForm(request.POST)
         form.fields['ticket_type'].queryset = ticket_types
 
@@ -111,6 +130,12 @@ def register_for_event(request, event_id):
             registration.event = event
             registration.user = request.user if request.user.is_authenticated else None
             registration.custom_fields = custom_field_data
+            
+            # Get quantity from POST data (default to 1)
+            quantity = int(request.POST.get('quantity', 1))
+            if quantity < 1:
+                quantity = 1
+            
             # Calculate total amount
             if registration.ticket_type:
                 # Lock the ticket type row for update to prevent race conditions
@@ -123,8 +148,9 @@ def register_for_event(request, event_id):
                         'file_fields': file_fields, 'non_file_fields': non_file_fields
                     })
 
-                if ticket_type.quantity_available <= 0:
-                    messages.error(request, 'Ticket finished') # Display specific message as requested
+                # Check availability for total quantity
+                if ticket_type.quantity_available < quantity:
+                    messages.error(request, f'Not enough tickets available. Requested: {quantity}, Available: {ticket_type.quantity_available}')
                     return render(request, 'registration/register_event.html', {
                         'form': form, 'event': event, 'custom_fields': custom_fields,
                         'file_fields': file_fields, 'non_file_fields': non_file_fields
@@ -137,7 +163,7 @@ def register_for_event(request, event_id):
                         'file_fields': file_fields, 'non_file_fields': non_file_fields
                     })
                 
-                total = ticket_type.price
+                total = ticket_type.price * quantity
                 discount = 0
 
                 # Apply promo code if provided
@@ -169,11 +195,14 @@ def register_for_event(request, event_id):
 
                 registration.total_amount = total
                 registration.discount_amount = discount
+                registration.quantity = quantity  # Store quantity
                 
-                # Update ticket count atomically
-                ticket_type.quantity_available -= 1
-                ticket_type.quantity_sold += 1
-                ticket_type.save()
+                # Update ticket count atomically by total quantity
+                from django.db.models import F
+                TicketType.objects.filter(id=ticket_type.id).update(
+                    quantity_available=F('quantity_available') - quantity,
+                    quantity_sold=F('quantity_sold') + quantity
+                )
 
             registration.save()
 

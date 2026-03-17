@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0009_remove_sessionspeaker_speaking_duration_and_more'),
+        ('events', '0008_session_sessionspeaker'),
         ('organizers', '0003_alter_eventtemplate_default_description'),
     ]
 

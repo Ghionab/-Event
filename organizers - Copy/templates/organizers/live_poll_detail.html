@@ -1,0 +1,420 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ title }} - Event Organizer{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block subtitle %}{% if poll %}View poll results and engagement metrics{% else %}Create an interactive live poll for your event{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Back Navigation -->
+<div class="mb-6">
+    <a href="{% url 'organizers:organizer_live_poll_list' %}" class="inline-flex items-center text-sm text-gray-500 hover:text-indigo-600 transition-colors duration-200">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Polls
+    </a>
+</div>
+
+{% if poll %}
+<!-- Poll Results View -->
+<!-- Premium Header Banner -->
+<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 shadow-xl">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative px-8 py-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                    <i class="bi bi-bar-chart-line text-white text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white">{{ poll.question }}</h1>
+                    <p class="text-indigo-100 text-sm mt-1">{{ poll.event.title }}</p>
+                </div>
+            </div>
+            <span class="px-4 py-2 text-sm font-semibold rounded-full {% if poll.is_active %}bg-emerald-400/20 text-emerald-100 border border-emerald-400/30{% else %}bg-gray-400/20 text-gray-200 border border-gray-400/30{% endif %}">
+                {% if poll.is_active %}<i class="bi bi-broadcast mr-1"></i>Active{% else %}<i class="bi bi-pause-circle mr-1"></i>Inactive{% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Results Card -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        <i class="bi bi-graph-up mr-2 text-indigo-600"></i>Results
+                    </h3>
+                    <span class="text-sm text-gray-500">{{ response_count }} responses</span>
+                </div>
+            </div>
+            <div class="p-6">
+                {% if poll.poll_type == 'single' or poll.poll_type == 'multiple' %}
+                <!-- Choice Results -->
+                <div class="space-y-5">
+                    {% for option, count in results.items %}
+                    {% with percentage=count|div:response_count|mul:100|floatformat:0 %}
+                    <div class="relative">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">{{ option }}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-semibold text-gray-900">{{ count }} votes</span>
+                                <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{{ percentage }}%</span>
+                            </div>
+                        </div>
+                        <div class="relative w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-700 ease-out" 
+                                 style="width: {% if response_count > 0 %}{{ percentage }}{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+                
+                {% elif poll.poll_type == 'rating' %}
+                <!-- Rating Results -->
+                <div class="mb-8 text-center p-6 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100">
+                    <div class="flex items-center justify-center gap-1 mb-2">
+                        {% for i in "12345" %}
+                        <i class="bi bi-star-fill text-2xl {% if forloop.counter <= results.average|floatformat:0 %}text-amber-400{% else %}text-gray-200{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="text-5xl font-bold text-gray-900">{{ results.average|floatformat:1 }}</p>
+                    <p class="text-sm text-gray-500 mt-1">Average Rating</p>
+                </div>
+                <div class="space-y-3">
+                    {% for rating, count in results.distribution.items %}
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-medium text-gray-600 w-10">{{ rating }} <i class="bi bi-star-fill text-amber-400 text-xs"></i></span>
+                        <div class="flex-1 bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                            <div class="bg-gradient-to-r from-amber-400 to-orange-400 h-full rounded-full transition-all duration-700" 
+                                 style="width: {% if response_count > 0 %}{{ count|div:response_count|mul:100|floatformat:0 }}{% else %}0{% endif %}%"></div>
+                        </div>
+                        <span class="text-sm text-gray-500 w-12 text-right">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% elif poll.poll_type == 'wordcloud' %}
+                <!-- Word Cloud Results -->
+                <div class="flex flex-wrap gap-3 justify-center p-4">
+                    {% for word, count in results.items %}
+                    <span class="px-4 py-2 rounded-full text-white font-medium shadow-sm hover:scale-105 transition-transform duration-200 cursor-default"
+                          style="background-color: hsl({{ forloop.counter|mul:35 }}, 75%, 55%); font-size: {% if count > 5 %}1.25{% elif count > 2 %}1.05{% else %}0.9{% endif %}rem;">
+                        {{ word }} <span class="opacity-80 text-sm">({{ count }})</span>
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Poll Info Sidebar -->
+    <div class="space-y-6">
+        <!-- Poll Details Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                    <i class="bi bi-info-circle mr-2 text-gray-500"></i>Poll Details
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-calendar-event text-indigo-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Event</p>
+                        <p class="text-sm font-medium text-gray-900">{{ poll.event.title }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-grid-3x3-gap text-purple-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Type</p>
+                        <p class="text-sm font-medium text-gray-900">{{ poll.get_poll_type_display }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-clock text-blue-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Created</p>
+                        <p class="text-sm font-medium text-gray-900">{{ poll.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                
+                {% if poll.session %}
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="bi bi-collection-play text-amber-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Session</p>
+                        <p class="text-sm font-medium text-gray-900">{{ poll.session.title }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                    <i class="bi bi-lightning-charge mr-2 text-gray-500"></i>Quick Stats
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-3 bg-indigo-50 rounded-lg">
+                        <p class="text-2xl font-bold text-indigo-600">{{ response_count }}</p>
+                        <p class="text-xs text-gray-500 mt-1">Total Votes</p>
+                    </div>
+                    <div class="text-center p-3 bg-purple-50 rounded-lg">
+                        <p class="text-2xl font-bold text-purple-600">{{ results|length }}</p>
+                        <p class="text-xs text-gray-500 mt-1">Options</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <a href="{% url 'organizers:organizer_live_poll_list' %}" class="flex items-center justify-center w-full px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 text-sm font-medium">
+                <i class="bi bi-list-ul mr-2"></i>View All Polls
+            </a>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Create Poll Form -->
+<!-- Premium Header Banner -->
+<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 shadow-xl">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative px-8 py-8">
+        <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <i class="bi bi-plus-circle text-white text-3xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-white">{{ title }}</h1>
+                <p class="text-indigo-100 text-sm mt-1">Set up an interactive poll for real-time audience engagement</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+                <h3 class="text-sm font-semibold text-gray-900">
+                    <i class="bi bi-file-text mr-2 text-indigo-600"></i>Basic Information
+                </h3>
+            </div>
+            <div class="p-6 space-y-5">
+                <div>
+                    <label for="{{ form.event.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Event <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="bi bi-calendar-event text-gray-400"></i>
+                        </div>
+                        {{ form.event }}
+                    </div>
+                    {% if form.event.errors %}
+                    <p class="mt-2 text-sm text-rose-600 bg-rose-50 p-2 rounded-lg">{{ form.event.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.session.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Session <span class="text-gray-400 font-normal">(Optional)</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="bi bi-collection-play text-gray-400"></i>
+                        </div>
+                        {{ form.session }}
+                    </div>
+                    {% if form.session.errors %}
+                    <p class="mt-2 text-sm text-rose-600 bg-rose-50 p-2 rounded-lg">{{ form.session.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.question.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Question <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                            <i class="bi bi-question-circle text-gray-400"></i>
+                        </div>
+                        {{ form.question }}
+                    </div>
+                    {% if form.question.errors %}
+                    <p class="mt-2 text-sm text-rose-600 bg-rose-50 p-2 rounded-lg">{{ form.question.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Poll Configuration Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50">
+                <h3 class="text-sm font-semibold text-gray-900">
+                    <i class="bi bi-sliders mr-2 text-purple-600"></i>Poll Configuration
+                </h3>
+            </div>
+            <div class="p-6 space-y-5">
+                <div>
+                    <label for="{{ form.poll_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        Poll Type <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="bi bi-grid-3x3-gap text-gray-400"></i>
+                        </div>
+                        {{ form.poll_type }}
+                    </div>
+                    {% if form.poll_type.errors %}
+                    <p class="mt-2 text-sm text-rose-600 bg-rose-50 p-2 rounded-lg">{{ form.poll_type.errors.0 }}</p>
+                    {% endif %}
+                    
+                    <!-- Poll Type Info Cards -->
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bi bi-circle text-blue-600"></i>
+                                <span class="text-sm font-medium text-blue-900">Single Choice</span>
+                            </div>
+                            <p class="text-xs text-blue-700">Select one option only</p>
+                        </div>
+                        <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bi bi-check-square text-purple-600"></i>
+                                <span class="text-sm font-medium text-purple-900">Multiple Choice</span>
+                            </div>
+                            <p class="text-xs text-purple-700">Select multiple options</p>
+                        </div>
+                        <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bi bi-star-fill text-amber-600"></i>
+                                <span class="text-sm font-medium text-amber-900">Rating</span>
+                            </div>
+                            <p class="text-xs text-amber-700">Rate 1-5 stars</p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bi bi-cloud-fill text-emerald-600"></i>
+                                <span class="text-sm font-medium text-emerald-900">Word Cloud</span>
+                            </div>
+                            <p class="text-xs text-emerald-700">Free text responses</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="options-field">
+                    <label for="options_text" class="block text-sm font-medium text-gray-700 mb-2">
+                        Options <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea name="options_text" id="options_text" rows="5"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 resize-none"
+                        placeholder="Enter one option per line&#10;Option 1&#10;Option 2&#10;Option 3"></textarea>
+                    <p class="text-xs text-gray-500 mt-2 flex items-center">
+                        <i class="bi bi-info-circle mr-1"></i>One option per line. Required for Single/Multiple choice polls.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label for="{{ form.starts_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="bi bi-play-circle mr-1 text-gray-400"></i>Starts At
+                        </label>
+                        {{ form.starts_at }}
+                    </div>
+                    <div>
+                        <label for="{{ form.ends_at.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="bi bi-stop-circle mr-1 text-gray-400"></i>Ends At
+                        </label>
+                        {{ form.ends_at }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Poll Settings Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+                <h3 class="text-sm font-semibold text-gray-900">
+                    <i class="bi bi-gear mr-2 text-emerald-600"></i>Poll Settings
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap gap-6">
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <div class="relative flex items-center">
+                            {{ form.is_active }}
+                        </div>
+                        <span class="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">Activate poll immediately</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <div class="relative flex items-center">
+                            {{ form.show_results_live }}
+                        </div>
+                        <span class="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">Show results live to participants</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end gap-4 pt-4">
+            <a href="{% url 'organizers:organizer_live_poll_list' %}" class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium">
+                Cancel
+            </a>
+            <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-sm hover:shadow-md">
+                <i class="bi bi-check-lg mr-2"></i>Create Poll
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Show/hide options field based on poll type
+const pollTypeSelect = document.getElementById('{{ form.poll_type.id_for_label }}');
+const optionsField = document.getElementById('options-field');
+
+function toggleOptionsField() {
+    if (pollTypeSelect.value === 'single' || pollTypeSelect.value === 'multiple') {
+        optionsField.style.display = 'block';
+    } else {
+        optionsField.style.display = 'none';
+    }
+}
+
+pollTypeSelect.addEventListener('change', toggleOptionsField);
+// Initial check
+toggleOptionsField();
+</script>
+{% endif %}
+{% endblock %}

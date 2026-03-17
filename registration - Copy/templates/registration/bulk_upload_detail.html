@@ -1,0 +1,143 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Bulk Upload Details{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Bulk Upload Details</h1>
+        <a href="{% url 'registration:bulk_registration_upload' bulk_upload.event.id %}" class="btn btn-secondary">
+            Upload More
+        </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Total Rows</div>
+            <div class="text-2xl font-bold">{{ bulk_upload.total_rows }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Successful</div>
+            <div class="text-2xl font-bold text-green-600">{{ bulk_upload.success_count }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Errors</div>
+            <div class="text-2xl font-bold text-red-600">{{ bulk_upload.error_count }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Status</div>
+            <div class="text-2xl font-bold">
+                <span class="px-2 py-1 text-sm rounded-full
+                    {% if bulk_upload.status == 'completed' %}bg-green-100 text-green-800
+                    {% elif bulk_upload.status == 'failed' %}bg-red-100 text-red-800
+                    {% elif bulk_upload.status == 'processing' %}bg-blue-100 text-blue-800
+                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {{ bulk_upload.get_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Upload Info -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Upload Information</h2>
+            <dl class="space-y-3">
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">File:</dt>
+                    <dd class="font-medium">{{ bulk_upload.original_filename }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Uploaded:</dt>
+                    <dd class="font-medium">{{ bulk_upload.created_at|date:"M d, Y H:i" }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Uploaded By:</dt>
+                    <dd class="font-medium">{{ bulk_upload.uploaded_by.email }}</dd>
+                </div>
+                {% if bulk_upload.completed_at %}
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Completed:</dt>
+                    <dd class="font-medium">{{ bulk_upload.completed_at|date:"M d, Y H:i" }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+
+        <!-- Errors -->
+        {% if bulk_upload.error_log %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4 text-red-600">Error Log</h2>
+            <pre class="bg-gray-100 p-3 rounded text-sm overflow-auto max-h-64">{{ bulk_upload.error_log }}</pre>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Results Table -->
+    <div class="mt-6">
+        <h2 class="text-lg font-semibold mb-4">Processed Rows</h2>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Row #</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registration</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Error</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for row in rows %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ row.row_number }}</td>
+                        <td class="px-6 py-4">
+                            {% if row.row_data.name %}
+                                {{ row.row_data.name }}
+                            {% elif row.row_data.full_name %}
+                                {{ row.row_data.full_name }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if row.row_data.email %}
+                                {{ row.row_data.email }}
+                            {% elif row.row_data.email_address %}
+                                {{ row.row_data.email_address }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if row.status == 'success' %}bg-green-100 text-green-800
+                                {% elif row.status == 'failed' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ row.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if row.registration %}
+                            <a href="{% url 'registration:registration_detail' row.registration.id %}" class="text-blue-600 hover:text-blue-900">
+                                {{ row.registration.registration_number }}
+                            </a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-red-600 text-sm">{{ row.error_message|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">No rows processed yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

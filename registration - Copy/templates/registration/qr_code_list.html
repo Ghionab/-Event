@@ -1,0 +1,117 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}QR Codes - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">QR Code Management</h1>
+        <div class="flex gap-2">
+            <a href="{% url 'registration:qr_code_print' event.id %}" class="btn btn-secondary" target="_blank">
+                <i class="fas fa-print"></i> Print All
+            </a>
+            <a href="{% url 'registration:qr_code_send_emails' event.id %}" class="btn btn-info">
+                <i class="fas fa-envelope"></i> Send All via Email
+            </a>
+            <a href="{% url 'registration:checkin_analytics' event.id %}" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> Analytics
+            </a>
+            <a href="{% url 'organizer_event_detail' event.id %}" class="btn btn-secondary">
+                Back to Event
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Total Registrations</div>
+            <div class="text-2xl font-bold">{{ total }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Confirmed</div>
+            <div class="text-2xl font-bold text-blue-600">{{ confirmed }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Checked In</div>
+            <div class="text-2xl font-bold text-green-600">{{ checked_in }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-sm text-gray-500">Pending</div>
+            <div class="text-2xl font-bold text-yellow-600">{{ pending }}</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <form method="get" class="flex gap-4 flex-wrap">
+            <div class="flex-1 min-w-[200px]">
+                <input type="text" name="search" value="{{ search }}" placeholder="Search by name, email, or registration number"
+                       class="w-full border rounded px-3 py-2">
+            </div>
+            <select name="status" class="border rounded px-3 py-2">
+                <option value="">All Status</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                <option value="checked_in" {% if status_filter == 'checked_in' %}selected{% endif %}>Checked In</option>
+                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+    </div>
+
+    <!-- QR Codes Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="min-w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registration #</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ticket</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">QR Code</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for reg in registrations %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ reg.registration_number }}</td>
+                    <td class="px-6 py-4">{{ reg.attendee_name }}</td>
+                    <td class="px-6 py-4">{{ reg.attendee_email }}</td>
+                    <td class="px-6 py-4">{{ reg.ticket_type.name|default:"-" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                            {% if reg.status == 'checked_in' %}bg-green-100 text-green-800
+                            {% elif reg.status == 'confirmed' %}bg-blue-100 text-blue-800
+                            {% elif reg.status == 'cancelled' %}bg-red-100 text-red-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ reg.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ reg.qr_code }}</code>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div class="flex gap-2">
+                            <a href="{% url 'registration:qr_code_download' reg.id %}" class="text-blue-600 hover:text-blue-900" target="_blank">View QR</a>
+                            <a href="{% url 'registration:badge_view' reg.id %}" class="text-green-600 hover:text-green-900">Badge</a>
+                            {% if reg.status == 'checked_in' %}
+                            <a href="{% url 'registration:checkin_undo' reg.id %}" class="text-yellow-600 hover:text-yellow-900">Undo</a>
+                            {% elif reg.status == 'confirmed' %}
+                            <a href="{% url 'registration:perform_check_in' reg.id %}" class="text-green-600 hover:text-green-900">Check In</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">No registrations found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

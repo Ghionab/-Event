@@ -1,0 +1,431 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Bulk Registration - {{ event.title }}{% endblock %}
+
+{% block header %}
+<div class="flex items-center justify-between">
+    <div class="flex items-center">
+        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+            <i class="bi bi-cloud-upload text-white text-3xl"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Bulk Registration</h1>
+            <p class="text-sm text-gray-600 mt-1">Import multiple attendees efficiently from Excel or CSV files</p>
+        </div>
+    </div>
+    <a href="{% url 'registration:manual_registration_list' event.id %}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Registrations
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb Navigation -->
+<nav class="flex mb-8" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-2">
+        <li class="inline-flex items-center">
+            <a href="{% url 'organizer_event_detail' event.id %}" class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-indigo-600 transition">
+                <i class="bi bi-calendar-event mr-2"></i>{{ event.title }}
+            </a>
+        </li>
+        <li><i class="bi bi-chevron-right text-gray-400 text-xs"></i></li>
+        <li>
+            <a href="{% url 'registration:manual_registration_list' event.id %}" class="text-sm font-medium text-gray-600 hover:text-indigo-600 transition">Registrations</a>
+        </li>
+        <li><i class="bi bi-chevron-right text-gray-400 text-xs"></i></li>
+        <li aria-current="page">
+            <span class="text-sm font-medium text-indigo-600">Bulk Upload</span>
+        </li>
+    </ol>
+</nav>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Upload Section -->
+    <div class="lg:col-span-2">
+        <!-- Upload Form Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-6">
+                <h3 class="text-xl font-bold text-white flex items-center">
+                    <i class="bi bi-upload mr-3"></i>Upload Attendee List
+                </h3>
+                <p class="text-blue-50 text-sm mt-2">Select your file format and upload your attendee data</p>
+            </div>
+            
+            <div class="p-8">
+                <form method="post" enctype="multipart/form-data" id="uploadForm" class="space-y-8">
+                    {% csrf_token %}
+
+                    <!-- File Type Selection -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-800 mb-4">
+                            <i class="bi bi-file-earmark-text text-indigo-600 mr-2"></i>File Format
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="relative flex flex-col items-center p-6 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group">
+                                <input type="radio" name="file_type" value="excel" checked class="sr-only peer">
+                                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <i class="bi bi-file-earmark-excel text-4xl text-green-600"></i>
+                                </div>
+                                <span class="text-base font-semibold text-gray-800">Excel</span>
+                                <span class="text-xs text-gray-500 mt-1">.xlsx, .xls</span>
+                                <div class="absolute inset-0 border-2 border-indigo-600 rounded-xl opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                <div class="absolute top-3 right-3 w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+                                    <i class="bi bi-check text-white font-bold"></i>
+                                </div>
+                            </label>
+                            
+                            <label class="relative flex flex-col items-center p-6 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group">
+                                <input type="radio" name="file_type" value="csv" class="sr-only peer">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <i class="bi bi-filetype-csv text-4xl text-blue-600"></i>
+                                </div>
+                                <span class="text-base font-semibold text-gray-800">CSV</span>
+                                <span class="text-xs text-gray-500 mt-1">.csv</span>
+                                <div class="absolute inset-0 border-2 border-indigo-600 rounded-xl opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                <div class="absolute top-3 right-3 w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+                                    <i class="bi bi-check text-white font-bold"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Area -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-800 mb-4">
+                            <i class="bi bi-paperclip text-indigo-600 mr-2"></i>Upload File
+                        </label>
+                        <div class="relative">
+                            <label for="fileInput" class="flex flex-col items-center justify-center w-full h-48 border-3 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gradient-to-br from-gray-50 to-gray-100 hover:from-indigo-50 hover:to-purple-50 hover:border-indigo-400 transition-all duration-300 group">
+                                <div class="flex flex-col items-center justify-center pt-6 pb-6">
+                                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                                        <i class="bi bi-cloud-arrow-up text-4xl text-indigo-600"></i>
+                                    </div>
+                                    <p class="mb-2 text-base font-semibold text-gray-700">
+                                        <span class="text-indigo-600">Click to upload</span> or drag and drop
+                                    </p>
+                                    <p class="text-sm text-gray-600">Excel (.xlsx, .xls) or CSV (.csv) files</p>
+                                    <p class="text-xs text-gray-500 mt-2">Maximum file size: 5MB</p>
+                                </div>
+                                <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="hidden" id="fileInput">
+                            </label>
+                        </div>
+                        <div id="fileInfo" class="hidden mt-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="bi bi-file-earmark-check text-indigo-600 text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900" id="fileName"></p>
+                                        <p class="text-xs text-gray-600" id="fileSize"></p>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="clearFile()" class="w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition">
+                                    <i class="bi bi-x-circle text-2xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Import Options -->
+                    <div class="space-y-4 bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200">
+                        <h4 class="text-sm font-bold text-gray-800 mb-3">Import Options</h4>
+                        
+                        <label class="flex items-start cursor-pointer group p-3 rounded-lg hover:bg-white transition">
+                            <div class="flex items-center h-5 mt-0.5">
+                                <input type="checkbox" name="skip_header" id="skip_header" checked class="w-5 h-5 text-indigo-600 bg-white border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div class="ml-3">
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-indigo-600 transition">First row contains headers</span>
+                                <p class="text-xs text-gray-600 mt-1">Enable if your file has column names in the first row</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start cursor-pointer group p-3 rounded-lg hover:bg-white transition">
+                            <div class="flex items-center h-5 mt-0.5">
+                                <input type="checkbox" name="send_invitations" id="send_invitations" checked class="w-5 h-5 text-indigo-600 bg-white border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div class="ml-3">
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-indigo-600 transition">Send invitation emails</span>
+                                <p class="text-xs text-gray-600 mt-1">Automatically send confirmation emails to all registered attendees</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-4 pt-4">
+                        <button type="submit" class="flex-1 px-8 py-4 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center">
+                            <i class="bi bi-upload mr-2"></i>Upload and Process
+                        </button>
+                        <a href="{% url 'registration:manual_registration_list' event.id %}" class="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 font-semibold flex items-center justify-center">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Upload History -->
+        {% if uploads %}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-8">
+            <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                        <i class="bi bi-clock-history mr-3 text-indigo-600"></i>Upload History
+                    </h3>
+                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-semibold">{{ uploads|length }} upload{{ uploads|length|pluralize }}</span>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b-2 border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date & Time</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">File Name</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Total</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Success</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Errors</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for upload in uploads %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ upload.created_at|date:"M d, Y" }}</div>
+                                <div class="text-xs text-gray-500">{{ upload.created_at|date:"h:i A" }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="bi bi-file-earmark-excel text-green-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-semibold text-gray-900">{{ upload.original_filename }}</div>
+                                        <div class="text-xs text-gray-500">{{ upload.file_size|filesizeformat }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="text-base font-bold text-gray-800">{{ upload.total_rows }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                                    <i class="bi bi-check-circle-fill mr-1.5"></i>{{ upload.success_count }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                {% if upload.error_count > 0 %}
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
+                                    <i class="bi bi-x-circle-fill mr-1.5"></i>{{ upload.error_count }}
+                                </span>
+                                {% else %}
+                                <span class="text-sm text-gray-400 font-medium">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold
+                                    {% if upload.status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif upload.status == 'failed' %}bg-red-100 text-red-800
+                                    {% elif upload.status == 'processing' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {% if upload.status == 'completed' %}<i class="bi bi-check-circle-fill mr-1.5"></i>
+                                    {% elif upload.status == 'failed' %}<i class="bi bi-x-circle-fill mr-1.5"></i>
+                                    {% elif upload.status == 'processing' %}<i class="bi bi-arrow-repeat mr-1.5"></i>
+                                    {% else %}<i class="bi bi-clock-fill mr-1.5"></i>{% endif %}
+                                    {{ upload.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="{% url 'registration:bulk_registration_detail' upload.id %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium text-sm transition-all shadow-sm hover:shadow-md">
+                                    <i class="bi bi-eye mr-2"></i>View Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar with Instructions -->
+    <div class="space-y-6">
+        <!-- File Format Guide -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-info-circle mr-2"></i>Required Columns
+                </h3>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-gray-700 mb-5 font-medium">
+                    Your file must contain these columns:
+                </p>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-7 h-7 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                            <i class="bi bi-check text-green-600 text-sm font-bold"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-bold text-gray-900">name</span>
+                            <p class="text-xs text-gray-600 mt-0.5">Full name (required)</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-7 h-7 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                            <i class="bi bi-check text-green-600 text-sm font-bold"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-bold text-gray-900">email</span>
+                            <p class="text-xs text-gray-600 mt-0.5">Email address (required)</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                            <i class="bi bi-dash text-gray-500 text-sm"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-semibold text-gray-800">phone</span>
+                            <p class="text-xs text-gray-600 mt-0.5">Phone number (optional)</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                            <i class="bi bi-dash text-gray-500 text-sm"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-semibold text-gray-800">company</span>
+                            <p class="text-xs text-gray-600 mt-0.5">Company name (optional)</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="flex-shrink-0 w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                            <i class="bi bi-dash text-gray-500 text-sm"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-semibold text-gray-800">job_title</span>
+                            <p class="text-xs text-gray-600 mt-0.5">Job title (optional)</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Example Template -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-file-earmark-code mr-2"></i>Example Format
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="bg-gray-900 rounded-xl p-4 mb-5 overflow-x-auto">
+                    <pre class="text-xs text-green-400 font-mono leading-relaxed">name,email,phone,company,job_title
+John Doe,john@example.com,+1234567890,Acme Inc,Developer
+Jane Smith,jane@example.com,+0987654321,Tech Corp,Manager</pre>
+                </div>
+                <a href="data:text/csv;charset=utf-8,name,email,phone,company,job_title%0AJohn Doe,john@example.com,+1234567890,Acme Inc,Developer%0AJane Smith,jane@example.com,+0987654321,Tech Corp,Manager" 
+                   download="bulk_registration_template.csv" 
+                   class="inline-flex items-center px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-semibold text-sm shadow-lg hover:shadow-xl w-full justify-center transform hover:-translate-y-0.5">
+                    <i class="bi bi-download mr-2"></i>Download CSV Template
+                </a>
+            </div>
+        </div>
+
+        <!-- Pro Tips -->
+        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 p-6 shadow-md">
+            <h4 class="text-base font-bold text-amber-900 mb-4 flex items-center">
+                <i class="bi bi-lightbulb-fill text-amber-600 mr-2 text-lg"></i>Pro Tips
+            </h4>
+            <ul class="space-y-3 text-sm text-amber-900">
+                <li class="flex items-start">
+                    <i class="bi bi-check2-circle text-amber-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Ensure all email addresses are unique</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-check2-circle text-amber-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Remove empty rows before uploading</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-check2-circle text-amber-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Use the template for best results</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-check2-circle text-amber-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Check upload history for any errors</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-check2-circle text-amber-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Maximum file size is 5MB</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+// File input handling
+const fileInput = document.getElementById('fileInput');
+const fileInfo = document.getElementById('fileInfo');
+const fileName = document.getElementById('fileName');
+const fileSize = document.getElementById('fileSize');
+
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.classList.remove('hidden');
+    }
+});
+
+function clearFile() {
+    fileInput.value = '';
+    fileInfo.classList.add('hidden');
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+// Drag and drop functionality
+const dropZone = document.querySelector('label[for="fileInput"]');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+        dropZone.classList.add('border-indigo-500', 'bg-indigo-50');
+    }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+        dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
+    }, false);
+});
+
+dropZone.addEventListener('drop', function(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    fileInput.files = files;
+    
+    const event = new Event('change', { bubbles: true });
+    fileInput.dispatchEvent(event);
+}, false);
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'events/base.html' %}
+
+{% block title %}{{ poll.question|truncatechars:30 }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ poll.question }}</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        {{ poll.event.title }} | {{ poll.get_poll_type_display }}
+                        <span class="badge bg-{% if poll.is_active %}success{% else %}secondary{% endif %} float-end">
+                            {{ poll.is_active|yesno:"Active,Closed" }}
+                        </span>
+                    </p>
+                    
+                    {% if poll.is_active %}
+                        <form id="poll-vote-form" method="post" action="{% url 'communication:poll_vote' poll.id %}">
+                            {% csrf_token %}
+                            
+                            {% if poll.poll_type == 'single' or poll.poll_type == 'multiple' %}
+                                <div class="mb-3">
+                                    {% for option in poll.options %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="{% if poll.poll_type == 'single' %}radio{% else %}checkbox{% endif %}" 
+                                                   name="selected_options" value="{{ option }}" id="option_{{ forloop.counter }}">
+                                            <label class="form-check-label" for="option_{{ forloop.counter }}">
+                                                {{ option }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% elif poll.poll_type == 'rating' %}
+                                <div class="mb-3">
+                                    {% for i in "12345"|make_list %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="rating_value" value="{{ i }}" id="rating_{{ i }}">
+                                            <label class="form-check-label" for="rating_{{ i }}">{{ i }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            <button type="submit" class="btn btn-primary">Submit Vote</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Results</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-center">{{ total_responses }}</h3>
+                    <p class="text-center text-muted">Total Responses</p>
+                    
+                    {% if results %}
+                        {% for option, count in results.items %}
+                            {% if option != 'average' %}
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <span>{{ option }}</span>
+                                        <span>{{ count }} votes</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {% if total_responses > 0 %}{{ count|add:0|div:total_responses|mul:100 }}{% else %}0{% endif %}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if results.average %}
+                            <div class="alert alert-info mt-3">
+                                <strong>Average Rating:</strong> {{ results.average }}/5
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted text-center">No responses yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if poll.is_active and request.user == poll.event.organizer or request.user.is_staff %}
+        <div class="mt-4">
+            <a href="{% url 'communication:poll_close' poll.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to close this poll?');">Close Poll</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('poll-vote-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: {
+            'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + (data.errors || data.message));
+        }
+    });
+});
+</script>
+{% endblock %}

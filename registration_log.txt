@@ -310,6 +310,9 @@
 [2026-03-14 16:08:46] RAW_DATA: {'event_id': '1', 'full_name': 'belay', 'email': 'abekebe@gmail.com', 'phone': '0911225127', 'special_requests': 'kvgvuuyyglii', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
 [2026-03-14 16:08:46] PARSED: event_id=1 (type=str), email=abekebe@gmail.com, name=belay
 [2026-03-14 16:08:46] SUCCESS | event_id=1 | name=belay | email=abekebe@gmail.com | status=pending | reg#=REG-1CB243D9
+[2026-03-14 16:15:57] RAW_DATA: {'event_id': '2', 'full_name': 'faggot', 'email': 'demo@example.com', 'phone': '5864485', 'special_requests': 'gjjvgjgkfcvg', 'tickets': [{'ticket_id': 2, 'quantity': 1}]}
+[2026-03-14 16:15:57] PARSED: event_id=2 (type=str), email=demo@example.com, name=faggot
+[2026-03-14 16:15:57] SUCCESS | event_id=2 | name=faggot | email=demo@example.com | status=pending | reg#=REG-C6377319
 [2026-03-14 17:51:08] RAW_DATA: {'event_id': '1', 'full_name': 'nathanium', 'email': 'nathanjames7668@gmail.com', 'phone': '8972630689', 'special_requests': 'jklaggyiigHVbh', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
 [2026-03-14 17:51:08] PARSED: event_id=1 (type=str), email=nathanjames7668@gmail.com, name=nathanium
 [2026-03-14 17:51:08] SUCCESS | event_id=1 | name=nathanium | email=nathanjames7668@gmail.com | status=pending | reg#=REG-C97FEA1D
@@ -402,3 +405,75 @@
 [2026-03-15 23:33:25] SUCCESS: reg#=REG-554D662F, amount=$0
 [2026-03-15 23:33:25] CONTENT_TYPE: application/json
 [2026-03-15 23:33:25] REDIRECT: /registration/success/15/
+[2026-03-17 04:57:18] RAW_DATA: {'event_id': '6', 'for_myself': 'false', 'full_name': 'ZEFASIL MULU', 'email': 'z@gmail.com', 'phone': '0987654323', 'special_requests': '', 'tickets': [{'ticket_id': 8, 'quantity': 1}, {'ticket_id': 9, 'quantity': 1}]}
+[2026-03-17 04:57:18] PARSED: event_id=6 (type=str), email=z@gmail.com, name=ZEFASIL MULU
+[2026-03-17 04:57:18] DEBUG: ticket_price=100.00, ticket_total=100.00, quantity=1
+[2026-03-17 04:57:18] CREATED_REG: #REG-E59B90FE for ticket General
+[2026-03-17 04:57:18] DEBUG: ticket_price=1000.00, ticket_total=1000.00, quantity=1
+[2026-03-17 04:57:18] CREATED_REG: #REG-341B301D for ticket vip
+[2026-03-17 04:57:18] SUCCESS: reg#=REG-341B301D, amount=$1100.00
+[2026-03-17 04:57:18] CONTENT_TYPE: application/json
+[2026-03-17 04:57:18] REDIRECT: /registration/success/30/
+[2026-03-17 05:00:51] RAW_DATA: {'event_id': '5', 'for_myself': 'true', 'full_name': 'Test Users', 'email': 'test@xample.com', 'phone': '12345', 'special_requests': '', 'tickets': [{'ticket_id': 7, 'quantity': 1}]}
+[2026-03-17 05:00:51] PARSED: event_id=5 (type=str), email=test@xample.com, name=Test Users
+[2026-03-17 05:00:51] DEBUG: ticket_price=100.00, ticket_total=100.00, quantity=1
+[2026-03-17 05:00:51] CREATED_REG: #REG-73711605 for ticket vip
+[2026-03-17 05:00:51] SUCCESS: reg#=REG-73711605, amount=$100.00
+[2026-03-17 05:00:51] CONTENT_TYPE: application/json
+[2026-03-17 05:00:51] REDIRECT: /registration/success/31/
+[2026-03-17 05:01:23] RAW_DATA: {'event_id': '5', 'for_myself': 'true', 'full_name': 'Test Users', 'email': 'test@xample.com', 'phone': '0987654323', 'special_requests': '', 'tickets': [{'ticket_id': 7, 'quantity': 1}]}
+[2026-03-17 05:01:23] PARSED: event_id=5 (type=str), email=test@xample.com, name=Test Users
+[2026-03-17 05:01:23] DEBUG: ticket_price=100.00, ticket_total=100.00, quantity=1
+[2026-03-17 05:01:23] CREATED_REG: #REG-B56BFC6E for ticket vip
+[2026-03-17 05:01:23] SUCCESS: reg#=REG-B56BFC6E, amount=$100.00
+[2026-03-17 05:01:23] CONTENT_TYPE: application/json
+[2026-03-17 05:01:23] REDIRECT: /registration/success/32/
+[2026-03-17 05:07:55] RAW_DATA: {'event_id': '3', 'for_myself': 'true', 'full_name': 'Test Users', 'email': 'test@xample.com', 'phone': '12345', 'special_requests': '', 'tickets': [{'ticket_id': 6, 'quantity': 1}]}
+[2026-03-17 05:07:55] PARSED: event_id=3 (type=str), email=test@xample.com, name=Test Users
+[2026-03-17 05:07:55] DEBUG: ticket_price=89.99, ticket_total=89.99, quantity=1
+[2026-03-17 05:07:55] CREATED_REG: #REG-EE03B99E for ticket Standard Ticket
+[2026-03-17 05:07:55] SUCCESS: reg#=REG-EE03B99E, amount=$89.99
+[2026-03-17 05:07:55] CONTENT_TYPE: application/json
+[2026-03-17 05:07:55] REDIRECT: /registration/success/33/
+[2026-03-17 05:09:09] RAW_DATA: {'event_id': '3', 'for_myself': 'true', 'full_name': 'Test Users', 'email': 'test@xample.com', 'phone': '+15550000000', 'special_requests': '', 'tickets': [{'ticket_id': 5, 'quantity': 1}]}
+[2026-03-17 05:09:09] PARSED: event_id=3 (type=str), email=test@xample.com, name=Test Users
+[2026-03-17 05:09:09] DEBUG: ticket_price=224.98, ticket_total=224.98, quantity=1
+[2026-03-17 05:09:09] CREATED_REG: #REG-03E4F642 for ticket VIP Ticket
+[2026-03-17 05:09:09] SUCCESS: reg#=REG-03E4F642, amount=$224.98
+[2026-03-17 05:09:09] CONTENT_TYPE: application/json
+[2026-03-17 05:09:09] REDIRECT: /registration/success/34/
+[2026-03-17 05:09:42] RAW_DATA: {'event_id': '3', 'for_myself': 'true', 'full_name': 'Test Users', 'email': 'test@xample.com', 'phone': '+15550000000', 'special_requests': '', 'tickets': [{'ticket_id': 5, 'quantity': 1}]}
+[2026-03-17 05:09:42] PARSED: event_id=3 (type=str), email=test@xample.com, name=Test Users
+[2026-03-17 05:09:42] DEBUG: ticket_price=224.98, ticket_total=224.98, quantity=1
+[2026-03-17 05:09:42] CREATED_REG: #REG-DDE63963 for ticket VIP Ticket
+[2026-03-17 05:09:42] SUCCESS: reg#=REG-DDE63963, amount=$224.98
+[2026-03-17 05:09:42] CONTENT_TYPE: application/json
+[2026-03-17 05:09:42] REDIRECT: /registration/success/35/
+[2026-03-17 05:26:15] RAW_DATA: {'event_id': '3', 'for_myself': 'false', 'full_name': 'ZEFASIL MULU', 'email': 'zef@gmail.com', 'phone': '0987654323', 'special_requests': '', 'tickets': [{'ticket_id': 6, 'quantity': 1}]}
+[2026-03-17 05:26:15] PARSED: event_id=3 (type=str), email=zef@gmail.com, name=ZEFASIL MULU
+[2026-03-17 05:26:15] DEBUG: ticket_price=89.99, ticket_total=89.99, quantity=1
+[2026-03-17 05:26:15] CREATED_REG: #REG-2D40DB4E for ticket Standard Ticket
+[2026-03-17 05:26:15] SUCCESS: reg#=REG-2D40DB4E, amount=$89.99
+[2026-03-17 05:26:15] CONTENT_TYPE: application/json
+[2026-03-17 05:26:15] REDIRECT: /registration/success/36/
+[2026-03-17 05:30:55] RAW_DATA: {'event_id': '1', 'for_myself': 'true', 'full_name': 'Test Users', 'email': 'test@xample.com', 'phone': '+15550000000', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'quantity': 1}]}
+[2026-03-17 05:30:55] PARSED: event_id=1 (type=str), email=test@xample.com, name=Test Users
+[2026-03-17 05:30:55] DEBUG: ticket_price=299.99, ticket_total=299.99, quantity=1
+[2026-03-17 05:30:55] CREATED_REG: #REG-486927F1 for ticket Standard Ticket
+[2026-03-17 05:30:55] SUCCESS: reg#=REG-486927F1, amount=$299.99
+[2026-03-17 05:30:55] CONTENT_TYPE: application/json
+[2026-03-17 05:30:55] REDIRECT: /registration/success/37/
+[2026-03-17 05:41:37] RAW_DATA: {'event_id': '1', 'for_myself': 'true', 'full_name': 'Test Users', 'email': 'test@xample.com', 'phone': '+15550000000', 'special_requests': '', 'tickets': [{'ticket_id': 2, 'quantity': 3}]}
+[2026-03-17 05:41:37] PARSED: event_id=1 (type=str), email=test@xample.com, name=Test Users
+[2026-03-17 05:41:37] DEBUG: ticket_price=299.99, ticket_total=899.97, quantity=3
+[2026-03-17 05:41:37] CREATED_REG: #REG-0D3EE416 for ticket Standard Ticket (qty=3)
+[2026-03-17 05:41:37] SUCCESS: reg#=REG-0D3EE416, amount=$899.97
+[2026-03-17 05:41:37] CONTENT_TYPE: application/json
+[2026-03-17 05:41:37] REDIRECT: /registration/success/38/
+[2026-03-17 00:22:40] RAW_DATA: {'event_id': '1', 'for_myself': 'true', 'full_name': 'abeba kebede', 'email': 'abekebe@gmail.com', 'phone': '', 'special_requests': '', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-17 00:22:40] PARSED: event_id=1 (type=str), email=abekebe@gmail.com, name=abeba kebede
+[2026-03-17 00:22:40] DEBUG: ticket_price=45.00, ticket_total=45.00, quantity=1
+[2026-03-17 00:22:40] CREATED_REG: #REG-C998C2A6 for ticket entrance (qty=1)
+[2026-03-17 00:22:40] SUCCESS: reg#=REG-C998C2A6, amount=$45.00
+[2026-03-17 00:22:40] CONTENT_TYPE: application/json
+[2026-03-17 00:22:40] REDIRECT: /registration/success/1/

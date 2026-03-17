@@ -1,0 +1,1033 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Create Report - EventHub{% endblock %}
+{% block header %}Report Generation{% endblock %}
+{% block subtitle %}Configure and generate comprehensive event analytics reports{% endblock %}
+
+{% block content %}
+<!-- Animated Background -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index: 0;">
+    <div class="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-indigo-200/30 to-purple-200/30 rounded-full blur-3xl animate-blob"></div>
+    <div class="absolute top-40 right-20 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+    <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl animate-blob animation-delay-4000"></div>
+</div>
+
+<div class="max-w-5xl mx-auto relative" style="z-index: 1;">
+    <!-- Premium Header Banner -->
+    <div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 shadow-2xl">
+        <!-- Animated Background Pattern -->
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl animate-blob"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-white rounded-full blur-3xl animate-blob animation-delay-4000"></div>
+        </div>
+        
+        <div class="relative px-8 py-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <!-- Icon Container with Frosted Glass Effect -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-white/20 backdrop-blur-xl rounded-2xl transform group-hover:scale-110 transition-transform duration-300"></div>
+                        <div class="relative w-20 h-20 flex items-center justify-center">
+                            <i class="bi bi-file-earmark-bar-graph text-5xl text-white drop-shadow-lg transform group-hover:rotate-12 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h1 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">Create New Report</h1>
+                        <p class="text-indigo-100 text-lg">Configure your analytics report with advanced filters and scheduling</p>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="hidden lg:flex items-center space-x-4">
+                    <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-xl border border-white/20">
+                        <div class="text-white/80 text-xs font-medium mb-1">Report Types</div>
+                        <div class="text-white text-2xl font-bold">3</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-xl border border-white/20">
+                        <div class="text-white/80 text-xs font-medium mb-1">Export Formats</div>
+                        <div class="text-white text-2xl font-bold">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Steps with Enhanced Design -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center">
+            <div class="flex items-center space-x-4">
+                <!-- Step 1: Configuration -->
+                <div class="flex items-center">
+                    <div class="relative">
+                        <div id="step-1-glow" class="absolute inset-0 bg-indigo-400 rounded-full blur-md opacity-50"></div>
+                        <div id="step-1" class="relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-bold shadow-lg transition-all duration-300 transform hover:scale-110">
+                            <span id="step-1-number" class="text-lg">1</span>
+                            <i id="step-1-check" class="bi bi-check-lg text-xl hidden"></i>
+                        </div>
+                    </div>
+                    <span id="step-1-label" class="ml-3 text-sm font-bold text-gray-900">Configuration</span>
+                </div>
+                <div id="line-1" class="w-20 h-1 bg-gray-300 rounded-full transition-all duration-500 shadow-sm"></div>
+                
+                <!-- Step 2: Review -->
+                <div class="flex items-center">
+                    <div class="relative">
+                        <div id="step-2-glow" class="absolute inset-0 bg-gray-400 rounded-full blur-md opacity-0 transition-opacity duration-300"></div>
+                        <div id="step-2" class="relative flex items-center justify-center w-12 h-12 rounded-full bg-gray-300 text-gray-600 font-bold shadow-md transition-all duration-300 transform hover:scale-110">
+                            <span id="step-2-number" class="text-lg">2</span>
+                            <i id="step-2-check" class="bi bi-check-lg text-xl hidden"></i>
+                        </div>
+                    </div>
+                    <span id="step-2-label" class="ml-3 text-sm font-bold text-gray-500">Review</span>
+                </div>
+                <div id="line-2" class="w-20 h-1 bg-gray-300 rounded-full transition-all duration-500 shadow-sm"></div>
+                
+                <!-- Step 3: Generate -->
+                <div class="flex items-center">
+                    <div class="relative">
+                        <div id="step-3-glow" class="absolute inset-0 bg-gray-400 rounded-full blur-md opacity-0 transition-opacity duration-300"></div>
+                        <div id="step-3" class="relative flex items-center justify-center w-12 h-12 rounded-full bg-gray-300 text-gray-600 font-bold shadow-md transition-all duration-300 transform hover:scale-110">
+                            <span id="step-3-number" class="text-lg">3</span>
+                            <i id="step-3-check" class="bi bi-check-lg text-xl hidden"></i>
+                        </div>
+                    </div>
+                    <span id="step-3-label" class="ml-3 text-sm font-bold text-gray-500">Generate</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information Section -->
+        <div class="card transform hover:scale-[1.01] transition-all duration-300 shadow-xl hover:shadow-2xl">
+            <div class="card-header bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 border-b-0 relative overflow-hidden">
+                <!-- Animated Background -->
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-2xl animate-pulse"></div>
+                </div>
+                
+                <div class="relative flex items-center">
+                    <div class="flex-shrink-0 w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg transform hover:rotate-12 transition-transform duration-300">
+                        <i class="bi bi-file-earmark-text text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-xl font-bold text-white drop-shadow-md">Basic Information</h3>
+                        <p class="text-sm text-white/90">Define the report parameters and scope</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Event Selection -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="bi bi-calendar-event text-indigo-600 mr-1"></i>
+                            Event Selection <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.event }}
+                        {% if form.event.errors %}
+                            <div class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="text-sm text-red-600">{{ form.event.errors.0 }}</p>
+                            </div>
+                        {% endif %}
+                        <p class="mt-2 text-sm text-gray-600">
+                            <i class="bi bi-info-circle mr-1"></i>
+                            Select the event for which you want to generate this report
+                        </p>
+                    </div>
+
+                    <!-- Report Name -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-900 mb-2">
+                            <i class="bi bi-tag text-indigo-600 mr-1"></i>
+                            Report Name <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                            </div>
+                        {% endif %}
+                        <p class="mt-2 text-sm text-gray-600">
+                            <i class="bi bi-info-circle mr-1"></i>
+                            Provide a clear, descriptive name for easy identification
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Type Section -->
+        <div class="card transform hover:scale-[1.01] transition-all duration-300 shadow-xl hover:shadow-2xl">
+            <div class="card-header bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 border-b-0 relative overflow-hidden">
+                <!-- Animated Background -->
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute bottom-0 left-0 w-40 h-40 bg-white rounded-full blur-2xl animate-pulse animation-delay-2000"></div>
+                </div>
+                
+                <div class="relative flex items-center">
+                    <div class="flex-shrink-0 w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg transform hover:rotate-12 transition-transform duration-300">
+                        <i class="bi bi-graph-up text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-xl font-bold text-white drop-shadow-md">Report Type & Format</h3>
+                        <p class="text-sm text-white/90">Choose the type of analysis and export format</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-6">
+                <div class="space-y-6">
+                    <!-- Report Type -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-900 mb-3">
+                            <i class="bi bi-bar-chart text-blue-600 mr-1"></i>
+                            Report Type <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.report_type }}
+                        {% if form.report_type.errors %}
+                            <div class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="text-sm text-red-600">{{ form.report_type.errors.0 }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="group relative overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 p-5 rounded-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+                                <div class="absolute top-0 right-0 w-20 h-20 bg-blue-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                                <div class="relative">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-md group-hover:rotate-12 transition-transform duration-300">
+                                            <i class="bi bi-people-fill text-xl text-white"></i>
+                                        </div>
+                                        <h4 class="ml-3 font-bold text-blue-900 text-lg">Registration</h4>
+                                    </div>
+                                    <p class="text-sm text-blue-800 leading-relaxed">Comprehensive registration data with attendee details, ticket types, and payment status</p>
+                                </div>
+                            </div>
+                            
+                            <div class="group relative overflow-hidden bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300 p-5 rounded-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+                                <div class="absolute top-0 right-0 w-20 h-20 bg-green-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                                <div class="relative">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center shadow-md group-hover:rotate-12 transition-transform duration-300">
+                                            <i class="bi bi-currency-dollar text-xl text-white"></i>
+                                        </div>
+                                        <h4 class="ml-3 font-bold text-green-900 text-lg">Revenue</h4>
+                                    </div>
+                                    <p class="text-sm text-green-800 leading-relaxed">Financial breakdown by ticket categories, payment methods, and revenue trends</p>
+                                </div>
+                            </div>
+                            
+                            <div class="group relative overflow-hidden bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 p-5 rounded-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+                                <div class="absolute top-0 right-0 w-20 h-20 bg-purple-400/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                                <div class="relative">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover:rotate-12 transition-transform duration-300">
+                                            <i class="bi bi-check2-circle text-xl text-white"></i>
+                                        </div>
+                                        <h4 class="ml-3 font-bold text-purple-900 text-lg">Attendance</h4>
+                                    </div>
+                                    <p class="text-sm text-purple-800 leading-relaxed">Attendance statistics with check-in rates, no-shows, and status distribution</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Format -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-900 mb-3">
+                            <i class="bi bi-file-earmark-arrow-down text-blue-600 mr-1"></i>
+                            Export Format <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.export_format }}
+                        {% if form.export_format.errors %}
+                            <div class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="text-sm text-red-600">{{ form.export_format.errors.0 }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="group relative overflow-hidden bg-white border-2 border-gray-200 hover:border-green-400 p-5 rounded-xl text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer">
+                                <div class="absolute inset-0 bg-gradient-to-br from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative">
+                                    <i class="bi bi-filetype-csv text-6xl text-green-600 mb-3 transform group-hover:scale-110 transition-transform duration-300"></i>
+                                    <h4 class="font-bold text-gray-900 mb-2 text-lg">CSV Format</h4>
+                                    <p class="text-xs text-gray-600 mb-3">Comma-Separated Values</p>
+                                    <div class="flex items-center justify-center space-x-2 text-xs text-gray-500">
+                                        <i class="bi bi-check-circle-fill text-green-500"></i>
+                                        <span>Universal compatibility</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="group relative overflow-hidden bg-white border-2 border-gray-200 hover:border-green-400 p-5 rounded-xl text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer">
+                                <div class="absolute inset-0 bg-gradient-to-br from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative">
+                                    <i class="bi bi-filetype-xlsx text-6xl text-green-700 mb-3 transform group-hover:scale-110 transition-transform duration-300"></i>
+                                    <h4 class="font-bold text-gray-900 mb-2 text-lg">Excel Format</h4>
+                                    <p class="text-xs text-gray-600 mb-3">Microsoft Excel Workbook</p>
+                                    <div class="flex items-center justify-center space-x-2 text-xs text-gray-500">
+                                        <i class="bi bi-check-circle-fill text-green-500"></i>
+                                        <span>Professional formatting</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="group relative overflow-hidden bg-white border-2 border-gray-200 hover:border-red-400 p-5 rounded-xl text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer">
+                                <div class="absolute inset-0 bg-gradient-to-br from-red-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative">
+                                    <i class="bi bi-filetype-pdf text-6xl text-red-600 mb-3 transform group-hover:scale-110 transition-transform duration-300"></i>
+                                    <h4 class="font-bold text-gray-900 mb-2 text-lg">PDF Format</h4>
+                                    <p class="text-xs text-gray-600 mb-3">Portable Document Format</p>
+                                    <div class="flex items-center justify-center space-x-2 text-xs text-gray-500">
+                                        <i class="bi bi-check-circle-fill text-green-500"></i>
+                                        <span>Print-ready document</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Options Section -->
+        <div class="card transform hover:scale-[1.01] transition-all duration-300 shadow-xl hover:shadow-2xl">
+            <div class="card-header bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 border-b-0 relative overflow-hidden">
+                <!-- Animated Background -->
+                <div class="absolute inset-0 opacity-20">
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-white rounded-full blur-2xl animate-pulse animation-delay-1000"></div>
+                </div>
+                
+                <div class="relative flex items-center">
+                    <div class="flex-shrink-0 w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shadow-lg transform hover:rotate-12 transition-transform duration-300">
+                        <i class="bi bi-sliders text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-xl font-bold text-white drop-shadow-md">Advanced Configuration</h3>
+                        <p class="text-sm text-white/90">Apply filters and configure automated scheduling</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-6">
+                <div class="space-y-6">
+                    <!-- Filters -->
+                    <div>
+                        <div class="mb-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-semibold text-gray-900">
+                                    <i class="bi bi-funnel text-purple-600 mr-2"></i>
+                                    Report Filters
+                                    <span class="ml-2 text-gray-500 font-normal text-xs">(Optional)</span>
+                                </label>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                                <i class="bi bi-info-circle text-indigo-500 mr-1"></i>
+                                Apply filters to narrow down the data included in your report. Only data matching your criteria will be included.
+                            </p>
+                        </div>
+                        
+                        <!-- Filter Options -->
+                        <div class="space-y-4 p-5 bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl">
+                            <!-- Registration Status Filter -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <label class="flex items-center mb-3">
+                                    <input type="checkbox" id="filter_status" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3">
+                                    <span class="font-semibold text-gray-900">Filter by Registration Status</span>
+                                </label>
+                                <div id="status_options" class="hidden ml-7 space-y-2">
+                                    <label class="flex items-center text-sm text-gray-700">
+                                        <input type="radio" name="status_filter" value="confirmed" class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500 mr-2">
+                                        <i class="bi bi-check-circle text-green-600 mr-1"></i>
+                                        Confirmed registrations only
+                                    </label>
+                                    <label class="flex items-center text-sm text-gray-700">
+                                        <input type="radio" name="status_filter" value="pending" class="w-4 h-4 text-yellow-600 border-gray-300 focus:ring-yellow-500 mr-2">
+                                        <i class="bi bi-clock text-yellow-600 mr-1"></i>
+                                        Pending registrations only
+                                    </label>
+                                    <label class="flex items-center text-sm text-gray-700">
+                                        <input type="radio" name="status_filter" value="cancelled" class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500 mr-2">
+                                        <i class="bi bi-x-circle text-red-600 mr-1"></i>
+                                        Cancelled registrations only
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Ticket Type Filter -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <label class="flex items-center mb-3">
+                                    <input type="checkbox" id="filter_ticket" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3">
+                                    <span class="font-semibold text-gray-900">Filter by Ticket Type</span>
+                                </label>
+                                <div id="ticket_options" class="hidden ml-7">
+                                    <input type="text" id="ticket_type_value" placeholder="e.g., VIP, General, Early Bird" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <p class="text-xs text-gray-500 mt-1">Enter the exact ticket type name</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Payment Status Filter -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <label class="flex items-center mb-3">
+                                    <input type="checkbox" id="filter_payment" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3">
+                                    <span class="font-semibold text-gray-900">Filter by Payment Status</span>
+                                </label>
+                                <div id="payment_options" class="hidden ml-7 space-y-2">
+                                    <label class="flex items-center text-sm text-gray-700">
+                                        <input type="radio" name="payment_filter" value="paid" class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500 mr-2">
+                                        <i class="bi bi-check-circle text-green-600 mr-1"></i>
+                                        Paid registrations only
+                                    </label>
+                                    <label class="flex items-center text-sm text-gray-700">
+                                        <input type="radio" name="payment_filter" value="pending" class="w-4 h-4 text-yellow-600 border-gray-300 focus:ring-yellow-500 mr-2">
+                                        <i class="bi bi-clock text-yellow-600 mr-1"></i>
+                                        Pending payment
+                                    </label>
+                                    <label class="flex items-center text-sm text-gray-700">
+                                        <input type="radio" name="payment_filter" value="refunded" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 mr-2">
+                                        <i class="bi bi-arrow-counterclockwise text-blue-600 mr-1"></i>
+                                        Refunded registrations
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Date Range Filter -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <label class="flex items-center mb-3">
+                                    <input type="checkbox" id="filter_date" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-3">
+                                    <span class="font-semibold text-gray-900">Filter by Registration Date</span>
+                                </label>
+                                <div id="date_options" class="hidden ml-7 grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">From Date</label>
+                                        <input type="date" id="date_from" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">To Date</label>
+                                        <input type="date" id="date_to" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Active Filters Summary -->
+                            <div id="active_filters" class="hidden p-4 bg-indigo-50 border-2 border-indigo-300 rounded-lg">
+                                <div class="flex items-start">
+                                    <i class="bi bi-funnel-fill text-indigo-600 text-lg mr-2 mt-0.5"></i>
+                                    <div class="flex-1">
+                                        <p class="font-semibold text-indigo-900 text-sm mb-2">Active Filters:</p>
+                                        <div id="filter_summary" class="text-sm text-indigo-800 space-y-1"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden field for actual filter JSON (widget only, no label) -->
+                        <div style="display: none;">
+                            {{ form.filters }}
+                        </div>
+                        {% if form.filters.errors %}
+                            <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <p class="text-sm text-red-600">{{ form.filters.errors.0 }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Scheduling -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5 mt-1">
+                                {{ form.is_scheduled }}
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <label for="{{ form.is_scheduled.id_for_label }}" class="font-semibold text-gray-900 cursor-pointer flex items-center">
+                                    <i class="bi bi-clock-history text-purple-600 mr-1"></i>
+                                    Enable Automated Scheduling
+                                </label>
+                                <p class="text-sm text-gray-600 mt-1">Automatically generate and deliver this report on a recurring basis to your dashboard</p>
+                            </div>
+                        </div>
+
+                        <div id="scheduleOptions" class="hidden mt-4 p-5 bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl">
+                            <div class="flex items-center mb-3">
+                                <div class="flex-shrink-0 w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="bi bi-calendar-range text-white"></i>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-900">
+                                        Schedule Frequency
+                                    </label>
+                                    <p class="text-xs text-gray-600">Choose how often to generate this report</p>
+                                </div>
+                            </div>
+                            
+                            {{ form.schedule_frequency }}
+                            {% if form.schedule_frequency.errors %}
+                                <div class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                    <p class="text-sm text-red-600">{{ form.schedule_frequency.errors.0 }}</p>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="mt-3 p-3 bg-white border border-purple-200 rounded-lg">
+                                <div class="flex items-start">
+                                    <i class="bi bi-info-circle-fill text-indigo-600 mr-2 mt-0.5"></i>
+                                    <div class="text-xs text-gray-700">
+                                        <strong>Note:</strong> Scheduled reports will be automatically generated and saved to your reports list. You'll receive a notification when each report is ready.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="sticky bottom-0 z-50 bg-gradient-to-r from-white via-gray-50 to-white border-t-2 border-gray-200 shadow-2xl backdrop-blur-sm">
+            <div class="max-w-5xl mx-auto px-6 py-5">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <a href="{% url 'business:report_list' %}" class="group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 border-2 border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <i class="bi bi-x-circle mr-2 transform group-hover:rotate-90 transition-transform duration-300"></i>
+                        Cancel
+                    </a>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <button type="button" onclick="validateForm(); moveToStep3();" class="group inline-flex items-center justify-center px-8 py-3.5 border-2 border-indigo-400 rounded-xl text-indigo-700 bg-indigo-50 hover:bg-indigo-100 hover:border-indigo-500 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            <i class="bi bi-check2-square mr-2 transform group-hover:scale-110 transition-transform duration-300"></i>
+                            Validate Configuration
+                        </button>
+                        <button type="submit" class="group relative inline-flex items-center justify-center px-10 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-300 font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 overflow-hidden">
+                            <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                            <i class="bi bi-check-circle-fill mr-2 relative z-10 transform group-hover:rotate-12 transition-transform duration-300"></i>
+                            <span class="relative z-10">Create Report</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Help Section -->
+    <div class="mt-8 mb-6 relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 shadow-lg p-6">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-300/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-40 h-40 bg-purple-300/20 rounded-full blur-3xl"></div>
+        
+        <div class="relative flex items-start">
+            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <i class="bi bi-question-circle-fill text-white text-2xl"></i>
+            </div>
+            <div class="ml-4 flex-1">
+                <h4 class="font-bold text-blue-900 mb-2 text-lg">Need Assistance?</h4>
+                <p class="text-sm text-blue-800 leading-relaxed mb-3">
+                    For detailed information about report types and configuration options, our support team is here to help you.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="#" class="inline-flex items-center px-4 py-2 bg-white border-2 border-blue-300 rounded-lg text-blue-700 hover:bg-blue-50 hover:border-blue-400 transition-all duration-300 font-medium shadow-sm hover:shadow-md text-sm">
+                        <i class="bi bi-book mr-2"></i>
+                        View Documentation
+                    </a>
+                    <a href="#" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg text-white hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg text-sm">
+                        <i class="bi bi-headset mr-2"></i>
+                        Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============ PROGRESS TRACKING ============
+
+let currentStep = 1;
+
+// Update progress indicator
+function updateProgress() {
+    // Check Step 1: Configuration (Event, Name, Report Type, Export Format)
+    const event = document.querySelector('select[name="event"]').value;
+    const name = document.querySelector('input[name="name"]').value.trim();
+    const reportType = document.querySelector('select[name="report_type"]').value;
+    const exportFormat = document.querySelector('select[name="export_format"]').value;
+    
+    const step1Complete = event && name && reportType && exportFormat;
+    
+    // Check Step 2: Review (Optional filters or scheduling)
+    const hasFilters = filtersTextarea && filtersTextarea.value.trim();
+    const isScheduled = document.getElementById('{{ form.is_scheduled.id_for_label }}').checked;
+    const scheduleFrequency = document.querySelector('select[name="schedule_frequency"]').value;
+    
+    const step2Complete = step1Complete; // Step 2 is review, so it's complete when step 1 is done
+    
+    // Update UI based on completion
+    if (step1Complete) {
+        // Step 1 is complete
+        setStepComplete(1);
+        
+        if (step2Complete) {
+            // Move to step 2 (Review)
+            setStepActive(2);
+            currentStep = 2;
+            
+            // If user has reviewed (scrolled down or interacted), move to step 3
+            // For now, we'll move to step 3 when they're ready to submit
+        } else {
+            setStepActive(1);
+            currentStep = 1;
+        }
+    } else {
+        // Still on step 1
+        setStepActive(1);
+        setStepIncomplete(2);
+        setStepIncomplete(3);
+        currentStep = 1;
+    }
+}
+
+function setStepActive(stepNum) {
+    const step = document.getElementById(`step-${stepNum}`);
+    const glow = document.getElementById(`step-${stepNum}-glow`);
+    const label = document.getElementById(`step-${stepNum}-label`);
+    const number = document.getElementById(`step-${stepNum}-number`);
+    const check = document.getElementById(`step-${stepNum}-check`);
+    
+    step.className = 'relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 text-white font-bold shadow-lg transition-all duration-300 transform hover:scale-110';
+    glow.className = 'absolute inset-0 bg-indigo-400 rounded-full blur-md opacity-50 transition-opacity duration-300';
+    label.className = 'ml-3 text-sm font-bold text-gray-900';
+    number.classList.remove('hidden');
+    number.className = 'text-lg';
+    check.classList.add('hidden');
+    
+    // Update connecting line
+    if (stepNum > 1) {
+        const line = document.getElementById(`line-${stepNum - 1}`);
+        line.className = 'w-20 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full transition-all duration-500 shadow-md';
+    }
+}
+
+function setStepComplete(stepNum) {
+    const step = document.getElementById(`step-${stepNum}`);
+    const glow = document.getElementById(`step-${stepNum}-glow`);
+    const label = document.getElementById(`step-${stepNum}-label`);
+    const number = document.getElementById(`step-${stepNum}-number`);
+    const check = document.getElementById(`step-${stepNum}-check`);
+    
+    step.className = 'relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-white font-bold shadow-lg transition-all duration-300 transform hover:scale-110';
+    glow.className = 'absolute inset-0 bg-green-400 rounded-full blur-md opacity-50 transition-opacity duration-300';
+    label.className = 'ml-3 text-sm font-bold text-green-700';
+    number.classList.add('hidden');
+    check.classList.remove('hidden');
+    check.className = 'bi bi-check-lg text-xl';
+    
+    // Update connecting line
+    if (stepNum < 3) {
+        const line = document.getElementById(`line-${stepNum}`);
+        line.className = 'w-20 h-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full transition-all duration-500 shadow-md';
+    }
+}
+
+function setStepIncomplete(stepNum) {
+    const step = document.getElementById(`step-${stepNum}`);
+    const glow = document.getElementById(`step-${stepNum}-glow`);
+    const label = document.getElementById(`step-${stepNum}-label`);
+    const number = document.getElementById(`step-${stepNum}-number`);
+    const check = document.getElementById(`step-${stepNum}-check`);
+    
+    step.className = 'relative flex items-center justify-center w-12 h-12 rounded-full bg-gray-300 text-gray-600 font-bold shadow-md transition-all duration-300 transform hover:scale-110';
+    glow.className = 'absolute inset-0 bg-gray-400 rounded-full blur-md opacity-0 transition-opacity duration-300';
+    label.className = 'ml-3 text-sm font-bold text-gray-500';
+    number.classList.remove('hidden');
+    number.className = 'text-lg';
+    check.classList.add('hidden');
+    
+    // Update connecting line
+    if (stepNum > 1) {
+        const line = document.getElementById(`line-${stepNum - 1}`);
+        line.className = 'w-20 h-1 bg-gray-300 rounded-full transition-all duration-500 shadow-sm';
+    }
+}
+
+// Listen to form field changes
+document.addEventListener('DOMContentLoaded', function() {
+    // Add listeners to required fields
+    const requiredFields = [
+        document.querySelector('select[name="event"]'),
+        document.querySelector('input[name="name"]'),
+        document.querySelector('select[name="report_type"]'),
+        document.querySelector('select[name="export_format"]')
+    ];
+    
+    requiredFields.forEach(field => {
+        if (field) {
+            field.addEventListener('change', updateProgress);
+            field.addEventListener('input', updateProgress);
+        }
+    });
+    
+    // Initial progress check
+    updateProgress();
+});
+
+// Move to step 3 when validate button is clicked
+function moveToStep3() {
+    if (currentStep === 2) {
+        setStepComplete(2);
+        setStepActive(3);
+        currentStep = 3;
+    }
+}
+
+// ============ SCHEDULE OPTIONS ============
+
+// Show/hide schedule options with smooth transition
+const scheduleCheckbox = document.getElementById('{{ form.is_scheduled.id_for_label }}');
+const scheduleOptions = document.getElementById('scheduleOptions');
+
+scheduleCheckbox.addEventListener('change', function() {
+    if (this.checked) {
+        scheduleOptions.classList.remove('hidden');
+        scheduleOptions.style.opacity = '0';
+        setTimeout(() => {
+            scheduleOptions.style.transition = 'opacity 0.3s ease-in-out';
+            scheduleOptions.style.opacity = '1';
+        }, 10);
+    } else {
+        scheduleOptions.style.opacity = '0';
+        setTimeout(() => {
+            scheduleOptions.classList.add('hidden');
+        }, 300);
+    }
+});
+
+// Initialize on page load
+if (scheduleCheckbox.checked) {
+    scheduleOptions.classList.remove('hidden');
+}
+
+// ============ FILTER UI FUNCTIONALITY ============
+
+// Get filter elements
+const filterStatusCheckbox = document.getElementById('filter_status');
+const filterTicketCheckbox = document.getElementById('filter_ticket');
+const filterPaymentCheckbox = document.getElementById('filter_payment');
+const filterDateCheckbox = document.getElementById('filter_date');
+
+const statusOptions = document.getElementById('status_options');
+const ticketOptions = document.getElementById('ticket_options');
+const paymentOptions = document.getElementById('payment_options');
+const dateOptions = document.getElementById('date_options');
+
+const activeFiltersDiv = document.getElementById('active_filters');
+const filterSummaryDiv = document.getElementById('filter_summary');
+const filtersTextarea = document.querySelector('textarea[name="filters"]');
+
+// Hide the textarea (we'll populate it programmatically)
+if (filtersTextarea) {
+    filtersTextarea.style.display = 'none';
+}
+
+// Toggle filter options visibility
+filterStatusCheckbox.addEventListener('change', function() {
+    statusOptions.classList.toggle('hidden', !this.checked);
+    if (!this.checked) {
+        document.querySelectorAll('input[name="status_filter"]').forEach(r => r.checked = false);
+    }
+    updateFilters();
+});
+
+filterTicketCheckbox.addEventListener('change', function() {
+    ticketOptions.classList.toggle('hidden', !this.checked);
+    if (!this.checked) {
+        document.getElementById('ticket_type_value').value = '';
+    }
+    updateFilters();
+});
+
+filterPaymentCheckbox.addEventListener('change', function() {
+    paymentOptions.classList.toggle('hidden', !this.checked);
+    if (!this.checked) {
+        document.querySelectorAll('input[name="payment_filter"]').forEach(r => r.checked = false);
+    }
+    updateFilters();
+});
+
+filterDateCheckbox.addEventListener('change', function() {
+    dateOptions.classList.toggle('hidden', !this.checked);
+    if (!this.checked) {
+        document.getElementById('date_from').value = '';
+        document.getElementById('date_to').value = '';
+    }
+    updateFilters();
+});
+
+// Listen to changes in filter values
+document.querySelectorAll('input[name="status_filter"]').forEach(radio => {
+    radio.addEventListener('change', updateFilters);
+});
+
+document.querySelectorAll('input[name="payment_filter"]').forEach(radio => {
+    radio.addEventListener('change', updateFilters);
+});
+
+document.getElementById('ticket_type_value').addEventListener('input', updateFilters);
+document.getElementById('date_from').addEventListener('change', updateFilters);
+document.getElementById('date_to').addEventListener('change', updateFilters);
+
+// Build filter JSON and update UI
+function updateFilters() {
+    const filters = {};
+    const summaryItems = [];
+    
+    // Registration Status Filter
+    if (filterStatusCheckbox.checked) {
+        const selectedStatus = document.querySelector('input[name="status_filter"]:checked');
+        if (selectedStatus) {
+            filters.status = selectedStatus.value;
+            const statusLabels = {
+                'confirmed': 'Confirmed registrations',
+                'pending': 'Pending registrations',
+                'cancelled': 'Cancelled registrations'
+            };
+            summaryItems.push(`<div class="flex items-center"><i class="bi bi-check-circle text-indigo-600 mr-2"></i><span>${statusLabels[selectedStatus.value]}</span></div>`);
+        }
+    }
+    
+    // Ticket Type Filter
+    if (filterTicketCheckbox.checked) {
+        const ticketType = document.getElementById('ticket_type_value').value.trim();
+        if (ticketType) {
+            filters.ticket_type = ticketType;
+            summaryItems.push(`<div class="flex items-center"><i class="bi bi-ticket text-indigo-600 mr-2"></i><span>Ticket type: <strong>${ticketType}</strong></span></div>`);
+        }
+    }
+    
+    // Payment Status Filter
+    if (filterPaymentCheckbox.checked) {
+        const selectedPayment = document.querySelector('input[name="payment_filter"]:checked');
+        if (selectedPayment) {
+            filters.payment_status = selectedPayment.value;
+            const paymentLabels = {
+                'paid': 'Paid registrations',
+                'pending': 'Pending payment',
+                'refunded': 'Refunded registrations'
+            };
+            summaryItems.push(`<div class="flex items-center"><i class="bi bi-credit-card text-indigo-600 mr-2"></i><span>${paymentLabels[selectedPayment.value]}</span></div>`);
+        }
+    }
+    
+    // Date Range Filter
+    if (filterDateCheckbox.checked) {
+        const dateFrom = document.getElementById('date_from').value;
+        const dateTo = document.getElementById('date_to').value;
+        
+        if (dateFrom || dateTo) {
+            filters.date_range = {};
+            if (dateFrom) {
+                filters.date_range.from = dateFrom;
+            }
+            if (dateTo) {
+                filters.date_range.to = dateTo;
+            }
+            
+            let dateText = 'Registered ';
+            if (dateFrom && dateTo) {
+                dateText += `between <strong>${dateFrom}</strong> and <strong>${dateTo}</strong>`;
+            } else if (dateFrom) {
+                dateText += `from <strong>${dateFrom}</strong> onwards`;
+            } else {
+                dateText += `until <strong>${dateTo}</strong>`;
+            }
+            summaryItems.push(`<div class="flex items-center"><i class="bi bi-calendar-range text-indigo-600 mr-2"></i><span>${dateText}</span></div>`);
+        }
+    }
+    
+    // Update the hidden textarea with JSON
+    if (Object.keys(filters).length > 0) {
+        filtersTextarea.value = JSON.stringify(filters, null, 2);
+        activeFiltersDiv.classList.remove('hidden');
+        filterSummaryDiv.innerHTML = summaryItems.join('');
+    } else {
+        filtersTextarea.value = '';
+        activeFiltersDiv.classList.add('hidden');
+        filterSummaryDiv.innerHTML = '';
+    }
+}
+
+// Validate form function
+function validateForm() {
+    const form = document.querySelector('form');
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
+    let errors = [];
+    
+    // Check required fields
+    requiredFields.forEach(field => {
+        if (!field.value) {
+            isValid = false;
+            field.classList.add('border-red-500', 'border-2');
+            const label = field.previousElementSibling?.textContent || 'A required field';
+            errors.push(label.replace('*', '').trim());
+        } else {
+            field.classList.remove('border-red-500', 'border-2');
+        }
+    });
+    
+    // Validate filter combinations
+    if (filterDateCheckbox.checked) {
+        const dateFrom = document.getElementById('date_from').value;
+        const dateTo = document.getElementById('date_to').value;
+        
+        if (dateFrom && dateTo && dateFrom > dateTo) {
+            isValid = false;
+            errors.push('Date range: "From" date must be before "To" date');
+        }
+    }
+    
+    // Validate JSON filter if provided (should always be valid since we generate it)
+    const filterField = document.querySelector('textarea[name="filters"]');
+    if (filterField && filterField.value.trim()) {
+        try {
+            JSON.parse(filterField.value);
+            filterField.classList.remove('border-red-500', 'border-2');
+        } catch (e) {
+            isValid = false;
+            filterField.classList.add('border-red-500', 'border-2');
+            errors.push('Data Filters must be valid JSON');
+        }
+    }
+    
+    // Show validation result
+    if (isValid) {
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'fixed top-4 right-4 bg-green-50 border-2 border-green-500 text-green-800 px-6 py-4 rounded-lg shadow-lg z-50 animate-fade-in';
+        successMsg.innerHTML = '<i class="bi bi-check-circle-fill mr-2"></i><strong>Validation Passed!</strong> All fields are correctly filled.';
+        document.body.appendChild(successMsg);
+        setTimeout(() => successMsg.remove(), 3000);
+    } else {
+        // Show error message
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'fixed top-4 right-4 bg-red-50 border-2 border-red-500 text-red-800 px-6 py-4 rounded-lg shadow-lg z-50 animate-fade-in max-w-md';
+        errorMsg.innerHTML = `
+            <div class="flex items-start">
+                <i class="bi bi-exclamation-triangle-fill mr-2 mt-0.5"></i>
+                <div>
+                    <strong>Validation Failed!</strong>
+                    <p class="text-sm mt-1">Please check the following:</p>
+                    <ul class="text-sm mt-2 list-disc list-inside">
+                        ${errors.slice(0, 3).map(err => `<li>${err}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(errorMsg);
+        setTimeout(() => errorMsg.remove(), 5000);
+        
+        // Scroll to first error
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    return isValid;
+}
+
+// Add form validation feedback on submit
+document.querySelector('form').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+        e.preventDefault();
+    }
+});
+</script>
+
+<style>
+/* Custom styling for form elements */
+select, input[type="text"], textarea {
+    @apply w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200;
+}
+
+input[type="checkbox"] {
+    @apply w-5 h-5 text-indigo-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 cursor-pointer;
+}
+
+textarea {
+    @apply min-h-[120px] font-mono text-sm;
+}
+
+/* Sticky footer shadow */
+.sticky {
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation for notifications */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* Blob animation for background */
+@keyframes blob {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(20px, -20px) scale(1.1);
+    }
+    50% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+    75% {
+        transform: translate(20px, 20px) scale(1.05);
+    }
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+.animation-delay-1000 {
+    animation-delay: 1s;
+}
+
+/* Pulse animation */
+@keyframes pulse-slow {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Print styles */
+@media print {
+    .card-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .sticky {
+        position: relative !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ sponsor.company_name }} - Sponsor Details - Event Organizer{% endblock %}
+
+{% block header %}{{ sponsor.company_name }}{% endblock %}
+
+{% block subtitle %}Sponsor for {{ sponsor.event.title }}{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <a href="{% url 'organizers:organizer_sponsor_list' %}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 transition">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Sponsors
+    </a>
+    <div class="flex items-center gap-2">
+        <a href="{% url 'organizers:organizer_sponsor_edit' sponsor.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <i class="bi bi-pencil mr-2"></i>Edit
+        </a>
+        <a href="{% url 'organizers:organizer_sponsor_delete' sponsor.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+            <i class="bi bi-trash mr-2"></i>Delete
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Info -->
+    <div class="lg:col-span-2">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Sponsor Information</h3>
+                <span class="px-2 py-1 text-xs font-medium rounded-full capitalize
+                    {% if sponsor.tier == 'platinum' %}bg-purple-100 text-purple-700
+                    {% elif sponsor.tier == 'gold' %}bg-yellow-100 text-yellow-700
+                    {% elif sponsor.tier == 'silver' %}bg-gray-100 text-gray-700
+                    {% elif sponsor.tier == 'bronze' %}bg-orange-100 text-orange-700
+                    {% else %}bg-blue-100 text-blue-700{% endif %}">
+                    {{ sponsor.get_tier_display }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="flex items-center gap-4 mb-6">
+                    {% if sponsor.logo %}
+                    <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.company_name }}" class="w-20 h-20 object-contain rounded-lg bg-gray-50 p-2">
+                    {% else %}
+                    <div class="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-building text-gray-400 text-3xl"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">{{ sponsor.company_name }}</h2>
+                        <p class="text-sm text-gray-500">{{ sponsor.event.title }}</p>
+                        {% if sponsor.is_featured %}
+                        <span class="inline-flex items-center px-2 py-1 mt-2 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700">
+                            <i class="bi bi-star-fill mr-1"></i>Featured Sponsor
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if sponsor.description %}
+                <div class="mb-6">
+                    <h4 class="text-sm font-medium text-gray-500 mb-2">Description</h4>
+                    <p class="text-gray-700">{{ sponsor.description|linebreaks }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">Contact Information</h4>
+                        <div class="space-y-2">
+                            {% if sponsor.contact_name %}
+                            <p class="text-sm text-gray-700">
+                                <i class="bi bi-person mr-2 text-gray-400"></i>{{ sponsor.contact_name }}
+                            </p>
+                            {% endif %}
+                            {% if sponsor.contact_email %}
+                            <p class="text-sm text-gray-700">
+                                <i class="bi bi-envelope mr-2 text-gray-400"></i>
+                                <a href="mailto:{{ sponsor.contact_email }}" class="text-indigo-600 hover:text-indigo-800">{{ sponsor.contact_email }}</a>
+                            </p>
+                            {% endif %}
+                            {% if sponsor.contact_phone %}
+                            <p class="text-sm text-gray-700">
+                                <i class="bi bi-telephone mr-2 text-gray-400"></i>{{ sponsor.contact_phone }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">Online Presence</h4>
+                        <div class="space-y-2">
+                            {% if sponsor.website %}
+                            <p class="text-sm text-gray-700">
+                                <i class="bi bi-globe mr-2 text-gray-400"></i>
+                                <a href="{{ sponsor.website }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">Website</a>
+                            </p>
+                            {% endif %}
+                            {% if sponsor.promotional_url %}
+                            <p class="text-sm text-gray-700">
+                                <i class="bi bi-link-45deg mr-2 text-gray-400"></i>
+                                <a href="{{ sponsor.promotional_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">Promotional Link</a>
+                            </p>
+                            {% endif %}
+                            {% if sponsor.promotional_video %}
+                            <p class="text-sm text-gray-700">
+                                <i class="bi bi-play-circle mr-2 text-gray-400"></i>
+                                <a href="{{ sponsor.promotional_video }}" target="_blank" class="text-indigo-600 hover:text-indigo-800">Promo Video</a>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booth Information -->
+        {% if sponsor.booth_number or sponsor.booth_description %}
+        <div class="card mt-6">
+            <div class="card-header">
+                <h3 class="card-title">Booth Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% if sponsor.booth_number %}
+                    <div>
+                        <p class="text-sm text-gray-500">Booth Number</p>
+                        <p class="text-lg font-medium text-gray-800">{{ sponsor.booth_number }}</p>
+                    </div>
+                    {% endif %}
+                    {% if sponsor.booth_description %}
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-gray-500">Booth Description</p>
+                        <p class="text-gray-700 mt-1">{{ sponsor.booth_description|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Quick Links -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body space-y-3">
+                <a href="{% url 'organizers:organizer_event_detail' sponsor.event.id %}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <i class="bi bi-calendar-event text-indigo-600"></i>
+                    <span class="text-sm font-medium">View Event</span>
+                </a>
+                <a href="{% url 'organizers:organizer_event_sponsor_list' sponsor.event.id %}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <i class="bi bi-people text-indigo-600"></i>
+                    <span class="text-sm font-medium">Event Sponsors</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Metadata -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Metadata</h3>
+            </div>
+            <div class="card-body">
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <p class="text-gray-500">Display Order</p>
+                        <p class="font-medium">{{ sponsor.display_order }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Created</p>
+                        <p class="font-medium">{{ sponsor.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Last Updated</p>
+                        <p class="font-medium">{{ sponsor.updated_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

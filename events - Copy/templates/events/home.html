@@ -1,0 +1,104 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Events - Event Management System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+    <div class="absolute inset-0 bg-black opacity-10"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">Discover Amazing Events</h1>
+        <p class="text-xl text-indigo-100 mb-8">Find and register for events that interest you</p>
+        <a href="{% url 'event_list' %}" class="inline-flex items-center px-6 py-3 bg-white text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50 transition shadow-lg">
+            <i class="bi bi-calendar-event mr-2"></i> Browse All Events
+        </a>
+    </div>
+</div>
+
+<!-- Events Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-2xl font-bold text-gray-800">Upcoming Events</h2>
+        <a href="{% url 'event_list' %}" class="text-primary hover:text-primaryHover transition flex items-center gap-1">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    {% if events %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for event in events %}
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300 group">
+                    {% if event.banner_image %}
+                        <img src="{{ event.banner_image.url }}" alt="{{ event.title }}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% else %}
+                        <div class="w-full h-48 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                            <i class="bi bi-calendar-event text-6xl text-white opacity-50"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="p-6">
+                        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-indigo-50 text-indigo-600 mb-3">
+                            {{ event.get_event_type_display }}
+                        </span>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2 group-hover:text-primary transition">{{ event.title }}</h3>
+                        <p class="text-gray-500 text-sm mb-4 line-clamp-2">{{ event.description|truncatewords:20 }}</p>
+
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="bi bi-calendar3 mr-2 text-primary"></i>
+                                {{ event.start_date|date:"M d, Y" }}
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="bi bi-geo-alt mr-2 text-primary"></i>
+                                {{ event.venue_name|default:"Virtual Event" }}
+                            </div>
+                        </div>
+
+                        <a href="{% url 'event_detail' event.id %}" class="w-full block text-center px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-16 bg-white rounded-xl shadow-sm">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-calendar-x text-4xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No Events Available</h3>
+            <p class="text-gray-500">Check back soon for upcoming events!</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Features Section -->
+<div class="bg-white py-16 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-800 text-center mb-12">Why Choose EventHub?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-calendar-check text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Easy Registration</h3>
+                <p class="text-gray-500">Register for events with just a few clicks. Simple and fast process.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-ticket-perforated text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Digital Tickets</h3>
+                <p class="text-gray-500">Get your tickets delivered instantly to your email or phone.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-graph-up text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Real-time Updates</h3>
+                <p class="text-gray-500">Stay updated with event changes and announcements.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Confirm Delete - Event Management{% endblock %}
+
+{% block header %}Confirm Remove Team Member{% endblock %}
+
+{% block subtitle %}This action cannot be undone{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card">
+        <div class="card-header bg-red-50 border-b border-red-200">
+            <h3 class="card-title text-red-800">
+                <i class="bi bi-exclamation-triangle mr-2"></i>
+                Confirm Remove
+            </h3>
+        </div>
+        <div class="card-body">
+            <p class="text-gray-700 mb-4">Are you sure you want to remove <strong>{{ member.user.email }}</strong> from the team?</p>
+            <p class="text-red-600 font-medium">This action cannot be undone.</p>
+            
+            <form method="post" class="mt-6">
+                {% csrf_token %}
+                
+                <!-- Hidden fields to preserve redirect parameters -->
+                {% if from_event_setup %}
+                <input type="hidden" name="from_setup" value="1">
+                <input type="hidden" name="event" value="{{ event_id }}">
+                {% endif %}
+                
+                <div class="flex justify-between items-center">
+                    {% if from_event_setup and event_id %}
+                    <a href="{% url 'organizer_event_setup' event_id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition">
+                        <i class="bi bi-arrow-left mr-2"></i>
+                        Back to Event Setup
+                    </a>
+                    {% else %}
+                    <a href="{% url 'advanced:team_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition">
+                        <i class="bi bi-arrow-left mr-2"></i>
+                        Cancel
+                    </a>
+                    {% endif %}
+                    <button type="submit" class="inline-flex items-center px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                        <i class="bi bi-trash mr-2"></i>
+                        Remove Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

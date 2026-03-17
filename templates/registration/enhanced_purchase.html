@@ -90,16 +90,11 @@
                             {% endif %}
                         </p>
                         <div class="mt-4">
-                            <label class="text-sm text-gray-600">Quantity:</label>
-                            <input type="number" 
-                                   min="0" 
-                                   max="{{ ticket_type.available_quantity }}"
-                                   value="0"
-                                   data-ticket-id="{{ ticket_type.id }}"
-                                   data-ticket-name="{{ ticket_type.name }}"
-                                   data-ticket-price="{{ ticket_type.price }}"
-                                   class="ticket-quantity w-20 px-3 py-2 border border-gray-300 rounded-lg ml-2"
-                                   onchange="updateTicketSelection()">
+                            <button type="button" 
+                                    onclick="selectTicket('{{ ticket_type.id }}', '{{ ticket_type.name }}', '{{ ticket_type.price }}')"
+                                    class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+                                Select Ticket
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -254,33 +249,31 @@ fetch('/registration/api/user-info/')
         }
     });
 
-function updateTicketSelection() {
-    selectedTickets = [];
-    let total = 0;
-    let count = 0;
+function selectTicket(ticketId, ticketName, ticketPrice) {
+    // Clear any existing selection
+    selectedTickets = [{
+        ticket_type_id: ticketId,
+        ticket_name: ticketName,
+        price: parseFloat(ticketPrice)
+    }];
     
-    document.querySelectorAll('.ticket-quantity').forEach(input => {
-        const quantity = parseInt(input.value) || 0;
-        if (quantity > 0) {
-            const ticketId = input.dataset.ticketId;
-            const ticketName = input.dataset.ticketName;
-            const ticketPrice = parseFloat(input.dataset.ticketPrice);
-            
-            for (let i = 0; i < quantity; i++) {
-                selectedTickets.push({
-                    ticket_type_id: ticketId,
-                    ticket_name: ticketName,
-                    price: ticketPrice
-                });
-                total += ticketPrice;
-                count++;
-            }
+    // Update UI
+    document.getElementById('totalTickets').textContent = '1';
+    document.getElementById('totalAmount').textContent = parseFloat(ticketPrice).toFixed(2);
+    document.getElementById('step1NextBtn').disabled = false;
+    
+    // Update button states
+    document.querySelectorAll('button[onclick^="selectTicket"]').forEach(btn => {
+        if (btn.getAttribute('onclick').includes(ticketId)) {
+            btn.textContent = 'Selected';
+            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            btn.classList.add('bg-green-600', 'hover:bg-green-700');
+        } else {
+            btn.textContent = 'Select Ticket';
+            btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
         }
     });
-    
-    document.getElementById('totalTickets').textContent = count;
-    document.getElementById('totalAmount').textContent = total.toFixed(2);
-    document.getElementById('step1NextBtn').disabled = count === 0;
 }
 
 function goToStep1() {
@@ -342,85 +335,69 @@ function generateAttendeeForms() {
     const container = document.getElementById('attendeeFormsContainer');
     container.innerHTML = '';
     
-    selectedTickets.forEach((ticket, index) => {
-        const formHtml = `
-            <div class="border border-gray-200 rounded-lg p-6">
-                <h3 class="font-bold text-lg mb-4">Ticket ${index + 1}: ${ticket.ticket_name}</h3>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Full Name <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" 
-                               id="attendee_name_${index}"
-                               value="${index === 0 && userInfo ? userInfo.name : ''}"
-                               required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                               placeholder="John Doe">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Email <span class="text-red-500">*</span>
-                        </label>
-                        <input type="email" 
-                               id="attendee_email_${index}"
-                               value="${index === 0 && userInfo ? userInfo.email : ''}"
-                               required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                               placeholder="john@example.com">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Phone Number
-                        </label>
-                        <input type="tel" 
-                               id="attendee_phone_${index}"
-                               value="${index === 0 && userInfo ? userInfo.phone : ''}"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                               placeholder="+1 234 567 8900">
-                    </div>
+    // Always generate only one form since we removed quantity selection
+    const ticket = selectedTickets[0];
+    const index = 0;
+    
+    const formHtml = `
+        <div class="border border-gray-200 rounded-lg p-6">
+            <h3 class="font-bold text-lg mb-4">Attendee Information: ${ticket.ticket_name}</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Full Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="attendee_name_${index}"
+                           value="${userInfo ? userInfo.name : ''}"
+                           required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                           placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Email <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" 
+                           id="attendee_email_${index}"
+                           value="${userInfo ? userInfo.email : ''}"
+                           required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                           placeholder="john@example.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number
+                    </label>
+                    <input type="tel" 
+                           id="attendee_phone_${index}"
+                           value="${userInfo ? userInfo.phone : ''}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                           placeholder="+1 (555) 123-4567">
                 </div>
             </div>
-        `;
-        container.innerHTML += formHtml;
-    });
-}
-
-function toggleSameInfo() {
-    const useSame = document.getElementById('useSameInfo').checked;
+        </div>
+    `;
     
-    if (useSame && selectedTickets.length > 0) {
-        const name = document.getElementById('attendee_name_0').value;
-        const email = document.getElementById('attendee_email_0').value;
-        const phone = document.getElementById('attendee_phone_0').value;
-        
-        for (let i = 1; i < selectedTickets.length; i++) {
-            document.getElementById(`attendee_name_${i}`).value = name;
-            document.getElementById(`attendee_email_${i}`).value = email;
-            document.getElementById(`attendee_phone_${i}`).value = phone;
-        }
-    }
+    container.innerHTML = formHtml;
 }
 
 function validateAttendeeInfo() {
-    attendeeData = [];
+    // Since we only have one ticket now, validate just the first form
+    const name = document.getElementById('attendee_name_0').value.trim();
+    const email = document.getElementById('attendee_email_0').value.trim();
+    const phone = document.getElementById('attendee_phone_0').value.trim();
     
-    for (let i = 0; i < selectedTickets.length; i++) {
-        const name = document.getElementById(`attendee_name_${i}`).value.trim();
-        const email = document.getElementById(`attendee_email_${i}`).value.trim();
-        const phone = document.getElementById(`attendee_phone_${i}`).value.trim();
-        
-        if (!name || !email) {
-            return false;
-        }
-        
-        attendeeData.push({
-            ticket_type_id: selectedTickets[i].ticket_type_id,
-            attendee_name: name,
-            attendee_email: email,
-            attendee_phone: phone
-        });
+    if (!name || !email) {
+        return false;
     }
+    
+    // Store attendee data for submission
+    attendeeData = [{
+        name: name,
+        email: email,
+        phone: phone
+    }];
     
     return true;
 }
@@ -435,22 +412,21 @@ function generateCustomQuestions() {
     
     container.innerHTML = '';
     
-    selectedTickets.forEach((ticket, ticketIndex) => {
-        const sectionHtml = `
-            <div class="border border-gray-200 rounded-lg p-6">
-                <h3 class="font-bold text-lg mb-4">Ticket ${ticketIndex + 1}: ${ticket.ticket_name}</h3>
-                <div class="space-y-4" id="questions_ticket_${ticketIndex}">
-                    <!-- Questions will be added here -->
-                </div>
+    // Since we only have one ticket now, generate questions for just that ticket
+    const sectionHtml = `
+        <div class="border border-gray-200 rounded-lg p-6">
+            <h3 class="font-bold text-lg mb-4">Additional Information</h3>
+            <div class="space-y-4" id="questions_ticket_0">
+                <!-- Questions will be added here -->
             </div>
-        `;
-        container.innerHTML += sectionHtml;
-        
-        // Add questions for this ticket
-        questions.forEach(question => {
-            const questionHtml = generateQuestionField(question, ticketIndex);
-            document.getElementById(`questions_ticket_${ticketIndex}`).innerHTML += questionHtml;
-        });
+        </div>
+    `;
+    container.innerHTML = sectionHtml;
+    
+    // Add questions for the single ticket
+    questions.forEach(question => {
+        const questionHtml = generateQuestionField(question, 0);
+        document.getElementById(`questions_ticket_0`).innerHTML += questionHtml;
     });
 }
 
@@ -582,14 +558,17 @@ function submitPurchase() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
     
-    // Prepare tickets data
-    const tickets = attendeeData.map((attendee, index) => ({
-        ...attendee,
-        custom_answers: customAnswers[index] || {}
-    }));
+    // Prepare ticket data - since we only have one ticket now
+    const ticket = {
+        ticket_type_id: selectedTickets[0].ticket_type_id,
+        attendee_name: document.getElementById('attendee_name_0').value.trim(),
+        attendee_email: document.getElementById('attendee_email_0').value.trim(),
+        attendee_phone: document.getElementById('attendee_phone_0').value.trim(),
+        custom_answers: customAnswers[0] || {}
+    };
     
     const data = {
-        tickets: tickets,
+        tickets: [ticket],
         promo_code: appliedPromo ? document.getElementById('promoCode').value.trim() : ''
     };
     

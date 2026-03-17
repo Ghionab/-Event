@@ -1,0 +1,18 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{% if session %}Edit Session{% else %}Add Session{% endif %} - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>{% if session %}Edit Session{% else %}Add Session{% endif %} for {{ event.title }}</h1>
+    <a href="{% url 'session_list' event.id %}" class="btn">Back to Sessions</a>
+</div>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Save Session</button>
+    </form>
+</div>
+{% endblock %}

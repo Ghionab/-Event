@@ -1,0 +1,26 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Create Promo Code - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Create Promo Code</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Create a promotional code for {{ event.title }}</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Create Promo Code</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

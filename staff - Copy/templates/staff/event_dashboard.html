@@ -1,0 +1,611 @@
+{% extends 'staff/base.html' %}
+{% load static %}
+
+{% block title %}{{ event.title }} - Gate Staff Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    #qr-reader {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+    
+    #qr-reader__dashboard_section_csr {
+        display: none !important;
+    }
+    
+    .scanner-status {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        border-radius: 1rem;
+        border: 2px dashed var(--success-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .scanner-status.inactive {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border-color: #d1d5db;
+    }
+    
+    .recent-checkins {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .checkin-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        border-left: 3px solid var(--success-color);
+    }
+    
+    .checkin-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--success-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- Navigation -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <a href="{% url 'staff:event_list' %}" class="btn btn-outline-secondary btn-modern">
+        <i class="bi bi-arrow-left me-2"></i>Back to Events
+    </a>
+    <button class="btn btn-outline-primary btn-modern" onclick="refreshPage()">
+        <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+    </button>
+</div>
+
+<!-- Event Header -->
+<div class="modern-card">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+            <i class="bi bi-calendar-event text-primary fs-3"></i>
+        </div>
+        <div>
+            <h2 class="mb-1">{{ event.title }}</h2>
+            <div class="text-muted">
+                <i class="bi bi-calendar3 me-2"></i>{{ event.start_date|date:"F d, Y" }}
+                {% if event.venue_name %}
+                <span class="mx-2">•</span>
+                <i class="bi bi-geo-alt me-2"></i>{{ event.venue_name }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Live Stats -->
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon text-info">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stats-number text-info" id="total-registered">{{ total_registered }}</div>
+                <div class="stats-label">Total Registered</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon text-success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stats-number text-success" id="total-checked-in">{{ total_checked_in }}</div>
+                <div class="stats-label">Checked In</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon text-primary">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <div class="stats-number text-primary" id="check-in-rate">{{ check_in_rate|floatformat:0 }}%</div>
+                <div class="stats-label">Check-in Rate</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Scanner Section -->
+<div class="scanner-container">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0">
+            <i class="bi bi-qr-code me-2"></i>QR Code Scanner
+        </h4>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success" id="scanner-status">Ready</span>
+        </div>
+    </div>
+    
+    <div class="scanner-status inactive" id="scanner-display">
+        <div class="mb-3">
+            <i class="bi bi-camera text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h5 class="text-muted mb-2">Camera Scanner Ready</h5>
+        <p class="text-muted mb-3">Tap the button below to start scanning QR codes</p>
+        <button id="start-scan-btn" class="btn btn-scan" onclick="startScanner()">
+            <i class="bi bi-camera me-2"></i>Start Scanning
+        </button>
+    </div>
+    
+    <div id="qr-reader" style="display: none;"></div>
+    
+    <button id="stop-scan-btn" class="btn btn-danger btn-modern" style="display: none; width: 100%;" onclick="stopScanner()">
+        <i class="bi bi-stop-circle me-2"></i>Stop Scanner
+    </button>
+</div>
+
+<!-- Search and Filters -->
+<div class="search-container">
+    <form method="get" action="" class="row g-3 align-items-end">
+        <div class="col-md-8">
+            <label for="search" class="form-label fw-semibold">
+                <i class="bi bi-search me-2"></i>Search Attendees
+            </label>
+            <input type="text" 
+                   class="form-control search-input" 
+                   id="search"
+                   name="search" 
+                   placeholder="Search by name, email, or registration number..." 
+                   value="{{ search_query }}">
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-modern flex-grow-1" type="submit">
+                    <i class="bi bi-search me-2"></i>Search
+                </button>
+                {% if search_query %}
+                <a href="{% url 'staff:event_dashboard' event.id %}" class="btn btn-outline-secondary btn-modern">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Attendee List -->
+<div class="modern-card">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h4 class="mb-0">
+            <i class="bi bi-people me-2"></i>Attendee List
+        </h4>
+        <div class="d-flex align-items-center gap-3">
+            {% if search_query %}
+            <small class="text-muted">
+                Showing results for "{{ search_query }}"
+            </small>
+            {% endif %}
+            <span class="badge bg-secondary fs-6">{{ registrations.count }} Found</span>
+        </div>
+    </div>
+
+    {% if registrations %}
+        <div class="row g-3">
+            {% for registration in registrations %}
+            <div class="col-12">
+                <div class="attendee-card {% if registration.status == 'checked_in' %}checked-in{% endif %}" 
+                     id="registration-{{ registration.id }}">
+                    <div class="row align-items-center g-3">
+                        <!-- Attendee Info -->
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="flex-shrink-0">
+                                    <div class="checkin-avatar">
+                                        {{ registration.attendee_name|first|upper }}
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="attendee-name mb-1">{{ registration.attendee_name }}</h5>
+                                    <div class="attendee-details">
+                                        <i class="bi bi-envelope"></i>
+                                        {{ registration.attendee_email }}
+                                    </div>
+                                    <div class="attendee-details">
+                                        <i class="bi bi-ticket"></i>
+                                        {{ registration.ticket_type.name|default:"General" }}
+                                        <span class="mx-2">•</span>
+                                        <i class="bi bi-hash"></i>
+                                        {{ registration.registration_number }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div class="col-lg-3">
+                            {% if registration.status == 'checked_in' %}
+                                <div class="status-badge status-checked-in mb-2">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Checked In
+                                </div>
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ registration.checked_in_at|date:"M d, H:i" }}
+                                </small>
+                            {% else %}
+                                <div class="status-badge status-confirmed">
+                                    <i class="bi bi-clock"></i>
+                                    Confirmed
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Action -->
+                        <div class="col-lg-3 text-end">
+                            {% if registration.status == 'confirmed' %}
+                            <button class="btn btn-checkin btn-modern w-100" 
+                                    onclick="manualCheckin({{ registration.id }}, '{{ registration.attendee_name|escapejs }}')">
+                                <i class="bi bi-check-circle me-2"></i>Check In
+                            </button>
+                            {% else %}
+                            <button class="btn btn-checkin btn-modern w-100" disabled>
+                                <i class="bi bi-check-circle-fill me-2"></i>Checked In
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                {% if search_query %}
+                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                {% else %}
+                <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                {% endif %}
+            </div>
+            <h5 class="text-muted mb-3">
+                {% if search_query %}
+                    No attendees found
+                {% else %}
+                    No registered attendees
+                {% endif %}
+            </h5>
+            <p class="text-muted mb-4">
+                {% if search_query %}
+                    No attendees match your search criteria "{{ search_query }}".
+                {% else %}
+                    No attendees have registered for this event yet.
+                {% endif %}
+            </p>
+            {% if search_query %}
+            <a href="{% url 'staff:event_dashboard' event.id %}" class="btn btn-outline-primary btn-modern">
+                <i class="bi bi-arrow-left me-2"></i>Show All Attendees
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- html5-qrcode library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script>
+let html5QrCode = null;
+let isScanning = false;
+
+// Get CSRF token from Django
+const csrftoken = '{{ csrf_token }}';
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function getCSRFToken() {
+    if (csrftoken && csrftoken !== 'NOTPROVIDED') {
+        return csrftoken;
+    }
+    return getCookie('csrftoken');
+}
+
+function startScanner() {
+    if (isScanning) return;
+    
+    const scannerDisplay = document.getElementById('scanner-display');
+    const qrReader = document.getElementById('qr-reader');
+    const stopBtn = document.getElementById('stop-scan-btn');
+    const statusBadge = document.getElementById('scanner-status');
+    
+    scannerDisplay.style.display = 'none';
+    qrReader.style.display = 'block';
+    stopBtn.style.display = 'block';
+    statusBadge.textContent = 'Scanning';
+    statusBadge.className = 'badge bg-warning';
+    
+    html5QrCode = new Html5Qrcode("qr-reader");
+    
+    const config = { 
+        fps: 10, 
+        qrbox: { width: 280, height: 280 },
+        aspectRatio: 1.0
+    };
+    
+    html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onScanSuccess,
+        onScanError
+    ).then(() => {
+        isScanning = true;
+        statusBadge.textContent = 'Active';
+        statusBadge.className = 'badge bg-success';
+    }).catch(err => {
+        console.error('Error starting scanner:', err);
+        showAlert('danger', 'Failed to start camera. Please check permissions.');
+        stopScanner();
+    });
+}
+
+function stopScanner() {
+    const scannerDisplay = document.getElementById('scanner-display');
+    const qrReader = document.getElementById('qr-reader');
+    const stopBtn = document.getElementById('stop-scan-btn');
+    const statusBadge = document.getElementById('scanner-status');
+    
+    const resetUI = () => {
+        scannerDisplay.style.display = 'block';
+        qrReader.style.display = 'none';
+        stopBtn.style.display = 'none';
+        statusBadge.textContent = 'Ready';
+        statusBadge.className = 'badge bg-success';
+    };
+    
+    if (!html5QrCode || !isScanning) {
+        resetUI();
+        return;
+    }
+    
+    html5QrCode.stop().then(() => {
+        isScanning = false;
+        resetUI();
+    }).catch(err => {
+        console.error('Error stopping scanner:', err);
+        isScanning = false;
+        resetUI();
+    });
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+    console.log('QR Code detected:', decodedText);
+    
+    if (html5QrCode && isScanning) {
+        html5QrCode.pause();
+    }
+    
+    processQRCheckin(decodedText);
+}
+
+function onScanError(errorMessage) {
+    // Ignore scan errors (they happen frequently)
+}
+
+function processQRCheckin(qrCode) {
+    fetch(`/staff/events/{{ event.id }}/qr-checkin/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: `qr_code=${encodeURIComponent(qrCode)}`,
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // VALID TICKET - Play success sound
+            if (window.audioFeedback) {
+                window.audioFeedback.valid();
+            }
+            
+            showAlert('success', `✅ VALID - ${result.registration.attendee_name}`, 2000);
+            updateRegistrationUI(result.registration.id, true);
+            refreshStats();
+        } else {
+            // INVALID TICKET - Play error sound
+            if (window.audioFeedback) {
+                window.audioFeedback.invalid();
+            }
+            
+            showAlert('danger', `❌ INVALID - ${result.message}`, 3000);
+        }
+        
+        // Resume scanner after shorter delay
+        setTimeout(() => {
+            if (html5QrCode && isScanning) {
+                html5QrCode.resume();
+            }
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Check-in error:', error);
+        
+        // INVALID - System error
+        if (window.audioFeedback) {
+            window.audioFeedback.invalid();
+        }
+        
+        showAlert('danger', '❌ INVALID - System Error', 3000);
+        setTimeout(() => {
+            if (html5QrCode && isScanning) {
+                html5QrCode.resume();
+            }
+        }, 1000);
+    });
+}
+
+function manualCheckin(registrationId, attendeeName) {
+    if (!confirm(`Check in ${attendeeName}?`)) {
+        return;
+    }
+    
+    const button = document.querySelector(`#registration-${registrationId} .btn-checkin`);
+    if (button) {
+        button.innerHTML = '<div class="spinner"></div> Checking In...';
+        button.disabled = true;
+    }
+    
+    fetch(`/staff/checkin/${registrationId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // VALID - Play success sound
+            if (window.audioFeedback) {
+                window.audioFeedback.valid();
+            }
+            
+            showAlert('success', `✅ VALID - ${data.attendee_name} checked in`, 2000);
+            updateRegistrationUI(registrationId, true);
+            refreshStats();
+        } else {
+            // INVALID - Play error sound
+            if (window.audioFeedback) {
+                window.audioFeedback.invalid();
+            }
+            
+            showAlert('danger', `❌ INVALID - ${data.message}`, 3000);
+            if (button) {
+                button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Check In';
+                button.disabled = false;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Check-in error:', error);
+        
+        // INVALID - System error
+        if (window.audioFeedback) {
+            window.audioFeedback.invalid();
+        }
+        
+        showAlert('danger', '❌ INVALID - System Error', 3000);
+        if (button) {
+            button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Check In';
+            button.disabled = false;
+        }
+    });
+}
+
+function updateRegistrationUI(registrationId, checkedIn) {
+    const card = document.getElementById(`registration-${registrationId}`);
+    if (card) {
+        if (checkedIn) {
+            card.classList.add('checked-in');
+            const statusBadge = card.querySelector('.status-badge');
+            if (statusBadge) {
+                statusBadge.className = 'status-badge status-checked-in mb-2';
+                statusBadge.innerHTML = '<i class="bi bi-check-circle-fill"></i> Checked In';
+            }
+            const button = card.querySelector('.btn-checkin');
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Checked In';
+            }
+        }
+    }
+}
+
+function refreshStats() {
+    fetch(`/staff/events/{{ event.id }}/stats/`, {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('total-registered').textContent = data.total_registered;
+        document.getElementById('total-checked-in').textContent = data.total_checked_in;
+        document.getElementById('check-in-rate').textContent = Math.round(data.check_in_rate) + '%';
+    })
+    .catch(error => {
+        console.error('Error refreshing stats:', error);
+    });
+}
+
+function showAlert(type, message, autoHideMs = 5000) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-floating alert-dismissible fade show`;
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto-hide after specified time
+    const hideTimeout = setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.classList.remove('show');
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 150); // Wait for fade out animation
+        }
+    }, autoHideMs);
+    
+    // Clear timeout if manually closed
+    alertDiv.addEventListener('closed.bs.alert', () => {
+        clearTimeout(hideTimeout);
+    });
+}
+
+function refreshPage() {
+    location.reload();
+}
+
+// Auto-refresh stats every 30 seconds
+setInterval(refreshStats, 30000);
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (html5QrCode && isScanning) {
+        html5QrCode.stop();
+    }
+});
+</script>
+{% endblock %}

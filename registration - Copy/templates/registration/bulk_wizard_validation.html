@@ -1,0 +1,402 @@
+{% extends 'organizers/base.html' %}
+{% load registration_filters %}
+
+{% block title %}Enterprise Bulk Registration - Step 3: Validate Data{% endblock %}
+
+{% block header %}
+<div class="flex items-center justify-between">
+    <div class="flex items-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mr-4 shadow-xl">
+            <i class="bi bi-shield-check text-white text-4xl"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Data Validation</h1>
+            <p class="text-sm text-gray-600 mt-1">Review and validate your data before import</p>
+        </div>
+    </div>
+    <a href="{% url 'registration:bulk_wizard_mapping' event.id bulk_upload.id %}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition flex items-center">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Mapping
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Progress Indicator -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Upload File</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center">
+                    <i class="bi bi-check font-bold"></i>
+                </div>
+                <span class="ml-3 text-sm font-medium text-green-600">Map Columns</span>
+            </div>
+            <div class="w-16 h-1 bg-green-600 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                <span class="ml-3 text-sm font-medium text-indigo-600">Validate Data</span>
+            </div>
+            <div class="w-16 h-1 bg-gray-200 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center font-bold">4</div>
+                <span class="ml-3 text-sm font-medium text-gray-500">Configure</span>
+            </div>
+            <div class="w-16 h-1 bg-gray-200 rounded"></div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center font-bold">5</div>
+                <span class="ml-3 text-sm font-medium text-gray-500">Import</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Validation Summary -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <i class="bi bi-check-circle-fill text-green-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-green-600">{{ validation_summary.valid|default:0 }}</p>
+                <p class="text-sm text-gray-600">Valid Rows</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                <i class="bi bi-exclamation-triangle-fill text-yellow-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-yellow-600">{{ validation_summary.warning|default:0 }}</p>
+                <p class="text-sm text-gray-600">Warnings</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                <i class="bi bi-x-circle-fill text-red-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-red-600">{{ validation_summary.error|default:0 }}</p>
+                <p class="text-sm text-gray-600">Errors</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <i class="bi bi-list-ol text-blue-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-blue-600">{{ bulk_upload.total_rows }}</p>
+                <p class="text-sm text-gray-600">Total Rows</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Main Validation Results -->
+    <div class="lg:col-span-3">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="bi bi-shield-check mr-3"></i>Step 3: Validation Results
+                        </h3>
+                        <p class="text-blue-50 text-sm mt-2">Review data quality and fix any issues before proceeding</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="{% url 'registration:bulk_error_report' event.id bulk_upload.id %}" 
+                           class="px-4 py-2 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition flex items-center text-sm">
+                            <i class="bi bi-download mr-2"></i>Download Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <!-- Filter Controls -->
+                <div class="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
+                            {{ filter_form.status_filter }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                            {{ filter_form.search }}
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} rows
+                    </div>
+                </div>
+
+                <!-- Validation Results Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full" id="validationTable">
+                        <thead class="bg-gray-50 border-b-2 border-gray-200">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Row</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Name</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Email</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Phone</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Issues</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for row in page_obj %}
+                                <tr class="hover:bg-gray-50 transition-colors
+                                    {% if row.validation_status == 'error' %}bg-red-50
+                                    {% elif row.validation_status == 'warning' %}bg-yellow-50
+                                    {% elif row.validation_status == 'valid' %}bg-green-50{% endif %}" 
+                                    data-status="{{ row.validation_status }}">
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-medium text-gray-900">{{ row.row_number }}</span>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold
+                                            {% if row.validation_status == 'valid' %}bg-green-100 text-green-800
+                                            {% elif row.validation_status == 'warning' %}bg-yellow-100 text-yellow-800
+                                            {% elif row.validation_status == 'error' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            <i class="{{ row.get_validation_icon }} mr-1"></i>
+                                            {{ row.get_validation_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ row.mapped_data|dict_lookup:"attendee_name"|truncatechars:30 }}</div>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="text-sm text-gray-900">{{ row.mapped_data|dict_lookup:"attendee_email"|truncatechars:30 }}</div>
+                                        {% if row.is_duplicate %}
+                                            <div class="text-xs text-orange-600 font-medium">
+                                                <i class="bi bi-exclamation-triangle mr-1"></i>Duplicate
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="text-sm text-gray-900">{{ row.mapped_data|dict_lookup:"attendee_phone"|truncatechars:20|default:"-" }}</div>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        {% if row.validation_errors %}
+                                            <div class="space-y-1">
+                                                {% for error in row.validation_errors %}
+                                                    <div class="text-xs text-red-600 flex items-center">
+                                                        <i class="bi bi-x-circle mr-1"></i>{{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        {% if row.validation_warnings %}
+                                            <div class="space-y-1">
+                                                {% for warning in row.validation_warnings %}
+                                                    <div class="text-xs text-yellow-600 flex items-center">
+                                                        <i class="bi bi-exclamation-triangle mr-1"></i>{{ warning }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        {% if not row.validation_errors and not row.validation_warnings %}
+                                            <span class="text-xs text-green-600 flex items-center">
+                                                <i class="bi bi-check-circle mr-1"></i>No issues
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                        <i class="bi bi-inbox text-4xl mb-2"></i>
+                                        <p>No rows match your filter criteria.</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                    <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                        <div class="text-sm text-gray-700">
+                            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            {% if page_obj.has_previous %}
+                                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.status_filter %}&status_filter={{ request.GET.status_filter }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                   class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            {% endif %}
+                            
+                            <span class="px-3 py-2 bg-indigo-600 text-white rounded-lg">
+                                {{ page_obj.number }}
+                            </span>
+                            
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.status_filter %}&status_filter={{ request.GET.status_filter }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                                   class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <form method="post" class="mt-8 pt-6 border-t border-gray-200">
+                    {% csrf_token %}
+                    <div class="flex gap-4">
+                        {% if validation_summary.valid > 0 or validation_summary.warning > 0 %}
+                            <button type="submit" name="action" value="proceed" 
+                                    class="flex-1 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1 flex items-center justify-center text-lg">
+                                <i class="bi bi-check-circle mr-3"></i>
+                                Proceed with {{ validation_summary.valid|add:validation_summary.warning }} Valid Rows
+                            </button>
+                        {% endif %}
+                        <button type="submit" name="action" value="back_to_mapping" 
+                                class="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 font-semibold flex items-center justify-center">
+                            <i class="bi bi-arrow-left mr-2"></i>Fix Mapping
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Validation Summary -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-clipboard-data mr-2"></i>Summary
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Total Rows:</span>
+                        <span class="font-bold text-gray-900">{{ bulk_upload.total_rows }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-green-600">Valid:</span>
+                        <span class="font-bold text-green-600">{{ validation_summary.valid|default:0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-yellow-600">Warnings:</span>
+                        <span class="font-bold text-yellow-600">{{ validation_summary.warning|default:0 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-red-600">Errors:</span>
+                        <span class="font-bold text-red-600">{{ validation_summary.error|default:0 }}</span>
+                    </div>
+                    <hr class="border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Ready to Import:</span>
+                        <span class="font-bold text-indigo-600">{{ validation_summary.valid|add:validation_summary.warning|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Common Issues -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-5">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="bi bi-exclamation-triangle mr-2"></i>Common Issues
+                </h3>
+            </div>
+            <div class="p-6">
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-start">
+                        <i class="bi bi-x-circle text-red-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Missing required fields:</strong> Name or email is empty</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="bi bi-exclamation-triangle text-yellow-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Invalid email format:</strong> Email address is not valid</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="bi bi-exclamation-triangle text-yellow-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Duplicate emails:</strong> Email already registered</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="bi bi-info-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>Phone format:</strong> Phone number may be invalid</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-200 p-6 shadow-md">
+            <h4 class="text-base font-bold text-indigo-900 mb-4 flex items-center">
+                <i class="bi bi-lightbulb-fill text-indigo-600 mr-2 text-lg"></i>Next Steps
+            </h4>
+            <ul class="space-y-3 text-sm text-indigo-900">
+                <li class="flex items-start">
+                    <i class="bi bi-1-circle text-indigo-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Review validation results above</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-2-circle text-indigo-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Fix any critical errors by updating your file</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-3-circle text-indigo-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Proceed to configure import options</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="bi bi-4-circle text-indigo-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <span>Execute the final import</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterRows(status) {
+    const rows = document.querySelectorAll('#validationTable tbody tr[data-status]');
+    rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function searchRows(query) {
+    const rows = document.querySelectorAll('#validationTable tbody tr[data-status]');
+    const searchTerm = query.toLowerCase();
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

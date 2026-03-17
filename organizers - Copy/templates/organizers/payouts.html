@@ -1,0 +1,66 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Payouts - Event Organizer{% endblock %}
+
+{% block header %}Payouts{% endblock %}
+
+{% block subtitle %}Manage your earnings{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h2 class="text-lg font-semibold text-gray-700">{{ payouts|length }} payouts</h2>
+    </div>
+    <button class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+        <i class="bi bi-currency-dollar mr-2"></i>Request Payout
+    </button>
+</div>
+
+<!-- Payouts Table -->
+<div class="card">
+    <div class="overflow-x-auto">
+        {% if payouts %}
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Currency</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Requested</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Processed</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for payout in payouts %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 font-bold text-gray-800">${{ payout.amount }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ payout.currency }}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if payout.status == 'completed' %}bg-green-100 text-green-700
+                            {% elif payout.status == 'pending' %}bg-yellow-100 text-yellow-700
+                            {% elif payout.status == 'failed' %}bg-red-100 text-red-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ payout.status|title }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">{{ payout.requested_at|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ payout.processed_at|date:"M d, Y"|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-12 text-center">
+            <i class="bi bi-currency-dollar text-gray-300 text-5xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Payouts Yet</h3>
+            <p class="text-gray-500 mb-6">Your earnings will appear here once you request a payout.</p>
+            <button class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                <i class="bi bi-currency-dollar mr-2"></i>Request Your First Payout
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}{{ title }} - Event Organizer{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block subtitle %}{% if sponsor %}Edit sponsor details{% else %}Add a new sponsor{% endif %}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'organizers:organizer_sponsor_list' %}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 transition">
+        <i class="bi bi-arrow-left mr-2"></i>Back to Sponsors
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Form -->
+    <div class="lg:col-span-2">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-building mr-2 text-indigo-600"></i>{{ title }}</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label for="{{ form.event.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Event <span class="text-red-500">*</span></label>
+                        {{ form.event }}
+                        {% if form.event.errors %}<p class="text-red-500 text-sm mt-1">{{ form.event.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.company_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Company Name <span class="text-red-500">*</span></label>
+                            {{ form.company_name }}
+                            {% if form.company_name.errors %}<p class="text-red-500 text-sm mt-1">{{ form.company_name.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.tier.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Tier <span class="text-red-500">*</span></label>
+                            {{ form.tier }}
+                            {% if form.tier.errors %}<p class="text-red-500 text-sm mt-1">{{ form.tier.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="{{ form.logo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Logo</label>
+                        {{ form.logo }}
+                        {% if form.logo.errors %}<p class="text-red-500 text-sm mt-1">{{ form.logo.errors.0 }}</p>{% endif %}
+                        <p class="text-xs text-gray-500 mt-1">Recommended size: 400x400px, PNG or JPG</p>
+                    </div>
+
+                    <div>
+                        <label for="{{ form.website.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                        {{ form.website }}
+                        {% if form.website.errors %}<p class="text-red-500 text-sm mt-1">{{ form.website.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<p class="text-red-500 text-sm mt-1">{{ form.description.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="{{ form.contact_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+                            {{ form.contact_name }}
+                        </div>
+                        <div>
+                            <label for="{{ form.contact_email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
+                            {{ form.contact_email }}
+                        </div>
+                        <div>
+                            <label for="{{ form.contact_phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
+                            {{ form.contact_phone }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.booth_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Booth Number</label>
+                            {{ form.booth_number }}
+                        </div>
+                        <div>
+                            <label for="{{ form.display_order.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
+                            {{ form.display_order }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="{{ form.booth_description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Booth Description</label>
+                        {{ form.booth_description }}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.promotional_url.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Promotional URL</label>
+                            {{ form.promotional_url }}
+                        </div>
+                        <div>
+                            <label for="{{ form.promotional_video.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Promotional Video</label>
+                            {{ form.promotional_video }}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            {{ form.is_featured }}
+                            <label for="{{ form.is_featured.id_for_label }}" class="text-sm text-gray-700">Featured Sponsor</label>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
+                        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                            <i class="bi bi-check-lg mr-2"></i>{{ action }}
+                        </button>
+                        <a href="{% url 'organizers:organizer_sponsor_list' %}" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        {% if sponsor %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Current Logo</h3>
+            </div>
+            <div class="card-body text-center">
+                {% if sponsor.logo %}
+                <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.company_name }}" class="max-w-full max-h-48 mx-auto rounded-lg bg-gray-50 p-2">
+                {% else %}
+                <div class="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center mx-auto">
+                    <i class="bi bi-building text-gray-400 text-4xl"></i>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">No logo uploaded</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-lightbulb mr-2 text-yellow-500"></i>Tips</h3>
+            </div>
+            <div class="card-body">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-start gap-2">
+                        <i class="bi bi-check-circle text-green-500 mt-1"></i>
+                        <span>Use a high-quality transparent PNG logo</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="bi bi-check-circle text-green-500 mt-1"></i>
+                        <span>Set display order to control appearance on event page</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="bi bi-check-circle text-green-500 mt-1"></i>
+                        <span>Featured sponsors appear prominently on event pages</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

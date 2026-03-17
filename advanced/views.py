@@ -26,7 +26,6 @@ import string
 # ============ Vendor Views ============
 
 @login_required
-@permission_required('advanced.view_vendor', raise_exception=True)
 def vendor_list(request):
     vendors = Vendor.objects.filter(is_blacklisted=False)
     
@@ -48,7 +47,6 @@ def vendor_list(request):
 
 
 @login_required
-@permission_required('advanced.add_vendor', raise_exception=True)
 def vendor_create(request):
     if request.method == 'POST':
         form = VendorForm(request.POST)
@@ -63,7 +61,6 @@ def vendor_create(request):
 
 
 @login_required
-@permission_required('advanced.view_vendor', raise_exception=True)
 def vendor_detail(request, pk):
     vendor = get_object_or_404(Vendor, pk=pk)
     contacts = vendor.contacts.order_by('-contact_date')[:10]
@@ -77,7 +74,6 @@ def vendor_detail(request, pk):
 
 
 @login_required
-@permission_required('advanced.change_vendor', raise_exception=True)
 def vendor_update(request, pk):
     vendor = get_object_or_404(Vendor, pk=pk)
     
@@ -94,7 +90,6 @@ def vendor_update(request, pk):
 
 
 @login_required
-@permission_required('advanced.delete_vendor', raise_exception=True)
 def vendor_delete(request, pk):
     vendor = get_object_or_404(Vendor, pk=pk)
     
@@ -107,7 +102,6 @@ def vendor_delete(request, pk):
 
 
 @login_required
-@permission_required('advanced.view_vendorcontact', raise_exception=True)
 def vendor_contacts(request, pk):
     vendor = get_object_or_404(Vendor, pk=pk)
     
@@ -132,7 +126,6 @@ def vendor_contacts(request, pk):
 
 
 @login_required
-@permission_required('advanced.view_contract', raise_exception=True)
 def vendor_contracts(request, pk):
     vendor = get_object_or_404(Vendor, pk=pk)
     contracts = vendor.contracts.order_by('-created_at')
@@ -142,7 +135,6 @@ def vendor_contracts(request, pk):
 # ============ Contract Views ============
 
 @login_required
-@permission_required('advanced.view_contract', raise_exception=True)
 def contract_list(request):
     contracts = Contract.objects.all()
     
@@ -162,7 +154,6 @@ def contract_list(request):
 
 
 @login_required
-@permission_required('advanced.add_contract', raise_exception=True)
 def contract_create(request):
     if request.method == 'POST':
         form = ContractForm(request.POST, request.FILES)
@@ -177,7 +168,6 @@ def contract_create(request):
 
 
 @login_required
-@permission_required('advanced.view_contract', raise_exception=True)
 def contract_detail(request, pk):
     contract = get_object_or_404(Contract, pk=pk)
     payments = contract.payments.order_by('due_date')
@@ -189,7 +179,6 @@ def contract_detail(request, pk):
 
 
 @login_required
-@permission_required('advanced.change_contract', raise_exception=True)
 def contract_update(request, pk):
     contract = get_object_or_404(Contract, pk=pk)
     
@@ -206,7 +195,6 @@ def contract_update(request, pk):
 
 
 @login_required
-@permission_required('advanced.delete_contract', raise_exception=True)
 def contract_delete(request, pk):
     contract = get_object_or_404(Contract, pk=pk)
     
@@ -219,7 +207,6 @@ def contract_delete(request, pk):
 
 
 @login_required
-@permission_required('advanced.view_vendorpayment', raise_exception=True)
 def contract_payments(request, pk):
     contract = get_object_or_404(Contract, pk=pk)
     
@@ -246,7 +233,6 @@ def contract_payments(request, pk):
 # ============ Team Views ============
 
 @login_required
-@permission_required('advanced.view_teammember', raise_exception=True)
 def team_list(request):
     team_members = TeamMember.objects.filter(is_active=True)
     
@@ -266,7 +252,6 @@ def team_list(request):
 
 
 @login_required
-@permission_required('advanced.add_teammember', raise_exception=True)
 def team_member_create(request):
     # Get event from query parameter
     event_id = request.GET.get('event')
@@ -314,7 +299,6 @@ def team_member_create(request):
 
 
 @login_required
-@permission_required('advanced.change_teammember', raise_exception=True)
 def team_member_update(request, pk):
     member = get_object_or_404(TeamMember, pk=pk)
     
@@ -345,7 +329,6 @@ def team_member_update(request, pk):
 
 
 @login_required
-@permission_required('advanced.delete_teammember', raise_exception=True)
 def team_member_delete(request, pk):
     member = get_object_or_404(TeamMember, pk=pk)
     
@@ -372,7 +355,6 @@ def team_member_delete(request, pk):
 # ============ Task Views ============
 
 @login_required
-@permission_required('advanced.view_task', raise_exception=True)
 def task_list(request):
     # Get user's events (organizer only sees their events)
     if request.user.is_staff:
@@ -439,7 +421,6 @@ def task_list(request):
 
 
 @login_required
-@permission_required('advanced.add_task', raise_exception=True)
 def task_create(request):
     # Get event from query parameter
     event_id = request.GET.get('event')
@@ -468,7 +449,6 @@ def task_create(request):
 
 
 @login_required
-@permission_required('advanced.view_task', raise_exception=True)
 def task_detail(request, pk):
     task = get_object_or_404(Task, pk=pk)
     comments = task.comments.order_by('created_at')
@@ -493,7 +473,6 @@ def task_detail(request, pk):
 
 
 @login_required
-@permission_required('advanced.change_task', raise_exception=True)
 def task_update(request, pk):
     task = get_object_or_404(Task, pk=pk)
     
@@ -510,7 +489,6 @@ def task_update(request, pk):
 
 
 @login_required
-@permission_required('advanced.delete_task', raise_exception=True)
 def task_delete(request, pk):
     task = get_object_or_404(Task, pk=pk)
     
@@ -539,7 +517,6 @@ def task_add_comment(request, pk):
 
 
 @login_required
-@permission_required('advanced.view_task', raise_exception=True)
 def task_export(request):
     """Export tasks to CSV"""
     import csv
@@ -597,7 +574,6 @@ def task_export(request):
 
 
 @login_required
-@permission_required('advanced.change_task', raise_exception=True)
 def task_bulk_update(request):
     """Bulk update task status or priority"""
     if request.method == 'POST':
@@ -645,7 +621,6 @@ def task_bulk_update(request):
 # ============ Audit Views ============
 
 @login_required
-@permission_required('advanced.view_auditlog', raise_exception=True)
 def audit_log(request):
     logs = AuditLog.objects.all()
     
@@ -679,7 +654,6 @@ def audit_log(request):
 # ============ Security Views ============
 
 @login_required
-@permission_required('advanced.view_securityevent', raise_exception=True)
 def security_events(request):
     events = SecurityEvent.objects.all()
     
@@ -702,7 +676,6 @@ def security_events(request):
 
 
 @login_required
-@permission_required('advanced.change_securityevent', raise_exception=True)
 def security_event_resolve(request, pk):
     event = get_object_or_404(SecurityEvent, pk=pk)
     

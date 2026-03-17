@@ -41,18 +41,33 @@ class OrganizerProfile(models.Model):
 
 
 class OrganizerTeamMember(models.Model):
-    """Team members for organizer accounts"""
+    """Team members for organizer accounts with multi-event support"""
     organizer = models.ForeignKey(OrganizerProfile, on_delete=models.CASCADE, related_name='team_members')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='team_memberships')
     role = models.CharField(max_length=100)
     permissions = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
     
+    # Multi-event assignment
+    events = models.ManyToManyField(Event, related_name='organizer_team_members', blank=True)
+    
     invited_at = models.DateTimeField(auto_now_add=True)
     accepted_at = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"{self.user.email} - {self.role}"
+    
+    def get_assigned_events(self):
+        """Return all events this team member is assigned to"""
+        return self.events.all()
+    
+    def assign_to_event(self, event):
+        """Assign team member to an event"""
+        self.events.add(event)
+    
+    def remove_from_event(self, event):
+        """Remove team member from an event"""
+        self.events.remove(event)
 
 
 class EventAnalytics(models.Model):

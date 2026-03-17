@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Sum, Count, Q
 from django.db.models.functions import TruncDate
+from django.db import transaction
 from django.core.paginator import Paginator
 from django.urls import reverse
 from decimal import Decimal
@@ -13,7 +14,7 @@ from .models import (
     OrganizerProfile, OrganizerTeamMember, EventAnalytics,
     EventTemplate, OrganizerNotification, OrganizerPayout
 )
-from events.models import Event, EventSession, Sponsor
+from events.models import Event, EventSession, Session, SessionSpeaker, Sponsor
 from registration.models import Registration, TicketType, CheckIn, RegistrationStatus
 from communication.models import EmailTemplate, EmailLog, ScheduledEmail, LivePoll, LiveQA
 from communication.forms import EmailTemplateForm, ScheduledEmailForm, LivePollForm
@@ -209,6 +210,79 @@ def event_create(request):
             event.organizer = request.user
             event.status = 'published'  # Auto-publish on creation
             event.save()
+            
+            # Handle dynamic sessions with multiple speakers support
+            try:
+                num_sessions = int(request.POST.get('num_sessions', 0))
+                for i in range(num_sessions):
+                    title = request.POST.get(f'session_{i}_title')
+                    
+                    # Only create session if title is provided
+                    if title:
+                        session = Session(
+                            event=event,
+                            title=title
+                        )
+                        
+                        # Handle session timing fields (optional) - datetime format (YYYY-MM-DDTHH:MM)
+                        session_start = request.POST.get(f'session_{i}_start_time')
+                        session_end = request.POST.get(f'session_{i}_end_time')
+                        if session_start:
+                            from datetime import datetime
+                            try:
+                                # Parse datetime from YYYY-MM-DDTHH:MM format
+                                session.session_start_time = datetime.strptime(session_start, '%Y-%m-%dT%H:%M')
+                            except ValueError:
+                                pass
+                        if session_end:
+                            try:
+                                session.session_end_time = datetime.strptime(session_end, '%Y-%m-%dT%H:%M')
+                            except ValueError:
+                                pass
+                            
+                        session.save()
+                        
+                        # Handle unified speakers for this session
+                        speaker_index = 0
+                        while True:
+                            speaker_name = request.POST.get(f'session_{i}_speaker_{speaker_index}_name')
+                            if speaker_name is None:
+                                break  # No more speakers
+                            
+                            if speaker_name.strip():  # Only create if name is provided
+                                session_speaker = SessionSpeaker(
+                                    session=session,
+                                    speaker_name=speaker_name,
+                                    speaker_bio=request.POST.get(f'session_{i}_speaker_{speaker_index}_bio', '')
+                                )
+                                
+                                # Handle speaker start/end time (time only - HH:MM)
+                                speaker_start = request.POST.get(f'session_{i}_speaker_{speaker_index}_start_time')
+                                speaker_end = request.POST.get(f'session_{i}_speaker_{speaker_index}_end_time')
+                                if speaker_start:
+                                    from datetime import datetime
+                                    try:
+                                        session_speaker.speaker_start_time = datetime.strptime(speaker_start, '%H:%M').time()
+                                    except ValueError:
+                                        pass
+                                if speaker_end:
+                                    try:
+                                        session_speaker.speaker_end_time = datetime.strptime(speaker_end, '%H:%M').time()
+                                    except ValueError:
+                                        pass
+                                
+                                # Handle speaker profile picture
+                                speaker_pic = request.FILES.get(f'session_{i}_speaker_{speaker_index}_picture')
+                                if speaker_pic:
+                                    session_speaker.speaker_profile_picture = speaker_pic
+                                
+                                session_speaker.save()
+                            
+                            speaker_index += 1
+                            
+            except ValueError:
+                pass  # Invalid num_sessions
+                
             messages.success(request, 'Event created and published successfully!')
             # Redirect to event setup wizard
             return redirect('organizers:organizer_event_setup', event_id=event.id)
@@ -579,6 +653,9 @@ def event_detail(request, event_id):
 
     # Ticket types
     ticket_types = TicketType.objects.filter(event=event)
+    
+    # Dynamic Sessions with speakers
+    dynamic_sessions = event.dynamic_sessions.prefetch_related('session_speakers')
 
     # Calculate ticket sales with actual amounts from registrations
     ticket_sales = []
@@ -619,6 +696,7 @@ def event_detail(request, event_id):
         'total_registrations': total_registrations,
         'total_confirmed': total_confirmed,
         'checked_in_count': checked_in_count,
+        'dynamic_sessions': dynamic_sessions,
     }
     return render(request, 'organizers/event_detail.html', context)
 
@@ -628,7 +706,7 @@ def event_detail(request, event_id):
 def event_edit(request, event_id):
     """Edit an existing event"""
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
-    from events.forms import EventForm
+    from events.forms import EventForm, SessionFormSet, SessionSpeakerFormSet
 
     # Handle ticket actions
     if request.method == 'POST':
@@ -670,21 +748,114 @@ def event_edit(request, event_id):
 
         elif action == 'save_event':
             form = EventForm(request.POST, request.FILES, instance=event)
-            if form.is_valid():
-                event = form.save(commit=False)
-                event.status = 'published' # Enforce live status on edit
-                event.save()
-                form.save_m2m()
-                messages.success(request, 'Event updated successfully!')
-                return redirect('organizers:organizer_event_list')
+            session_formset = SessionFormSet(request.POST, request.FILES, instance=event, prefix='sessions')
+            
+            # Validate all speaker formsets for EXISTING sessions upfront
+            speaker_formsets = {}
+            all_speaker_formsets_valid = True
+            speaker_formset_errors = []
+            
+            for session_form in session_formset.forms:
+                if session_form.instance.pk:
+                    prefix = f'speakers_{session_form.instance.pk}'
+                    speaker_formset = SessionSpeakerFormSet(
+                        request.POST, request.FILES,
+                        instance=session_form.instance,
+                        prefix=prefix
+                    )
+                    speaker_formsets[session_form.instance.pk] = speaker_formset
+                    if not speaker_formset.is_valid():
+                        all_speaker_formsets_valid = False
+                        speaker_formset_errors.append(f"Session '{session_form.instance.title}' speakers: {speaker_formset.errors}")
+                        print(f"DEBUG: Speaker formset {prefix} errors: {speaker_formset.errors}")
+            
+            print(f"DEBUG: Form valid: {form.is_valid()}")
+            print(f"DEBUG: Session formset valid: {session_formset.is_valid()}")
+            print(f"DEBUG: All speaker formsets valid: {all_speaker_formsets_valid}")
+            
+            if not form.is_valid():
+                print(f"DEBUG: Event form errors: {form.errors}")
+            if not session_formset.is_valid():
+                print(f"DEBUG: Session formset errors: {session_formset.errors}")
+                print(f"DEBUG: Session formset non-form errors: {session_formset.non_form_errors()}")
+            
+            if form.is_valid() and session_formset.is_valid() and all_speaker_formsets_valid:
+                try:
+                    with transaction.atomic():
+                        event = form.save(commit=False)
+                        event.status = 'published' # Enforce live status on edit
+                        event.save()
+                        form.save_m2m()
+                        
+                        # Save dynamic sessions
+                        sessions = session_formset.save()
+                        
+                        # Save speaker formsets for existing sessions
+                        for session_id, speaker_formset in speaker_formsets.items():
+                            speaker_formset.save()
+                        
+                        # Handle new sessions' speakers
+                        new_sessions = [s for s in sessions if s.pk not in speaker_formsets]
+                        for new_session in new_sessions:
+                            speaker_prefix = f'speakers_{new_session.id}'
+                            new_speaker_formset = SessionSpeakerFormSet(
+                                request.POST, request.FILES,
+                                instance=new_session,
+                                prefix=speaker_prefix
+                            )
+                            if new_speaker_formset.is_valid():
+                                new_speaker_formset.save()
+                                print(f"DEBUG: Saved speakers for new session {new_session.id}")
+                        
+                        print(f"DEBUG: Saved {len(sessions)} sessions successfully")
+                    
+                    messages.success(request, 'Event updated successfully!')
+                    return redirect('organizers:organizer_event_list')
+                except Exception as e:
+                    print(f"DEBUG: Error saving event: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
+                    messages.error(request, f'Error saving event: {str(e)}')
             else:
-                # If form is invalid, we fall through to the render below with the form errors
-                pass
-            # If form is not valid, it will fall through to be rendered with errors
+                # Form is invalid - collect errors for display
+                error_messages = []
+                if not form.is_valid():
+                    for field, errors in form.errors.items():
+                        for error in errors:
+                            error_messages.append(f"{field}: {error}")
+                if not session_formset.is_valid():
+                    for i, errors in enumerate(session_formset.errors):
+                        if errors:
+                            for field, error_list in errors.items():
+                                for error in error_list:
+                                    error_messages.append(f"Session {i+1} - {field}: {error}")
+                    if session_formset.non_form_errors():
+                        error_messages.extend(session_formset.non_form_errors())
+                
+                # Add speaker formset errors
+                error_messages.extend(speaker_formset_errors)
+                
+                for error in error_messages:
+                    messages.error(request, error)
+                
+                print(f"DEBUG: Form validation failed with {len(error_messages)} errors")
 
     # If it's a GET request or form validation failed, initialize/re-use the form
     if 'form' not in locals():
         form = EventForm(instance=event)
+    
+    if 'session_formset' not in locals():
+        session_formset = SessionFormSet(instance=event, prefix='sessions')
+    
+    # Build speaker formsets for each session
+    session_speaker_formsets = {}
+    for session_form in session_formset.forms:
+        if session_form.instance.pk:
+            prefix = f'speakers_{session_form.instance.pk}'
+            session_speaker_formsets[session_form.instance.pk] = SessionSpeakerFormSet(
+                instance=session_form.instance,
+                prefix=prefix
+            )
     
     # Get existing tickets
     tickets = TicketType.objects.filter(event=event)
@@ -695,6 +866,8 @@ def event_edit(request, event_id):
 
     return render(request, 'organizers/event_edit.html', {
         'form': form,
+        'session_formset': session_formset,
+        'session_speaker_formsets': session_speaker_formsets,
         'title': 'Edit Event',
         'event': event,
         'tickets': tickets,
@@ -724,19 +897,19 @@ def analytics(request, event_id=None):
     
     if event_id:
         event = get_object_or_404(Event, id=event_id, organizer=request.user)
-        analytics, _ = EventAnalytics.objects.get_or_create(event=event)
+        analytics_obj, _ = EventAnalytics.objects.get_or_create(event=event)
         metrics = _compute_event_metrics(event)
-        analytics.total_registrations = metrics['total_registrations']
-        analytics.confirmed_registrations = metrics['confirmed_registrations']
-        analytics.cancelled_registrations = metrics['cancelled_registrations']
-        analytics.checked_in_count = metrics['checked_in_count']
-        analytics.total_revenue = metrics['total_revenue']
-        analytics.total_refunds = metrics['total_refunds']
-        analytics.tickets_sold_by_type = metrics['tickets_sold_by_type']
-        analytics.recent_activity = metrics['recent_activity']
-        if not analytics.traffic_sources and metrics['total_registrations']:
-            analytics.traffic_sources = {'direct': metrics['total_registrations']}
-        analytics.save(update_fields=[
+        analytics_obj.total_registrations = metrics['total_registrations']
+        analytics_obj.confirmed_registrations = metrics['confirmed_registrations']
+        analytics_obj.cancelled_registrations = metrics['cancelled_registrations']
+        analytics_obj.checked_in_count = metrics['checked_in_count']
+        analytics_obj.total_revenue = metrics['total_revenue']
+        analytics_obj.total_refunds = metrics['total_refunds']
+        analytics_obj.tickets_sold_by_type = metrics['tickets_sold_by_type']
+        analytics_obj.recent_activity = metrics['recent_activity']
+        if not analytics_obj.traffic_sources and metrics['total_registrations']:
+            analytics_obj.traffic_sources = {'direct': metrics['total_registrations']}
+        analytics_obj.save(update_fields=[
             'total_registrations',
             'confirmed_registrations',
             'cancelled_registrations',
@@ -748,17 +921,17 @@ def analytics(request, event_id=None):
             'updated_at',
         ])
 
-        total_views = analytics.total_views or 0
+        total_views = analytics_obj.total_views or 0
         conversion_rate = (metrics['total_registrations'] / total_views * 100) if total_views else 0
         attendance_rate = (metrics['checked_in_count'] / metrics['total_registrations'] * 100) if metrics['total_registrations'] else 0
         revenue_per_attendee = (metrics['total_revenue'] / metrics['total_registrations']) if metrics['total_registrations'] else Decimal('0')
-        traffic_sources = analytics.traffic_sources or {}
+        traffic_sources = analytics_obj.traffic_sources or {}
         traffic_sources_total = sum(traffic_sources.values()) or 1
         tickets_sold_by_type = metrics['tickets_sold_by_type']
         tickets_sold_total = sum(tickets_sold_by_type.values()) or 1
         return render(request, 'organizers/analytics_detail.html', {
             'event': event,
-            'analytics': analytics,
+            'analytics': analytics_obj,
             'conversion_rate': conversion_rate,
             'attendance_rate': attendance_rate,
             'revenue_per_attendee': revenue_per_attendee,
@@ -823,14 +996,207 @@ def analytics(request, event_id=None):
 @login_required
 @organizer_required
 def team_members(request):
-    """Manage team members"""
+    """Manage team members with multi-event support"""
     organizer = request.organizer
-    team_members = OrganizerTeamMember.objects.filter(organizer=organizer)
+    events = Event.objects.filter(organizer=organizer.user, status='published')
+    
+    if request.method == 'POST':
+        from django.contrib.auth import get_user_model
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+        
+        User = get_user_model()
+        
+        # Get form data - now supports multiple events
+        event_ids = request.POST.getlist('events')
+        role = request.POST.get('role')
+        email = request.POST.get('email', '').strip().lower()
+        password = request.POST.get('password', '')
+        
+        # Validate required fields
+        errors = []
+        if not event_ids:
+            errors.append('Please select at least one event.')
+        if not role:
+            errors.append('Please select a role.')
+        if not email:
+            errors.append('Email address is required.')
+        else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                errors.append('Please enter a valid email address.')
+        if not password:
+            errors.append('Password is required.')
+        elif len(password) < 6:
+            errors.append('Password must be at least 6 characters long.')
+        
+        # Validate role value
+        valid_roles = ['coordinator', 'usher']
+        if role and role not in valid_roles:
+            errors.append('Invalid role selected.')
+        
+        # Verify all selected events belong to organizer
+        if event_ids:
+            selected_events = Event.objects.filter(id__in=event_ids, organizer=organizer.user)
+            if len(selected_events) != len(event_ids):
+                errors.append('One or more selected events are not valid.')
+        
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return redirect('organizers:organizer_team')
+        
+        # Check if user already exists
+        user = User.objects.filter(email=email).first()
+        
+        if user:
+            # Check if already a team member for this organizer
+            existing_member = OrganizerTeamMember.objects.filter(
+                organizer=organizer,
+                user=user
+            ).first()
+            
+            if existing_member:
+                messages.warning(request, f'{email} is already a team member.')
+                return redirect('organizers:organizer_team')
+        else:
+            # Create new user
+            try:
+                user = User.objects.create_user(
+                    email=email,
+                    password=password,
+                    first_name='',
+                    last_name=''
+                )
+            except Exception as e:
+                messages.error(request, f'Error creating user: {str(e)}')
+                return redirect('organizers:organizer_team')
+        
+        # Create team member
+        try:
+            team_member = OrganizerTeamMember.objects.create(
+                organizer=organizer,
+                user=user,
+                role=role,
+                permissions={},
+                is_active=True
+            )
+            
+            # Assign to multiple events
+            selected_events = Event.objects.filter(id__in=event_ids, organizer=organizer.user)
+            team_member.events.set(selected_events)
+            
+            # Also register user for each event
+            from registration.models import Registration, RegistrationStatus
+            for event in selected_events:
+                existing_registration = Registration.objects.filter(
+                    event=event,
+                    user=user
+                ).first()
+                
+                if not existing_registration:
+                    Registration.objects.create(
+                        event=event,
+                        user=user,
+                        attendee_name=email,
+                        attendee_email=email,
+                        status=RegistrationStatus.CONFIRMED,
+                        total_amount=0
+                    )
+            
+            event_count = len(selected_events)
+            event_names = ', '.join([e.title for e in selected_events[:3]])
+            if event_count > 3:
+                event_names += f' and {event_count - 3} more'
+            
+            messages.success(request, f'Team member {email} added successfully as {role.title()} for {event_count} event(s)!')
+        except Exception as e:
+            messages.error(request, f'Error adding team member: {str(e)}')
+        
+        return redirect('organizers:organizer_team')
+    
+    team_members = OrganizerTeamMember.objects.filter(organizer=organizer).prefetch_related('events')
     
     return render(request, 'organizers/team_list.html', {
         'team_members': team_members,
-        'organizer': organizer
+        'organizer': organizer,
+        'events': events
     })
+
+
+@login_required
+@organizer_required
+def edit_team_member(request, member_id):
+    """Edit an existing team member with multi-event and password support"""
+    organizer = request.organizer
+    events = Event.objects.filter(organizer=organizer.user, status='published')
+    
+    # Get the team member with prefetched events
+    team_member = get_object_or_404(
+        OrganizerTeamMember.objects.prefetch_related('events'),
+        id=member_id,
+        organizer=organizer
+    )
+    
+    if request.method == 'POST':
+        role = request.POST.get('role')
+        is_active = request.POST.get('is_active') == 'on'
+        event_ids = request.POST.getlist('events')
+        new_password = request.POST.get('new_password', '').strip()
+        
+        # Validate role
+        valid_roles = ['coordinator', 'usher']
+        if role not in valid_roles:
+            messages.error(request, 'Invalid role selected.')
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+        
+        # Validate events
+        if not event_ids:
+            messages.error(request, 'Please select at least one event.')
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+        
+        selected_events = Event.objects.filter(id__in=event_ids, organizer=organizer.user)
+        if len(selected_events) != len(event_ids):
+            messages.error(request, 'One or more selected events are not valid.')
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+        
+        try:
+            # Update team member
+            team_member.role = role
+            team_member.is_active = is_active
+            team_member.save()
+            
+            # Update event assignments
+            team_member.events.set(selected_events)
+            
+            # Handle password change if provided
+            if new_password:
+                if len(new_password) < 6:
+                    messages.error(request, 'Password must be at least 6 characters long.')
+                    return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+                
+                team_member.user.set_password(new_password)
+                team_member.user.save()
+                messages.success(request, f'Password updated for {team_member.user.email}.')
+            
+            event_count = len(selected_events)
+            messages.success(request, f'Team member {team_member.user.email} updated successfully! Assigned to {event_count} event(s) as {role.title()}.')
+            return redirect('organizers:organizer_team')
+        except Exception as e:
+            messages.error(request, f'Error updating team member: {str(e)}')
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+    
+    # Get currently assigned event IDs
+    assigned_event_ids = list(team_member.events.values_list('id', flat=True))
+    
+    context = {
+        'team_member': team_member,
+        'organizer': organizer,
+        'events': events,
+        'assigned_event_ids': assigned_event_ids,
+    }
+    return render(request, 'organizers/team_edit.html', context)
 
 
 @login_required

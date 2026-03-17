@@ -78,6 +78,7 @@ def participant_signup(request):
 
         errors = []
 
+        # Validate required fields
         if not email:
             errors.append('Email is required')
         if not first_name:
@@ -91,9 +92,12 @@ def participant_signup(request):
         if len(password1) < 8:
             errors.append('Password must be at least 8 characters')
 
-        # Check if email already exists
-        if User.objects.filter(email=email).exists():
-            errors.append('An account with this email already exists')
+        # Normalize email (lowercase) for consistent checking
+        normalized_email = email.lower() if email else ''
+        
+        # Check if email already exists (case-insensitive check)
+        if normalized_email and User.objects.filter(email__iexact=normalized_email).exists():
+            errors.append('This email is already registered. Please log in instead.')
 
         if errors:
             # Re-render form with errors
@@ -105,25 +109,45 @@ def participant_signup(request):
                 'last_name': last_name,
             })
 
-        # Create user
-        user = User.objects.create_user(
-            email=email,
-            password=password1,
-            first_name=first_name,
-            last_name=last_name,
-            role='attendee',  # Set role to attendee
-        )
+        try:
+            # Create user with normalized email
+            user = User.objects.create_user(
+                email=normalized_email,
+                password=password1,
+                first_name=first_name,
+                last_name=last_name,
+                role='attendee',  # Set role to attendee
+            )
 
-        # Log the user in
-        from django.contrib.auth import authenticate, login
-        user = authenticate(request, email=email, password=password1)
-        if user:
-            login(request, user)
+            # Log the user in
+            from django.contrib.auth import authenticate, login
+            user = authenticate(request, email=normalized_email, password=password1)
+            if user:
+                login(request, user)
+                from django.http import HttpResponseRedirect
+                return HttpResponseRedirect('/')
+
             from django.http import HttpResponseRedirect
-            return HttpResponseRedirect('/')
-
-        from django.http import HttpResponseRedirect
-        return HttpResponseRedirect('/login/')
+            return HttpResponseRedirect('/login/')
+            
+        except Exception as e:
+            # Catch any unexpected errors during user creation
+            from django.shortcuts import render
+            import traceback
+            
+            # Log the error for debugging
+            print(f"Error creating user: {e}")
+            print(traceback.format_exc())
+            
+            # Add a friendly error message
+            errors.append('An error occurred while creating your account. Please try again.')
+            
+            return render(request, 'participant/signup.html', {
+                'form_errors': errors,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name,
+            })
 
     # GET request - show form
     from django.shortcuts import render
@@ -177,10 +201,10 @@ urlpatterns = [
     path('registration/success/<int:registration_id>/', participant_register_success, name='participant_registration_success'),
 
     # Event detail (public view - no registration)
-    path('events/<int:event_id>/', TemplateView.as_view(template_name='participant/event_detail.html'), name='participant_event_detail'),
+    path('events/<int:event_id>/', views_attendee.event_detail_enhanced, name='participant_event_detail'),
 
     # Event detail with slug
-    path('events/<int:event_id>/<slug:slug>/', TemplateView.as_view(template_name='participant/event_detail.html'), name='participant_event_detail_slug'),
+    path('events/<int:event_id>/<slug:slug>/', views_attendee.event_detail_enhanced, name='participant_event_detail_slug'),
 
     # My registrations (auth required) - uses proper view with context data
     path('my-registrations/', views_attendee.my_registrations_enhanced, name='participant_my_registrations'),
@@ -242,17 +266,21 @@ urlpatterns = [
 
     path('accounts/profile/', RedirectView.as_view(url='/profile/', permanent=True), name='account_profile'),
 
-    # API endpoints (public) - participant specific, must come first
-    path('api/v1/', include('events_api.urls_participant')),
-    # Simple registration API - completely CSRF exempt
-    path('api/v1/register/', simple_register_api, name='api-public-register'),
-    # QR code email API
-    path('api/v1/send-qr-email/', csrf_exempt(lambda request: __import__('registration.views_success', fromlist=['send_qr_email']).send_qr_email(request)), name='api-send-qr-email'),
-    # Include main API for tickets (GET)
-    path('api/v1/', include('events_api.urls')),
-
     # API Documentation (read-only for participants)
     path('api/docs/', TemplateView.as_view(template_name='participant/api_docs.html'), name='participant_api_docs'),
+
+    # Simple registration API - completely CSRF exempt
+    # This MUST come before include('events_api.urls_participant') to override the default public register
+    path('api/v1/register/', simple_register_api, name='api-public-register-v1'),
+
+    # API endpoints (public) - participant specific
+    path('api/v1/', include('events_api.urls_participant')),
+    
+    # QR code email API
+    path('api/v1/send-qr-email/', csrf_exempt(lambda request: __import__('registration.views_success', fromlist=['send_qr_email']).send_qr_email(request)), name='api-send-qr-email'),
+    
+    # Include main API for tickets (GET)
+    path('api/v1/', include('events_api.urls')),
 
     # Attendee portal routes (authenticated)
     path('attendee/', include('registration.urls_attendee')),

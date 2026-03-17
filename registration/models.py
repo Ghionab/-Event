@@ -56,6 +56,11 @@ class TicketType(models.Model):
         return f"{self.event.title} - {self.name}"
     
     @property
+    def remaining_tickets(self):
+        """Dynamic calculation: Total Tickets Created - Tickets Sold"""
+        return max(0, self.quantity_available - self.quantity_sold)
+    
+    @property
     def available_quantity(self):
         # We now decrement quantity_available directly per user request,
         # so it represents the true remaining count.
@@ -65,11 +70,11 @@ class TicketType(models.Model):
     def is_sold_out(self):
         return self.quantity_available <= 0
     
-    def can_purchase(self):
+    def can_purchase(self, quantity=1):
         now = timezone.now()
         sales_start_ok = (self.sales_start is None) or (self.sales_start <= now)
         sales_end_ok = (self.sales_end is None) or (now <= self.sales_end)
-        return self.is_active and sales_start_ok and sales_end_ok and not self.is_sold_out
+        return self.is_active and sales_start_ok and sales_end_ok and self.remaining_tickets >= quantity
 
 
 class PromoCode(models.Model):
@@ -121,6 +126,11 @@ class Registration(models.Model):
     """Event registration/booking"""
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='registrations')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='registrations', null=True, blank=True)
+    purchaser = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='purchased_registrations',
+        help_text="The user who bought/created this registration"
+    )
     ticket_type = models.ForeignKey(TicketType, on_delete=models.SET_NULL, null=True)
     
     registration_number = models.CharField(max_length=20, unique=True, blank=True)
@@ -175,16 +185,26 @@ class Registration(models.Model):
             self.registration_number = f"REG-{uuid.uuid4().hex[:8].upper()}"
         if not self.qr_code:
             self.qr_code = str(uuid.uuid4().hex[:16])
+        if not self.purchaser and self.user:
+            self.purchaser = self.user
         super().save(*args, **kwargs)
     
     def confirm(self):
         """Confirm the registration"""
         if self.status == RegistrationStatus.PENDING:
-            self.status = RegistrationStatus.CONFIRMED
-            # Update ticket sold count
+            # Update ticket sold count atomically
             if self.ticket_type:
-                self.ticket_type.quantity_sold += 1
-                self.ticket_type.save()
+                # Refresh ticket type to get latest stock
+                self.ticket_type.refresh_from_db()
+                if self.ticket_type.can_purchase(1):
+                    from django.db.models import F
+                    TicketType.objects.filter(id=self.ticket_type.id).update(quantity_sold=F('quantity_sold') + 1)
+                    self.ticket_type.refresh_from_db()
+                else:
+                    # Not enough stock to confirm
+                    return False
+            
+            self.status = RegistrationStatus.CONFIRMED
             self.save()
         # If already confirmed, do nothing
     
@@ -194,10 +214,11 @@ class Registration(models.Model):
             was_confirmed = self.status == RegistrationStatus.CONFIRMED
             self.status = RegistrationStatus.CANCELLED
             self.refund_reason = reason
-            # Update ticket sold count
+            # Update ticket sold count atomically
             if self.ticket_type and was_confirmed:
-                self.ticket_type.quantity_sold = max(0, self.ticket_type.quantity_sold - 1)
-                self.ticket_type.save()
+                from django.db.models import F
+                TicketType.objects.filter(id=self.ticket_type.id).update(quantity_sold=F('quantity_sold') - 1)
+                self.ticket_type.refresh_from_db()
             self.save()
     
     def refund(self, amount=None, reason=''):
@@ -208,10 +229,11 @@ class Registration(models.Model):
             self.refund_amount = refund_amount
             self.refund_reason = reason
             self.refunded_at = timezone.now()
-            # Update ticket sold count
+            # Update ticket sold count atomically
             if self.ticket_type:
-                self.ticket_type.quantity_sold = max(0, self.ticket_type.quantity_sold - 1)
-                self.ticket_type.save()
+                from django.db.models import F
+                TicketType.objects.filter(id=self.ticket_type.id).update(quantity_sold=F('quantity_sold') - 1)
+                self.ticket_type.refresh_from_db()
             self.save()
             return True
         return False

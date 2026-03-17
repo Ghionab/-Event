@@ -1,5 +1,7 @@
 {% extends 'organizers/base.html' %}
 
+{% load custom_filters %}
+
 {% block title %}{{ title }}{% endblock %}
 
 {% block header %}{{ title }}{% endblock %}
@@ -188,6 +190,188 @@
                         </div>
                     </div>
 
+                    <!-- Sessions & Speakers (Formset) -->
+                    <div class="col-span-1 md:col-span-2 mt-8 pt-6 border-t border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-lg font-bold text-gray-900">Sessions & Speakers</h4>
+                            <button type="button" id="add-session-btn" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-sm font-medium">
+                                <i class="bi bi-plus-lg mr-1"></i>Add Session
+                            </button>
+                        </div>
+                        
+                        {{ session_formset.management_form }}
+                        
+                        <div id="session-formset-container" class="space-y-6">
+                            {% for form in session_formset.forms %}
+                            <div class="session-form-row card border border-gray-200 shadow-sm relative" data-session-id="{{ form.instance.pk|default:'new' }}">
+                                <div class="card-header bg-gray-50 border-b border-gray-200 py-3 flex justify-between items-center">
+                                    <h5 class="card-title text-sm text-gray-700 font-semibold session-title-display">Session {{ forloop.counter }}</h5>
+                                    {% if session_formset.can_delete %}
+                                    <label class="text-sm text-red-600 hover:text-red-800 cursor-pointer flex items-center">
+                                        {{ form.DELETE }}
+                                        <span class="ml-1 select-none">Delete Session</span>
+                                    </label>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body p-4">
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
+                                    
+                                    {% if form.instance.pk %}
+                                        {{ form.id }}
+                                    {% endif %}
+                                    
+                                    <!-- Session Title -->
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Session Title *</label>
+                                        <input type="text" name="{{ form.title.html_name }}" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500" required>
+                                    </div>
+                                    
+                                    <!-- Session Timing (Date & Time) -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                Session Start <span class="text-gray-400 text-xs">(Optional)</span>
+                                            </label>
+                                            <input type="datetime-local" name="{{ form.session_start_time.html_name }}" id="{{ form.session_start_time.id_for_label }}" value="{{ form.session_start_time.value|default:''|date:'Y-m-d\TH:i' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                Session End <span class="text-gray-400 text-xs">(Optional)</span>
+                                            </label>
+                                            <input type="datetime-local" name="{{ form.session_end_time.html_name }}" id="{{ form.session_end_time.id_for_label }}" value="{{ form.session_end_time.value|default:''|date:'Y-m-d\TH:i' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Unified Speakers Section -->
+                                    <div class="border-t border-gray-200 pt-4 mt-4">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <h6 class="text-sm font-semibold text-gray-700">
+                                                <i class="bi bi-people mr-1"></i>Speakers
+                                            </h6>
+                                            <button type="button" class="add-speaker-btn px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-xs font-medium" data-session-id="{{ form.instance.pk|default:forloop.counter0 }}">
+                                                <i class="bi bi-plus-lg mr-1"></i>+ Add Speaker
+                                            </button>
+                                        </div>
+                                        <div class="speakers-container space-y-4" data-session-id="{{ form.instance.pk|default:forloop.counter0 }}">
+                                            {% with speaker_formset=session_speaker_formsets|get_item:form.instance.pk %}
+                                            {% if speaker_formset %}
+                                                {{ speaker_formset.management_form }}
+                                                {% for speaker_form in speaker_formset.forms %}
+                                                <div class="speaker-form-row bg-gray-50 rounded-lg p-4 border border-gray-200 relative">
+                                                    <div class="flex justify-between items-center mb-3">
+                                                        <span class="text-sm font-medium text-gray-700">Speaker {{ forloop.counter }}</span>
+                                                        <button type="button" class="remove-speaker-btn text-red-500 hover:text-red-700 text-sm">
+                                                            <i class="bi bi-trash mr-1"></i>Remove
+                                                        </button>
+                                                    </div>
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                        <div class="md:col-span-2">
+                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                                Name <span class="text-gray-400">(Optional)</span>
+                                                            </label>
+                                                            <input type="text" name="{{ speaker_form.speaker_name.html_name }}" value="{{ speaker_form.speaker_name.value|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                                                        </div>
+                                                        <div class="md:col-span-2">
+                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                                Bio <span class="text-gray-400">(Optional)</span>
+                                                            </label>
+                                                            <textarea name="{{ speaker_form.speaker_bio.html_name }}" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">{{ speaker_form.speaker_bio.value|default:'' }}</textarea>
+                                                        </div>
+                                                        <div class="md:col-span-2">
+                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                                Profile Picture <span class="text-gray-400">(Optional)</span>
+                                                            </label>
+                                                            {% if speaker_form.instance.speaker_profile_picture %}
+                                                                <div class="mb-2 flex items-center gap-3">
+                                                                    <img src="{{ speaker_form.instance.speaker_profile_picture.url }}" class="w-8 h-8 rounded-full object-cover">
+                                                                    <span class="text-xs text-gray-500">Current</span>
+                                                                </div>
+                                                            {% endif %}
+                                                            <input type="file" name="{{ speaker_form.speaker_profile_picture.html_name }}" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                                Start Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                                                            </label>
+                                                            <input type="time" name="{{ speaker_form.speaker_start_time.html_name }}" value="{{ speaker_form.speaker_start_time.value|default:''|time:'H:i' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                                End Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                                                            </label>
+                                                            <input type="time" name="{{ speaker_form.speaker_end_time.html_name }}" value="{{ speaker_form.speaker_end_time.value|default:''|time:'H:i' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                                                        </div>
+                                                        {{ speaker_form.id }}
+                                                        {% if speaker_form.instance.pk %}
+                                                            {{ speaker_form.DELETE.as_hidden }}
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Empty form for cloning -->
+                        <div id="empty-session-form" class="hidden">
+                            <div class="session-form-row card border border-gray-200 shadow-sm relative mt-6" data-session-id="__prefix__">
+                                <div class="card-header bg-gray-50 border-b border-gray-200 py-3 flex justify-between items-center">
+                                    <h5 class="card-title text-sm text-gray-700 font-semibold session-title-display">New Session</h5>
+                                    <label class="text-sm text-red-600 hover:text-red-800 cursor-pointer flex items-center">
+                                        <input type="checkbox" name="sessions-__prefix__-DELETE">
+                                        <span class="ml-1 select-none">Remove</span>
+                                    </label>
+                                </div>
+                                <div class="card-body p-4">
+                                    <input type="hidden" name="sessions-__prefix__-id" id="id_sessions-__prefix__-id">
+                                    
+                                    <!-- Session Title -->
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Session Title *</label>
+                                        <input type="text" name="sessions-__prefix__-title" id="id_sessions-__prefix__-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                    </div>
+                                    
+                                    <!-- Session Timing (Date & Time) -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                Session Start <span class="text-gray-400 text-xs">(Optional)</span>
+                                            </label>
+                                            <input type="datetime-local" name="sessions-__prefix__-session_start_time" id="id_sessions-__prefix__-session_start_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                                Session End <span class="text-gray-400 text-xs">(Optional)</span>
+                                            </label>
+                                            <input type="datetime-local" name="sessions-__prefix__-session_end_time" id="id_sessions-__prefix__-session_end_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Unified Speakers Section -->
+                                    <div class="border-t border-gray-200 pt-4 mt-4">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <h6 class="text-sm font-semibold text-gray-700">
+                                                <i class="bi bi-people mr-1"></i>Speakers
+                                            </h6>
+                                            <button type="button" class="add-speaker-btn px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-xs font-medium" data-session-id="new___prefix__">
+                                                <i class="bi bi-plus-lg mr-1"></i>+ Add Speaker
+                                            </button>
+                                        </div>
+                                        <div class="speakers-container space-y-4" data-session-id="new___prefix__">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Submit Buttons -->
                     <div class="flex items-center justify-end gap-4 pt-6 border-t">
                         <button type="submit" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
@@ -357,6 +541,147 @@
 </div>
 
 <script>
+    console.log('DEBUG: JavaScript loading...');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DEBUG: DOMContentLoaded fired');
+        
+        // Debug form submission
+        const eventForm = document.getElementById('event-form');
+        if (eventForm) {
+            eventForm.addEventListener('submit', function(e) {
+                console.log('DEBUG: Event form submit triggered');
+            });
+        } else {
+            console.error('DEBUG: Event form not found!');
+        }
+        
+        const addSessionBtn = document.getElementById('add-session-btn');
+        const container = document.getElementById('session-formset-container');
+        const totalFormsInput = document.getElementById('id_sessions-TOTAL_FORMS');
+        const emptyFormTemplate = document.getElementById('empty-session-form');
+
+        console.log('DEBUG: addSessionBtn:', addSessionBtn);
+        console.log('DEBUG: container:', container);
+        console.log('DEBUG: totalFormsInput:', totalFormsInput);
+        console.log('DEBUG: emptyFormTemplate:', emptyFormTemplate);
+
+        if (addSessionBtn && container && totalFormsInput && emptyFormTemplate) {
+            addSessionBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('DEBUG: Add session clicked');
+                let formCount = parseInt(totalFormsInput.value);
+                
+                // Replace __prefix__ with the correct index
+                let newFormHtml = emptyFormTemplate.innerHTML.replace(/__prefix__/g, formCount);
+                newFormHtml = newFormHtml.replace(/new___prefix__/g, 'new_' + formCount);
+                
+                // Append the new form
+                container.insertAdjacentHTML('beforeend', newFormHtml);
+                
+                // Add required attribute to the newly added title input
+                const newTitleInput = container.querySelector(`input[name="sessions-${formCount}-title"]`);
+                if (newTitleInput) {
+                    newTitleInput.setAttribute('required', '');
+                }
+                
+                // Update the total forms count
+                totalFormsInput.value = formCount + 1;
+                
+                // Update session number
+                updateSessionNumbers();
+            });
+        }
+
+        // Add speaker functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.add-speaker-btn')) {
+                const btn = e.target.closest('.add-speaker-btn');
+                const sessionId = btn.dataset.sessionId;
+                const container = document.querySelector('.speakers-container[data-session-id="' + sessionId + '"], .speakers-container[data-session-id="new_' + sessionId + '"], .speakers-container[data-session-id="' + sessionId.replace('new_', '') + '"]');
+                
+                if (container) {
+                    addSpeakerForm(container, sessionId);
+                }
+            }
+            
+            if (e.target.closest('.remove-speaker-btn')) {
+                const btn = e.target.closest('.remove-speaker-btn');
+                const speakerRow = btn.closest('.speaker-form-row');
+                const deleteInput = speakerRow.querySelector('input[name$="-DELETE"]');
+                
+                if (deleteInput) {
+                    deleteInput.value = 'on';
+                    speakerRow.style.display = 'none';
+                } else {
+                    speakerRow.remove();
+                }
+            }
+        });
+
+        function updateSessionNumbers() {
+            const sessions = container.querySelectorAll('.session-form-row');
+            sessions.forEach((session, index) => {
+                const titleDisplay = session.querySelector('.session-title-display');
+                if (titleDisplay && !titleDisplay.textContent.includes('New')) {
+                    titleDisplay.textContent = 'Session ' + (index + 1);
+                }
+            });
+        }
+
+        function addSpeakerForm(container, sessionId) {
+            const speakerCount = container.querySelectorAll('.speaker-form-row:not([style*="display: none"])').length;
+            const prefix = 'speakers_' + sessionId;
+            const index = speakerCount;
+            
+            const speakerHtml = `
+                <div class="speaker-form-row bg-gray-50 rounded-lg p-4 border border-gray-200 relative">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm font-medium text-gray-700">Speaker ${index + 1}</span>
+                        <button type="button" class="remove-speaker-btn text-red-500 hover:text-red-700 text-sm">
+                            <i class="bi bi-trash mr-1"></i>Remove
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Name <span class="text-gray-400">(Optional)</span>
+                            </label>
+                            <input type="text" name="${prefix}-${index}-speaker_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Bio <span class="text-gray-400">(Optional)</span>
+                            </label>
+                            <textarea name="${prefix}-${index}-speaker_bio" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Profile Picture <span class="text-gray-400">(Optional)</span>
+                            </label>
+                            <input type="file" name="${prefix}-${index}-speaker_profile_picture" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Start Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                            </label>
+                            <input type="time" name="${prefix}-${index}-speaker_start_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                End Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                            </label>
+                            <input type="time" name="${prefix}-${index}-speaker_end_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', speakerHtml);
+        }
+    });
+
     function showAddTicketForm() {
         document.getElementById('addTicketForm').classList.remove('hidden');
     }

@@ -29,17 +29,20 @@ urlpatterns = [
     path('session/<int:session_id>/save/', views_attendee.save_session, name='save_session'),
     path('session/<int:session_id>/unsave/', views_attendee.unsave_session, name='unsave_session'),
     path('session/<int:session_id>/feedback/', views_attendee.session_feedback_enhanced, name='session_feedback'),
+    path('session/<int:session_id>/add-to-google-calendar/', views_attendee.add_to_google_calendar, name='add_to_google_calendar'),
 
-    # Tickets & Badges
+    # Tickets (accessible to purchaser and attendee)
     path('tickets/', views_attendee.my_tickets, name='my_tickets'),
     path('tickets/<int:registration_id>/preview/', views_attendee.ticket_preview, name='ticket_preview'),
-    path('tickets/<int:registration_id>/badge/', views_attendee.digital_badge, name='digital_badge'),
 
     # Certificates & Post-Event
     path('certificates/', views_attendee.certificates_list, name='certificates'),
     path('certificates/<int:registration_id>/download/', views_attendee.download_certificate, name='download_certificate'),
     path('events/<int:event_id>/materials/', views_attendee.event_materials, name='event_materials'),
     path('events/<int:event_id>/feedback/', views_attendee.event_feedback, name='event_feedback'),
+
+    # Note: Digital badges are available only in the Organizer Portal
+    # Badges are created and managed by organizers, not participants
 
     # Networking
     path('networking/', views_attendee.networking_hub, name='networking_hub'),

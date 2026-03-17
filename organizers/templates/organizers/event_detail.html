@@ -140,6 +140,54 @@
     </div>
 </div>
 
+<!-- Sessions & Speakers -->
+{% if dynamic_sessions %}
+<div class="card mb-8">
+    <div class="card-header">
+        <h3 class="card-title">Sessions & Speakers</h3>
+        <span class="text-sm text-gray-500">{{ dynamic_sessions|length }} Sessions</span>
+    </div>
+    <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for session in dynamic_sessions %}
+            <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition bg-white flex flex-col h-full">
+                <!-- Header (Title) -->
+                <div class="bg-indigo-50 px-5 py-4 border-b border-indigo-100 shrink-0">
+                    <h4 class="font-bold text-lg text-indigo-900 line-clamp-2" title="{{ session.title }}">{{ session.title }}</h4>
+                </div>
+                
+                <!-- Body (Speaker Info) -->
+                <div class="p-5 flex flex-col items-center flex-grow">
+                    {% for session_speaker in session.session_speakers.all %}
+                    <!-- Profile Picture -->
+                    <div class="relative w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg mb-4 shrink-0">
+                        {% if session_speaker.speaker_profile_picture %}
+                        <img src="{{ session_speaker.speaker_profile_picture.url }}" alt="{{ session_speaker.speaker_name }}" class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full bg-indigo-100 flex items-center justify-center text-indigo-500 text-3xl font-bold">
+                            {{ session_speaker.speaker_name|make_list|first|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Speaker Name -->
+                    <h5 class="font-semibold text-gray-900 text-center mb-1 text-lg shrink-0">{{ session_speaker.speaker_name }}</h5>
+                    
+                    <!-- Bio -->
+                    {% if session_speaker.speaker_bio %}
+                    <p class="text-sm text-gray-600 text-center line-clamp-4 mt-2 border-t border-gray-100 pt-3">{{ session_speaker.speaker_bio }}</p>
+                    {% endif %}
+                    
+                    {% if not forloop.last %}<div class="border-t border-gray-100 mt-4 pt-4"></div>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Registrations Table -->
 <div class="card mb-8">
     <div class="card-header">

@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.db.models import Q, Count
 from events.models import Event
 from registration.models import Registration, CheckIn, RegistrationStatus
-from advanced.models import UsherAssignment
+from advanced.models import UsherAssignment, TeamMember, TeamRole
 from .decorators import staff_required
 from django.contrib.auth import logout as django_logout
 
@@ -22,7 +22,7 @@ def event_list(request):
 
     if user.role == 'usher':
         return redirect('staff:usher_validation')
-    
+
     # Get user's assigned venues if they are an usher
     assigned_venues = []
     if user.role == 'usher':
@@ -39,20 +39,32 @@ def event_list(request):
         ).distinct()
     else:
         assigned_events = None
-    
-    # Show events based on role
+
+    # Coordinator scoping: if this staff user is an assigned coordinator with
+    # registration permissions, restrict visible events to their assignments.
+    coordinator_events = Event.objects.none()
+    if user.role == 'staff':
+        coordinator_events = Event.objects.filter(
+            team_members__user=user,
+            team_members__is_active=True,
+            team_members__role=TeamRole.COORDINATOR,
+            team_members__can_manage_registrations=True,
+        ).distinct()
+
+    # Show events based on role and assignments
     if user.role in ['admin', 'organizer']:
-        events = Event.objects.filter(
-            registrations__isnull=False
-        ).distinct().order_by('-start_date')
+        events_qs = Event.objects.filter(registrations__isnull=False).distinct()
     elif assigned_events is not None:
         # Usher - only show assigned events
-        events = assigned_events.order_by('-start_date')
+        events_qs = assigned_events
+    elif coordinator_events.exists():
+        # Coordinator with explicit assignments - only those events
+        events_qs = coordinator_events.filter(registrations__isnull=False).distinct()
     else:
-        # Regular staff - show all events
-        events = Event.objects.filter(
-            registrations__isnull=False
-        ).distinct().order_by('-start_date')
+        # Regular staff - show all events with registrations
+        events_qs = Event.objects.filter(registrations__isnull=False).distinct()
+
+    events = events_qs.order_by('-start_date')
     
     # Add registration stats to each event
     events_with_stats = []
@@ -88,8 +100,23 @@ def event_dashboard(request, event_id):
     """
     event = get_object_or_404(Event, id=event_id)
     user = request.user
-    
-    # Get assigned venues for ushers
+
+    # Privacy: ensure ushers and coordinators only access events they are assigned to
+    if user.role == 'usher':
+        if not UsherAssignment.objects.filter(user=user, event=event, is_active=True).exists():
+            return redirect('staff:event_list')
+
+    if user.role == 'staff':
+        coordinator_events = Event.objects.filter(
+            team_members__user=user,
+            team_members__is_active=True,
+            team_members__role=TeamRole.COORDINATOR,
+            team_members__can_manage_registrations=True,
+        ).distinct()
+        if coordinator_events.exists() and event not in coordinator_events:
+            return redirect('staff:event_list')
+
+    # Get assigned venues for ushers (only for events they are assigned to)
     assigned_venues = []
     if user.role == 'usher':
         usher_assignments = UsherAssignment.objects.filter(
@@ -100,7 +127,7 @@ def event_dashboard(request, event_id):
         assigned_venues = list(
             usher_assignments.values_list('venue_name', flat=True)
         )
-    
+
     # Get all confirmed registrations
     registrations = Registration.objects.filter(
         event=event,

@@ -321,3 +321,70 @@ def send_qr_email(request):
             'success': False,
             'message': str(e)
         }, status=500)
+
+
+def send_no_ticket_notification(registration):
+    """Send notification for events without tickets (waitlist/interest)"""
+    from .models import AttendeeNotification
+    
+    # 1. System Notification
+    AttendeeNotification.objects.create(
+        user=registration.user,
+        notification_type='event_update',
+        title=f"Registration Received: {registration.event.title}",
+        message=f"Thank you for registering for {registration.event.title}. We will notify you as soon as tickets become available.",
+        related_event=registration.event,
+        link=f"/attendee/registration/{registration.id}/"
+    )
+    
+    # 2. Email Notification
+    from django.core.mail import EmailMultiAlternatives
+    from django.conf import settings
+    
+    subject = f"Registration Received: {registration.event.title}"
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = registration.attendee_email
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+            .header {{ background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+            .content {{ background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }}
+            .info-box {{ background: #fffbeb; border: 1px solid #fef3c7; padding: 20px; border-radius: 10px; margin: 20px 0; }}
+            .footer {{ text-align: center; margin-top: 30px; padding: 20px; color: #666; font-size: 12px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>⏳ Registration Received</h1>
+                <p>{registration.event.title}</p>
+            </div>
+            <div class="content">
+                <p>Dear {registration.attendee_name},</p>
+                <p>Thank you for your interest in <strong>{registration.event.title}</strong>!</p>
+                <div class="info-box">
+                    <h3 style="color: #d97706; margin-top: 0;">What's Next?</h3>
+                    <p>We've received your registration. Since tickets are not yet available for this event, we've added you to our interest list.</p>
+                    <p><strong>We will notify you immediately via email as soon as tickets become available for purchase.</strong></p>
+                </div>
+                <p><strong>Registration Number:</strong> {registration.registration_number}</p>
+                <p>Best regards,<br><strong>Event Team</strong></p>
+            </div>
+            <div class="footer">
+                <p>This is an automated email. Please do not reply.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    text_content = f"Thank you for registering for {registration.event.title}. We will notify you as soon as tickets become available."
+    
+    email = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
+    email.attach_alternative(html_content, "text/html")
+    email.send(fail_silently=True)

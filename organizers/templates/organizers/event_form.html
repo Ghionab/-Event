@@ -184,6 +184,17 @@
                            placeholder="Leave empty for unlimited">
                 </div>
 
+                <!-- Number of Sessions -->
+                <div>
+                    <label for="num_sessions" class="block text-sm font-medium text-gray-700 mb-2">
+                        Number of Sessions & Speakers
+                    </label>
+                    <input type="number" name="num_sessions" id="num_sessions" min="0" value="0"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                           placeholder="e.g. 2">
+                    <p class="text-sm text-gray-500 mt-1">Each session can have multiple speakers</p>
+                </div>
+
                 <!-- Is Public -->
                 <div class="md:col-span-2">
                     <label class="flex items-center">
@@ -198,6 +209,11 @@
                 </div>
             </div>
 
+            <!-- Dynamic Sessions Container -->
+            <div id="sessions_container" class="space-y-6 mt-6">
+                <!-- Session chunks will be injected here -->
+            </div>
+
             <!-- Submit Buttons -->
             <div class="flex items-center justify-end gap-4 pt-6 border-t">
                 <a href="{% url 'organizers:organizer_event_list' %}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
@@ -210,4 +226,124 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const numSessionsInput = document.getElementById('num_sessions');
+        const sessionsContainer = document.getElementById('sessions_container');
+
+        function updateSessions() {
+            const count = parseInt(numSessionsInput.value) || 0;
+            const currentCount = sessionsContainer.children.length;
+
+            if (count > currentCount) {
+                // Add sessions
+                for (let i = currentCount; i < count; i++) {
+                    const sessionHTML = `
+                        <div class="card border border-gray-200 shadow-sm session-block" id="session_block_${i}">
+                            <div class="card-header bg-gray-50 border-b border-gray-200 py-3">
+                                <h4 class="card-title text-sm text-gray-700">Session ${i + 1}</h4>
+                            </div>
+                            <div class="card-body grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Session Title *</label>
+                                    <input type="text" name="session_${i}_title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500" required>
+                                </div>
+                                
+                                <!-- Session Timing (Date & Time) -->
+                                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Session Start <span class="text-gray-400 text-xs">(Optional)</span>
+                                        </label>
+                                        <input type="datetime-local" name="session_${i}_start_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Session End <span class="text-gray-400 text-xs">(Optional)</span>
+                                        </label>
+                                        <input type="datetime-local" name="session_${i}_end_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                    </div>
+                                </div>
+
+                                <!-- Unified Speakers Section -->
+                                <div class="md:col-span-2 border-t border-gray-200 pt-4 mt-2">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <label class="block text-sm font-medium text-gray-700">
+                                            <i class="bi bi-people mr-1"></i>Speakers
+                                        </label>
+                                        <button type="button" onclick="addSpeakerToSession(${i})" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-sm font-medium">
+                                            <i class="bi bi-plus-lg mr-1"></i>+ Add Speaker
+                                        </button>
+                                    </div>
+                                    <div id="speakers_container_${i}" class="space-y-4">
+                                        <!-- Speakers will be added here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    sessionsContainer.insertAdjacentHTML('beforeend', sessionHTML);
+                }
+            } else if (count < currentCount) {
+                // Remove sessions starting from the end
+                for (let i = currentCount - 1; i >= count; i--) {
+                    sessionsContainer.removeChild(sessionsContainer.children[i]);
+                }
+            }
+        }
+
+        // Function to add a speaker to a session
+        window.addSpeakerToSession = function(sessionIndex) {
+            const container = document.getElementById(`speakers_container_${sessionIndex}`);
+            const speakerCount = container.children.length;
+            const speakerHTML = `
+                <div class="speaker-block bg-gray-50 rounded-lg p-4 border border-gray-200" id="session_${sessionIndex}_speaker_${speakerCount}">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm font-medium text-gray-700">Speaker ${speakerCount + 1}</span>
+                        <button type="button" onclick="this.closest('.speaker-block').remove()" class="text-red-500 hover:text-red-700 text-sm">
+                            <i class="bi bi-trash mr-1"></i>Remove
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Name <span class="text-gray-400">(Optional)</span>
+                            </label>
+                            <input type="text" name="session_${sessionIndex}_speaker_${speakerCount}_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Bio <span class="text-gray-400">(Optional)</span>
+                            </label>
+                            <textarea name="session_${sessionIndex}_speaker_${speakerCount}_bio" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Profile Picture <span class="text-gray-400">(Optional)</span>
+                            </label>
+                            <input type="file" name="session_${sessionIndex}_speaker_${speakerCount}_picture" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Start Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                            </label>
+                            <input type="time" name="session_${sessionIndex}_speaker_${speakerCount}_start_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                End Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                            </label>
+                            <input type="time" name="session_${sessionIndex}_speaker_${speakerCount}_end_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', speakerHTML);
+        }
+
+        numSessionsInput.addEventListener('change', updateSessions);
+        numSessionsInput.addEventListener('keyup', updateSessions);
+    });
+</script>
 {% endblock %}

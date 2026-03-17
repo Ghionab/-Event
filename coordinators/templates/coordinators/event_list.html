@@ -1,0 +1,138 @@
+{% extends 'coordinators/base.html' %}
+
+{% block title %}My Events{% endblock %}
+
+{% block page_title %}My Events{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'coordinators:analytics' %}" class="btn btn-outline-primary">
+    <i class="fas fa-chart-bar me-2"></i>View Analytics
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        {% if events_with_stats %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Venue</th>
+                                    <th>Status</th>
+                                    <th>Registrations</th>
+                                    <th>Sessions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event_data in events_with_stats %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <h6 class="mb-1">
+                                                <a href="{% url 'coordinators:event_detail' event_data.event.id %}" 
+                                                   class="text-decoration-none">
+                                                    {{ event_data.event.title }}
+                                                </a>
+                                            </h6>
+                                            {% if event_data.event.description %}
+                                                <small class="text-muted">{{ event_data.event.description|truncatewords:10 }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ event_data.event.start_date|date:"M d, Y" }}</strong><br>
+                                            <small class="text-muted">{{ event_data.event.start_date|date:"H:i" }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if event_data.event.venue_name %}
+                                            {{ event_data.event.venue_name }}
+                                        {% else %}
+                                            <span class="text-muted">Virtual Event</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ event_data.event.status|default:'secondary' }}">
+                                            {{ event_data.event.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ event_data.confirmed_count }}</strong> confirmed
+                                            <br>
+                                            <small class="text-muted">{{ event_data.registration_count }} total</small>
+                                        </div>
+                                    </td>
+                                    <td>{{ event_data.session_count }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'coordinators:event_detail' event_data.event.id %}" 
+                                               class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'coordinators:event_edit' event_data.event.id %}" 
+                                               class="btn btn-sm btn-outline-warning" title="Edit Event">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                        data-bs-toggle="dropdown" title="More Actions">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'coordinators:session_list' event_data.event.id %}">
+                                                            <i class="fas fa-calendar-day me-2"></i>Manage Sessions
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'coordinators:speaker_list' event_data.event.id %}">
+                                                            <i class="fas fa-microphone me-2"></i>Manage Speakers
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'coordinators:sponsor_list' event_data.event.id %}">
+                                                            <i class="fas fa-handshake me-2"></i>Manage Sponsors
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{% url 'coordinators:communications' event_data.event.id %}">
+                                                            <i class="fas fa-envelope me-2"></i>Communications
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted mb-3">No Events Assigned</h4>
+                    <p class="text-muted mb-4">
+                        You haven't been assigned to any events yet. Contact your administrator to get event assignments.
+                    </p>
+                    <div class="text-muted">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Coordinators can only manage events they've been assigned to by administrators.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

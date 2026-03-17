@@ -1,0 +1,10 @@
+{% comment %}
+Template for portal-specific styles inclusion.
+Usage: {% portal_styles 'staff' event.id %}
+{% endcomment %}
+
+{% if css_content %}
+<style type="text/css" data-portal="{{ portal_type }}" data-has-theme="{{ has_theme|yesno:'true,false' }}">
+{{ css_content|safe }}
+</style>
+{% endif %}

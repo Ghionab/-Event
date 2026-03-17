@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ theme.event.title }} Theme - Event Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .color-palette {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .color-item {
+        text-align: center;
+        flex: 1;
+    }
+    
+    .color-swatch {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 0 auto 0.5rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .color-swatch:hover {
+        transform: scale(1.05);
+    }
+    
+    .color-code {
+        font-family: monospace;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    .theme-preview {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        background: #f8f9fa;
+    }
+    
+    .preview-element {
+        margin-bottom: 1rem;
+    }
+    
+    .stats-card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+    
+    .log-entry {
+        border-left: 4px solid #007bff;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .log-success { border-left-color: #28a745; }
+    .log-warning { border-left-color: #ffc107; }
+    .log-error { border-left-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1>{{ theme.event.title }} Theme</h1>
+                    <p class="text-muted mb-0">
+                        Generated via {{ theme.get_generation_method_display }} 
+                        on {{ theme.created_at|date:"M d, Y H:i" }}
+                    </p>
+                </div>
+                <div class="btn-group">
+                    <a href="{% url 'theming:theme_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Themes
+                    </a>
+                    <button type="button" class="btn btn-primary" onclick="regenerateTheme()">
+                        <i class="fas fa-sync"></i> Regenerate Theme
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Color Palette -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-palette"></i> Color Palette</h5>
+                </div>
+                <div class="card-body">
+                    <div class="color-palette">
+                        <div class="color-item">
+                            <div class="color-swatch" style="background-color: {{ theme.primary_color }}" 
+                                 onclick="copyToClipboard('{{ theme.primary_color }}')"></div>
+                            <div class="color-label">Primary</div>
+                            <div class="color-code">{{ theme.primary_color }}</div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-swatch" style="background-color: {{ theme.secondary_color }}" 
+                                 onclick="copyToClipboard('{{ theme.secondary_color }}')"></div>
+                            <div class="color-label">Secondary</div>
+                            <div class="color-code">{{ theme.secondary_color }}</div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-swatch" style="background-color: {{ theme.accent_color }}" 
+                                 onclick="copyToClipboard('{{ theme.accent_color }}')"></div>
+                            <div class="color-label">Accent</div>
+                            <div class="color-code">{{ theme.accent_color }}</div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-swatch" style="background-color: {{ theme.neutral_light }}" 
+                                 onclick="copyToClipboard('{{ theme.neutral_light }}')"></div>
+                            <div class="color-label">Light</div>
+                            <div class="color-code">{{ theme.neutral_light }}</div>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-swatch" style="background-color: {{ theme.neutral_dark }}" 
+                                 onclick="copyToClipboard('{{ theme.neutral_dark }}')"></div>
+                            <div class="color-label">Dark</div>
+                            <div class="color-code">{{ theme.neutral_dark }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Theme Preview -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-eye"></i> Theme Preview</h5>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="previewPortal('staff')">Staff</button>
+                        <button class="btn btn-outline-primary" onclick="previewPortal('participant')">Participant</button>
+                        <button class="btn btn-outline-primary" onclick="previewPortal('organizer')">Organizer</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="theme-preview" style="--theme-primary: {{ theme.primary_color }}; --theme-secondary: {{ theme.secondary_color }}; --theme-accent: {{ theme.accent_color }};">
+                        <div class="preview-element">
+                            <button class="btn" style="background-color: var(--theme-primary); color: white; border: none;">
+                                Primary Button
+                            </button>
+                            <button class="btn" style="background-color: var(--theme-secondary); color: white; border: none; margin-left: 0.5rem;">
+                                Secondary Button
+                            </button>
+                            <button class="btn" style="background-color: var(--theme-accent); color: white; border: none; margin-left: 0.5rem;">
+                                Accent Button
+                            </button>
+                        </div>
+                        
+                        <div class="preview-element">
+                            <div class="card" style="border-top: 3px solid var(--theme-primary);">
+                                <div class="card-header" style="background-color: {{ theme.neutral_light }};">
+                                    <h6 class="mb-0" style="color: var(--theme-primary);">Sample Card Header</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0">This is how cards will look with your theme colors applied.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-element">
+                            <nav class="navbar" style="background-color: var(--theme-primary);">
+                                <span class="navbar-brand text-white">Event Navigation</span>
+                                <div class="navbar-nav flex-row">
+                                    <a class="nav-link text-white px-3" href="#">Home</a>
+                                    <a class="nav-link text-white px-3" href="#">Events</a>
+                                    <a class="nav-link text-white px-3" href="#">Profile</a>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Theme Variations -->
+            {% if variations %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-layer-group"></i> Theme Variations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for variation in variations %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ variation.get_variation_type_display }}</h6>
+                                    <p class="card-text text-muted">
+                                        Created {{ variation.created_at|date:"M d, Y" }}
+                                    </p>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="previewVariation({{ variation.id }})">
+                                        Preview
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Theme Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="stats-card">
+                                <div class="stats-number">{{ theme.access_count }}</div>
+                                <div class="text-muted">Access Count</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card">
+                                <div class="stats-number">{{ theme.extraction_confidence|floatformat:1 }}</div>
+                                <div class="text-muted">Confidence</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>WCAG Compliant:</span>
+                            {% if theme.wcag_compliant %}
+                                <span class="badge badge-success">Yes</span>
+                            {% else %}
+                                <span class="badge badge-warning">No</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Fallback Theme:</span>
+                            {% if theme.is_fallback %}
+                                <span class="badge badge-warning">Yes</span>
+                            {% else %}
+                                <span class="badge badge-success">No</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Adjustments Made:</span>
+                            {% if theme.contrast_adjustments_made %}
+                                <span class="badge badge-info">Yes</span>
+                            {% else %}
+                                <span class="badge badge-secondary">No</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if logs %}
+                        {% for log in logs %}
+                        <div class="log-entry log-{{ log.status }}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>{{ log.get_operation_type_display }}</strong>
+                                    <div class="text-muted small">
+                                        {{ log.created_at|date:"M d, Y H:i" }}
+                                        {% if log.user %}by {{ log.user.get_full_name|default:log.user.username }}{% endif %}
+                                    </div>
+                                </div>
+                                <span class="badge badge-{{ log.status }}">{{ log.get_status_display }}</span>
+                            </div>
+                            {% if log.error_message %}
+                            <div class="text-muted small mt-1">{{ log.error_message|truncatechars:100 }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show temporary success message
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success position-fixed';
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 200px;';
+        toast.innerHTML = `Copied ${text} to clipboard!`;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 2000);
+    });
+}
+
+function regenerateTheme() {
+    if (confirm('Are you sure you want to regenerate the theme? This will overwrite the current theme.')) {
+        fetch(`/theming/event/{{ theme.event.id }}/generate/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Theme regenerated successfully!');
+                location.reload();
+            } else {
+                alert('Error regenerating theme: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error regenerating theme');
+        });
+    }
+}
+
+function previewPortal(portalType) {
+    const url = `/theming/event/{{ theme.event.id }}/preview/${portalType}/`;
+    window.open(url, '_blank');
+}
+
+function previewVariation(variationId) {
+    alert('Variation preview functionality will be implemented in the next phase.');
+}
+</script>
+{% endblock %}

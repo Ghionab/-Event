@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Event Themes - Event Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .theme-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.2s;
+    }
+    
+    .theme-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .color-swatch {
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    
+    .theme-status {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+    }
+    
+    .status-auto { background-color: #d4edda; color: #155724; }
+    .status-manual { background-color: #d1ecf1; color: #0c5460; }
+    .status-fallback { background-color: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Event Themes</h1>
+                <a href="#" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Events
+                </a>
+            </div>
+            
+            {% if themes %}
+                <div class="row">
+                    {% for theme in themes %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="theme-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0">{{ theme.event.title }}</h5>
+                                <span class="theme-status status-{{ theme.generation_method }}">
+                                    {{ theme.get_generation_method_display }}
+                                </span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="color-swatch" style="background-color: {{ theme.primary_color }}" title="Primary: {{ theme.primary_color }}"></div>
+                                <div class="color-swatch" style="background-color: {{ theme.secondary_color }}" title="Secondary: {{ theme.secondary_color }}"></div>
+                                <div class="color-swatch" style="background-color: {{ theme.accent_color }}" title="Accent: {{ theme.accent_color }}"></div>
+                                <div class="color-swatch" style="background-color: {{ theme.neutral_light }}" title="Light: {{ theme.neutral_light }}"></div>
+                                <div class="color-swatch" style="background-color: {{ theme.neutral_dark }}" title="Dark: {{ theme.neutral_dark }}"></div>
+                            </div>
+                            
+                            <div class="row text-center mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted">Confidence</small><br>
+                                    <strong>{{ theme.extraction_confidence|floatformat:1 }}</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Accessed</small><br>
+                                    <strong>{{ theme.access_count }}</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'theming:event_theme' theme.event.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="regenerateTheme({{ theme.event.id }})">
+                                        <i class="fas fa-sync"></i> Regenerate
+                                    </button>
+                                    <button type="button" class="btn btn-outline-info btn-sm" onclick="previewTheme({{ theme.event.id }})">
+                                        <i class="fas fa-external-link-alt"></i> Preview
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    Updated: {{ theme.updated_at|date:"M d, Y H:i" }}
+                                    {% if theme.wcag_compliant %}
+                                        <span class="badge badge-success ml-2">WCAG Compliant</span>
+                                    {% endif %}
+                                    {% if theme.is_fallback %}
+                                        <span class="badge badge-warning ml-2">Fallback</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <nav aria-label="Theme pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-palette fa-3x text-muted mb-3"></i>
+                    <h3>No Themes Found</h3>
+                    <p class="text-muted">You don't have any event themes yet. Create an event to get started with theming.</p>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Event
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function regenerateTheme(eventId) {
+    if (confirm('Are you sure you want to regenerate the theme? This will overwrite the current theme.')) {
+        fetch(`/theming/event/${eventId}/generate/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Theme regenerated successfully!');
+                location.reload();
+            } else {
+                alert('Error regenerating theme: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error regenerating theme');
+        });
+    }
+}
+
+function previewTheme(eventId) {
+    // Open theme preview in new window
+    window.open(`/theming/event/${eventId}/preview/participant/`, '_blank');
+}
+</script>
+{% endblock %}

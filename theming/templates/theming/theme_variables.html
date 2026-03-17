@@ -1,0 +1,21 @@
+{% comment %}
+Template for theme CSS variables inclusion.
+Usage: {% theme_variables event.id %}
+{% endcomment %}
+
+<style type="text/css">
+:root {
+    --theme-primary: {{ colors.primary }};
+    --theme-secondary: {{ colors.secondary }};
+    --theme-accent: {{ colors.accent }};
+    --theme-neutral-light: {{ colors.neutral_light }};
+    --theme-neutral-dark: {{ colors.neutral_dark }};
+    
+    {% if theme %}
+    /* Theme metadata */
+    --theme-generation-method: "{{ theme.generation_method }}";
+    --theme-wcag-compliant: {{ theme.wcag_compliant|yesno:"true,false" }};
+    --theme-is-fallback: {{ theme.is_fallback|yesno:"true,false" }};
+    {% endif %}
+}
+</style>

@@ -1,0 +1,203 @@
+{% extends 'coordinators/base.html' %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block page_title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<!-- Overview Stats -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card bg-primary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title text-uppercase text-white-50 mb-0">Total Events</h5>
+                        <h2 class="mb-0">{{ events.count }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card bg-success text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title text-uppercase text-white-50 mb-0">Total Registrations</h5>
+                        <h2 class="mb-0">{{ total_registrations }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card bg-info text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title text-uppercase text-white-50 mb-0">Confirmed</h5>
+                        <h2 class="mb-0">{{ total_confirmed }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-check fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card bg-warning text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title text-uppercase text-white-50 mb-0">Checked In</h5>
+                        <h2 class="mb-0">{{ total_checked_in }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-sign-in-alt fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Event Performance -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-bar me-2"></i>Event Performance
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if event_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Total Registrations</th>
+                                    <th>Confirmed</th>
+                                    <th>Checked In</th>
+                                    <th>Attendance Rate</th>
+                                    <th>Confirmation Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in event_stats %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'coordinators:event_detail' stat.event.id %}" 
+                                           class="text-decoration-none">
+                                            {{ stat.event.title }}
+                                        </a>
+                                    </td>
+                                    <td>{{ stat.event.start_date|date:"M d, Y" }}</td>
+                                    <td>{{ stat.total }}</td>
+                                    <td>{{ stat.confirmed }}</td>
+                                    <td>{{ stat.checked_in }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress me-2" style="width: 100px; height: 8px;">
+                                                <div class="progress-bar bg-success" 
+                                                     style="width: {{ stat.attendance_rate|floatformat:0 }} %"></div>
+                                            </div>
+                                            <small>{{ stat.attendance_rate|floatformat:1 }}%</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if stat.total > 0 %}
+                                            {% widthratio stat.confirmed stat.total 100 %}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No event data available yet.</p>
+                        <p class="text-muted small">Analytics will appear once you have assigned events with registrations.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Metrics -->
+{% if event_stats %}
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-percentage me-2"></i>Overall Performance
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4 class="text-success">
+                            {% if total_registrations > 0 %}
+                                {% widthratio total_confirmed total_registrations 100 %}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </h4>
+                        <small class="text-muted">Confirmation Rate</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-info">
+                            {% if total_confirmed > 0 %}
+                                {% widthratio total_checked_in total_confirmed 100 %}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </h4>
+                        <small class="text-muted">Attendance Rate</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-calendar-check me-2"></i>Event Status Breakdown
+                </h6>
+            </div>
+            <div class="card-body">
+                {% for event in events %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small">{{ event.title|truncatewords:5 }}</span>
+                    <span class="badge bg-{{ event.status|default:'secondary' }}">
+                        {{ event.status|title }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

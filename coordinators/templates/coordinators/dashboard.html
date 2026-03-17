@@ -1,0 +1,214 @@
+{% extends 'coordinators/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Stats Cards -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card bg-primary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title text-uppercase text-white-50 mb-0">Total Events</h5>
+                        <h2 class="mb-0">{{ total_events }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card bg-success text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title text-uppercase text-white-50 mb-0">Upcoming</h5>
+                        <h2 class="mb-0">{{ upcoming_events }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card bg-info text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title text-uppercase text-white-50 mb-0">Registrations</h5>
+                        <h2 class="mb-0">{{ total_registrations }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card bg-warning text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <h5 class="card-title text-uppercase text-white-50 mb-0">Checked In</h5>
+                        <h2 class="mb-0">{{ checked_in_count }}</h2>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-check fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- My Events -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-calendar me-2"></i>My Events
+                </h6>
+                <a href="{% url 'coordinators:event_list' %}" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if events %}
+                    {% for event in events %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'coordinators:event_detail' event.id %}" class="text-decoration-none">
+                                        {{ event.title }}
+                                    </a>
+                                </h6>
+                                <p class="text-muted small mb-1">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ event.venue_name|default:"Virtual Event" }}
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-clock me-1"></i>{{ event.start_date|date:"M d, Y H:i" }}
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-{{ event.status|default:'secondary' }}">
+                                    {{ event.status|title }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">You haven't been assigned to any events yet.</p>
+                        <p class="text-muted small">Contact your administrator to get assigned to events.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-history me-2"></i>Recent Registrations
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if recent_registrations %}
+                    {% for registration in recent_registrations %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1 small">{{ registration.attendee_name }}</h6>
+                                <p class="text-muted small mb-0">{{ registration.event.title }}</p>
+                            </div>
+                            <small class="text-muted">{{ registration.created_at|date:"M d" }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No recent registrations</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Upcoming Sessions -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-calendar-day me-2"></i>Upcoming Sessions
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if upcoming_sessions %}
+                    {% for session in upcoming_sessions %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="row">
+                            <div class="col">
+                                <h6 class="mb-1">{{ session.title }}</h6>
+                                <p class="text-muted small mb-1">
+                                    <i class="fas fa-clock me-1"></i>{{ session.start_time|date:"M d, Y H:i" }}
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ session.location|default:"TBA" }}
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-info">{{ session.session_type|title }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No upcoming sessions</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="{% url 'coordinators:event_list' %}" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                            <i class="fas fa-calendar fa-2x mb-2"></i>
+                            Manage Events
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'coordinators:analytics' %}" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center">
+                            <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                            View Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

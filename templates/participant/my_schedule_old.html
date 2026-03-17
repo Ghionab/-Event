@@ -1,0 +1,1316 @@
+{% extends 'participant/base.html' %}
+{% load static %}
+{% block title %}My Schedule - EventHub{% endblock %}
+
+{% block extra_css %}
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
+<style>
+    /* Modern Calendar Styles */
+    .calendar-wrapper {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .calendar-container {
+        background: white;
+        border-radius: 18px;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .calendar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .calendar-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 40%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: rotate(35deg);
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .header-title h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+
+    .calendar-controls {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .view-toggle {
+        display: flex;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0.25rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .view-toggle button {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        background: transparent;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .view-toggle button:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .view-toggle button.active {
+        background: white;
+        color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .sync-status {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+    }
+
+    .sync-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #10b981;
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    @keyframes pulse {
+        0%, 100% { 
+            opacity: 1; 
+            transform: scale(1);
+        }
+        50% { 
+            opacity: 0.6; 
+            transform: scale(1.2);
+        }
+    }
+
+    .filter-btn, .export-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 0.95rem;
+    }
+
+    .filter-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .filter-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .export-btn {
+        background: white;
+        color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .export-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Filter Panel */
+    .filter-panel {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.5rem 2rem;
+        display: none;
+    }
+
+    .filter-panel.active {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Calendar Styles */
+    .calendar-body {
+        padding: 2rem;
+        min-height: 600px;
+    }
+
+    .fc-theme-standard .fc-scrollgrid {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .fc-theme-standard .fc-scrollgrid td,
+    .fc-theme-standard .fc-scrollgrid th {
+        border: 1px solid #f1f5f9;
+    }
+
+    .fc-theme-standard .fc-col-header-cell {
+        background: #f8fafc;
+        padding: 1rem 0.5rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+
+    .fc-theme-standard .fc-daygrid-day-number {
+        color: #6b7280;
+        font-weight: 500;
+        padding: 0.5rem;
+    }
+
+    .fc-theme-standard .fc-day-today {
+        background: #f0f9ff !important;
+    }
+
+    .fc-theme-standard .fc-day-today .fc-daygrid-day-number {
+        color: #0369a1;
+        font-weight: 700;
+    }
+
+    /* Event Styles */
+    .fc-event {
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0.5rem !important;
+        margin: 2px !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .fc-event:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .fc-event.event-registered {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+        border-left: 4px solid #047857 !important;
+    }
+
+    .fc-event.event-saved {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+        border-left: 4px solid #1e40af !important;
+    }
+
+    .fc-event.event-conflict {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        border-left: 4px solid #b45309 !important;
+    }
+
+    /* Legend */
+    .calendar-legend {
+        display: flex;
+        gap: 2rem;
+        padding: 1.5rem 2rem;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+        color: #4b5563;
+    }
+
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .stat-icon.registered {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .stat-icon.saved {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+    }
+
+    .stat-icon.conflicts {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .stat-icon.upcoming {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+    }
+
+    .stat-info h3 {
+        font-size: 0.9rem;
+        color: #6b7280;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-info .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    /* Modal */
+    .event-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1rem;
+    }
+
+    .event-modal.active {
+        display: flex;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 2rem 2rem 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .modal-close {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: none;
+        background: #f3f4f6;
+        color: #6b7280;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .event-details {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .detail-value {
+        color: #6b7280;
+        text-align: right;
+    }
+
+    .event-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Live Badge */
+    .live-badge {
+        background: #ef4444;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        animation: blink 1s infinite;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    @keyframes blink {
+        0%, 50%, 100% { opacity: 1; }
+        25%, 75% { opacity: 0.5; }
+    }
+
+    /* Tooltip */
+    .event-tooltip {
+        position: absolute;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        max-width: 300px;
+        display: none;
+        backdrop-filter: blur(10px);
+    }
+
+    .tooltip-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .tooltip-content {
+        font-size: 0.9rem;
+        color: #6b7280;
+        line-height: 1.5;
+    }
+
+    /* Toast Notifications */
+    .toast-container {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        z-index: 2000;
+    }
+
+    .toast {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 300px;
+        animation: slideInRight 0.3s ease-out;
+        border-left: 4px solid;
+    }
+
+    .toast.success {
+        border-left-color: #10b981;
+    }
+
+    .toast.error {
+        border-left-color: #ef4444;
+    }
+
+    .toast.warning {
+        border-left-color: #f59e0b;
+    }
+
+    .toast.info {
+        border-left-color: #3b82f6;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .calendar-header {
+            padding: 1.5rem;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+        }
+
+        .calendar-controls {
+            gap: 1rem;
+        }
+
+        .view-toggle button {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .calendar-body {
+            padding: 1rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+            margin: 1rem;
+            max-height: calc(100vh - 2rem);
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Modern Calendar Wrapper -->
+    <div class="calendar-wrapper">
+        <div class="calendar-container">
+            <!-- Calendar Header -->
+            <div class="calendar-header">
+                <div class="header-content">
+                    <div class="header-title">
+                        <h1>My Schedule</h1>
+                        <p class="header-subtitle">Real-time sync with your event schedule</p>
+                    </div>
+                    
+                    <div class="calendar-controls">
+                        <div class="sync-status">
+                            <div class="sync-indicator"></div>
+                            <span>Live Sync</span>
+                            <span class="live-badge" id="updateBadge" style="display: none;">LIVE</span>
+                        </div>
+                        
+                        <div class="view-toggle">
+                            <button class="active" data-view="day">Day</button>
+                            <button data-view="week">Week</button>
+                            <button data-view="month">Month</button>
+                        </div>
+                        
+                        <button class="filter-btn" onclick="toggleFilter()">
+                            <i class="bi bi-funnel mr-2"></i>Filter
+                        </button>
+                        
+                        <a href="{% url 'attendee:export_schedule' %}" class="export-btn">
+                            <i class="bi bi-download mr-2"></i>Export
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filter Panel -->
+            <div id="filterPanel" class="filter-panel">
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label for="eventTypeFilter">Event Type</label>
+                        <select id="eventTypeFilter">
+                            <option value="">All Events</option>
+                            <option value="in_person">In-Person</option>
+                            <option value="virtual">Virtual</option>
+                            <option value="hybrid">Hybrid</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="statusFilter">Status</label>
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="registered">Registered</option>
+                            <option value="saved">Saved Sessions</option>
+                            <option value="conflicts">Conflicts</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="dateFilter">Date Range</label>
+                        <input type="date" id="dateFilter">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calendar Body -->
+            <div class="calendar-body">
+                <div id="calendar"></div>
+            </div>
+            
+            <!-- Calendar Legend -->
+            <div class="calendar-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #10b981, #059669);"></div>
+                    <span>Registered Events</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"></div>
+                    <span>Saved Sessions</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></div>
+                    <span>Schedule Conflicts</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Details Modal -->
+    <div id="eventModal" class="event-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="modal-close" onclick="closeEventModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="event-details" id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Tooltip -->
+    <div id="eventTooltip" class="event-tooltip">
+        <div class="tooltip-title" id="tooltipTitle"></div>
+        <div class="tooltip-content" id="tooltipContent"></div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-content">
+                <div class="stat-icon registered">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Registered Events</h3>
+                    <div class="stat-value" id="registeredCount">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-content">
+                <div class="stat-icon saved">
+                    <i class="bi bi-bookmark"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Saved Sessions</h3>
+                    <div class="stat-value" id="savedCount">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-content">
+                <div class="stat-icon conflicts">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Conflicts</h3>
+                    <div class="stat-value" id="conflictCount">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-content">
+                <div class="stat-icon upcoming">
+                    <i class="bi bi-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Upcoming</h3>
+                    <div class="stat-value" id="upcomingCount">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/locales/en-gb.js"></script>
+
+<script>
+// Calendar data from Django
+const calendarData = {{ calendar_events|safe }};
+const conflictSessions = {{ conflict_sessions|safe }};
+
+let calendar;
+let websocket;
+let currentView = 'day';
+let filterOptions = {
+    eventType: '',
+    status: '',
+    date: ''
+};
+
+// Initialize calendar
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCalendar();
+    initializeWebSocket();
+    setupEventListeners();
+    updateStats();
+});
+
+function initializeCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridDay',
+        headerToolbar: false, // We use custom header
+        height: 'auto',
+        allDaySlot: false,
+        slotMinTime: '06:00:00',
+        slotMaxTime: '23:59:59',
+        slotDuration: '00:30:00',
+        events: calendarData,
+        eventClick: handleEventClick,
+        eventMouseEnter: showEventTooltip,
+        eventMouseLeave: hideEventTooltip,
+        eventDidMount: function(info) {
+            // Add custom classes based on event type
+            if (info.event.extendedProps.type === 'registered') {
+                info.el.classList.add('event-registered');
+            } else if (info.event.extendedProps.type === 'saved') {
+                info.el.classList.add('event-saved');
+            } else if (info.event.extendedProps.type === 'conflict') {
+                info.el.classList.add('event-conflict');
+            }
+            
+            // Add conflict indicator
+            if (conflictSessions.includes(info.event.id)) {
+                info.el.style.borderLeft = '4px solid #f59e0b';
+            }
+        },
+        datesSet: function() {
+            updateStats();
+        }
+    });
+    
+    calendar.render();
+}
+
+function initializeWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/calendar/`;
+    
+    websocket = new WebSocket(wsUrl);
+    
+    websocket.onopen = function(e) {
+        console.log('Calendar WebSocket connected');
+        showLiveIndicator();
+    };
+    
+    websocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        handleRealTimeUpdate(data);
+    };
+    
+    websocket.onclose = function(e) {
+        console.log('Calendar WebSocket disconnected');
+        hideLiveIndicator();
+        // Attempt to reconnect after 3 seconds
+        setTimeout(initializeWebSocket, 3000);
+    };
+    
+    websocket.onerror = function(e) {
+        console.error('WebSocket error:', e);
+    };
+}
+
+function handleRealTimeUpdate(data) {
+    switch(data.type) {
+        case 'session_added':
+            addCalendarEvent(data.event);
+            showNotification('New session added to your schedule', 'success');
+            break;
+        case 'session_removed':
+            removeCalendarEvent(data.event_id);
+            showNotification('Session removed from your schedule', 'info');
+            break;
+        case 'session_updated':
+            updateCalendarEvent(data.event);
+            showNotification('Session schedule updated', 'warning');
+            break;
+        case 'event_cancelled':
+            removeCalendarEvent(data.event_id);
+            showNotification('Event has been cancelled', 'error');
+            break;
+    }
+    
+    flashLiveIndicator();
+    updateStats();
+}
+
+function addCalendarEvent(eventData) {
+    calendar.addEvent({
+        id: eventData.id,
+        title: eventData.title,
+        start: eventData.start,
+        end: eventData.end,
+        extendedProps: eventData.extendedProps
+    });
+}
+
+function removeCalendarEvent(eventId) {
+    const event = calendar.getEventById(eventId);
+    if (event) {
+        event.remove();
+    }
+}
+
+function updateCalendarEvent(eventData) {
+    const event = calendar.getEventById(eventData.id);
+    if (event) {
+        event.setProp('title', eventData.title);
+        event.setStart(eventData.start);
+        event.setEnd(eventData.end);
+        event.setExtendedProp('extendedProps', eventData.extendedProps);
+    }
+}
+
+function setupEventListeners() {
+    // View toggle buttons
+    document.querySelectorAll('.view-toggle button').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('.view-toggle button').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const view = this.dataset.view;
+            changeCalendarView(view);
+        });
+    });
+    
+    // Filter controls
+    document.getElementById('eventTypeFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.getElementById('dateFilter').addEventListener('change', applyFilters);
+}
+
+function changeCalendarView(view) {
+    currentView = view;
+    switch(view) {
+        case 'day':
+            calendar.changeView('timeGridDay');
+            break;
+        case 'week':
+            calendar.changeView('timeGridWeek');
+            break;
+        case 'month':
+            calendar.changeView('dayGridMonth');
+            break;
+    }
+}
+
+function toggleFilter() {
+    const filterPanel = document.getElementById('filterPanel');
+    filterPanel.classList.toggle('active');
+}
+
+function showEventModal(event) {
+    const modal = document.getElementById('eventModal');
+    const title = document.getElementById('modalTitle');
+    const content = document.getElementById('modalContent');
+    
+    title.textContent = event.title;
+    
+    const eventData = event.extendedProps;
+    content.innerHTML = `
+        <div class="event-details">
+            <div class="detail-row">
+                <span class="detail-label">Event</span>
+                <span class="detail-value">${eventData.event_title || 'N/A'}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Type</span>
+                <span class="detail-value">
+                    <span class="inline-block px-2 py-1 text-xs font-medium rounded-full ${
+                        eventData.type === 'registered' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                    }">
+                        ${eventData.type === 'registered' ? 'Registered' : 'Saved Session'}
+                    </span>
+                </span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">Start</span>
+                <span class="detail-value">${event.start.toLocaleString()}</span>
+            </div>
+            
+            <div class="detail-row">
+                <span class="detail-label">End</span>
+                <span class="detail-value">${event.end.toLocaleString()}</span>
+            </div>
+            
+            ${eventData.location ? `
+            <div class="detail-row">
+                <span class="detail-label">Location</span>
+                <span class="detail-value">${eventData.location}</span>
+            </div>
+            ` : ''}
+            
+            ${eventData.speakers ? `
+            <div class="detail-row">
+                <span class="detail-label">Speakers</span>
+                <span class="detail-value">${eventData.speakers}</span>
+            </div>
+            ` : ''}
+            
+            <div class="event-actions">
+                ${eventData.type === 'saved' ? `
+                <button class="btn btn-danger" onclick="unsaveSession('${event.id}')">
+                    <i class="bi bi-bookmark-x"></i>Remove from Schedule
+                </button>
+                ` : ''}
+                <a href="/attendee/events/${eventData.event_id}/" class="btn btn-primary">
+                    <i class="bi bi-eye"></i>View Event
+                </a>
+                ${eventData.feedback_url ? `
+                <a href="${eventData.feedback_url}" class="btn btn-secondary">
+                    <i class="bi bi-star"></i>Feedback
+                </a>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    modal.classList.add('active');
+}
+
+function closeEventModal() {
+    document.getElementById('eventModal').classList.remove('active');
+}
+
+function showEventTooltip(info) {
+    const tooltip = document.getElementById('eventTooltip');
+    const titleEl = document.getElementById('tooltipTitle');
+    const contentEl = document.getElementById('tooltipContent');
+    
+    const event = info.event;
+    const eventData = event.extendedProps;
+    
+    titleEl.textContent = event.title;
+    contentEl.innerHTML = `
+        <div>${event.start.toLocaleTimeString()} - ${event.end.toLocaleTimeString()}</div>
+        ${eventData.event_title ? `<div class="mt-1">${eventData.event_title}</div>` : ''}
+        ${eventData.location ? `<div class="mt-1"><i class="bi bi-geo-alt"></i> ${eventData.location}</div>` : ''}
+    `;
+    
+    tooltip.style.display = 'block';
+    
+    // Position tooltip
+    const rect = info.el.getBoundingClientRect();
+    tooltip.style.left = rect.left + 'px';
+    tooltip.style.top = (rect.bottom + 5) + 'px';
+}
+
+function hideEventTooltip() {
+    document.getElementById('eventTooltip').style.display = 'none';
+}
+
+function applyFilters() {
+    filterOptions.eventType = document.getElementById('eventTypeFilter').value;
+    filterOptions.status = document.getElementById('statusFilter').value;
+    filterOptions.date = document.getElementById('dateFilter').value;
+    
+    // Get all events and filter them
+    const allEvents = calendar.getEvents();
+    allEvents.forEach(event => {
+        let show = true;
+        
+        // Event type filter
+        if (filterOptions.eventType && event.extendedProps.event_type !== filterOptions.eventType) {
+            show = false;
+        }
+        
+        // Status filter
+        if (filterOptions.status) {
+            if (filterOptions.status === 'registered' && event.extendedProps.type !== 'registered') {
+                show = false;
+            } else if (filterOptions.status === 'saved' && event.extendedProps.type !== 'saved') {
+                show = false;
+            } else if (filterOptions.status === 'conflicts' && !conflictSessions.includes(event.id)) {
+                show = false;
+            }
+        }
+        
+        // Date filter
+        if (filterOptions.date) {
+            const eventDate = event.start.toISOString().split('T')[0];
+            if (eventDate !== filterOptions.date) {
+                show = false;
+            }
+        }
+        
+        event.setProp('display', show ? 'auto' : 'none');
+    });
+    
+    updateStats();
+}
+
+function handleEventClick(info) {
+    const event = info.event;
+    showEventModal(event);
+}
+
+function unsaveSession(sessionId) {
+    fetch(`/attendee/session/${sessionId}/unsave/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            removeCalendarEvent(sessionId);
+            closeEventModal();
+            showNotification('Session removed from your schedule', 'success');
+            updateStats();
+        } else {
+            showNotification('Error removing session', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error removing session', 'error');
+    });
+}
+
+function updateStats() {
+    const allEvents = calendar.getEvents();
+    const visibleEvents = allEvents.filter(event => event.display !== 'none');
+    
+    const registered = visibleEvents.filter(e => e.extendedProps.type === 'registered').length;
+    const saved = visibleEvents.filter(e => e.extendedProps.type === 'saved').length;
+    const conflicts = visibleEvents.filter(e => conflictSessions.includes(e.id)).length;
+    const upcoming = visibleEvents.filter(e => e.start > new Date()).length;
+    
+    document.getElementById('registeredCount').textContent = registered;
+    document.getElementById('savedCount').textContent = saved;
+    document.getElementById('conflictCount').textContent = conflicts;
+    document.getElementById('upcomingCount').textContent = upcoming;
+}
+
+function showLiveIndicator() {
+    document.getElementById('updateBadge').style.display = 'inline-block';
+}
+
+function hideLiveIndicator() {
+    document.getElementById('updateBadge').style.display = 'none';
+}
+
+function flashLiveIndicator() {
+    const badge = document.getElementById('updateBadge');
+    badge.style.display = 'inline-block';
+    badge.style.background = '#ef4444';
+    setTimeout(() => {
+        badge.style.background = '#10b981';
+    }, 500);
+}
+
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icons = {
+        success: 'check-circle',
+        error: 'x-circle',
+        warning: 'exclamation-triangle',
+        info: 'info-circle'
+    };
+    
+    toast.innerHTML = `
+        <i class="bi bi-${icons[type]}"></i>
+        <span>${message}</span>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.opacity = '1';
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            if (container.contains(toast)) {
+                container.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Close modal when clicking outside
+document.getElementById('eventModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeEventModal();
+    }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeEventModal();
+    }
+});
+</script>
+{% endblock %}

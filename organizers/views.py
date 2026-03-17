@@ -823,15 +823,207 @@ def analytics(request, event_id=None):
 @login_required
 @organizer_required
 def team_members(request):
-    """Manage team members"""
+    """Manage team members with multi-event support"""
     organizer = request.organizer
-    team_members = OrganizerTeamMember.objects.filter(organizer=organizer)
+    events = Event.objects.filter(organizer=organizer.user, status='published')
+    
+    if request.method == 'POST':
+        from django.contrib.auth import get_user_model
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+        
+        User = get_user_model()
+        
+        # Get form data - now supports multiple events
+        event_ids = request.POST.getlist('events')
+        role = request.POST.get('role')
+        email = request.POST.get('email', '').strip().lower()
+        password = request.POST.get('password', '')
+        
+        # Validate required fields
+        errors = []
+        if not event_ids:
+            errors.append('Please select at least one event.')
+        if not role:
+            errors.append('Please select a role.')
+        if not email:
+            errors.append('Email address is required.')
+        else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                errors.append('Please enter a valid email address.')
+        if not password:
+            errors.append('Password is required.')
+        elif len(password) < 6:
+            errors.append('Password must be at least 6 characters long.')
+        
+        # Validate role value
+        valid_roles = ['coordinator', 'usher']
+        if role and role not in valid_roles:
+            errors.append('Invalid role selected.')
+        
+        # Verify all selected events belong to organizer
+        if event_ids:
+            selected_events = Event.objects.filter(id__in=event_ids, organizer=organizer.user)
+            if len(selected_events) != len(event_ids):
+                errors.append('One or more selected events are not valid.')
+        
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return redirect('organizers:organizer_team')
+        
+        # Check if user already exists
+        user = User.objects.filter(email=email).first()
+        
+        if user:
+            # Check if already a team member for this organizer
+            existing_member = OrganizerTeamMember.objects.filter(
+                organizer=organizer,
+                user=user
+            ).first()
+            
+            if existing_member:
+                messages.warning(request, f'{email} is already a team member.')
+                return redirect('organizers:organizer_team')
+        else:
+            # Create new user
+            try:
+                user = User.objects.create_user(
+                    email=email,
+                    password=password,
+                    first_name='',
+                    last_name=''
+                )
+            except Exception as e:
+                messages.error(request, f'Error creating user: {str(e)}')
+                return redirect('organizers:organizer_team')
+        
+        # Create team member
+        try:
+            team_member = OrganizerTeamMember.objects.create(
+                organizer=organizer,
+                user=user,
+                role=role,
+                permissions={},
+                is_active=True
+            )
+            
+            # Assign to multiple events
+            selected_events = Event.objects.filter(id__in=event_ids, organizer=organizer.user)
+            team_member.events.set(selected_events)
+            
+            # Also register user for each event
+            from registration.models import Registration, RegistrationStatus
+            for event in selected_events:
+                existing_registration = Registration.objects.filter(
+                    event=event,
+                    user=user
+                ).first()
+                
+                if not existing_registration:
+                    Registration.objects.create(
+                        event=event,
+                        user=user,
+                        attendee_name=email,
+                        attendee_email=email,
+                        status=RegistrationStatus.CONFIRMED,
+                        total_amount=0
+                    )
+            
+            event_count = len(selected_events)
+            event_names = ', '.join([e.title for e in selected_events[:3]])
+            if event_count > 3:
+                event_names += f' and {event_count - 3} more'
+            
+            messages.success(request, f'Team member {email} added successfully as {role.title()} for {event_count} event(s)!')
+        except Exception as e:
+            messages.error(request, f'Error adding team member: {str(e)}')
+        
+        return redirect('organizers:organizer_team')
+    
+    team_members = OrganizerTeamMember.objects.filter(organizer=organizer).prefetch_related('events')
     
     return render(request, 'organizers/team_list.html', {
         'team_members': team_members,
-        'organizer': organizer
+        'organizer': organizer,
+        'events': events
     })
 
+
+@login_required
+@organizer_required
+def edit_team_member(request, member_id):
+    """Edit an existing team member with multi-event and password support"""
+    organizer = request.organizer
+    events = Event.objects.filter(organizer=organizer.user, status='published')
+    
+    # Get the team member with prefetched events
+    team_member = get_object_or_404(
+        OrganizerTeamMember.objects.prefetch_related('events'),
+        id=member_id,
+        organizer=organizer
+    )
+    
+    if request.method == 'POST':
+        role = request.POST.get('role')
+        is_active = request.POST.get('is_active') == 'on'
+        event_ids = request.POST.getlist('events')
+        new_password = request.POST.get('new_password', '').strip()
+        
+        # Validate role
+        valid_roles = ['coordinator', 'usher']
+        if role not in valid_roles:
+            messages.error(request, 'Invalid role selected.')
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+        
+        # Validate events
+        if not event_ids:
+            messages.error(request, 'Please select at least one event.')
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+        
+        selected_events = Event.objects.filter(id__in=event_ids, organizer=organizer.user)
+        if len(selected_events) != len(event_ids):
+            messages.error(request, 'One or more selected events are not valid.')
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+        
+        try:
+            # Update team member
+            team_member.role = role
+            team_member.is_active = is_active
+            team_member.save()
+            
+            # Update event assignments
+            team_member.events.set(selected_events)
+            
+            # Handle password change if provided
+            if new_password:
+                if len(new_password) < 6:
+                    messages.error(request, 'Password must be at least 6 characters long.')
+                    return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+                
+                team_member.user.set_password(new_password)
+                team_member.user.save()
+                messages.success(request, f'Password updated for {team_member.user.email}.')
+            
+            event_count = len(selected_events)
+            messages.success(request, f'Team member {team_member.user.email} updated successfully! Assigned to {event_count} event(s) as {role.title()}.')
+            return redirect('organizers:organizer_team')
+        except Exception as e:
+            messages.error(request, f'Error updating team member: {str(e)}')
+            return redirect('organizers:organizer_edit_team_member', member_id=member_id)
+    
+    # Get currently assigned event IDs
+    assigned_event_ids = list(team_member.events.values_list('id', flat=True))
+    
+    context = {
+        'team_member': team_member,
+        'organizer': organizer,
+        'events': events,
+        'assigned_event_ids': assigned_event_ids,
+    }
+    return render(request, 'organizers/team_edit.html', context)
 
 @login_required
 @organizer_required

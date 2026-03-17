@@ -206,15 +206,15 @@
     </div>
     {% endif %}
 
-    <!-- Sessions Preview -->
-    {% if sessions %}
+    <!-- Schedule Preview -->
+    {% if dynamic_sessions %}
     <div class="bg-white rounded-lg shadow p-6 mt-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Schedule Preview</h2>
         <div class="space-y-3">
-            {% for session in sessions %}
+            {% for session in dynamic_sessions %}
             <div class="border-l-4 border-indigo-500 pl-4 py-2">
                 <h4 class="font-medium text-gray-900">{{ session.title }}</h4>
-                <p class="text-sm text-gray-500">{{ session.start_time|date:"M d" }} &middot; {{ session.start_time|date:"g:i A" }} &mdash; {{ session.end_time|date:"g:i A" }}</p>
+                <p class="text-sm text-gray-500">{{ session.session_start_time|date:"M d" }} &middot; {{ session.session_start_time|date:"g:i A" }} &mdash; {{ session.session_end_time|date:"g:i A" }}</p>
             </div>
             {% endfor %}
         </div>

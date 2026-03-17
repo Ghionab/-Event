@@ -72,6 +72,7 @@ def handle_ticket_purchase_submission(request, event, custom_questions):
             attendee_email = ticket_data.get('attendee_email', '').strip()
             attendee_phone = ticket_data.get('attendee_phone', '').strip()
             custom_answers = ticket_data.get('custom_answers', {})
+            quantity = int(ticket_data.get('quantity', 1))  # Get quantity, default to 1
             
             # Force quantity to 1
             quantity = 1
@@ -123,7 +124,7 @@ def handle_ticket_purchase_submission(request, event, custom_questions):
             
             # Update ticket sold count by 1
             from django.db.models import F
-            TicketType.objects.filter(id=ticket_type.id).update(quantity_sold=F('quantity_sold') + 1)
+            TicketType.objects.filter(id=ticket_type.id).update(quantity_sold=F('quantity_sold') + quantity)
             ticket_type.refresh_from_db()
             
             # Add to total (price * 1)

@@ -111,21 +111,39 @@
                 <h2 class="text-xl font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4">Agenda & Sessions</h2>
                 <div class="space-y-4">
                     {% for session in sessions %}
-                    <div class="p-4 border border-gray-200 rounded-lg">
+                    <div class="p-4 border border-gray-200 rounded-lg bg-white">
                         <h4 class="font-semibold text-gray-800 mb-2">{{ session.title }}</h4>
                         <div class="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-                            <span><i class="bi bi-clock mr-1"></i>{{ session.start_time|date:"g:i A" }} - {{ session.end_time|date:"g:i A" }}</span>
-                            {% if session.location %}<span><i class="bi bi-geo-alt mr-1"></i>{{ session.location }}</span>{% endif %}
-                            {% if session.track %}<span><i class="bi bi-tag mr-1"></i>{{ session.track }}</span>{% endif %}
+                            {% if session.session_start_time and session.session_end_time %}
+                                <span><i class="bi bi-clock mr-1"></i>{{ session.session_start_time|date:"g:i A" }} - {{ session.session_end_time|date:"g:i A" }}</span>
+                            {% elif session.session_start_time %}
+                                <span><i class="bi bi-clock mr-1"></i>Starts {{ session.session_start_time|date:"g:i A" }}</span>
+                            {% endif %}
                         </div>
-                        {% if session.speaker %}
-                        <div class="text-sm">
-                            <strong class="text-gray-700">Speaker:</strong> <span class="text-gray-600">{{ session.speaker }}</span>
-                            {% if session.speaker_bio %}<p class="text-gray-500 mt-1">{{ session.speaker_bio }}</p>{% endif %}
-                        </div>
-                        {% endif %}
-                        {% if session.description %}
-                        <div class="mt-3 text-gray-600 text-sm">{{ session.description|linebreaks }}</div>
+
+                        {% if session.all_speakers %}
+                            <div class="mt-3">
+                                <strong class="text-xs text-gray-400 uppercase tracking-wider block mb-2">Speakers</strong>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {% for speaker in session.all_speakers %}
+                                        <div class="flex items-center gap-3">
+                                            {% if speaker.speaker_profile_picture %}
+                                                <img src="{{ speaker.speaker_profile_picture.url }}" alt="{{ speaker.speaker_name }}" class="w-8 h-8 rounded-full object-cover">
+                                            {% else %}
+                                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                                                    {{ speaker.speaker_name|make_list|first|upper }}
+                                                </div>
+                                            {% endif %}
+                                            <div class="text-sm">
+                                                <div class="font-medium text-gray-800">{{ speaker.speaker_name }}</div>
+                                                {% if speaker.speaker_bio %}
+                                                    <div class="text-xs text-gray-500 truncate w-32" title="{{ speaker.speaker_bio }}">{{ speaker.speaker_bio }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
                         {% endif %}
                     </div>
                     {% empty %}

@@ -477,3 +477,10 @@
 [2026-03-17 00:22:40] SUCCESS: reg#=REG-C998C2A6, amount=$45.00
 [2026-03-17 00:22:40] CONTENT_TYPE: application/json
 [2026-03-17 00:22:40] REDIRECT: /registration/success/1/
+[2026-03-17 10:47:32] RAW_DATA: {'event_id': '3', 'for_myself': 'true', 'full_name': 'Test Users', 'email': 'test@xample.com', 'phone': '+15550000000', 'special_requests': '', 'tickets': [{'ticket_id': 6, 'quantity': 1}]}
+[2026-03-17 10:47:32] PARSED: event_id=3 (type=str), email=test@xample.com, name=Test Users
+[2026-03-17 10:47:32] DEBUG: ticket_price=89.99, ticket_total=89.99, quantity=1
+[2026-03-17 10:47:32] CREATED_REG: #REG-477911DD for ticket Standard Ticket (qty=1)
+[2026-03-17 10:47:32] SUCCESS: reg#=REG-477911DD, amount=$89.99
+[2026-03-17 10:47:32] CONTENT_TYPE: application/json
+[2026-03-17 10:47:32] REDIRECT: /registration/success/39/

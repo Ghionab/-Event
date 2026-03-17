@@ -167,14 +167,10 @@ class VendorPayment(models.Model):
 # ============ Team Collaboration ============
 
 class TeamRole(models.TextChoices):
-    ADMIN = 'admin', 'Admin'
     ORGANIZER = 'organizer', 'Organizer'
     COORDINATOR = 'coordinator', 'Coordinator'
-    VOLUNTEER = 'volunteer', 'Volunteer'
-    SPEAKER_LIAISON = 'speaker_liaison', 'Speaker Liaison'
-    SPONSOR_LIAISON = 'sponsor_liaison', 'Sponsor Liaison'
-    REGISTRATION_STAFF = 'registration_staff', 'Registration Staff'
-    TECHNICAL_SUPPORT = 'technical_support', 'Technical Support'
+    USHER = 'usher', 'Usher'
+    ATTENDEE = 'attendee', 'Attendee'
 
 
 class UsherAssignment(models.Model):

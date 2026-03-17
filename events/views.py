@@ -115,6 +115,7 @@ def event_detail(request, event_id):
     except Exception:
         pass
     ticket_types = TicketType.objects.filter(event=event, is_active=True)
+    sessions = event.dynamic_sessions.all().prefetch_related('session_speakers')
     registration_success = False
     registration_errors = None
     if request.method == 'POST':
@@ -153,6 +154,7 @@ def event_detail(request, event_id):
         'registration_success': registration_success,
         'registration_errors': registration_errors,
         'organizer_profile': organizer_profile,
+        'sessions': sessions,
     })
 
 def event_landing(request, slug):
@@ -174,7 +176,7 @@ def event_landing(request, slug):
     ticket_types = TicketType.objects.filter(event=event, is_active=True)
     registration_success = False
     registration_errors = None
-    sessions = event.sessions.filter(is_public=True).order_by('start_time')
+    sessions = event.dynamic_sessions.all().prefetch_related('session_speakers')
     speakers = event.speakers.filter(is_confirmed=True).order_by('display_order')
     sponsors = event.sponsors.filter(is_featured=True).order_by('display_order')
     

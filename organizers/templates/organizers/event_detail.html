@@ -140,6 +140,84 @@
     </div>
 </div>
 
+<!-- Sessions & Speakers -->
+<div class="card mb-8">
+    <div class="card-header border-b border-gray-100 flex justify-between items-center bg-white rounded-t-lg">
+        <h3 class="card-title text-lg font-semibold text-gray-800"><i class="bi bi-mic text-indigo-500 mr-2"></i>Sessions & Speakers</h3>
+        <a href="{% url 'organizers:organizer_event_edit' event.id %}#sessions" class="text-sm px-3 py-1 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 font-medium transition">
+            <i class="bi bi-pencil mr-1"></i>Manage
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if sessions %}
+            <div class="divide-y divide-gray-100">
+                {% for session in sessions %}
+                <div class="p-5 hover:bg-gray-50 transition duration-150">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                        <div class="flex-1">
+                            <h4 class="text-md font-semibold text-gray-800 mb-1">{{ session.title }}</h4>
+                            <div class="flex flex-wrap items-center text-sm text-gray-500 mb-3 gap-y-1 gap-x-4">
+                                {% if session.session_start_time and session.session_end_time %}
+                                    <div class="flex items-center">
+                                        <i class="bi bi-calendar-event mr-1.5 text-gray-400"></i>
+                                        <span>{{ session.session_start_time|date:"M d, g:i A" }} - {{ session.session_end_time|date:"g:i A" }}</span>
+                                    </div>
+                                {% elif session.session_start_time %}
+                                    <div class="flex items-center">
+                                        <i class="bi bi-calendar-event mr-1.5 text-gray-400"></i>
+                                        <span>Starts {{ session.session_start_time|date:"M d, g:i A" }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {% if session.all_speakers %}
+                                <div class="mt-3">
+                                    <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Speakers</h5>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {% for speaker in session.all_speakers %}
+                                            <div class="flex items-center bg-white border border-gray-100 rounded-lg p-2 shadow-sm">
+                                                {% if speaker.speaker_profile_picture %}
+                                                    <img src="{{ speaker.speaker_profile_picture.url }}" alt="{{ speaker.speaker_name|default:'Speaker' }}" class="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200">
+                                                {% else %}
+                                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600 flex items-center justify-center mr-3 font-semibold text-sm border border-indigo-50">
+                                                        {% if speaker.speaker_name %}
+                                                            {{ speaker.speaker_name|make_list|first|upper }}
+                                                        {% else %}
+                                                            <i class="bi bi-person"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                <div class="overflow-hidden">
+                                                    <div class="text-sm font-medium text-gray-800 truncate">{{ speaker.speaker_name|default:"Unnamed Speaker" }}</div>
+                                                    {% if speaker.speaker_start_time and speaker.speaker_end_time %}
+                                                        <div class="text-xs text-gray-500 truncate"><i class="bi bi-clock mr-1"></i>{{ speaker.speaker_start_time|time:"g:i A" }} - {{ speaker.speaker_end_time|time:"g:i A" }}</div>
+                                                    {% elif speaker.speaker_bio %}
+                                                        <div class="text-xs text-gray-500 truncate" title="{{ speaker.speaker_bio }}">{{ speaker.speaker_bio }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-8 text-center bg-gray-50 rounded-b-lg">
+                <i class="bi bi-calendar-x text-gray-300 text-4xl mb-3"></i>
+                <p class="text-gray-500 mb-4">No sessions scheduled for this event yet.</p>
+                <a href="{% url 'organizers:organizer_event_edit' event.id %}#sessions" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                    <i class="bi bi-plus-circle mr-1"></i> Add your first session
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 <!-- Registrations Table -->
 <div class="card mb-8">
     <div class="card-header">

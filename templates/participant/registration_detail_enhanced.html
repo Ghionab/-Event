@@ -157,32 +157,62 @@
             {% endif %}
 
             <!-- Sessions -->
-            {% if sessions %}
+            {% if dynamic_sessions %}
             <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Event Sessions</h3>
-                <div class="space-y-3">
-                    {% for session in sessions %}
-                    <div
-                        class="border border-gray-200 rounded-lg p-4 {% if session.id in saved_session_ids %}bg-indigo-50 border-indigo-200{% endif %}">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h4 class="font-medium text-gray-900">{{ session.title }}</h4>
-                                <p class="text-sm text-gray-500 mt-1">
-                                    <i class="bi bi-clock mr-1"></i>{{ session.start_time|date:"g:i A" }} - {{
-                                    session.end_time|date:"g:i A" }}
-                                    {% if session.location %}<span class="ml-3"><i class="bi bi-geo-alt mr-1"></i>{{
-                                        session.location }}</span>{% endif %}
-                                </p>
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Event Schedule</h3>
+                    <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{{ dynamic_sessions|length }} Sessions</span>
+                </div>
+                <div class="space-y-4">
+                    {% for session in dynamic_sessions %}
+                    <div class="group relative bg-white border border-gray-100 rounded-xl p-4 hover:border-indigo-200 hover:shadow-md transition-all duration-300 {% if session.id in saved_session_ids %}bg-indigo-50/30 border-indigo-100{% endif %}">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">{{ session.session_start_time|date:"g:i A" }}</span>
+                                    <span class="text-gray-300">&bull;</span>
+                                    <h4 class="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{{ session.title }}</h4>
+                                </div>
+                                <p class="text-sm text-gray-500 line-clamp-1 mb-3">{{ session.description|default:"No description provided." }}</p>
+                                
+                                <!-- Speakers -->
+                                <div class="flex -space-x-2 overflow-hidden">
+                                    {% for ss in session.session_speakers.all %}
+                                    <div class="relative group/speaker" title="{{ ss.speaker_name }}">
+                                        {% if ss.speaker_profile_picture %}
+                                        <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="{{ ss.speaker_profile_picture.url }}" alt="{{ ss.speaker_name }}">
+                                        {% else %}
+                                        <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
+                                            {{ ss.speaker_name|slice:":1" }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% empty %}
+                                    <span class="text-xs text-gray-400 italic">No speakers assigned</span>
+                                    {% endfor %}
+                                </div>
                             </div>
-                            {% if session.id in saved_session_ids %}
-                            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">Saved</span>
-                            {% endif %}
+                            
+                            <div class="flex items-center gap-3">
+                                {% if session.location %}
+                                <div class="text-right hidden sm:block">
+                                    <p class="text-xs text-gray-400 uppercase font-medium">Location</p>
+                                    <p class="text-sm font-semibold text-gray-700">{{ session.location }}</p>
+                                </div>
+                                {% endif %}
+                                {% if session.id in saved_session_ids %}
+                                <div class="h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-sm">
+                                    <i class="bi bi-bookmark-fill text-xs"></i>
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
+
         </div>
 
         <!-- Sidebar -->

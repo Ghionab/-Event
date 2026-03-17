@@ -185,6 +185,10 @@ def registration_detail_enhanced(request, registration_id):
     # Get speakers
     speakers = registration.event.speakers.filter(is_confirmed=True)
     
+    # Get dynamic sessions
+    dynamic_sessions = registration.event.dynamic_sessions.all().prefetch_related('session_speakers').order_by('created_at')
+
+    
     # Get badge
     badge = getattr(registration, 'badge', None)
     if not badge:
@@ -216,8 +220,10 @@ def registration_detail_enhanced(request, registration_id):
     context = {
         'registration': registration,
         'sessions': sessions,
+        'dynamic_sessions': dynamic_sessions,
         'speakers': speakers,
         'badge': badge,
+
         'qr_code_image': qr_code_image,
         'preferences': preferences,
         'saved_session_ids': saved_session_ids,
@@ -737,6 +743,10 @@ def event_detail_enhanced(request, event_id):
     
     # Get featured speakers
     speakers = event.speakers.filter(is_confirmed=True, is_featured=True)[:4]
+
+    # Get dynamic sessions for the new schedule section
+    dynamic_sessions = event.dynamic_sessions.all().prefetch_related('session_speakers').order_by('created_at')
+
     
     # Get attendee count
     attendee_count = Registration.objects.filter(
@@ -803,8 +813,10 @@ def event_detail_enhanced(request, event_id):
     context = {
         'event': event,
         'sessions': sessions,
+        'dynamic_sessions': dynamic_sessions,
         'speakers': speakers,
         'attendee_count': attendee_count,
+
         'ticket_types': available_ticket_types,
         'has_ticket_types': all_ticket_types.exists(),
         'is_registered': is_registered,
@@ -931,7 +943,7 @@ def event_schedule(request, event_id):
         return redirect('attendee:event_detail', event_id=event_id)
     
     # Get all sessions
-    sessions = event.sessions.all().order_by('start_time')
+    sessions = event.dynamic_sessions.all().prefetch_related('session_speakers').order_by('session_start_time')
     
     # Get user's saved sessions
     prefs = AttendeePreference.objects.filter(user=user, event=event).first()
@@ -943,10 +955,12 @@ def event_schedule(request, event_id):
     # Group sessions by day
     sessions_by_day = {}
     for session in sessions:
-        day = session.start_time.date()
-        if day not in sessions_by_day:
-            sessions_by_day[day] = []
-        sessions_by_day[day].append(session)
+        if session.session_start_time:
+            day = session.session_start_time.date()
+            if day not in sessions_by_day:
+                sessions_by_day[day] = []
+            sessions_by_day[day].append(session)
+
     
     context = {
         'event': event,

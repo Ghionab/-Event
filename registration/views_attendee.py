@@ -257,7 +257,7 @@ def cancel_registration_enhanced(request, registration_id):
 
 @login_required
 def download_ticket(request, registration_id):
-    """Download ticket as PDF matching the HTML design exactly using ReportLab"""
+    """Download ticket as PDF with premium design matching HTML template using ReportLab"""
     registration = get_object_or_404(Registration, id=registration_id)
     
     # Check permission
@@ -271,11 +271,13 @@ def download_ticket(request, registration_id):
     try:
         from reportlab.lib.pagesizes import A4
         from reportlab.pdfgen import canvas
-        from reportlab.lib.colors import HexColor
+        from reportlab.lib.colors import HexColor, white, black
         from reportlab.lib.utils import ImageReader
+        from reportlab.lib.units import mm
         from io import BytesIO
         import base64
         import qrcode
+        from PIL import Image
 
         def safe_hex(value, fallback):
             if isinstance(value, str) and value.startswith('#') and len(value) == 7:
@@ -285,6 +287,7 @@ def download_ticket(request, registration_id):
         event = registration.event
         primary = safe_hex(getattr(event, 'primary_color', None), '#4f46e5')
         secondary = safe_hex(getattr(event, 'secondary_color', None), '#7c3aed')
+        accent = safe_hex(getattr(event, 'accent_color', None), primary)
 
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="ticket_{registration.registration_number}.pdf"'
@@ -292,41 +295,90 @@ def download_ticket(request, registration_id):
         c = canvas.Canvas(response, pagesize=A4)
         width, height = A4
 
-        # Background
+        # Background with subtle pattern
         c.setFillColor(HexColor('#f8fafc'))
         c.rect(0, 0, width, height, fill=1, stroke=0)
+        
+        # Add subtle dot pattern background
+        c.setFillColor(HexColor('#e5e7eb'))
+        for i in range(0, int(width), 20):
+            for j in range(0, int(height), 20):
+                c.circle(i, j, 1, fill=1, stroke=0)
 
         # Main Ticket Card
         margin = 50
-        card_w = 500
-        card_h = 300
+        card_w = 520
+        card_h = 320
         card_x = (width - card_w) / 2
         card_y = (height - card_h) / 2
 
-        # Card Shadow/Border
+        # Card Shadow (outer glow effect)
+        for i in range(3):
+            c.setStrokeColor(HexColor('#e5e7eb'), alpha=0.3)
+            c.setLineWidth(1)
+            c.roundRect(card_x - i*2, card_y - i*2, card_w + i*4, card_h + i*4, 20 + i, fill=0, stroke=1)
+
+        # Card Border/Background
         c.setStrokeColor(HexColor('#e5e7eb'))
         c.setLineWidth(1)
-        c.setFillColor(HexColor('#ffffff'))
+        c.setFillColor(white)
         c.roundRect(card_x, card_y, card_w, card_h, 20, fill=1, stroke=1)
 
-        # LEFT SIDE (Branding & QR)
+        # LEFT SIDE (Branding & QR) - 35% width
         left_w = card_w * 0.35
-        # Draw background for left side
+        
+        # Left side gradient background
         c.setFillColor(HexColor(primary))
-        # Use simple rect for left side background instead of PathObject to avoid version issues
-        # We overlap slightly and the card's roundRect will clip or we just draw it inside
         c.roundRect(card_x, card_y, left_w, card_h, 20, fill=1, stroke=0)
-        # Cover the right rounded corners of the left stripe to make it a clean "cut"
+        # Cover right rounded corners to make clean edge
         c.rect(card_x + left_w - 20, card_y, 20, card_h, fill=1, stroke=0)
+        
+        # Background Pattern Overlay (dots)
+        c.setFillColor(white, alpha=0.1)
+        for i in range(int(card_x), int(card_x + left_w), 15):
+            for j in range(int(card_y), int(card_y + card_h), 15):
+                c.circle(i + 5, j + 5, 1.5, fill=1, stroke=0)
 
-        # EventHub Pass Label
-        c.setFillColor(HexColor('#ffffff'), alpha=0.2)
-        c.roundRect(card_x + (left_w/2) - 40, card_y + card_h - 40, 80, 15, 7, fill=1, stroke=0)
-        c.setFillColor(HexColor('#ffffff'))
-        c.setFont('Helvetica-Bold', 7)
-        c.drawCentredString(card_x + (left_w/2), card_y + card_h - 35, 'EVENTHUB PASS')
+        # Logo Watermark on left side
+        if event.logo:
+            try:
+                logo_path = event.logo.path
+                logo_img = Image.open(logo_path)
+                logo_buffer = BytesIO()
+                logo_img.save(logo_buffer, format='PNG')
+                logo_buffer.seek(0)
+                logo_reader = ImageReader(logo_buffer)
+                
+                # Draw large faded watermark
+                logo_size = 120
+                logo_x = card_x + (left_w - logo_size) / 2
+                logo_y = card_y + (card_h - logo_size) / 2
+                
+                c.saveState()
+                c.setFillColor(white, alpha=0.08)
+                c.drawImage(logo_reader, logo_x, logo_y, logo_size, logo_size, mask='auto')
+                c.restoreState()
+            except Exception:
+                pass  # Silently skip if logo can't be loaded
 
-        # QR Code
+        # EventHub Pass Badge at top
+        badge_y = card_y + card_h - 45
+        badge_w = 90
+        badge_h = 22
+        badge_x = card_x + (left_w - badge_w) / 2
+        
+        # Badge background (glass effect)
+        c.setFillColor(white, alpha=0.2)
+        c.roundRect(badge_x, badge_y, badge_w, badge_h, 11, fill=1, stroke=0)
+        c.setStrokeColor(white, alpha=0.3)
+        c.setLineWidth(0.5)
+        c.roundRect(badge_x, badge_y, badge_w, badge_h, 11, fill=0, stroke=1)
+        
+        c.setFillColor(white)
+        c.setFont('Helvetica-Bold', 8)
+        c.drawCentredString(card_x + left_w/2, badge_y + 8, 'EVENTHUB PASS')
+
+        # QR Code Container
         qr = qrcode.QRCode(version=1, box_size=10, border=2)
         qr.add_data(registration.qr_code)
         qr.make(fit=True)
@@ -336,154 +388,230 @@ def download_ticket(request, registration_id):
         qr_img.save(qr_buffer, format="PNG")
         qr_image_reader = ImageReader(qr_buffer)
         
-        qr_size = 100
+        qr_size = 110
         qr_x = card_x + (left_w - qr_size) / 2
-        qr_y = card_y + (card_h / 2) - 30
+        qr_y = card_y + (card_h / 2) - 20
         
-        # QR White Background
-        c.setFillColor(HexColor('#ffffff'))
-        c.roundRect(qr_x - 5, qr_y - 5, qr_size + 10, qr_size + 10, 10, fill=1, stroke=0)
+        # QR White Background with subtle shadow
+        c.setFillColor(white, alpha=0.9)
+        c.roundRect(qr_x - 8, qr_y - 8, qr_size + 16, qr_size + 16, 12, fill=1, stroke=0)
+        c.setStrokeColor(HexColor(primary), alpha=0.2)
+        c.setLineWidth(2)
+        c.roundRect(qr_x - 8, qr_y - 8, qr_size + 16, qr_size + 16, 12, fill=0, stroke=1)
+        
         c.drawImage(qr_image_reader, qr_x, qr_y, qr_size, qr_size)
 
-        # Ticket ID
-        c.setFillColor(HexColor('#ffffff'), alpha=0.7)
+        # Ticket ID below QR
+        ticket_id_y = qr_y - 25
+        c.setFillColor(white, alpha=0.8)
         c.setFont('Helvetica-Bold', 7)
-        c.drawCentredString(card_x + (left_w/2), qr_y - 20, 'TICKET ID')
-        c.setFillColor(HexColor('#ffffff'))
-        c.setFont('Courier-Bold', 9)
-        c.drawCentredString(card_x + (left_w/2), qr_y - 35, registration.registration_number)
+        c.drawCentredString(card_x + left_w/2, ticket_id_y, 'TICKET ID')
+        
+        c.setFillColor(white)
+        c.setFont('Courier-Bold', 10)
+        c.drawCentredString(card_x + left_w/2, ticket_id_y - 14, registration.registration_number)
+
+        # Status Badge at bottom of left side
+        status_y = card_y + 30
+        status_w = 80
+        status_h = 20
+        status_x = card_x + (left_w - status_w) / 2
+        
+        # Status indicator (green pulsing effect simulation)
+        c.setFillColor(HexColor('#22c55e'), alpha=0.3)
+        c.roundRect(status_x - 2, status_y - 2, status_w + 4, status_h + 4, 10, fill=1, stroke=0)
+        c.setFillColor(HexColor('#22c55e'), alpha=0.5)
+        c.roundRect(status_x, status_y, status_w, status_h, 9, fill=1, stroke=0)
+        
+        c.setFillColor(white)
+        c.setFont('Helvetica-Bold', 8)
+        status_text = registration.get_status_display().upper()
+        c.drawCentredString(card_x + left_w/2, status_y + 7, status_text)
+
+        # Decorative blur circles on left side
+        c.setFillColor(white, alpha=0.1)
+        c.circle(card_x - 30, card_y - 30, 80, fill=1, stroke=0)
+        c.circle(card_x + left_w + 30, card_y + card_h + 30, 60, fill=1, stroke=0)
 
         # RIGHT SIDE (Details)
-        right_x = card_x + left_w + 25
+        right_x = card_x + left_w + 30
+        right_w = card_w - left_w - 50
+        
+        # Perforation line (dashed)
+        c.setDash(4, 4)
+        c.setStrokeColor(HexColor('#e5e7eb'))
+        c.setLineWidth(1.5)
+        c.line(card_x + left_w, card_y + 30, card_x + left_w, card_y + card_h - 30)
+        c.setDash(1, 0)
+
+        # Header Row: Category Badge and Event Logo
+        header_y = card_y + card_h - 50
         
         # Category Badge
         cat = registration.ticket_type.ticket_category.upper() if registration.ticket_type and registration.ticket_type.ticket_category else "GENERAL"
-        c.setFillColor(HexColor('#f5f3ff'))
-        c.roundRect(right_x, card_y + card_h - 45, 80, 15, 4, fill=1, stroke=0)
-        c.setFillColor(HexColor(primary))
-        c.setFont('Helvetica-Bold', 7)
-        c.drawString(right_x + 10, card_y + card_h - 40, f"{cat} ACCESS")
-
-        # Event Title
-        c.setFillColor(HexColor('#111827'))
-        c.setFont('Helvetica-Bold', 22)
-        c.drawString(right_x, card_y + card_h - 80, event.title.upper())
-
-        # Details Grid with Icons
-        def draw_icon_box(x, y, bg_color, icon_type):
-            # Box
-            c.setFillColor(HexColor(bg_color))
-            c.roundRect(x, y - 30, 30, 30, 8, fill=1, stroke=0)
-            # Simple vector icon representations
-            c.setStrokeColor(HexColor('#ffffff'))
-            c.setLineWidth(1.5)
-            if icon_type == 'user':
-                c.circle(x + 15, y - 12, 4, stroke=1, fill=0)
-                c.arc(x + 8, y - 25, x + 22, y - 15, 0, 180)
-            elif icon_type == 'date':
-                c.rect(x + 8, y - 24, 14, 14, stroke=1, fill=0)
-                c.line(x + 8, y - 14, x + 22, y - 14)
-                c.line(x + 12, y - 10, x + 12, y - 14)
-                c.line(x + 18, y - 10, x + 18, y - 14)
-            elif icon_type == 'loc':
-                c.circle(x + 15, y - 12, 5, stroke=1, fill=0)
-                c.line(x + 15, y - 17, x + 15, y - 25)
-                c.circle(x + 15, y - 12, 1.5, stroke=1, fill=1)
-
-        # Attendee Section
-        draw_icon_box(right_x, card_y + card_h - 105, '#eef2ff', 'user')
-        text_start_x = right_x + 40
-        c.setFillColor(HexColor('#9ca3af'))
-        c.setFont('Helvetica-Bold', 7)
-        c.drawString(text_start_x, card_y + card_h - 110, 'ATTENDEE')
-        c.setFillColor(HexColor('#111827'))
-        c.setFont('Helvetica-Bold', 12)
-        c.drawString(text_start_x, card_y + card_h - 125, registration.attendee_name)
-        c.setFillColor(HexColor('#6b7280'))
-        c.setFont('Helvetica', 9)
-        c.drawString(text_start_x, card_y + card_h - 140, registration.attendee_email)
-
-        # Date & Time Section
-        draw_icon_box(right_x + 160, card_y + card_h - 105, '#ecfdf5', 'date')
-        text_start_x = right_x + 200
-        c.setFillColor(HexColor('#9ca3af'))
-        c.setFont('Helvetica-Bold', 7)
-        c.drawString(text_start_x, card_y + card_h - 110, 'DATE & TIME')
-        c.setFillColor(HexColor('#111827'))
-        c.setFont('Helvetica-Bold', 12)
-        c.drawString(text_start_x, card_y + card_h - 125, event.start_date.strftime('%b %d, %Y'))
-        c.setFillColor(HexColor('#6b7280'))
-        c.setFont('Helvetica', 9)
-        c.drawString(text_start_x, card_y + card_h - 140, event.start_date.strftime('%I:%M %p EST'))
-
-        # Location Section
-        draw_icon_box(right_x, card_y + card_h - 170, '#fff1f2', 'loc')
-        text_start_x = right_x + 40
-        c.setFillColor(HexColor('#9ca3af'))
-        c.setFont('Helvetica-Bold', 7)
-        c.drawString(text_start_x, card_y + card_h - 175, 'LOCATION')
-        c.setFillColor(HexColor('#111827'))
-        c.setFont('Helvetica-Bold', 12)
-        c.drawString(text_start_x, card_y + card_h - 190, event.venue_name or 'Virtual Event')
-        c.setFillColor(HexColor('#6b7280'))
-        c.setFont('Helvetica', 9)
-        loc_text = f"{event.address or ''} {event.city or ''}, {event.country or ''}"
-        c.drawString(text_start_x, card_y + card_h - 205, loc_text[:50])
-
-        # Perforation line
-        c.setDash(3, 3)
-        c.setStrokeColor(HexColor('#e5e7eb'))
-        c.line(card_x + left_w, card_y + 20, card_x + left_w, card_y + card_h - 20)
-        c.setDash(1, 0)
-
-        # Footer
-        c.setFillColor(HexColor('#9ca3af'))
-        c.setFont('Helvetica-Bold', 7)
-        c.drawString(right_x, card_y + 35, 'VERIFIED EVENTHUB DIGITAL PASS')
-        c.setFillColor(HexColor('#d1d5db'))
-        c.setFont('Helvetica-Oblique', 7)
-        c.drawString(right_x, card_y + 22, 'Please present this pass at the registration desk for check-in.')
-
-        c.showPage()
-        c.save()
-        return response
-
-    except Exception as e:
-        print(f"PDF Error: {str(e)}")
-        messages.error(request, f"Could not generate PDF: {str(e)}. Please try printing from the browser instead.")
-        return redirect('attendee:ticket_preview', registration_id=registration_id)
-
-        # Status badge
-        status_text = registration.get_status_display()
-        c.setFillColor(HexColor('#eef2ff'))
-        c.roundRect(right_x, right_y - 132, 90, 18, 8, fill=1, stroke=0)
+        badge_w = 95
+        badge_h = 22
+        
+        # Badge with colored background
+        c.setFillColor(HexColor(primary + '20'))  # 20 = 12% opacity
+        c.roundRect(right_x, header_y, badge_w, badge_h, 5, fill=1, stroke=0)
+        c.setStrokeColor(HexColor(primary + '40'))
+        c.setLineWidth(1)
+        c.roundRect(right_x, header_y, badge_w, badge_h, 5, fill=0, stroke=1)
+        
         c.setFillColor(HexColor(primary))
         c.setFont('Helvetica-Bold', 8)
-        c.drawString(right_x + 8, right_y - 126, status_text.upper())
+        c.drawString(right_x + 8, header_y + 8, f"{cat} ACCESS")
 
-        # QR code
-        qr_base64 = registration.generate_qr_code_image()
-        qr_bytes = base64.b64decode(qr_base64)
-        qr_image = ImageReader(BytesIO(qr_bytes))
-        qr_size = 140
-        qr_x = card_x + card_w - qr_size - 40
-        qr_y = card_y + 50
-        c.setStrokeColor(HexColor(secondary))
-        c.setLineWidth(2)
-        c.roundRect(qr_x - 6, qr_y - 6, qr_size + 12, qr_size + 12, 8, stroke=1, fill=0)
-        c.drawImage(qr_image, qr_x, qr_y, qr_size, qr_size, mask='auto')
-        c.setFont('Helvetica', 8)
-        c.setFillColor(HexColor('#6b7280'))
-        c.drawCentredString(qr_x + (qr_size / 2), qr_y - 14, 'Show at check-in')
+        # Event Logo (small) next to badge
+        if event.logo:
+            try:
+                logo_path = event.logo.path
+                logo_img = Image.open(logo_path)
+                logo_buffer = BytesIO()
+                logo_img.save(logo_buffer, format='PNG')
+                logo_buffer.seek(0)
+                logo_reader = ImageReader(logo_buffer)
+                c.drawImage(logo_reader, right_x + badge_w + 10, header_y + 2, 18, 18, mask='auto')
+            except Exception:
+                pass
+
+        # Ticket Type Box (top right)
+        type_box_w = 110
+        type_box_h = 45
+        type_box_x = card_x + card_w - type_box_w - 25
+        type_box_y = header_y - 10
+        
+        # Subtle gradient box
+        c.setFillColor(HexColor(primary + '10'))
+        c.roundRect(type_box_x, type_box_y, type_box_w, type_box_h, 8, fill=1, stroke=0)
+        c.setStrokeColor(HexColor(primary + '20'))
+        c.roundRect(type_box_x, type_box_y, type_box_w, type_box_h, 8, fill=0, stroke=1)
+        
+        c.setFillColor(HexColor(primary))
+        c.setFont('Helvetica-Bold', 7)
+        c.drawCentredString(type_box_x + type_box_w/2, type_box_y + 28, 'TICKET TYPE')
+        
+        c.setFillColor(HexColor('#111827'))
+        c.setFont('Helvetica-Bold', 11)
+        ticket_type_name = registration.ticket_type.name if registration.ticket_type else "General"
+        c.drawCentredString(type_box_x + type_box_w/2, type_box_y + 12, ticket_type_name[:15])
+
+        # Event Title
+        title_y = card_y + card_h - 95
+        c.setFillColor(HexColor('#111827'))
+        c.setFont('Helvetica-Bold', 24)
+        
+        # Truncate title if too long
+        title = event.title.upper()
+        if len(title) > 35:
+            title = title[:32] + '...'
+        c.drawString(right_x, title_y, title)
+
+        # Info Grid with Icon Boxes
+        def draw_info_section(x, y, icon_color, bg_color, icon_type, label, value, subvalue=None):
+            # Icon box background
+            c.setFillColor(HexColor(bg_color))
+            c.roundRect(x, y - 35, 35, 35, 8, fill=1, stroke=0)
+            
+            # Draw simple icon representation
+            c.setStrokeColor(white)
+            c.setLineWidth(1.5)
+            if icon_type == 'user':
+                # Person icon
+                c.circle(x + 17.5, y - 15, 5, stroke=1, fill=0)
+                c.arc(x + 10, y - 28, x + 25, y - 18, 0, 180)
+            elif icon_type == 'date':
+                # Calendar icon
+                c.roundRect(x + 10, y - 28, 15, 15, 2, stroke=1, fill=0)
+                c.line(x + 10, y - 20, x + 25, y - 20)
+                c.line(x + 13, y - 16, x + 13, y - 20)
+                c.line(x + 22, y - 16, x + 22, y - 20)
+            elif icon_type == 'location':
+                # Location pin
+                c.circle(x + 17.5, y - 16, 6, stroke=1, fill=0)
+                c.line(x + 17.5, y - 22, x + 17.5, y - 30)
+                c.circle(x + 17.5, y - 16, 2, stroke=0, fill=1)
+            
+            # Label
+            text_x = x + 45
+            c.setFillColor(HexColor('#9ca3af'))
+            c.setFont('Helvetica-Bold', 7)
+            c.drawString(text_x, y - 12, label)
+            
+            # Value
+            c.setFillColor(HexColor('#111827'))
+            c.setFont('Helvetica-Bold', 13)
+            c.drawString(text_x, y - 26, value)
+            
+            # Subvalue (optional)
+            if subvalue:
+                c.setFillColor(HexColor('#6b7280'))
+                c.setFont('Helvetica', 9)
+                c.drawString(text_x, y - 40, subvalue)
+
+        # Attendee Section
+        attendee_y = card_y + card_h - 140
+        draw_info_section(right_x, attendee_y, primary, primary + '15', 'user', 
+                         'ATTENDEE', registration.attendee_name, registration.attendee_email)
+
+        # Date & Time Section
+        date_y = card_y + card_h - 140
+        date_x = right_x + 180
+        date_str = event.start_date.strftime('%b %d, %Y')
+        time_str = event.start_date.strftime('%I:%M %p EST')
+        draw_info_section(date_x, date_y, accent, accent + '15', 'date',
+                         'DATE & TIME', date_str, time_str)
+
+        # Location Section (full width)
+        loc_y = card_y + card_h - 210
+        draw_info_section(right_x, loc_y, secondary, secondary + '15', 'location',
+                         'LOCATION', event.venue_name or 'Virtual Event')
+        
+        # Add address if available
+        if event.address or event.city:
+            address = f"{event.address or ''} {event.city or ''}, {event.country or ''}"[:50]
+            c.setFillColor(HexColor('#6b7280'))
+            c.setFont('Helvetica', 9)
+            c.drawString(right_x + 45, loc_y - 40, address)
 
         # Footer
-        c.setFont('Helvetica', 9)
+        footer_y = card_y + 25
+        
+        # Verified badge with checkmark
+        check_x = right_x
+        c.setFillColor(HexColor(primary))
+        c.circle(check_x + 8, footer_y + 8, 10, fill=1, stroke=0)
+        c.setFillColor(white)
+        c.setFont('Helvetica-Bold', 8)
+        c.drawString(check_x + 5, footer_y + 5, '✓')
+        
+        # Footer text
+        c.setFillColor(HexColor(primary))
+        c.setFont('Helvetica-Bold', 8)
+        c.drawString(check_x + 22, footer_y + 10, 'VERIFIED EVENTHUB DIGITAL PASS')
+        
+        c.setFillColor(HexColor('#d1d5db'))
+        c.setFont('Helvetica-Oblique', 7)
+        c.drawString(check_x + 22, footer_y - 2, 'Secured & Authenticated')
+        
+        # Instructions on right
         c.setFillColor(HexColor('#9ca3af'))
-        c.drawString(card_x + 20, card_y + 18, 'Please present this ticket at the registration desk for check-in.')
+        c.setFont('Helvetica-Oblique', 7)
+        c.drawRightString(card_x + card_w - 25, footer_y + 4, 
+                         'Present at registration desk for check-in')
 
         c.showPage()
         c.save()
         return response
+
+    except ImportError as e:
+        messages.error(request, 'PDF generation requires reportlab and pillow. Please install them.')
+        return redirect('attendee:ticket_preview', registration_id=registration_id)
+    except Exception as e:
+        print(f"PDF Error: {str(e)}")
+        messages.error(request, f"Could not generate PDF. Please try printing from the browser instead.")
+        return redirect('attendee:ticket_preview', registration_id=registration_id)
 
     except ImportError:
         messages.error(request, 'PDF generation is not available. Please install reportlab.')

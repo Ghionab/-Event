@@ -51,8 +51,10 @@ class Event(models.Model):
     # Branding
     logo = models.ImageField(upload_to='event_logos/', blank=True, null=True)
     banner_image = models.ImageField(upload_to='event_banners/', blank=True, null=True)
-    primary_color = models.CharField(max_length=7, default='#007bff', blank=True)
-    secondary_color = models.CharField(max_length=7, default='#6c757d', blank=True)
+    primary_color = models.CharField(max_length=7, default='#4f46e5', blank=True)
+    secondary_color = models.CharField(max_length=7, default='#6b7280', blank=True)
+    accent_color = models.CharField(max_length=7, default='#10b981', blank=True)
+    background_color = models.CharField(max_length=7, default='#f9fafb', blank=True)
     
     # Organizer
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organized_events')
@@ -85,6 +87,44 @@ class Event(models.Model):
     def __str__(self):
         return self.title
     
+    def extract_colors_from_logo(self):
+        """
+        Extract premium color palette from logo for 10/10 professional theming.
+        
+        Uses advanced color analysis to detect:
+        - Navy blue backgrounds
+        - Metallic gold/silver tones  
+        - Brand colors with sophisticated harmonization
+        """
+        if not self.logo:
+            return
+        
+        try:
+            from .color_utils import extract_color_palette, get_premium_navy_gold_palette
+            import os
+            
+            # Get the full path to the logo file
+            if hasattr(self.logo, 'path') and os.path.exists(self.logo.path):
+                # Use new premium extraction with 8 colors for better analysis
+                palette = extract_color_palette(self.logo.path, color_count=8)
+                
+                if palette:
+                    self.primary_color = palette['primary_color']
+                    self.secondary_color = palette['secondary_color']
+                    self.accent_color = palette['accent_color']
+                    self.background_color = palette['background_color']
+                    
+                    # Log successful extraction for debugging
+                    print(f"Premium colors extracted for '{self.title}':")
+                    print(f"  Primary: {self.primary_color} (Gold/Brand)")
+                    print(f"  Secondary: {self.secondary_color} (Navy/Complement)")
+                    print(f"  Accent: {self.accent_color} (Highlight)")
+                    print(f"  Background: {self.background_color} (Premium cream/off-white)")
+        except Exception as e:
+            # Log error but don't fail - use defaults
+            print(f"Premium color extraction failed for '{self.title}': {e}")
+            print("Falling back to standard extraction...")
+    
     def save(self, *args, **kwargs):
         from django.utils.text import slugify
         if not self.slug:
@@ -95,7 +135,37 @@ class Event(models.Model):
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
+        
+        # Check if logo was updated
+        if self.pk:
+            try:
+                old_event = Event.objects.get(pk=self.pk)
+                logo_changed = old_event.logo != self.logo
+            except Event.DoesNotExist:
+                logo_changed = bool(self.logo)
+        else:
+            logo_changed = bool(self.logo)
+        
+        # Save first to ensure logo file is written
         super().save(*args, **kwargs)
+        
+        # Extract colors if logo was uploaded/updated
+        if logo_changed and self.logo:
+            self.extract_colors_from_logo()
+            # Save again to persist extracted colors (without triggering infinite loop)
+            super().save(update_fields=['primary_color', 'secondary_color', 'accent_color', 'background_color'])
+    
+    @property
+    def theme_css(self):
+        """Generate CSS variables for this event's theme."""
+        return f"""
+        :root {{
+            --event-primary-color: {self.primary_color};
+            --event-secondary-color: {self.secondary_color};
+            --event-accent-color: {self.accent_color};
+            --event-background-color: {self.background_color};
+        }}
+        """
     
     @property
     def duration(self):

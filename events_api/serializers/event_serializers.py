@@ -26,6 +26,7 @@ class EventSerializer(serializers.ModelSerializer):
     rooms = RoomSerializer(many=True, read_only=True)
     sponsors = SponsorSerializer(many=True, read_only=True)
     is_owner = serializers.SerializerMethodField()
+    theme_css = serializers.CharField(read_only=True)
 
     class Meta:
         model = Event
@@ -34,6 +35,7 @@ class EventSerializer(serializers.ModelSerializer):
                   'venue_name', 'address', 'city', 'country',
                   'virtual_meeting_url', 'virtual_platform',
                   'logo', 'banner_image', 'primary_color', 'secondary_color',
+                  'accent_color', 'background_color', 'theme_css',
                   'max_attendees', 'is_public', 'require_approval',
                   'contact_email', 'contact_phone',
                   'tracks', 'rooms', 'sponsors', 'is_owner']
@@ -51,7 +53,7 @@ class EventCreateSerializer(serializers.ModelSerializer):
                   'start_date', 'end_date', 'registration_deadline',
                   'venue_name', 'address', 'city', 'country',
                   'virtual_meeting_url', 'virtual_platform',
-                  'primary_color', 'secondary_color',
+                  'primary_color', 'secondary_color', 'accent_color', 'background_color',
                   'max_attendees', 'is_public', 'require_approval',
                   'contact_email', 'contact_phone']
 
@@ -66,4 +68,5 @@ class EventListSerializer(serializers.ModelSerializer):
         model = Event
         fields = ['id', 'title', 'slug', 'event_type', 'status',
                   'start_date', 'end_date', 'venue_name', 'city',
-                  'logo', 'primary_color', 'is_public']
+                  'logo', 'primary_color', 'secondary_color', 'accent_color', 'background_color',
+                  'is_public']

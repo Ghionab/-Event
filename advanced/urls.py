@@ -47,4 +47,5 @@ urlpatterns = [
     path('ushers/create/', views.usher_create, name='usher_create'),
     path('ushers/<int:pk>/update/', views.usher_update, name='usher_update'),
     path('ushers/<int:pk>/delete/', views.usher_delete, name='usher_delete'),
+    path('ajax/event/<int:event_id>/venues/', views.ajax_get_event_venues, name='ajax_event_venues'),
 ]

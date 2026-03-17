@@ -14,21 +14,35 @@
 <script>
     // Extract event_id from URL path
     const pathParts = window.location.pathname.split('/');
-    const eventId = pathParts[pathParts.indexOf('events') + 1] || pathParts[pathParts.indexOf('events') + 1];
+    const eventsIndex = pathParts.indexOf('events');
+    const eventId = eventsIndex !== -1 ? pathParts[eventsIndex + 1] : null;
     let eventData = null;
     let ticketsData = [];
 
     document.addEventListener('DOMContentLoaded', function() {
         if (eventId) {
             loadEventAndTickets();
+        } else {
+            console.error('Event ID not found in URL');
+            showError();
         }
     });
 
     function loadEventAndTickets() {
         // Fetch event and tickets in parallel
         Promise.all([
-            fetch(`/api/v1/public/events/${eventId}/`).then(r => r.json()),
-            fetch(`/api/v1/public/events/${eventId}/tickets/`).then(r => r.json())
+            fetch(`/api/v1/public/events/${eventId}/`).then(r => {
+                if (!r.ok) {
+                    throw new Error(`Event not found (${r.status})`);
+                }
+                return r.json();
+            }),
+            fetch(`/api/v1/public/events/${eventId}/tickets/`).then(r => {
+                if (!r.ok) {
+                    throw new Error(`Tickets not found (${r.status})`);
+                }
+                return r.json();
+            })
         ])
         .then(([event, tickets]) => {
             eventData = event;
@@ -36,37 +50,370 @@
             renderEvent(event, tickets);
         })
         .catch(error => {
-            console.error(error);
-            showError();
+            console.error('Error loading event data:', error);
+            showError(error.message || 'Unknown error');
         });
     }
 
     function renderEvent(event, tickets) {
         const container = document.getElementById('eventContainer');
-        const gradient = getRandomGradient();
+        
+        // Apply event theme colors as CSS variables
+        const themeColors = {
+            primary: event.primary_color || '#4f46e5',
+            secondary: event.secondary_color || '#6b7280',
+            accent: event.accent_color || '#10b981',
+            background: event.background_color || '#f9fafb'
+        };
+        
+        // Inject premium theme CSS for 10/10 professional look
+        let themeStyle = document.getElementById('event-theme-style');
+        if (!themeStyle) {
+            themeStyle = document.createElement('style');
+            themeStyle.id = 'event-theme-style';
+            document.head.appendChild(themeStyle);
+        }
+        
+        // Generate premium CSS with sophisticated styling
+        const primaryDark = adjustColorBrightness(themeColors.primary, -15);
+        const primaryLight = adjustColorBrightness(themeColors.primary, 15);
+        const secondaryLight = adjustColorBrightness(themeColors.secondary, 40);
+        
+        themeStyle.textContent = `
+            /* Core Theme Colors */
+            .event-theme-primary { color: ${themeColors.primary} !important; }
+            .event-theme-bg-primary { 
+                background-color: ${themeColors.primary} !important; 
+                transition: all 0.3s ease !important;
+            }
+            .event-theme-border-primary { border-color: ${themeColors.primary} !important; }
+            .event-theme-secondary { color: ${themeColors.secondary} !important; }
+            .event-theme-bg-secondary { 
+                background-color: ${themeColors.secondary} !important;
+                transition: all 0.3s ease !important;
+            }
+            .event-theme-accent { color: ${themeColors.accent} !important; }
+            .event-theme-bg-accent { 
+                background-color: ${themeColors.accent} !important;
+                transition: all 0.3s ease !important;
+            }
+            .event-theme-bg-light { 
+                background-color: ${themeColors.background} !important;
+            }
+            
+            /* Premium Gradients */
+            .event-gradient { 
+                background: linear-gradient(135deg, ${themeColors.secondary} 0%, ${themeColors.primary} 50%, ${themeColors.accent} 100%) !important;
+                position: relative;
+                overflow: hidden;
+            }
+            .event-gradient::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.1) 100%);
+                pointer-events: none;
+            }
+            
+            /* Premium Buttons */
+            .event-btn-primary {
+                background: linear-gradient(135deg, ${themeColors.primary} 0%, ${primaryDark} 100%) !important;
+                border: none !important;
+                box-shadow: 0 4px 15px ${themeColors.primary}40 !important;
+                transition: all 0.3s ease !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.5px !important;
+            }
+            .event-btn-primary:hover { 
+                transform: translateY(-2px) !important;
+                box-shadow: 0 8px 25px ${themeColors.primary}60 !important;
+                background: linear-gradient(135deg, ${primaryLight} 0%, ${themeColors.primary} 100%) !important;
+            }
+            
+            /* Premium Cards */
+            .event-card {
+                background: white !important;
+                border-radius: 16px !important;
+                box-shadow: 0 4px 20px ${themeColors.secondary}15 !important;
+                transition: all 0.3s ease !important;
+                border: 1px solid ${themeColors.secondary}10 !important;
+            }
+            .event-card:hover {
+                box-shadow: 0 8px 30px ${themeColors.secondary}25 !important;
+                transform: translateY(-4px) !important;
+            }
+            
+            /* Ticket Selection Cards */
+            .ticket-card {
+                border: 2px solid ${themeColors.secondary}15 !important;
+                border-radius: 12px !important;
+                transition: all 0.3s ease !important;
+                background: white !important;
+            }
+            .ticket-card:hover {
+                border-color: ${themeColors.primary} !important;
+                box-shadow: 0 4px 20px ${themeColors.primary}20 !important;
+            }
+            .ticket-card.selected {
+                border-color: ${themeColors.primary} !important;
+                background: ${themeColors.background} !important;
+                box-shadow: 0 4px 20px ${themeColors.primary}30 !important;
+            }
+            
+            /* Price Display */
+            .event-price {
+                color: ${themeColors.primary} !important;
+                font-weight: 700 !important;
+                font-size: 1.5rem !important;
+                text-shadow: 0 2px 4px ${themeColors.primary}20 !important;
+            }
+            
+            /* Section Headers */
+            .event-section-title {
+                color: ${themeColors.secondary} !important;
+                font-weight: 700 !important;
+                letter-spacing: -0.5px !important;
+                border-bottom: 3px solid ${themeColors.primary} !important;
+                padding-bottom: 0.5rem !important;
+                display: inline-block !important;
+            }
+            
+            /* Badge Styling */
+            .event-badge {
+                background: linear-gradient(135deg, ${themeColors.accent} 0%, ${adjustColorBrightness(themeColors.accent, -10)} 100%) !important;
+                color: white !important;
+                font-weight: 600 !important;
+                padding: 0.5rem 1rem !important;
+                border-radius: 20px !important;
+                box-shadow: 0 2px 10px ${themeColors.accent}40 !important;
+            }
+            
+            /* Icon Styling */
+            .event-icon {
+                color: ${themeColors.primary} !important;
+                filter: drop-shadow(0 2px 4px ${themeColors.primary}30) !important;
+            }
+            
+            /* Form Elements */
+            .event-input:focus {
+                border-color: ${themeColors.primary} !important;
+                box-shadow: 0 0 0 3px ${themeColors.primary}20 !important;
+            }
+            
+            /* Info Cards */
+            .event-info-card {
+                background: linear-gradient(135deg, white 0%, ${themeColors.background} 100%) !important;
+                border-left: 4px solid ${themeColors.primary} !important;
+                border-radius: 12px !important;
+                padding: 1.5rem !important;
+            }
+            
+            /* Premium Ticket Cards */
+            .ticket-card {
+                position: relative !important;
+                overflow: hidden !important;
+                transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            }
+            
+            .ticket-card::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: 4px !important;
+                background: linear-gradient(90deg, ${themeColors.primary} 0%, ${themeColors.accent} 50%, ${themeColors.secondary} 100%) !important;
+                opacity: 0 !important;
+                transition: opacity 0.3s ease !important;
+            }
+            
+            .ticket-card:hover::before {
+                opacity: 1 !important;
+            }
+            
+            .ticket-card.popular {
+                border-color: #f59e0b !important;
+                box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15) !important;
+            }
+            
+            .ticket-card.popular::before {
+                opacity: 1 !important;
+                background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%) !important;
+            }
+            
+            .ticket-card.recommended {
+                border-color: #10b981 !important;
+                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15) !important;
+            }
+            
+            .ticket-card.recommended::before {
+                opacity: 1 !important;
+                background: linear-gradient(90deg, #10b981 0%, #34d399 100%) !important;
+            }
+            
+            .ticket-card.sold-out {
+                opacity: 0.75 !important;
+                filter: grayscale(0.3) !important;
+            }
+            
+            .ticket-card.sold-out::before {
+                opacity: 1 !important;
+                background: linear-gradient(90deg, #ef4444 0%, #f87171 100%) !important;
+            }
+            
+            /* Ticket Header */
+            .ticket-header {
+                background: linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.secondary} 100%) !important;
+                padding: 0.75rem 1rem !important;
+                border-radius: 10px 10px 0 0 !important;
+            }
+            
+            .ticket-badge {
+                background: rgba(255,255,255,0.2) !important;
+                backdrop-filter: blur(4px) !important;
+                border: 1px solid rgba(255,255,255,0.3) !important;
+                color: white !important;
+                font-size: 10px !important;
+                font-weight: 700 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.1em !important;
+                padding: 0.25rem 0.75rem !important;
+                border-radius: 20px !important;
+            }
+            
+            /* Ticket Price */
+            .ticket-price {
+                background: linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.secondary} 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
+            }
+            
+            .ticket-price.text-green-600 {
+                background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                background-clip: text !important;
+            }
+            
+            /* Ticket Select Button */
+            .ticket-select-btn {
+                background: linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.secondary} 100%) !important;
+                color: white !important;
+                border: none !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .ticket-select-btn::after {
+                content: '' !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: -100% !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent) !important;
+                transition: left 0.5s ease !important;
+            }
+            
+            .ticket-select-btn:hover::after {
+                left: 100% !important;
+            }
+            
+            /* Selected State Animation */
+            .ticket-card.selected {
+                transform: translateY(-4px) scale(1.02) !important;
+            }
+        `;
 
         // Determine if there are paid tickets
         const hasPaidTickets = tickets.some(t => parseFloat(t.price) > 0);
         const allFree = tickets.length === 0 || tickets.every(t => parseFloat(t.price) === 0);
 
         container.innerHTML = `
-            <!-- Event Header -->
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
-                <div class="h-64 bg-gradient-to-br ${gradient} flex items-center justify-center relative">
-                    ${event.logo ? 
-                        `<img src="${event.logo}" alt="${event.title}" class="h-full w-full object-cover">` :
-                        `<i class="fas fa-calendar-alt text-white text-8xl opacity-50"></i>`
+            <!-- Premium Event Header -->
+            <div class="event-card overflow-hidden mb-8">
+                <div class="h-72 event-gradient flex items-center justify-center relative">
+                    ${event.banner_image ? 
+                        `<img src="${event.banner_image}" alt="${event.title}" class="h-full w-full object-cover absolute inset-0 opacity-90">` :
+                        event.logo ? 
+                        `<img src="${event.logo}" alt="${event.title}" class="h-48 w-48 object-contain z-10 drop-shadow-2xl">` :
+                        `<div class="text-center z-10">
+                            <i class="fas fa-calendar-star text-white text-7xl mb-4 opacity-90"></i>
+                            <p class="text-white text-xl font-light tracking-widest">${formatEventType(event.event_type)}</p>
+                         </div>`
                     }
-                    <div class="absolute top-4 left-4">
-                        <a href="/events/" class="bg-white/90 text-gray-800 px-3 py-1 rounded-lg text-sm hover:bg-white transition">
-                            <i class="fas fa-arrow-left mr-1"></i> Back
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30"></div>
+                    <div class="absolute top-6 left-6 z-20">
+                        <a href="/events/" class="bg-white/95 hover:bg-white text-gray-800 px-4 py-2 rounded-full text-sm font-medium transition shadow-lg backdrop-blur-sm">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Events
                         </a>
                     </div>
-                    <span class="absolute top-4 right-4 bg-white/90 text-gray-800 text-sm font-semibold px-3 py-1 rounded">
-                        ${formatEventType(event.event_type)}
-                    </span>
+                    <div class="absolute top-6 right-6 z-20">
+                        <span class="event-badge text-sm">
+                            ${formatEventType(event.event_type)}
+                        </span>
+                    </div>
                 </div>
-                <div class="p-8">
+                
+                <!-- Event Title Section -->
+                <div class="p-8 md:p-10 bg-white">
+                    <div class="max-w-4xl mx-auto text-center">
+                        <h1 class="text-4xl md:text-5xl font-bold event-theme-secondary mb-4 leading-tight">
+                            ${event.title}
+                        </h1>
+                        ${event.description ? 
+                            `<p class="text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto">${event.description.substring(0, 200)}${event.description.length > 200 ? '...' : ''}</p>` 
+                            : ''}
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column: Event Details -->
+                <div class="lg:col-span-2 space-y-8">
+                    
+                    <!-- Quick Info Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="event-info-card">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl event-theme-bg-primary flex items-center justify-center">
+                                    <i class="fas fa-calendar-alt text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Date</p>
+                                    <p class="font-semibold event-theme-secondary">${formatDate(event.start_date)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="event-info-card">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl event-theme-bg-accent flex items-center justify-center">
+                                    <i class="fas fa-clock text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Time</p>
+                                    <p class="font-semibold event-theme-secondary">${formatTime(event.start_date)} - ${formatTime(event.end_date)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="event-info-card">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl event-theme-bg-secondary flex items-center justify-center">
+                                    <i class="fas fa-map-marker-alt text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Location</p>
+                                    <p class="font-semibold event-theme-secondary">${event.city || 'Virtual'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
                             <h1 class="text-3xl font-bold text-gray-900 mt-3">${event.title}</h1>
@@ -80,11 +427,11 @@
                         </div>
                         <div class="mt-4 md:mt-0">
                             ${tickets.length > 0 ? `
-                                <button onclick="scrollToTickets()" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                                <button onclick="scrollToTickets()" class="inline-block event-theme-bg-primary text-white px-8 py-3 rounded-lg font-bold event-btn-primary transition" style="background-color: ${themeColors.primary};">
                                     Get Tickets
                                 </button>
                             ` : `
-                                <a href="/events/${eventId}/register/" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                                <a href="/events/${eventId}/register/" class="inline-block event-theme-bg-primary text-white px-8 py-3 rounded-lg font-bold event-btn-primary transition" style="background-color: ${themeColors.primary};">
                                     Register Now
                                 </a>
                             `}
@@ -93,8 +440,8 @@
 
                     <div class="grid md:grid-cols-3 gap-6 mt-8 pt-8 border-t">
                         <div class="flex items-center">
-                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
-                                <i class="fas fa-calendar text-indigo-600"></i>
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 event-theme-bg-light" style="background-color: ${themeColors.background};">
+                                <i class="fas fa-calendar event-theme-primary" style="color: ${themeColors.primary};"></i>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Start Date</p>
@@ -102,8 +449,8 @@
                             </div>
                         </div>
                         <div class="flex items-center">
-                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
-                                <i class="fas fa-calendar-check text-indigo-600"></i>
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 event-theme-bg-light" style="background-color: ${themeColors.background};">
+                                <i class="fas fa-calendar-check event-theme-primary" style="color: ${themeColors.primary};"></i>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">End Date</p>
@@ -111,8 +458,8 @@
                             </div>
                         </div>
                         <div class="flex items-center">
-                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                                <i class="fas fa-tag text-green-600"></i>
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 event-theme-bg-light" style="background-color: ${themeColors.background};">
+                                <i class="fas fa-tag event-theme-accent" style="color: ${themeColors.accent};"></i>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Status</p>
@@ -133,11 +480,11 @@
                         </div>
 
                         ${event.virtual_meeting_url ? `
-                        <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <h3 class="font-semibold text-blue-800 mb-2">
+                        <div class="mt-8 p-4 rounded-lg border event-theme-bg-light" style="background-color: ${themeColors.background}; border-color: ${themeColors.primary};">
+                            <h3 class="font-semibold mb-2 event-theme-primary" style="color: ${themeColors.primary};">
                                 <i class="fas fa-video mr-2"></i>Virtual Event
                             </h3>
-                            <p class="text-blue-600">This event has a virtual component.</p>
+                            <p class="event-theme-secondary" style="color: ${themeColors.secondary};">This event has a virtual component.</p>
                         </div>
                         ` : ''}
                     </div>
@@ -146,12 +493,12 @@
                 <div id="ticketsSection">
                     <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
                         <h3 class="text-lg font-bold mb-4">
-                            <i class="fas fa-ticket-alt mr-2"></i>Tickets
+                            <i class="fas fa-ticket-alt mr-2 event-theme-primary" style="color: ${themeColors.primary};"></i>Tickets
                         </h3>
 
                         ${tickets.length > 0 ? `
                         <div class="space-y-4" id="ticketsList">
-                            ${tickets.map(ticket => renderTicketCard(ticket)).join('')}
+                            ${tickets.map(ticket => renderTicketCard(ticket, themeColors, event)).join('')}
                         </div>
 
                         <!-- Promo Code Section -->
@@ -159,7 +506,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Promo Code</label>
                             <div class="flex gap-2">
                                 <input type="text" id="promoCode" placeholder="Enter code" class="flex-1 px-3 py-2 border rounded-lg text-sm">
-                                <button onclick="applyPromoCode()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition">
+                                <button onclick="applyPromoCode()" class="px-4 py-2 rounded-lg text-sm transition" style="background-color: ${themeColors.secondary}; color: white;">
                                     Apply
                                 </button>
                             </div>
@@ -169,9 +516,9 @@
                         <div class="mt-6 pt-6 border-t">
                             <div class="flex justify-between items-center mb-4">
                                 <span class="font-semibold">Total:</span>
-                                <span class="text-2xl font-bold" id="totalPrice">$${calculateTotal()}</span>
+                                <span class="text-2xl font-bold event-theme-primary" id="totalPrice" style="color: ${themeColors.primary};">$${calculateTotal()}</span>
                             </div>
-                            <button onclick="proceedToCheckout()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                            <button onclick="proceedToCheckout()" class="w-full text-white py-3 rounded-lg font-bold event-btn-primary transition" style="background-color: ${themeColors.primary};">
                                 ${hasPaidTickets ? 'Buy Now' : 'Register Free'}
                             </button>
                         </div>
@@ -179,7 +526,7 @@
                         <div class="text-center py-6 text-gray-500">
                             <i class="fas fa-ticket-alt text-gray-300 text-4xl mb-3"></i>
                             <p>No tickets available yet</p>
-                            <a href="/events/${eventId}/register/" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800">
+                            <a href="/events/${eventId}/register/" class="mt-4 inline-block event-theme-primary hover:opacity-80 transition" style="color: ${themeColors.primary};">
                                 Register for updates
                             </a>
                         </div>
@@ -188,16 +535,16 @@
                         <div class="mt-6 pt-6 border-t">
                             <h4 class="font-semibold mb-3">Share This Event</h4>
                             <div class="flex space-x-3">
-                                <button onclick="shareEvent('twitter')" class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition">
+                                <button onclick="shareEvent('twitter')" class="w-10 h-10 text-white rounded-full flex items-center justify-center transition" style="background-color: #1DA1F2;">
                                     <i class="fab fa-twitter"></i>
                                 </button>
-                                <button onclick="shareEvent('facebook')" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition">
+                                <button onclick="shareEvent('facebook')" class="w-10 h-10 text-white rounded-full flex items-center justify-center transition" style="background-color: #4267B2;">
                                     <i class="fab fa-facebook-f"></i>
                                 </button>
-                                <button onclick="shareEvent('linkedin')" class="w-10 h-10 bg-blue-700 text-white rounded-full flex items-center justify-center hover:bg-blue-800 transition">
+                                <button onclick="shareEvent('linkedin')" class="w-10 h-10 text-white rounded-full flex items-center justify-center transition" style="background-color: #0077b5;">
                                     <i class="fab fa-linkedin-in"></i>
                                 </button>
-                                <button onclick="shareEvent('copy')" class="w-10 h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-300 transition" title="Copy link">
+                                <button onclick="shareEvent('copy')" class="w-10 h-10 rounded-full flex items-center justify-center transition" style="background-color: ${themeColors.secondary}; color: white;" title="Copy link">
                                     <i class="fas fa-link"></i>
                                 </button>
                             </div>
@@ -208,32 +555,102 @@
         `;
     }
 
-    function renderTicketCard(ticket) {
+    function renderTicketCard(ticket, themeColors, event) {
         const price = parseFloat(ticket.price);
         const isFree = price === 0;
         const available = ticket.available;
+        const isSoldOut = available <= 0;
+        const isPopular = ticket.popular || ticket.sold_count > 50;
+        const isRecommended = ticket.recommended || ticket.ticket_category?.toLowerCase().includes('vip');
 
         return `
-            <div class="border rounded-lg p-4 ${isFree ? '' : 'border-indigo-200'}">
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <h4 class="font-semibold">${ticket.name}</h4>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 capitalize">${ticket.ticket_category || 'general'}</span>
+            <div class="ticket-card ${isSoldOut ? 'sold-out' : ''} ${isPopular ? 'popular' : ''} ${isRecommended ? 'recommended' : ''} border-2 ${isSoldOut ? 'border-gray-200' : 'border-transparent'}">
+                <!-- Ticket Header with Category & Badges -->
+                <div class="ticket-header flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-ticket-alt text-white/80"></i>
+                        <span class="ticket-badge">${ticket.ticket_category || 'GENERAL'}</span>
+                        ${event.logo ? `<img src="${event.logo}" alt="" class="w-4 h-4 object-contain rounded-sm opacity-80">` : ''}
                     </div>
-                    <span class="text-lg font-bold ${isFree ? 'text-green-600' : 'text-indigo-600'}">
-                        ${isFree ? 'FREE' : '$' + price.toFixed(2)}
-                    </span>
+                    <div class="flex items-center gap-2">
+                        ${isPopular ? '<span class="text-[10px] font-bold text-white/90 bg-amber-500 px-2 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-fire mr-1"></i>POPULAR</span>' : ''}
+                        ${isRecommended ? '<span class="text-[10px] font-bold text-white/90 bg-emerald-500 px-2 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-star mr-1"></i>BEST VALUE</span>' : ''}
+                        ${isSoldOut ? '<span class="text-xs font-bold text-white/90 bg-red-500 px-3 py-1.5 rounded-lg shadow-sm">SOLD OUT</span>' : ''}
+                    </div>
                 </div>
-                ${ticket.description ? `<p class="text-sm text-gray-500 mb-3">${ticket.description}</p>` : ''}
-                <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-500">
-                        <i class="fas fa-chair mr-1"></i>${available} left
-                    </span>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" class="ticket-checkbox rounded text-indigo-600" data-ticket-id="${ticket.id}" data-price="${price}" ${available <= 0 ? 'disabled' : ''} onchange="updateTotal()">
-                        <span class="${available <= 0 ? 'text-gray-400' : ''}">${available <= 0 ? 'Sold out' : 'Select'}</span>
-                    </label>
+                
+                <!-- Ticket Body -->
+                <div class="p-5 relative">
+                    <!-- Logo Watermark Background -->
+                    ${event.logo ? `
+                    <div class="absolute top-2 right-2 opacity-[0.03] pointer-events-none">
+                        <img src="${event.logo}" alt="" class="w-32 h-32 object-contain grayscale">
+                    </div>
+                    ` : ''}
+                    
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-bold text-gray-900 mb-1">${ticket.name}</h4>
+                            ${ticket.description ? `<p class="text-sm text-gray-500 line-clamp-2 leading-relaxed">${ticket.description}</p>` : ''}
+                        </div>
+                        <div class="text-right ml-4">
+                            <div class="ticket-price ${isFree ? 'text-green-600' : ''} text-2xl font-black tracking-tight">
+                                ${isFree ? 'FREE' : '$' + price.toFixed(2)}
+                            </div>
+                            ${isSoldOut ? '' : `<span class="text-xs text-gray-400 font-medium flex items-center justify-end gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full ${available < 10 ? 'bg-red-400' : 'bg-green-400'}"></span>
+                                ${available} tickets left
+                            </span>`}
+                        </div>
+                    </div>
+                    
+                    <!-- Features List (if available) -->
+                    ${ticket.features ? `
+                    <div class="mb-4">
+                        <ul class="space-y-1">
+                            ${ticket.features.map(feature => `
+                                <li class="text-xs text-gray-600 flex items-center gap-1.5">
+                                    <i class="fas fa-check text-green-500 text-[10px]"></i>
+                                    ${feature}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                    
+                    <!-- Quantity Selector -->
+                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                        <div class="flex items-center gap-2 bg-gray-50 rounded-full p-1">
+                            <button onclick="adjustTicketQuantity(${ticket.id}, -1)" 
+                                    class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-white hover:shadow-sm transition-all ${isSoldOut ? 'opacity-50 cursor-not-allowed' : ''}"
+                                    ${isSoldOut ? 'disabled' : ''}>
+                                <i class="fas fa-minus text-xs"></i>
+                            </button>
+                            <span id="qty-${ticket.id}" class="w-10 text-center font-bold text-gray-900 text-lg">0</span>
+                            <button onclick="adjustTicketQuantity(${ticket.id}, 1)" 
+                                    class="w-8 h-8 rounded-full flex items-center justify-center text-white shadow-sm transition-all hover:shadow-md active:scale-95 ${isSoldOut ? 'opacity-50 cursor-not-allowed bg-gray-300' : 'ticket-select-btn'}"
+                                    ${isSoldOut ? 'disabled' : ''}>
+                                <i class="fas fa-plus text-xs"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden checkbox for backward compatibility -->
+                        <input type="checkbox" class="ticket-checkbox hidden" data-ticket-id="${ticket.id}" data-price="${price}" 
+                               ${isSoldOut ? 'disabled' : ''} onchange="updateTicketQuantity(${ticket.id}, this.checked ? 1 : 0)">
+                        
+                        ${isSoldOut 
+                            ? '<span class="text-sm text-gray-400 font-medium px-4 py-2"><i class="fas fa-ban mr-1.5"></i>Unavailable</span>'
+                            : `<button onclick="toggleTicketSelection(${ticket.id})" id="btn-${ticket.id}" 
+                                class="ticket-select-btn px-6 py-2.5 text-sm font-bold rounded-full shadow-sm hover:shadow-md transition-all active:scale-95">
+                                <i class="fas fa-cart-plus mr-2"></i>Add
+                             </button>`
+                        }
+                    </div>
                 </div>
+                
+                <!-- Decorative Ticket Notches -->
+                <div class="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-50 rounded-full shadow-inner"></div>
+                <div class="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-gray-50 rounded-full shadow-inner"></div>
             </div>
         `;
     }
@@ -315,30 +732,118 @@
         window.location.href = `/events/${eventId}/register/`;
     }
 
-    function showError() {
+    function adjustColorBrightness(hex, percent) {
+        // Helper to lighten/darken hex color
+        const num = parseInt(hex.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) + amt;
+        const G = (num >> 8 & 0x00FF) + amt;
+        const B = (num & 0x0000FF) + amt;
+        return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+            (B < 255 ? B < 1 ? 0 : B : 255))
+            .toString(16).slice(1);
+    }
+
+    function adjustTicketQuantity(ticketId, delta) {
+        const qtyEl = document.getElementById(`qty-${ticketId}`);
+        const checkbox = document.querySelector(`.ticket-checkbox[data-ticket-id="${ticketId}"]`);
+        const btn = document.getElementById(`btn-${ticketId}`);
+        
+        if (!qtyEl || !checkbox) return;
+        
+        let currentQty = parseInt(qtyEl.textContent) || 0;
+        let newQty = currentQty + delta;
+        
+        // Ensure quantity doesn't go below 0
+        if (newQty < 0) newQty = 0;
+        
+        // Update display
+        qtyEl.textContent = newQty;
+        
+        // Update checkbox state
+        checkbox.checked = newQty > 0;
+        
+        // Update button appearance
+        if (btn) {
+            if (newQty > 0) {
+                btn.innerHTML = '<i class="fas fa-check mr-1"></i>Selected';
+                btn.classList.add('selected');
+            } else {
+                btn.innerHTML = '<i class="fas fa-plus mr-1"></i>Add';
+                btn.classList.remove('selected');
+            }
+        }
+        
+        // Update total
+        updateTotal();
+    }
+
+    function toggleTicketSelection(ticketId) {
+        const qtyEl = document.getElementById(`qty-${ticketId}`);
+        const checkbox = document.querySelector(`.ticket-checkbox[data-ticket-id="${ticketId}"]`);
+        const btn = document.getElementById(`btn-${ticketId}`);
+        
+        if (!qtyEl || !checkbox) return;
+        
+        let currentQty = parseInt(qtyEl.textContent) || 0;
+        
+        if (currentQty > 0) {
+            // Deselect
+            qtyEl.textContent = '0';
+            checkbox.checked = false;
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-plus mr-1"></i>Add';
+                btn.classList.remove('selected');
+            }
+        } else {
+            // Select with quantity 1
+            qtyEl.textContent = '1';
+            checkbox.checked = true;
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-check mr-1"></i>Selected';
+                btn.classList.add('selected');
+            }
+        }
+        
+        // Update total
+        updateTotal();
+    }
+
+    function updateTicketQuantity(ticketId, quantity) {
+        const qtyEl = document.getElementById(`qty-${ticketId}`);
+        const btn = document.getElementById(`btn-${ticketId}`);
+        
+        if (qtyEl) {
+            qtyEl.textContent = quantity;
+        }
+        
+        if (btn) {
+            if (quantity > 0) {
+                btn.innerHTML = '<i class="fas fa-check mr-1"></i>Selected';
+                btn.classList.add('selected');
+            } else {
+                btn.innerHTML = '<i class="fas fa-plus mr-1"></i>Add';
+                btn.classList.remove('selected');
+            }
+        }
+        
+        updateTotal();
+    }
+
+    function showError(errorMessage = '') {
         const container = document.getElementById('eventContainer');
         container.innerHTML = `
             <div class="bg-white rounded-xl shadow-sm p-12 text-center">
                 <i class="fas fa-exclamation-circle text-gray-300 text-6xl mb-4"></i>
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
-                <p class="text-gray-500 mb-6">The event you're looking for doesn't exist or has been removed.</p>
+                <p class="text-gray-500 mb-4">The event you're looking for doesn't exist or has been removed.</p>
+                ${errorMessage ? `<p class="text-red-500 text-sm mb-4 font-mono bg-red-50 p-2 rounded">Error: ${errorMessage}</p>` : ''}
                 <a href="/events/" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
                     Browse Events
                 </a>
             </div>
         `;
-    }
-
-    function getRandomGradient() {
-        const gradients = [
-            'from-indigo-500 to-purple-600',
-            'from-blue-500 to-indigo-600',
-            'from-green-500 to-teal-600',
-            'from-orange-500 to-red-600',
-            'from-pink-500 to-rose-600',
-            'from-cyan-500 to-blue-600'
-        ];
-        return gradients[Math.floor(Math.random() * gradients.length)];
     }
 
     function formatDate(dateString) {
@@ -348,9 +853,17 @@
             weekday: 'long',
             year: 'numeric',
             month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            day: 'numeric'
+        });
+    }
+
+    function formatTime(dateString) {
+        if (!dateString) return 'TBD';
+        const date = new Date(dateString);
+        return date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
         });
     }
 

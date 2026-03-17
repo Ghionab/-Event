@@ -56,4 +56,7 @@ urlpatterns = [
 
     path('events/<int:event_pk>/contracts/', ContractViewSet.as_view({'get': 'list', 'post': 'create'}), name='api-event-contracts'),
     path('events/<int:event_pk>/contracts/<int:pk>/', ContractViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='api-event-contract-detail'),
+    
+    # Include public API endpoints (for participant portal)
+    path('', include('events_api.urls_participant')),
 ]

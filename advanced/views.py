@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
-from django.http import FileResponse, HttpResponseForbidden
+from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 from django.utils import timezone
 from django.db.models import Q
 from datetime import datetime, timedelta
@@ -849,10 +849,43 @@ def usher_create(request):
             messages.error(request, 'Email and password are required.')
             return redirect('advanced:usher_create')
         
+        if not event_id_post:
+            messages.error(request, 'Please select an event.')
+            return redirect('advanced:usher_create')
+        
+        if not venue_name:
+            messages.error(request, 'Please select a venue.')
+            return redirect('advanced:usher_create')
+        
         if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
             event = get_object_or_404(Event, pk=event_id_post)
         else:
             event = get_object_or_404(Event, pk=event_id_post, organizer=request.user)
+        
+        # Validate that venue belongs to the selected event
+        from events.models import EventSession
+        valid_venues = [event.venue_name] if event.venue_name else []
+        session_venues = EventSession.objects.filter(
+            event=event,
+            location__isnull=False
+        ).exclude(location='').values_list('location', flat=True).distinct()
+        valid_venues.extend(list(session_venues))
+        
+        if venue_name not in valid_venues:
+            messages.error(request, f'Invalid venue selection. Please select a venue associated with {event.title}.')
+            # Get events for form re-render
+            if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
+                events = Event.objects.all()
+            else:
+                events = Event.objects.filter(organizer=request.user)
+            
+            return render(request, 'advanced/usher_form.html', {
+                'event': event,
+                'events': events,
+                'action': 'Create',
+                'selected_event_id': int(event_id_post) if event_id_post else None,
+                'selected_venue': venue_name
+            })
         
         # Check if user exists or create new
         user = User.objects.filter(email=email).first()
@@ -876,11 +909,11 @@ def usher_create(request):
         assignment = UsherAssignment.objects.create(
             user=user,
             event=event,
-            venue_name=venue_name or event.venue_name,
+            venue_name=venue_name,
             temp_password=''  # No temp password stored since manually set
         )
         
-        messages.success(request, f'Usher assigned successfully to {venue_name or event.venue_name}.')
+        messages.success(request, f'Usher assigned successfully to {venue_name}.')
         
         return redirect('advanced:usher_list')
     
@@ -893,13 +926,15 @@ def usher_create(request):
     return render(request, 'advanced/usher_form.html', {
         'event': event,
         'events': events,
-        'action': 'Create'
+        'action': 'Create',
+        'selected_event_id': event.pk if event else None,
+        'selected_venue': event.venue_name if event else None
     })
 
 
 @login_required
 def usher_update(request, pk):
-    """Update usher assignment (venue, status)"""
+    """Update usher assignment (event, venue, status) with validation"""
     can_manage_ushers = (
         request.user.is_superuser
         or request.user.is_staff
@@ -913,24 +948,61 @@ def usher_update(request, pk):
 
     if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
         assignment = get_object_or_404(UsherAssignment, pk=pk)
+        events = Event.objects.all()
     else:
         assignment = get_object_or_404(UsherAssignment, pk=pk, event__organizer=request.user)
+        events = Event.objects.filter(organizer=request.user)
     
     if request.method == 'POST':
-        # Update venue name
-        assignment.venue_name = request.POST.get('venue_name', assignment.venue_name)
+        # Get form data
+        event_id = request.POST.get('event')
+        venue_name = request.POST.get('venue_name', assignment.venue_name)
         
-        # Update status
+        # Validate event selection
+        if event_id:
+            if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
+                new_event = get_object_or_404(Event, pk=event_id)
+            else:
+                new_event = get_object_or_404(Event, pk=event_id, organizer=request.user)
+            
+            # Validate that venue belongs to the selected event
+            from events.models import EventSession
+            valid_venues = [new_event.venue_name] if new_event.venue_name else []
+            session_venues = EventSession.objects.filter(
+                event=new_event,
+                location__isnull=False
+            ).exclude(location='').values_list('location', flat=True).distinct()
+            valid_venues.extend(list(session_venues))
+            
+            if venue_name and valid_venues and venue_name not in valid_venues:
+                messages.error(request, f'Invalid venue selection. Please select a venue associated with {new_event.title}.')
+                return render(request, 'advanced/usher_form.html', {
+                    'assignment': assignment,
+                    'event': assignment.event,
+                    'events': events,
+                    'action': 'Update',
+                    'selected_event_id': int(event_id) if event_id else None,
+                    'selected_venue': venue_name
+                })
+            
+            # Update event assignment
+            assignment.event = new_event
+        
+        # Update venue and status
+        assignment.venue_name = venue_name
         assignment.is_active = request.POST.get('is_active') == 'on'
         assignment.save()
         
-        messages.success(request, 'Usher assignment updated.')
+        messages.success(request, 'Usher assignment updated successfully.')
         return redirect('advanced:usher_list')
     
     return render(request, 'advanced/usher_form.html', {
         'assignment': assignment,
         'event': assignment.event,
-        'action': 'Update'
+        'events': events,
+        'action': 'Update',
+        'selected_event_id': assignment.event.pk if assignment.event else None,
+        'selected_venue': assignment.venue_name
     })
 
 
@@ -966,3 +1038,54 @@ def usher_delete(request, pk):
         return redirect('advanced:usher_list')
     
     return render(request, 'advanced/usher_confirm_delete.html', {'assignment': assignment})
+
+
+@login_required
+def ajax_get_event_venues(request, event_id):
+    """AJAX endpoint to get venue options for an event"""
+    can_manage_ushers = (
+        request.user.is_superuser
+        or request.user.is_staff
+        or request.user.role in ['admin', 'staff']
+        or getattr(request.user, 'is_organizer', False)
+    )
+    
+    if not can_manage_ushers:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    if request.user.role in ['admin', 'staff'] or request.user.is_staff or request.user.is_superuser:
+        event = get_object_or_404(Event, pk=event_id)
+    else:
+        event = get_object_or_404(Event, pk=event_id, organizer=request.user)
+    
+    # Build list of venue options
+    venues = []
+    
+    # Add main event venue if exists
+    if event.venue_name:
+        venues.append({
+            'value': event.venue_name,
+            'label': f"{event.venue_name} (Main Venue)"
+        })
+    
+    # Add session locations as additional venue options
+    from events.models import EventSession
+    session_locations = EventSession.objects.filter(
+        event=event,
+        location__isnull=False
+    ).exclude(
+        location=''
+    ).values_list('location', flat=True).distinct()
+    
+    for location in session_locations:
+        if location != event.venue_name:  # Avoid duplicates
+            venues.append({
+                'value': location,
+                'label': location
+            })
+    
+    return JsonResponse({
+        'event_id': event_id,
+        'event_title': event.title,
+        'venues': venues
+    })

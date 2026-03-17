@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto">
-    <form method="post" class="card">
+    <form method="post" class="card" id="usherForm">
         {% csrf_token %}
         <div class="card-body">
             {% if form.errors %}
@@ -18,19 +18,15 @@
             <!-- Event Selection -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Event *</label>
-                {% if assignment %}
-                    <input type="hidden" name="event" value="{{ assignment.event.pk }}">
-                    <div class="px-4 py-3 bg-gray-50 rounded-lg">
-                        <span class="text-gray-900 font-medium">{{ assignment.event.title }}</span>
-                    </div>
-                {% else %}
-                    <select name="event" id="eventSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" required>
-                        <option value="">Select an event</option>
-                        {% for event in events %}
-                            <option value="{{ event.pk }}" {% if event.pk == event.id %}selected{% endif %}>{{ event.title }}</option>
-                        {% endfor %}
-                    </select>
-                {% endif %}
+                <select name="event" id="eventSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" required>
+                    <option value="">Select an event</option>
+                    {% for evt in events %}
+                        <option value="{{ evt.pk }}" 
+                            {% if selected_event_id == evt.pk or event.id == evt.id %}selected{% endif %}>
+                            {{ evt.title }}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
 
             <!-- Usher Details -->
@@ -52,20 +48,21 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
-                <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter password" {% if assignment %}placeholder="Leave blank to keep current"{% endif %} {% if not assignment %}required{% endif %}>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Password {% if not assignment %}*{% endif %}</label>
+                <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="{% if assignment %}Leave blank to keep current{% else %}Enter password{% endif %}" {% if not assignment %}required{% endif %}>
                 <p class="text-sm text-gray-500 mt-1">{% if assignment %}Leave blank to keep current password.{% else %}You will share this password manually with the usher.{% endif %}</p>
             </div>
 
             <!-- Venue Selection -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Venue *</label>
-                {% if assignment %}
-                    <input type="text" name="venue_name" value="{{ assignment.venue_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" required>
-                {% else %}
-                    <input type="text" name="venue_name" id="venueName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter venue name" required>
-                    <p class="text-sm text-gray-500 mt-1">The usher will only see attendees for this venue.</p>
-                {% endif %}
+                <select name="venue_name" id="venueSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" required>
+                    <option value="">Select an event first</option>
+                </select>
+                <p class="text-sm text-gray-500 mt-1" id="venueHelp">The usher will only see attendees for this venue.</p>
+                <div id="venueLoading" class="hidden mt-2 text-sm text-gray-500">
+                    <i class="bi bi-arrow-repeat animate-spin mr-1"></i> Loading venues...
+                </div>
             </div>
 
             <!-- Status (only for update) -->
@@ -105,4 +102,137 @@
         </div>
     </form>
 </div>
+
+<script>
+// Venue data store
+let currentVenues = [];
+const selectedVenue = "{{ selected_venue|default:''|escapejs }}";
+
+// Function to load venues for an event
+async function loadVenues(eventId, preselectVenue = null) {
+    const venueSelect = document.getElementById('venueSelect');
+    const venueLoading = document.getElementById('venueLoading');
+    const venueHelp = document.getElementById('venueHelp');
+    
+    if (!eventId) {
+        venueSelect.innerHTML = '<option value="">Select an event first</option>';
+        venueSelect.disabled = true;
+        return;
+    }
+    
+    // Show loading state
+    venueLoading.classList.remove('hidden');
+    venueSelect.disabled = true;
+    
+    try {
+        const response = await fetch(`{% url 'advanced:ajax_event_venues' 0 %}`.replace('0', eventId), {
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to load venues');
+        }
+        
+        const data = await response.json();
+        currentVenues = data.venues || [];
+        
+        // Populate venue dropdown
+        venueSelect.innerHTML = '';
+        
+        if (currentVenues.length === 0) {
+            venueSelect.innerHTML = '<option value="">No venues available for this event</option>';
+            venueHelp.textContent = 'This event has no venues configured.';
+        } else {
+            // Add placeholder option
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select a venue';
+            venueSelect.appendChild(placeholder);
+            
+            // Add venue options
+            currentVenues.forEach(venue => {
+                const option = document.createElement('option');
+                option.value = venue.value;
+                option.textContent = venue.label;
+                
+                // Preselect if matches
+                if (preselectVenue && venue.value === preselectVenue) {
+                    option.selected = true;
+                } else if (!preselectVenue && selectedVenue && venue.value === selectedVenue) {
+                    option.selected = true;
+                }
+                
+                venueSelect.appendChild(option);
+            });
+            
+            venueHelp.textContent = 'The usher will only see attendees for this venue.';
+        }
+        
+        venueSelect.disabled = false;
+        
+    } catch (error) {
+        console.error('Error loading venues:', error);
+        venueSelect.innerHTML = '<option value="">Error loading venues</option>';
+        venueHelp.textContent = 'Please try selecting the event again.';
+    } finally {
+        venueLoading.classList.add('hidden');
+    }
+}
+
+// Event change handler
+document.getElementById('eventSelect').addEventListener('change', function() {
+    const eventId = this.value;
+    
+    // When event changes, clear the venue selection (unless it's initial load)
+    loadVenues(eventId, null);
+});
+
+// Initial load if event is pre-selected
+document.addEventListener('DOMContentLoaded', function() {
+    const eventSelect = document.getElementById('eventSelect');
+    const initialEventId = eventSelect.value;
+    
+    if (initialEventId) {
+        loadVenues(initialEventId, selectedVenue);
+    } else {
+        document.getElementById('venueSelect').disabled = true;
+    }
+});
+
+// Form validation
+document.getElementById('usherForm').addEventListener('submit', function(e) {
+    const eventSelect = document.getElementById('eventSelect');
+    const venueSelect = document.getElementById('venueSelect');
+    
+    if (!eventSelect.value) {
+        e.preventDefault();
+        alert('Please select an event.');
+        eventSelect.focus();
+        return false;
+    }
+    
+    if (!venueSelect.value) {
+        e.preventDefault();
+        alert('Please select a venue.');
+        venueSelect.focus();
+        return false;
+    }
+    
+    // Validate venue belongs to event
+    const selectedVenueValue = venueSelect.value;
+    const validVenue = currentVenues.find(v => v.value === selectedVenueValue);
+    
+    if (!validVenue) {
+        e.preventDefault();
+        alert('Selected venue is not valid for this event. Please select a different venue.');
+        venueSelect.focus();
+        return false;
+    }
+    
+    return true;
+});
+</script>
 {% endblock %}

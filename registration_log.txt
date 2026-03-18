@@ -491,3 +491,29 @@
 [2026-03-18 11:36:17] SUCCESS: reg#=REG-635ECB44, amount=$120.00
 [2026-03-18 11:36:17] CONTENT_TYPE: application/json
 [2026-03-18 11:36:17] REDIRECT: /registration/success/1/
+[2026-03-18 11:42:29] RAW_DATA: {'event_id': '1', 'for_myself': 'true', 'full_name': 'Mikiyas Arag', 'email': 'dnmiki29@gmail.com', 'phone': '0961996315', 'special_requests': 'qwertyu', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-18 11:42:29] PARSED: event_id=1 (type=str), email=dnmiki29@gmail.com, name=Mikiyas Arag
+[2026-03-18 11:42:29] DEBUG: ticket_price=50.00, ticket_total=50.00, quantity=1
+[2026-03-18 11:42:29] CREATED_REG: #REG-688EB648 for ticket vip (qty=1)
+[2026-03-18 11:42:29] SUCCESS: reg#=REG-688EB648, amount=$50.00
+[2026-03-18 11:42:29] CONTENT_TYPE: application/json
+[2026-03-18 11:42:29] REDIRECT: /registration/success/1/
+[2026-03-18 11:44:32] RAW_DATA: {'event_id': '1', 'for_myself': 'true', 'full_name': 'Mikiyas Arag', 'email': 'dnmiki29@gmail.com', 'phone': '0961996315', 'special_requests': 'sdfghjm', 'tickets': [{'ticket_id': 1, 'quantity': 1}]}
+[2026-03-18 11:44:32] PARSED: event_id=1 (type=str), email=dnmiki29@gmail.com, name=Mikiyas Arag
+[2026-03-18 11:44:32] DEBUG: ticket_price=50.00, ticket_total=50.00, quantity=1
+[2026-03-18 11:44:32] CREATED_REG: #REG-01431470 for ticket vip (qty=1)
+[2026-03-18 11:44:32] SUCCESS: reg#=REG-01431470, amount=$50.00
+[2026-03-18 11:44:32] CONTENT_TYPE: application/json
+[2026-03-18 11:44:32] REDIRECT: /registration/success/2/
+[2026-03-18 12:41:52] RAW_DATA: {'event_id': '5', 'for_myself': 'true', 'full_name': 'Mikiyas Arag', 'email': 'dnmiki29@gmail.com', 'phone': '0961996315', 'special_requests': 'werty'}
+[2026-03-18 12:41:52] PARSED: event_id=5 (type=str), email=dnmiki29@gmail.com, name=Mikiyas Arag
+[2026-03-18 12:41:52] SUCCESS: reg#=REG-F1880AEF, amount=$0
+[2026-03-18 12:41:52] CONTENT_TYPE: application/json
+[2026-03-18 12:41:52] REDIRECT: /registration/success/3/
+[2026-03-18 12:43:06] RAW_DATA: {'event_id': '5', 'for_myself': 'true', 'full_name': 'Mikiyas Arag', 'email': 'dnmiki29@gmail.com', 'phone': '0961996315', 'special_requests': 'wertyui', 'tickets': [{'ticket_id': 2, 'quantity': 1}]}
+[2026-03-18 12:43:06] PARSED: event_id=5 (type=str), email=dnmiki29@gmail.com, name=Mikiyas Arag
+[2026-03-18 12:43:06] DEBUG: ticket_price=45.00, ticket_total=45.00, quantity=1
+[2026-03-18 12:43:06] CREATED_REG: #REG-B9B43156 for ticket admit (qty=1)
+[2026-03-18 12:43:06] SUCCESS: reg#=REG-B9B43156, amount=$45.00
+[2026-03-18 12:43:06] CONTENT_TYPE: application/json
+[2026-03-18 12:43:06] REDIRECT: /registration/success/4/

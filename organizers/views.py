@@ -182,8 +182,9 @@ def event_list(request):
 @login_required
 @organizer_required
 def event_create(request):
-    """Create a new event"""
-    from events.forms import EventForm
+    """Create a new event with sessions and speakers"""
+    from events.forms import EventForm, SessionFormSet, SessionSpeakerFormSet
+    from django.db import transaction
     templates = EventTemplate.objects.filter(organizer=request.organizer)
 
     initial = {}
@@ -205,19 +206,92 @@ def event_create(request):
 
     if request.method == 'POST':
         form = EventForm(request.POST, request.FILES, initial=initial)
-        if form.is_valid():
-            event = form.save(commit=False)
-            event.organizer = request.user
-            event.status = 'published'  # Auto-publish on creation
-            event.save()
-            messages.success(request, 'Event created and published successfully!')
-            # Redirect to event setup wizard
-            return redirect('organizers:organizer_event_setup', event_id=event.id)
+        session_formset = SessionFormSet(request.POST, request.FILES, prefix='sessions')
+        
+        if form.is_valid() and session_formset.is_valid():
+            try:
+                with transaction.atomic():
+                    event = form.save(commit=False)
+                    event.organizer = request.user
+                    event.status = 'published'  # Auto-publish on creation
+                    event.save()
+                    form.save_m2m()
+                    
+                    # Save sessions
+                    sessions = session_formset.save(commit=False)
+                    for session in sessions:
+                        session.event = event
+                        session.save()
+                    
+                    # Handle new sessions' speakers
+                    for new_session in sessions:
+                        speaker_prefix = f'speakers_{new_session.id}'
+                        speaker_formset = SessionSpeakerFormSet(
+                            request.POST, request.FILES,
+                            instance=new_session,
+                            prefix=speaker_prefix
+                        )
+                        if speaker_formset.is_valid():
+                            speaker_formset.save()
+                    
+                    # Handle speakers for new sessions (using new_ prefix pattern)
+                    for key in request.POST:
+                        if key.startswith('speakers_new_') and key.endswith('-speaker_name'):
+                            # Parse the key to get session index and speaker index
+                            parts = key.replace('speakers_new_', '').split('-')
+                            if len(parts) >= 2:
+                                session_idx = parts[0]
+                                speaker_idx = parts[1]
+                                # Get the corresponding session from saved sessions
+                                try:
+                                    session = sessions[int(session_idx)]
+                                    speaker_name = request.POST.get(key, '')
+                                    speaker_bio = request.POST.get(f'speakers_new_{session_idx}-{speaker_idx}-speaker_bio', '')
+                                    speaker_start_time = request.POST.get(f'speakers_new_{session_idx}-{speaker_idx}-speaker_start_time', '')
+                                    speaker_end_time = request.POST.get(f'speakers_new_{session_idx}-{speaker_idx}-speaker_end_time', '')
+                                    
+                                    if speaker_name:
+                                        from events.models import SessionSpeaker
+                                        speaker = SessionSpeaker(
+                                            session=session,
+                                            speaker_name=speaker_name,
+                                            speaker_bio=speaker_bio,
+                                            speaker_start_time=speaker_start_time or None,
+                                            speaker_end_time=speaker_end_time or None
+                                        )
+                                        
+                                        # Handle profile picture if provided
+                                        profile_pic_key = f'speakers_new_{session_idx}-{speaker_idx}-speaker_profile_picture'
+                                        if profile_pic_key in request.FILES:
+                                            speaker.speaker_profile_picture = request.FILES[profile_pic_key]
+                                        
+                                        speaker.save()
+                                except (IndexError, ValueError):
+                                    pass
+                
+                messages.success(request, 'Event created and published successfully!')
+                return redirect('organizers:organizer_event_setup', event_id=event.id)
+            except Exception as e:
+                messages.error(request, f'Error creating event: {str(e)}')
+        else:
+            # Form is invalid - show errors
+            if not form.is_valid():
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+            if not session_formset.is_valid():
+                for i, errors in enumerate(session_formset.errors):
+                    if errors:
+                        for field, error_list in errors.items():
+                            for error in error_list:
+                                messages.error(request, f"Session {i+1} - {field}: {error}")
     else:
         form = EventForm(initial=initial)
+        session_formset = SessionFormSet(prefix='sessions')
 
     return render(request, 'organizers/event_form.html', {
         'form': form,
+        'session_formset': session_formset,
         'title': 'Create Event',
         'templates': templates,
         'selected_template_id': int(selected_template_id) if selected_template_id else None,

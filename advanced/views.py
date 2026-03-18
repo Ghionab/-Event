@@ -878,15 +878,28 @@ def usher_create(request):
             user.is_active = True
             user.save()
         
-        # Create usher assignment with venue name
-        assignment = UsherAssignment.objects.create(
+        # Check if assignment already exists
+        existing_assignment = UsherAssignment.objects.filter(
             user=user,
             event=event,
-            venue_name=venue_name,
-            temp_password=''  # No temp password stored since manually set
-        )
+            venue_name=venue_name
+        ).first()
         
-        messages.success(request, f'Usher assigned successfully to {venue_name}.')
+        if existing_assignment:
+            # Update existing assignment
+            existing_assignment.is_active = True
+            existing_assignment.temp_password = ''  # No temp password stored since manually set
+            existing_assignment.save()
+            messages.info(request, f'Usher assignment updated for {venue_name}.')
+        else:
+            # Create new usher assignment with venue name
+            assignment = UsherAssignment.objects.create(
+                user=user,
+                event=event,
+                venue_name=venue_name,
+                temp_password=''  # No temp password stored since manually set
+            )
+            messages.success(request, f'Usher assigned successfully to {venue_name}.')
         
         return redirect('advanced:usher_list')
     

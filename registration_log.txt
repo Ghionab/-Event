@@ -484,3 +484,10 @@
 [2026-03-17 10:47:32] SUCCESS: reg#=REG-477911DD, amount=$89.99
 [2026-03-17 10:47:32] CONTENT_TYPE: application/json
 [2026-03-17 10:47:32] REDIRECT: /registration/success/39/
+[2026-03-18 11:36:17] RAW_DATA: {'event_id': '2', 'for_myself': 'true', 'full_name': 'ADMIN participant', 'email': 'admin@eventmanager.com', 'phone': '+1 (555) 000 008', 'special_requests': 'qwe', 'tickets': [{'ticket_id': 2, 'quantity': 1}]}
+[2026-03-18 11:36:17] PARSED: event_id=2 (type=str), email=admin@eventmanager.com, name=ADMIN participant
+[2026-03-18 11:36:17] DEBUG: ticket_price=120.00, ticket_total=120.00, quantity=1
+[2026-03-18 11:36:17] CREATED_REG: #REG-635ECB44 for ticket Vip (qty=1)
+[2026-03-18 11:36:17] SUCCESS: reg#=REG-635ECB44, amount=$120.00
+[2026-03-18 11:36:17] CONTENT_TYPE: application/json
+[2026-03-18 11:36:17] REDIRECT: /registration/success/1/

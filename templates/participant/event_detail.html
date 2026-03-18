@@ -701,7 +701,7 @@
         document.querySelectorAll('.ticket-checkbox:checked').forEach(checkbox => {
             const ticketId = parseInt(checkbox.dataset.ticketId);
             const qtyEl = document.getElementById(`qty-${ticketId}`);
-            const quantity = parseInt(qtyEl.textContent) || 1;
+            const quantity = qtyEl ? parseInt(qtyEl.textContent) || 1 : 1;
             
             selectedTickets.push({
                 ticket_id: ticketId,

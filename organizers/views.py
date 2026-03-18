@@ -1628,7 +1628,7 @@ def registration_bulk_action(request):
     elif action == 'print_badges':
         # Redirect to badge printing page with selected registration IDs
         registration_ids_str = ','.join(registration_ids)
-        return redirect(f'{reverse("organizer_badge_print_bulk")}?registrations={registration_ids_str}')
+        return redirect(f'{reverse("organizers:organizer_badge_print_bulk")}?registrations={registration_ids_str}')
     
     return redirect('organizers:organizer_registration_list')
 

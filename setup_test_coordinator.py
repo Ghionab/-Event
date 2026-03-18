@@ -34,14 +34,14 @@ def create_test_coordinator():
     if created:
         user.set_password('coordinator123')
         user.save()
-        print(f"✅ Created coordinator user: {coordinator_email}")
+        print(f"Created coordinator user: {coordinator_email}")
     else:
-        print(f"📋 Coordinator user already exists: {coordinator_email}")
+        print(f"Coordinator user already exists: {coordinator_email}")
     
     # Get first event for assignment
     event = Event.objects.first()
     if not event:
-        print("❌ No events found. Please create an event first.")
+        print("No events found. Please create an event first.")
         return
     
     # Create coordinator assignment
@@ -61,15 +61,15 @@ def create_test_coordinator():
     )
     
     if created:
-        print(f"✅ Assigned coordinator to event: {event.title}")
+        print(f"Assigned coordinator to event: {event.title}")
     else:
-        print(f"📋 Coordinator assignment already exists for event: {event.title}")
+        print(f"Coordinator assignment already exists for event: {event.title}")
     
-    print(f"\n🎯 Test Coordinator Setup Complete!")
-    print(f"📧 Email: {coordinator_email}")
-    print(f"🔑 Password: coordinator123")
-    print(f"🎪 Assigned Event: {event.title}")
-    print(f"🌐 Coordinator Portal: http://localhost:8003/coordinators/")
+    print(f"\nTest Coordinator Setup Complete!")
+    print(f"Email: {coordinator_email}")
+    print(f"Password: coordinator123")
+    print(f"Assigned Event: {event.title}")
+    print(f"Coordinator Portal: http://localhost:8003/coordinators/")
     
     return user, event
 

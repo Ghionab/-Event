@@ -249,6 +249,7 @@ def event_create(request):
                                     speaker_bio = request.POST.get(f'speakers_new_{session_idx}-{speaker_idx}-speaker_bio', '')
                                     speaker_start_time = request.POST.get(f'speakers_new_{session_idx}-{speaker_idx}-speaker_start_time', '')
                                     speaker_end_time = request.POST.get(f'speakers_new_{session_idx}-{speaker_idx}-speaker_end_time', '')
+                                    speaker_linkedin_url = request.POST.get(f'speakers_new_{session_idx}-{speaker_idx}-speaker_linkedin_url', '')
                                     
                                     if speaker_name:
                                         from events.models import SessionSpeaker
@@ -257,7 +258,8 @@ def event_create(request):
                                             speaker_name=speaker_name,
                                             speaker_bio=speaker_bio,
                                             speaker_start_time=speaker_start_time or None,
-                                            speaker_end_time=speaker_end_time or None
+                                            speaker_end_time=speaker_end_time or None,
+                                            speaker_linkedin_url=speaker_linkedin_url or None
                                         )
                                         
                                         # Handle profile picture if provided

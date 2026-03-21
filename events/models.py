@@ -199,7 +199,7 @@ class Speaker(models.Model):
     
     # Social links
     twitter = models.CharField(max_length=100, blank=True)
-    linkedin = models.URLField(blank=True)
+    linkedin_url = models.URLField(blank=True, null=True)
     facebook = models.URLField(blank=True)
     instagram = models.CharField(max_length=100, blank=True)
     youtube = models.URLField(blank=True)
@@ -442,6 +442,7 @@ class SessionSpeaker(models.Model):
     speaker_name = models.CharField(max_length=255, blank=True, null=True)
     speaker_bio = models.TextField(blank=True, null=True)
     speaker_profile_picture = models.ImageField(upload_to='speakers/', blank=True, null=True)
+    speaker_linkedin_url = models.URLField(blank=True, null=True)
     
     # Speaking time window (optional) - Time only (Hours:Minutes)
     speaker_start_time = models.TimeField(null=True, blank=True)

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from events.models import Event, Track, Room, Sponsor
+from events_api.serializers.session_serializers import DynamicSessionSerializer, SessionWithSpeakersSerializer
+from events_api.serializers.speaker_serializers import SpeakerSerializer
 
 
 class TrackSerializer(serializers.ModelSerializer):
@@ -25,6 +27,9 @@ class EventSerializer(serializers.ModelSerializer):
     tracks = TrackSerializer(many=True, read_only=True)
     rooms = RoomSerializer(many=True, read_only=True)
     sponsors = SponsorSerializer(many=True, read_only=True)
+    sessions = serializers.SerializerMethodField()
+    dynamic_sessions = DynamicSessionSerializer(many=True, read_only=True)
+    speakers = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
     theme_css = serializers.CharField(read_only=True)
 
@@ -38,8 +43,18 @@ class EventSerializer(serializers.ModelSerializer):
                   'accent_color', 'background_color', 'theme_css',
                   'max_attendees', 'is_public', 'require_approval',
                   'contact_email', 'contact_phone',
-                  'tracks', 'rooms', 'sponsors', 'is_owner']
+                  'tracks', 'rooms', 'sponsors', 'sessions', 'dynamic_sessions', 'speakers', 'is_owner']
         read_only_fields = ['slug', 'created_at', 'updated_at']
+    
+    def get_sessions(self, obj):
+        """Get event sessions with speakers"""
+        sessions = obj.sessions.filter(is_public=True).order_by('start_time')
+        return SessionWithSpeakersSerializer(sessions, many=True).data
+    
+    def get_speakers(self, obj):
+        """Get confirmed speakers for the event"""
+        speakers = obj.speakers.filter(is_confirmed=True).order_by('display_order', 'name')
+        return SpeakerSerializer(speakers, many=True).data
 
     def get_is_owner(self, obj):
         request = self.context.get('request')

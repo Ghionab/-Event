@@ -96,7 +96,7 @@ class SpeakerForm(forms.ModelForm):
     class Meta:
         model = Speaker
         fields = ['name', 'email', 'photo', 'bio', 'job_title', 'company', 
-                  'website', 'twitter', 'linkedin', 'facebook', 'instagram',
+                  'website', 'twitter', 'linkedin_url', 'facebook', 'instagram',
                   'youtube', 'is_confirmed', 'is_featured', 'display_order']
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 4}),
@@ -195,7 +195,7 @@ class SessionSpeakerForm(forms.ModelForm):
     class Meta:
         model = SessionSpeaker
         fields = ['speaker_name', 'speaker_bio', 'speaker_profile_picture', 
-                  'speaker_start_time', 'speaker_end_time']
+                  'speaker_linkedin_url', 'speaker_start_time', 'speaker_end_time']
         widgets = {
             'speaker_bio': forms.Textarea(attrs={'rows': 2}),
             'speaker_start_time': forms.TimeInput(attrs={'type': 'time'}),

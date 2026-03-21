@@ -488,6 +488,9 @@
                         </div>
                         ` : ''}
                     </div>
+
+                    <!-- Sessions & Speakers Section -->
+                    ${renderSessionsSection(event, themeColors)}
                 </div>
 
                 <div id="ticketsSection">
@@ -849,6 +852,234 @@
                 });
                 break;
         }
+    }
+
+    // Helper function to format time (handles both DateTime and TimeField)
+    function formatTime(timeStr) {
+        if (!timeStr) return '';
+        
+        // Check if it's a time string (HH:MM:SS) from TimeField
+        if (typeof timeStr === 'string' && timeStr.includes(':')) {
+            const [hours, minutes] = timeStr.split(':');
+            const hour = parseInt(hours);
+            const minute = parseInt(minutes);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+            return `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+        }
+        
+        // Otherwise treat as DateTime string
+        const date = new Date(timeStr);
+        if (isNaN(date.getTime())) return '';
+        return date.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
+    }
+
+    // Helper function to format date for sessions
+    function formatSessionDate(dateTimeStr) {
+        if (!dateTimeStr) return '';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleDateString('en-US', { 
+            weekday: 'short',
+            month: 'short', 
+            day: 'numeric' 
+        });
+    }
+
+    // Render Sessions & Speakers Section
+    function renderSessionsSection(event, themeColors) {
+        // Combine both types of sessions
+        const allSessions = [];
+        
+        // Add EventSessions with speakers
+        if (event.sessions && event.sessions.length > 0) {
+            event.sessions.forEach(session => {
+                allSessions.push({
+                    ...session,
+                    session_type: 'EventSession',
+                    start_time: session.start_time,
+                    end_time: session.end_time,
+                    speakers: session.speakers || []
+                });
+            });
+        }
+        
+        // Add Dynamic Sessions with their speakers
+        if (event.dynamic_sessions && event.dynamic_sessions.length > 0) {
+            event.dynamic_sessions.forEach(session => {
+                // Convert session_speakers to speakers format for consistency
+                const speakers = session.session_speakers || [];
+                allSessions.push({
+                    ...session,
+                    session_type: 'DynamicSession',
+                    start_time: session.session_start_time,
+                    end_time: session.session_end_time,
+                    speakers: speakers.map(s => ({
+                        name: s.speaker_name,
+                        bio: s.speaker_bio,
+                        photo: s.speaker_profile_picture,
+                        linkedin_url: s.speaker_linkedin_url,
+                        start_time: s.speaker_start_time,
+                        end_time: s.speaker_end_time
+                    }))
+                });
+            });
+        }
+
+        // Sort sessions by start time
+        allSessions.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
+        if (allSessions.length === 0) {
+            return `
+                <div class="bg-white rounded-xl shadow-sm p-8 mt-8">
+                    <h2 class="text-2xl font-bold mb-6 event-theme-secondary" style="color: ${themeColors.secondary};">
+                        <i class="fas fa-calendar-alt mr-3 event-theme-primary" style="color: ${themeColors.primary};"></i>
+                        Event Schedule & Sessions
+                    </h2>
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-calendar-times text-4xl mb-4"></i>
+                        <p class="text-lg">No sessions scheduled yet</p>
+                        <p class="text-sm mt-2">Check back later for the complete schedule.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="bg-white rounded-xl shadow-sm p-8 mt-8">
+                <h2 class="text-2xl font-bold mb-6 event-theme-secondary" style="color: ${themeColors.secondary};">
+                    <i class="fas fa-calendar-alt mr-3 event-theme-primary" style="color: ${themeColors.primary};"></i>
+                    Event Schedule & Sessions
+                </h2>
+                
+                <div class="space-y-6">
+                    ${allSessions.map(session => renderSessionCard(session, themeColors, event)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Render individual session card
+    function renderSessionCard(session, themeColors, event) {
+        const hasSpeakers = session.speakers && session.speakers.length > 0;
+        const sessionTime = session.start_time && session.end_time ? 
+            `${formatSessionDate(session.start_time)} • ${formatTime(session.start_time)} - ${formatTime(session.end_time)}` : 
+            'Time TBD';
+
+        return `
+            <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300" style="border-color: ${themeColors.secondary}20;">
+                <!-- Session Header -->
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b" style="border-color: ${themeColors.secondary}20;">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">${session.title}</h3>
+                            <div class="flex items-center gap-4 text-sm text-gray-600">
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-clock event-theme-primary" style="color: ${themeColors.primary};"></i>
+                                    ${sessionTime}
+                                </span>
+                                ${session.location ? `
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-map-marker-alt event-theme-accent" style="color: ${themeColors.accent};"></i>
+                                    ${session.location}
+                                </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                        ${session.session_type ? `
+                        <div class="px-3 py-1 rounded-full text-xs font-medium bg-white border" style="border-color: ${themeColors.primary}40; color: ${themeColors.primary};">
+                            ${session.session_type === 'presentation' ? 'Presentation' : 
+                              session.session_type === 'workshop' ? 'Workshop' :
+                              session.session_type === 'keynote' ? 'Keynote' :
+                              session.session_type === 'panel' ? 'Panel' : 'Session'}
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <!-- Session Description -->
+                ${session.description ? `
+                <div class="p-6 border-b" style="border-color: ${themeColors.secondary}20;">
+                    <p class="text-gray-600 leading-relaxed">${session.description}</p>
+                </div>
+                ` : ''}
+
+                <!-- Speakers Section -->
+                ${hasSpeakers ? `
+                <div class="p-6">
+                    <h4 class="text-lg font-semibold mb-4 text-gray-900">
+                        <i class="fas fa-microphone-alt mr-2 event-theme-primary" style="color: ${themeColors.primary};"></i>
+                        Speaker${session.speakers.length > 1 ? 's' : ''}
+                    </h4>
+                    <div class="space-y-4">
+                        ${session.speakers.map(speaker => renderSpeakerCard(speaker, themeColors)).join('')}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    // Render individual speaker card with flexbox layout
+    function renderSpeakerCard(speaker, themeColors) {
+        const speakerPhoto = speaker.photo || 
+            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAiIGhlaWdodD0iOTAiIHZpZXdCb3g9IjAgMCA5MCA5MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjkwIiBoZWlnaHQ9IjkwIiByeD0iMjAiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iNDUiIGN5PSIzMCIgcj0iMTIiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTQ1IDUwQzUyLjcgNTAgNTkgNTYuMyA1OSA2NEM1OSA2Ny43IDUyLjcgNzQgNDUgNzRDMzcuMyA3NCAzMSA2Ny43IDMxIDY0QzMxIDU2LjMgMzcuMyA1MCA0NSA1MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+';
+        
+        const speakingTime = speaker.start_time && speaker.end_time ? 
+            `${formatTime(speaker.start_time)} - ${formatTime(speaker.end_time)}` : 
+            '';
+
+        return `
+            <div class="flex gap-6 p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200" style="background-color: ${themeColors.background}40;">
+                <!-- LEFT SIDE: Profile Photo -->
+                <div class="flex-shrink-0">
+                    <img src="${speakerPhoto}" 
+                         alt="${speaker.name}" 
+                         class="w-32 h-32 rounded-full object-cover border-2 shadow-lg"
+                         style="border-color: #e5e7eb;"
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAiIGhlaWdodD0iOTAiIHZpZXdCb3g9IjAgMCA5MCA5MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjkwIiBoZWlnaHQ9IjkwIiByeD0iMjAiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iNDUiIGN5PSIzMCIgcj0iMTIiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTQ1IDUwQzUyLjcgNTAgNTkgNTYuMyA1OSA2NEM1OSA2Ny43IDUyLjcgNzQgNDUgNzRDMzcuMyA3NCAzMSA2Ny43IDMxIDY0QzMxIDU2LjMgMzcuMyA1MCA0NSA1MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+'">
+                </div>
+                
+                <!-- RIGHT SIDE: Speaker Info -->
+                <div class="flex-1 min-w-0 flex flex-col justify-center">
+                    <div class="mb-3">
+                        <h5 class="text-xl font-bold text-gray-900 leading-tight">${speaker.name || 'Speaker'}</h5>
+                        ${speakingTime ? `
+                        <p class="text-base font-medium event-theme-primary" style="color: ${themeColors.primary};">
+                            <i class="fas fa-clock mr-2"></i>${speakingTime}
+                        </p>
+                        ` : ''}
+                    </div>
+                    
+                    ${speaker.bio ? `
+                    <div class="text-gray-600 text-base leading-relaxed">
+                        <p>${speaker.bio}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="mt-3 flex items-center gap-3">
+                        ${speaker.job_title || speaker.company ? `
+                        <div class="text-sm text-gray-500">
+                            ${speaker.job_title}${speaker.company ? ` at ${speaker.company}` : ''}
+                        </div>
+                        ` : ''}
+                        
+                        ${speaker.linkedin_url ? `
+                        <a href="${speaker.linkedin_url}" 
+                           target="_blank" 
+                           class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                           title="LinkedIn Profile">
+                            <i class="fab fa-linkedin text-lg"></i>
+                            <span>LinkedIn</span>
+                        </a>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
     }
 </script>
 {% endblock %}

@@ -14,7 +14,7 @@ from .models import (
 )
 from .forms import (
     VendorForm, VendorContactForm, ContractForm, VendorPaymentForm,
-    TeamMemberForm, TaskForm, TaskCommentForm, AuditLogFilterForm,
+    TeamMemberForm, TeamMemberCreateForm, TeamMemberUpdateForm, TaskForm, TaskCommentForm, AuditLogFilterForm,
     PrivacySettingForm
 )
 from events.models import Event
@@ -234,25 +234,17 @@ def contract_payments(request, pk):
 
 @login_required
 def team_list(request):
-    team_members = TeamMember.objects.filter(is_active=True)
+    """Display all team members"""
+    team_members = TeamMember.objects.filter(is_active=True).select_related('user')
     
-    event_id = request.GET.get('event')
-    if event_id:
-        team_members = team_members.filter(event_id=event_id)
-    
-    role = request.GET.get('role')
-    if role:
-        team_members = team_members.filter(role=role)
-    
-    events = Event.objects.all()
     return render(request, 'advanced/team_list.html', {
-        'team_members': team_members,
-        'events': events
+        'team_members': team_members
     })
 
 
 @login_required
 def team_member_create(request):
+    """Create a new team member with user account"""
     # Get event from query parameter
     event_id = request.GET.get('event')
     event = None
@@ -260,95 +252,70 @@ def team_member_create(request):
         event = get_object_or_404(Event, pk=event_id)
     
     if request.method == 'POST':
-        form = TeamMemberForm(request.POST, user=request.user)
+        form = TeamMemberCreateForm(request.POST)
         if form.is_valid():
-            team_member = form.save(commit=False)
-            # Set event if not already set
-            if not team_member.event and event:
-                team_member.event = event
-            # If still no event, try to get from POST data
-            if not team_member.event:
-                event_id_post = request.POST.get('event')
-                if event_id_post:
-                    team_member.event = get_object_or_404(Event, pk=event_id_post)
-            team_member.save()
-            messages.success(request, 'Team member added successfully.')
-            
-            # Redirect back to event setup if event parameter is present
-            if event:
-                return redirect('organizer_event_setup', event_id=event.id)
-            return redirect('advanced:team_list')
+            try:
+                team_member = form.save(request, event)
+                messages.success(request, f'Team member {team_member.user.email} created successfully!')
+                
+                # Redirect back to event setup if event parameter is present
+                if event:
+                    return redirect('organizers:organizer_event_setup', event_id=event.id)
+                return redirect('advanced:team_list')
+            except Exception as e:
+                messages.error(request, f'Error creating team member: {str(e)}')
     else:
-        initial = {}
-        if event:
-            initial['event'] = event
-        form = TeamMemberForm(initial=initial, user=request.user)
+        form = TeamMemberCreateForm()
     
-    # Get events for dropdown
-    if request.user.is_staff:
-        events = Event.objects.all()
-    else:
-        events = Event.objects.filter(organizer=request.user)
-    
-    return render(request, 'advanced/team_member_form.html', {
-        'form': form, 
-        'action': 'Add',
-        'event': event,
-        'events': events
+    return render(request, 'advanced/team_member_create.html', {
+        'form': form,
+        'event': event
     })
 
 
 @login_required
 def team_member_update(request, pk):
-    member = get_object_or_404(TeamMember, pk=pk)
-    
-    # Check if coming from event setup (GET or POST)
-    from_event_setup = request.GET.get('from_setup') or request.POST.get('from_setup')
-    event_id = request.GET.get('event') or request.POST.get('event') or (member.event.id if member.event else None)
+    """Update an existing team member"""
+    team_member = get_object_or_404(TeamMember, pk=pk, is_active=True)
     
     if request.method == 'POST':
-        form = TeamMemberForm(request.POST, instance=member, user=request.user)
+        form = TeamMemberUpdateForm(request.POST, team_member=team_member)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Team member updated successfully.')
-            
-            # Redirect back to event setup if from_setup parameter is present
-            if from_event_setup and event_id:
-                return redirect('organizer_event_setup', event_id=event_id)
-            return redirect('advanced:team_list')
+            try:
+                updated_member = form.save()
+                messages.success(request, f'Team member {updated_member.user.email} updated successfully!')
+                return redirect('advanced:team_list')
+            except Exception as e:
+                messages.error(request, f'Error updating team member: {str(e)}')
     else:
-        form = TeamMemberForm(instance=member, user=request.user)
+        form = TeamMemberUpdateForm(team_member=team_member)
     
-    return render(request, 'advanced/team_member_form.html', {
-        'form': form, 
-        'action': 'Update', 
-        'member': member,
-        'from_event_setup': from_event_setup,
-        'event_id': event_id
+    return render(request, 'advanced/team_member_update.html', {
+        'form': form,
+        'team_member': team_member
     })
 
 
 @login_required
 def team_member_delete(request, pk):
-    member = get_object_or_404(TeamMember, pk=pk)
-    
-    # Check if coming from event setup (GET or POST)
-    from_event_setup = request.GET.get('from_setup') or request.POST.get('from_setup')
-    event_id = request.GET.get('event') or request.POST.get('event') or (member.event.id if member.event else None)
+    """Delete a team member"""
+    team_member = get_object_or_404(TeamMember, pk=pk)
     
     if request.method == 'POST':
-        member.delete()
-        messages.success(request, 'Team member removed successfully.')
+        user_email = team_member.user.email
+        # Soft delete by setting is_active to False
+        team_member.is_active = False
+        team_member.save()
         
-        # Redirect back to event setup if from_setup parameter is present
-        if from_event_setup and event_id:
-            return redirect('organizer_event_setup', event_id=event_id)
+        # Optionally deactivate the user account as well
+        team_member.user.is_active = False
+        team_member.user.save()
+        
+        messages.success(request, f'Team member {user_email} removed successfully!')
         return redirect('advanced:team_list')
     
     return render(request, 'advanced/team_member_confirm_delete.html', {
-        'member': member,
-        'from_event_setup': from_event_setup,
-        'event_id': event_id
+        'member': team_member
     })
 
 

@@ -1,9 +1,13 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from .models import (
     Vendor, VendorContact, Contract, VendorPayment,
     TeamMember, Task, TaskComment, TeamNotification,
     AuditLog, DataExport, PrivacySetting, SecurityEvent
 )
+from events.models import Event
+
+User = get_user_model()
 
 
 class VendorForm(forms.ModelForm):
@@ -97,6 +101,147 @@ class TeamMemberForm(forms.ModelForm):
         # Filter events by organizer
         if user and not user.is_staff:
             self.fields['event'].queryset = Event.objects.filter(organizer=user)
+
+
+class TeamMemberCreateForm(forms.Form):
+    """Form for creating a new team member with user account"""
+    full_name = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500',
+            'placeholder': 'Enter full name'
+        })
+    )
+    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500',
+            'placeholder': 'Enter email address'
+        })
+    )
+    
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500',
+            'placeholder': 'Enter password'
+        })
+    )
+    
+    role = forms.ChoiceField(
+        choices=[
+            ('coordinator', 'Coordinator'),
+            ('organizer', 'Organizer')
+        ],
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'
+        })
+    )
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('A user with this email already exists.')
+        return email
+    
+    def save(self, request, event=None):
+        """Create user account and team member"""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        # Create user account
+        user = User.objects.create_user(
+            email=self.cleaned_data['email'],
+            password=self.cleaned_data['password'],
+            first_name=self.cleaned_data['full_name'].split()[0] if ' ' in self.cleaned_data['full_name'] else self.cleaned_data['full_name'],
+            last_name=' '.join(self.cleaned_data['full_name'].split()[1:]) if ' ' in self.cleaned_data['full_name'] else '',
+        )
+        
+        # Get event from request or use provided event
+        if not event:
+            from events.models import Event
+            # Try to get an event from the current user
+            event = Event.objects.filter(organizer=request.user).first()
+        
+        team_member = TeamMember.objects.create(
+            user=user,
+            event=event,
+            role=self.cleaned_data['role'],
+            is_active=True
+        )
+        
+        return team_member
+
+
+class TeamMemberUpdateForm(forms.Form):
+    """Form for updating an existing team member"""
+    full_name = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500',
+            'placeholder': 'Enter full name'
+        })
+    )
+    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500',
+            'placeholder': 'Enter email address'
+        })
+    )
+    
+    password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500',
+            'placeholder': 'Enter new password (optional)'
+        })
+    )
+    
+    role = forms.ChoiceField(
+        choices=[
+            ('coordinator', 'Coordinator'),
+            ('organizer', 'Organizer')
+        ],
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500'
+        })
+    )
+    
+    def __init__(self, *args, **kwargs):
+        self.team_member = kwargs.pop('team_member', None)
+        super().__init__(*args, **kwargs)
+        
+        if self.team_member:
+            self.fields['full_name'].initial = self.team_member.user.get_full_name()
+            self.fields['email'].initial = self.team_member.user.email
+            self.fields['role'].initial = self.team_member.role
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if self.team_member and User.objects.filter(email=email).exclude(id=self.team_member.user.id).exists():
+            raise forms.ValidationError('A user with this email already exists.')
+        return email
+    
+    def save(self):
+        """Update user account and team member"""
+        user = self.team_member.user
+        
+        # Update user details
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['full_name'].split()[0] if ' ' in self.cleaned_data['full_name'] else self.cleaned_data['full_name']
+        user.last_name = ' '.join(self.cleaned_data['full_name'].split()[1:]) if ' ' in self.cleaned_data['full_name'] else ''
+        
+        # Update password if provided
+        if self.cleaned_data['password']:
+            user.set_password(self.cleaned_data['password'])
+        
+        user.save()
+        
+        # Update team member
+        self.team_member.role = self.cleaned_data['role']
+        self.team_member.save()
+        
+        return self.team_member
 
 
 class TaskForm(forms.ModelForm):

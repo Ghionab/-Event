@@ -19,6 +19,7 @@ from registration.models import Registration, TicketType, CheckIn, RegistrationS
 from communication.models import EmailTemplate, EmailLog, ScheduledEmail, LivePoll, LiveQA
 from communication.forms import EmailTemplateForm, ScheduledEmailForm, LivePollForm
 from events.forms import SponsorForm
+from advanced.models import TeamMember
 
 from .forms import RegistrationEditForm
 from .utils import organizer_profile_exists, ensure_user_is_organizer
@@ -308,7 +309,20 @@ def event_setup(request, event_id):
 
     # Get event data
     tickets = TicketType.objects.filter(event=event)
-    team_members = OrganizerTeamMember.objects.filter(organizer=request.organizer, is_active=True)
+    
+    # Get team members from the new TeamMember system
+    # Fetch all active team members created by this organizer
+    team_members = TeamMember.objects.filter(
+        user__is_active=True,
+        is_active=True
+    ).select_related('user')
+    
+    # Check which team members are already assigned to this event
+    assigned_members = TeamMember.objects.filter(event=event).values_list('user_id', flat=True)
+    
+    # Mark assigned status for display
+    for member in team_members:
+        member.is_assigned = member.user_id in assigned_members
 
     # Handle form submissions
     if request.method == 'POST':
@@ -332,6 +346,41 @@ def event_setup(request, event_id):
             ticket = get_object_or_404(TicketType, id=ticket_id, event=event)
             ticket.delete()
             messages.success(request, 'Ticket deleted successfully!')
+            return redirect('organizers:organizer_event_setup', event_id=event.id)
+
+        elif action == 'assign_team':
+            # Handle team member assignment to event
+            selected_team_members = request.POST.getlist('team_members')
+            
+            if selected_team_members:
+                assigned_count = 0
+                for member_id in selected_team_members:
+                    try:
+                        # Get or create team member assignment for this event
+                        team_member = TeamMember.objects.get(id=member_id, is_active=True)
+                        
+                        # Check if already assigned to this event
+                        if not TeamMember.objects.filter(user=team_member.user, event=event).exists():
+                            # Create new assignment for this event
+                            TeamMember.objects.create(
+                                user=team_member.user,
+                                event=event,
+                                role=team_member.role,
+                                is_active=True
+                            )
+                            assigned_count += 1
+                    except TeamMember.DoesNotExist:
+                        continue
+                    except Exception as e:
+                        continue
+                
+                if assigned_count > 0:
+                    messages.success(request, f'Successfully assigned {assigned_count} team member(s) to this event!')
+                else:
+                    messages.warning(request, 'No new team members were assigned.')
+            else:
+                messages.warning(request, 'Please select at least one team member to assign.')
+            
             return redirect('organizers:organizer_event_setup', event_id=event.id)
 
         elif action == 'send_invitations':
@@ -484,6 +533,21 @@ def event_setup(request, event_id):
             
             return redirect('organizers:organizer_event_setup', event_id=event.id)
 
+        elif action == 'remove_from_event':
+            # Remove team member from this event
+            member_id = request.POST.get('member_id')
+            if member_id:
+                try:
+                    team_member = TeamMember.objects.get(id=member_id, event=event)
+                    team_member.delete()
+                    messages.success(request, f'Team member removed from event successfully!')
+                except TeamMember.DoesNotExist:
+                    messages.error(request, 'Team member not found for this event.')
+                except Exception as e:
+                    messages.error(request, f'Error removing team member: {str(e)}')
+            
+            return redirect('organizers:organizer_event_setup', event_id=event.id)
+
         elif action == 'finish':
             # Mark event as ready (update status if needed)
             if event.status == 'draft':
@@ -512,6 +576,9 @@ def import_team_csv(request, event_id):
     import csv
     import io
     from django.contrib.auth import get_user_model
+    from events.models import Event, TicketType
+    from users.models import User
+    from advanced.models import TeamMember
     from registration.models import Registration, RegistrationStatus
     
     User = get_user_model()
@@ -687,6 +754,9 @@ def event_detail(request, event_id):
 
     # Get dynamic sessions
     sessions = event.dynamic_sessions.all().prefetch_related('session_speakers')
+    
+    # Get team members assigned to this event
+    team_members = TeamMember.objects.filter(event=event, is_active=True).select_related('user')
 
     context = {
         'event': event,
@@ -700,6 +770,7 @@ def event_detail(request, event_id):
         'total_confirmed': total_confirmed,
         'checked_in_count': checked_in_count,
         'sessions': sessions,
+        'team_members': team_members,
     }
     return render(request, 'organizers/event_detail.html', context)
 
@@ -748,6 +819,39 @@ def event_edit(request, event_id):
             ticket.delete()
             messages.success(request, 'Ticket deleted successfully!')
             return redirect('organizers:organizer_event_detail', event_id=event.id)
+
+        elif action == 'assign_team_member':
+            # Assign team member to this event
+            team_member_id = request.POST.get('team_member_id')
+            if team_member_id:
+                try:
+                    team_member = TeamMember.objects.get(id=team_member_id, is_active=True)
+                    # Create new assignment for this event
+                    TeamMember.objects.get_or_create(
+                        user=team_member.user,
+                        event=event,
+                        defaults={'role': team_member.role, 'is_active': True}
+                    )
+                    messages.success(request, 'Team member assigned to event successfully!')
+                except TeamMember.DoesNotExist:
+                    messages.error(request, 'Team member not found.')
+                except Exception as e:
+                    messages.error(request, f'Error assigning team member: {str(e)}')
+            return redirect('organizers:organizer_event_edit', event_id=event.id)
+
+        elif action == 'remove_team_member':
+            # Remove team member from this event
+            team_member_id = request.POST.get('team_member_id')
+            if team_member_id:
+                try:
+                    team_member = TeamMember.objects.get(id=team_member_id, event=event)
+                    team_member.delete()
+                    messages.success(request, 'Team member removed from event successfully!')
+                except TeamMember.DoesNotExist:
+                    messages.error(request, 'Team member not found for this event.')
+                except Exception as e:
+                    messages.error(request, f'Error removing team member: {str(e)}')
+            return redirect('organizers:organizer_event_edit', event_id=event.id)
 
         elif action == 'save_event':
             form = EventForm(request.POST, request.FILES, instance=event)
@@ -843,6 +947,12 @@ def event_edit(request, event_id):
     
     # Get existing tickets
     tickets = TicketType.objects.filter(event=event)
+    
+    # Get team members assigned to this event
+    team_members = TeamMember.objects.filter(event=event, is_active=True).select_related('user')
+    
+    # Get all available team members for assignment
+    all_team_members = TeamMember.objects.filter(is_active=True).select_related('user')
 
     # Get ticket form for adding new tickets
     from registration.forms import TicketTypeForm
@@ -855,7 +965,9 @@ def event_edit(request, event_id):
         'title': 'Edit Event',
         'event': event,
         'tickets': tickets,
-        'ticket_form': ticket_form
+        'ticket_form': ticket_form,
+        'team_members': team_members,
+        'all_team_members': all_team_members,
     })
 
 

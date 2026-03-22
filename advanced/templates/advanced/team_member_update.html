@@ -1,0 +1,99 @@
+{% extends 'organizers/base.html' %}
+
+{% block title %}Edit Team Member - EventAxis{% endblock %}
+{% block header %}Edit Team Member{% endblock %}
+{% block subtitle %}Update team member information{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Edit Team Member</h3>
+            <p class="mt-1 text-sm text-gray-500">Update the team member's information below.</p>
+        </div>
+        
+        <form method="post" class="px-6 py-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
+                    {% for error in form.non_field_errors %}
+                        <p class="text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Full Name -->
+                <div>
+                    <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {% for error in form.full_name.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Email Address -->
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {% for error in form.email.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">This will be used for login and notifications.</p>
+                </div>
+                
+                <!-- Password (Optional for edit) -->
+                <div>
+                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Password <span class="text-gray-400">(Leave blank to keep current)</span>
+                    </label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {% for error in form.password.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Only enter if you want to change the password.</p>
+                </div>
+                
+                <!-- Role Assignment -->
+                <div>
+                    <label for="{{ form.role.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                        Role Assignment <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.role }}
+                    {% if form.role.errors %}
+                        <p class="mt-1 text-sm text-red-600">
+                            {% for error in form.role.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">
+                        <strong>Coordinator:</strong> Can manage specific events and registrations.<br>
+                        <strong>Organizer:</strong> Full access to all events and team management.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-between">
+                <a href="{% url 'advanced:team_list' %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

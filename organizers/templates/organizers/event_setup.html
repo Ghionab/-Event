@@ -213,11 +213,15 @@
             </div>
 
             {% if team_members %}
-            <!-- Team Members Table -->
-            <div class="card mb-6">
-                <div class="card-body p-0">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
+            <form method="post" action="{% url 'organizers:organizer_event_setup' event.id %}" id="teamAssignmentForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="assign_team">
+                
+                <!-- Team Members Table -->
+                <div class="card mb-6">
+                    <div class="card-body p-0">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -299,13 +303,10 @@
                 </p>
             </div>
             
-            <form method="post" action="{% url 'organizers:organizer_event_setup' event.id %}" id="teamAssignmentForm">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="assign_team">
-                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                    <i class="bi bi-check-lg mr-2"></i>Save Team Assignment
-                </button>
-            </form>
+            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                <i class="bi bi-check-lg mr-2"></i>Save Team Assignment
+            </button>
+        </form>
             {% else %}
             <div class="text-center py-12 text-gray-500 mb-6">
                 <i class="bi bi-people text-gray-300 text-5xl mb-4"></i>

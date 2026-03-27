@@ -6,18 +6,18 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <!-- Back Button -->
     <div class="mb-6">
-        <a href="{% url 'registration:my_purchases' %}" class="text-indigo-600 hover:text-indigo-800">
-            <i class="fas fa-arrow-left mr-2"></i> Back to My Purchases
+        <a href="{% url 'registration:my_purchases' %}" class="text-primary hover:text-primary-dark font-medium">
+            <i class="bi bi-arrow-left mr-2"></i> Back to My Purchases
         </a>
     </div>
 
     <!-- Purchase Header -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+    <div class="ea-card p-8 mb-8">
         <div class="flex justify-between items-start mb-6">
             <div>
-                <h1 class="text-3xl font-bold mb-2">{{ purchase.event.title }}</h1>
+                <h1 class="text-3xl font-heading font-bold text-gray-900 mb-2">{{ purchase.event.title }}</h1>
                 <p class="text-gray-600">
-                    Purchase #: <span class="font-mono font-bold">{{ purchase.purchase_number }}</span>
+                    Purchase #: <span class="font-mono font-semibold">{{ purchase.purchase_number }}</span>
                 </p>
             </div>
             <span class="px-4 py-2 rounded-full text-sm font-semibold
@@ -30,21 +30,21 @@
         </div>
         
         <div class="grid md:grid-cols-4 gap-6 mb-6">
-            <div>
-                <p class="text-sm text-gray-600">Purchase Date</p>
-                <p class="font-semibold">{{ purchase.created_at|date:"F d, Y" }}</p>
+            <div class="p-4 bg-surface rounded-lg">
+                <p class="text-sm text-gray-500 mb-1">Purchase Date</p>
+                <p class="font-semibold text-gray-900">{{ purchase.created_at|date:"F d, Y" }}</p>
             </div>
-            <div>
-                <p class="text-sm text-gray-600">Event Date</p>
-                <p class="font-semibold">{{ purchase.event.start_date|date:"F d, Y" }}</p>
+            <div class="p-4 bg-surface rounded-lg">
+                <p class="text-sm text-gray-500 mb-1">Event Date</p>
+                <p class="font-semibold text-gray-900">{{ purchase.event.start_date|date:"F d, Y" }}</p>
             </div>
-            <div>
-                <p class="text-sm text-gray-600">Total Tickets</p>
-                <p class="font-semibold text-lg">{{ purchase.get_ticket_count }}</p>
+            <div class="p-4 bg-surface rounded-lg">
+                <p class="text-sm text-gray-500 mb-1">Total Tickets</p>
+                <p class="font-semibold text-lg text-gray-900">{{ purchase.get_ticket_count }}</p>
             </div>
-            <div>
-                <p class="text-sm text-gray-600">Total Amount</p>
-                <p class="font-semibold text-2xl text-indigo-600">
+            <div class="p-4 bg-surface rounded-lg">
+                <p class="text-sm text-gray-500 mb-1">Total Amount</p>
+                <p class="font-semibold text-2xl text-primary">
                     {% if purchase.total_amount == 0 %}
                     FREE
                     {% else %}
@@ -55,27 +55,26 @@
         </div>
 
         {% if purchase.discount_amount > 0 %}
-        <div class="p-4 bg-green-50 rounded-lg">
-            <p class="text-green-700">
-                <i class="fas fa-tag mr-2"></i>
-                You saved ${{ purchase.discount_amount }} with promo code: 
-                <span class="font-bold">{{ purchase.promo_code.code }}</span>
+        <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p class="text-green-700 flex items-center">
+                <i class="bi bi-tag mr-2"></i>
+                <span>You saved ${{ purchase.discount_amount }} with promo code: <span class="font-semibold">{{ purchase.promo_code.code }}</span></span>
             </p>
         </div>
         {% endif %}
     </div>
 
     <!-- Tickets List -->
-    <div class="bg-white rounded-2xl shadow-xl p-8">
-        <h2 class="text-2xl font-bold mb-6">Your Tickets</h2>
+    <div class="ea-card p-8">
+        <h2 class="text-2xl font-heading font-bold text-gray-900 mb-6">Your Tickets</h2>
         
         <div class="space-y-6">
             {% for ticket in tickets %}
-            <div class="border border-gray-200 rounded-lg p-6">
+            <div class="border border-gray-200 rounded-lg p-6 bg-white">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h3 class="font-bold text-lg">{{ ticket.ticket_type.name }}</h3>
-                        <p class="text-sm text-gray-600 mt-1">
+                        <h3 class="font-semibold text-lg text-gray-900">{{ ticket.ticket_type.name }}</h3>
+                        <p class="text-sm text-gray-500 mt-1">
                             Ticket #: <span class="font-mono">{{ ticket.ticket_number }}</span>
                         </p>
                     </div>
@@ -89,16 +88,16 @@
                 
                 <div class="grid md:grid-cols-3 gap-4 mb-4">
                     <div>
-                        <p class="text-sm text-gray-600">Attendee Name</p>
-                        <p class="font-semibold">{{ ticket.attendee_name }}</p>
+                        <p class="text-sm text-gray-500">Attendee Name</p>
+                        <p class="font-semibold text-gray-900">{{ ticket.attendee_name }}</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Email</p>
-                        <p class="font-semibold">{{ ticket.attendee_email }}</p>
+                        <p class="text-sm text-gray-500">Email</p>
+                        <p class="font-semibold text-gray-900">{{ ticket.attendee_email }}</p>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Phone</p>
-                        <p class="font-semibold">{{ ticket.attendee_phone|default:"N/A" }}</p>
+                        <p class="text-sm text-gray-500">Phone</p>
+                        <p class="font-semibold text-gray-900">{{ ticket.attendee_phone|default:"N/A" }}</p>
                     </div>
                 </div>
 
@@ -108,8 +107,8 @@
                     <div class="grid md:grid-cols-2 gap-3">
                         {% for answer in ticket.answers.all %}
                         <div class="text-sm">
-                            <span class="text-gray-600">{{ answer.question.label }}:</span>
-                            <span class="font-medium ml-2">{{ answer.answer }}</span>
+                            <span class="text-gray-500">{{ answer.question.label }}:</span>
+                            <span class="font-medium ml-2 text-gray-900">{{ answer.answer }}</span>
                         </div>
                         {% endfor %}
                     </div>
@@ -125,7 +124,7 @@
                         </div>
                         <img src="data:image/png;base64,{{ ticket.generate_qr_code_image }}" 
                              alt="QR Code" 
-                             class="w-24 h-24">
+                             class="w-24 h-24 rounded-lg shadow-sm">
                     </div>
                 </div>
             </div>
@@ -136,12 +135,12 @@
     <!-- Action Buttons -->
     <div class="mt-8 flex gap-4 justify-center">
         <a href="{% url 'events:event_detail' purchase.event.id %}" 
-           class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
-            <i class="fas fa-calendar mr-2"></i> View Event Details
+           class="ea-btn ea-btn-primary">
+            <i class="bi bi-calendar3 mr-2"></i> View Event Details
         </a>
         <button onclick="window.print()" 
-                class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
-            <i class="fas fa-print mr-2"></i> Print Tickets
+                class="ea-btn ea-btn-secondary">
+            <i class="bi bi-printer mr-2"></i> Print Tickets
         </button>
     </div>
 </div>

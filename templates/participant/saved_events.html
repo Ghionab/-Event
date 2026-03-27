@@ -1,62 +1,77 @@
 {% extends 'participant/base.html' %}
-{% block title %}Saved Events - EventHub{% endblock %}
+{% block title %}Saved Events — EventAxis{% endblock %}
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex justify-between items-center mb-8">
+    <nav class="ea-breadcrumb mb-6" aria-label="Breadcrumb">
+        <a href="{% url 'attendee:dashboard' %}"><i class="bi bi-house mr-1"></i> Dashboard</a>
+        <i class="bi bi-chevron-right ea-breadcrumb-separator"></i>
+        <span class="ea-breadcrumb-current">Saved Events</span>
+    </nav>
+    <!-- Page Header -->
+    <div class="ea-page-header mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Saved Events</h1>
-            <p class="mt-1 text-gray-600">Events you've bookmarked to revisit later</p>
+            <h1 class="ea-page-header-title">Saved Events</h1>
+            <p class="ea-page-header-subtitle">Events you've bookmarked to revisit later</p>
         </div>
-        <a href="/events/"
-            class="bg-white border text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
-            Browse More
-        </a>
+        <div class="ea-page-header-actions">
+            <a href="/events/" class="ea-btn ea-btn-outline">
+                <i class="bi bi-compass mr-2"></i>Browse More
+            </a>
+        </div>
     </div>
 
     {% if saved_events %}
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 ea-stagger">
         {% for event in saved_events %}
-        <div
-            class="bg-white rounded-lg shadow hover:shadow-md transition-all duration-300 overflow-hidden relative group">
+        <div class="ea-card ea-card-interactive overflow-hidden group relative">
+            <!-- Unsave Button -->
             <a href="{% url 'attendee:save_event' event.id %}"
-                class="absolute top-3 right-3 text-indigo-600 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow hover:bg-red-50 hover:text-red-500 transition"
+                class="absolute top-3 right-3 z-10 w-9 h-9 ea-glass rounded-full flex items-center justify-center text-primary hover:bg-red-50 hover:text-red-500 transition shadow-sm"
                 title="Remove from saved">
-                <i class="bi bi-bookmark-fill"></i>
+                <i class="bi bi-bookmark-fill text-sm"></i>
             </a>
 
+            <!-- Event Image -->
             {% if event.banner_image %}
-            <img src="{{ event.banner_image.url }}" alt="" class="w-full h-40 object-cover">
+            <div class="overflow-hidden aspect-video">
+                <img src="{{ event.banner_image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
             {% else %}
-            <div class="w-full h-40 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
-                <i class="bi bi-calendar-event text-white text-4xl"></i>
+            <div class="aspect-video ea-gradient-primary flex items-center justify-center">
+                <i class="bi bi-calendar-event text-white/20 text-5xl"></i>
             </div>
             {% endif %}
 
-            <div class="p-5">
+            <div class="ea-card-body">
+                <!-- Event Type Badge -->
                 <div class="flex items-center gap-2 mb-2">
-                    <span class="text-xs px-2 py-0.5 rounded-full
-                        {% if event.event_type == 'in_person' %}bg-green-100 text-green-700
-                        {% elif event.event_type == 'virtual' %}bg-blue-100 text-blue-700
-                        {% else %}bg-purple-100 text-purple-700{% endif %}">
+                    <span class="ea-badge
+                        {% if event.event_type == 'in_person' %}ea-badge-success
+                        {% elif event.event_type == 'virtual' %}ea-badge-info
+                        {% else %}ea-badge-primary{% endif %}">
                         {{ event.get_event_type_display }}
                     </span>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                    <a href="{% url 'attendee:event_detail' event.id %}" class="hover:text-indigo-600">{{ event.title
-                        }}</a>
+
+                <!-- Title -->
+                <h3 class="text-lg font-heading font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                    <a href="{% url 'attendee:event_detail' event.id %}">{{ event.title }}</a>
                 </h3>
-                <div class="space-y-1 text-sm text-gray-500 mb-6">
-                    <p><i class="bi bi-calendar mr-2"></i>{{ event.start_date|date:"M d, Y" }}</p>
-                    <p><i class="bi bi-geo-alt mr-2"></i>{{ event.venue_name|default:"Online" }}</p>
+
+                <!-- Meta -->
+                <div class="space-y-1.5 text-sm text-gray-500 mb-6">
+                    <p class="flex items-center gap-2"><i class="bi bi-calendar3 text-primary text-xs"></i> {{ event.start_date|date:"M d, Y" }}</p>
+                    <p class="flex items-center gap-2"><i class="bi bi-geo-alt text-accent text-xs"></i> {{ event.venue_name|default:"Online" }}</p>
                 </div>
 
+                <!-- Actions -->
                 <div class="grid grid-cols-2 gap-2">
                     <a href="{% url 'attendee:event_detail' event.id %}"
-                        class="text-center bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 text-sm font-medium transition">
+                        class="ea-btn ea-btn-ghost ea-btn-sm text-center">
                         Details
                     </a>
                     <a href="/events/{{ event.id }}/register/"
-                        class="text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium transition">
+                        class="ea-btn ea-btn-primary ea-btn-sm text-center">
                         Register
                     </a>
                 </div>
@@ -65,14 +80,15 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="bg-white rounded-lg shadow p-12 text-center text-gray-500 py-24">
-        <i class="bi bi-bookmark-star text-5xl mb-4 opacity-30 block"></i>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">No saved events</h3>
-        <p class="mb-6">Click the bookmark icon on any event to save it here for later.</p>
-        <a href="/events/"
-            class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium transition">
-            Discover Events
-        </a>
+    <div class="ea-card">
+        <div class="ea-empty-state py-16">
+            <i class="bi bi-bookmark-star text-gray-300 text-6xl mb-4 block"></i>
+            <h3 class="ea-empty-state-title">No saved events</h3>
+            <p class="ea-empty-state-text">Click the bookmark icon on any event to save it here for later.</p>
+            <a href="/events/" class="ea-btn ea-btn-primary ea-btn-lg mt-4">
+                <i class="bi bi-compass mr-2"></i>Discover Events
+            </a>
+        </div>
     </div>
     {% endif %}
 </div>

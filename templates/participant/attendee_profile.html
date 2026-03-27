@@ -1,16 +1,18 @@
 {% extends 'participant/base.html' %}
-{% block title %}{{ profile_user.get_full_name|default:profile_user.email }} - Profile - EventHub{% endblock %}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.email }} — EventAxis{% endblock %}
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <nav class="mb-8 text-sm text-gray-500">
-        <a href="{% url 'attendee:networking_hub' %}" class="hover:text-indigo-600">Networking</a> /
-        <a href="{% url 'attendee:browse_attendees' %}" class="hover:text-indigo-600">Directory</a> /
-        <span class="text-gray-900">Profile</span>
+    <nav class="ea-breadcrumb" aria-label="Breadcrumb">
+        <a href="{% url 'attendee:networking_hub' %}"><i class="bi bi-people mr-1"></i> Networking</a>
+        <i class="bi bi-chevron-right ea-breadcrumb-separator"></i>
+        <a href="{% url 'attendee:browse_attendees' %}">Directory</a>
+        <i class="bi bi-chevron-right ea-breadcrumb-separator"></i>
+        <span class="ea-breadcrumb-current">Profile</span>
     </nav>
 
     <!-- Profile Header -->
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mb-8">
-        <div class="h-32 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+    <div class="ea-card overflow-hidden mb-8 shadow-lg">
+        <div class="h-32 ea-gradient-primary"></div>
         <div class="px-8 pb-8 relative">
             <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 -mt-16 sm:-mt-12">
                 <div class="flex flex-col sm:flex-row items-center sm:items-end gap-6">
@@ -19,8 +21,8 @@
                         class="w-32 h-32 rounded-xl border-4 border-white shadow-md object-cover">
                     {% else %}
                     <div
-                        class="w-32 h-32 rounded-xl border-4 border-white shadow-md bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                        <span class="text-5xl font-bold text-indigo-500">{{
+                        class="w-32 h-32 rounded-xl border-4 border-white shadow-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span class="text-5xl font-bold text-primary">{{
                             profile_user.first_name|first|default:profile_user.email|first|upper }}</span>
                     </div>
                     {% endif %}
@@ -37,24 +39,20 @@
                 <div class="flex gap-3 pb-2 w-full sm:w-auto">
                     {% if connection_status == 'connected' %}
                     <a href="{% url 'attendee:send_message' profile_user.id %}"
-                        class="flex-1 sm:flex-none justify-center flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg shadow hover:bg-indigo-700 font-medium transition">
-                        <i class="bi bi-chat-text"></i> Message
+                        class="ea-btn ea-btn-primary flex-1 sm:flex-none justify-center">
+                        <i class="bi bi-chat-text mr-1"></i> Message
                     </a>
-                    <button
-                        class="flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-50 font-medium transition"
-                        disabled>
-                        <i class="bi bi-check-lg text-green-500"></i> Connected
+                    <button class="ea-btn ea-btn-outline" disabled>
+                        <i class="bi bi-check-lg text-success mr-1"></i> Connected
                     </button>
                     {% elif connection_status == 'pending' %}
-                    <button
-                        class="flex-1 sm:flex-none justify-center flex items-center gap-2 border border-yellow-400 bg-yellow-50 text-yellow-700 px-6 py-2.5 rounded-lg font-medium transition cursor-wait"
-                        disabled>
-                        <i class="bi bi-clock"></i> Request Sent
+                    <button class="ea-btn ea-btn-outline flex-1 sm:flex-none justify-center" disabled style="border-color: var(--ea-warning); color: var(--ea-warning); background: rgba(245,158,11,0.05);">
+                        <i class="bi bi-clock mr-1"></i> Request Sent
                     </button>
                     {% else %}
                     <a href="{% url 'attendee:send_connection_request' profile_user.id %}"
-                        class="flex-1 sm:flex-none justify-center flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-lg shadow hover:bg-indigo-700 font-medium transition">
-                        <i class="bi bi-person-plus"></i> Connect
+                        class="ea-btn ea-btn-primary flex-1 sm:flex-none justify-center">
+                        <i class="bi bi-person-plus mr-1"></i> Connect
                     </a>
                     {% endif %}
                 </div>
@@ -66,9 +64,9 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- Main Column (Bio) -->
         <div class="md:col-span-2 space-y-8">
-            <div class="bg-white rounded-xl shadow p-8 border border-gray-100">
+            <div class="ea-card p-8">
                 <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center"><i
-                        class="bi bi-person-lines-fill text-indigo-500 mr-2"></i> About</h3>
+                        class="bi bi-person-lines-fill text-primary mr-2"></i> About</h3>
                 {% if profile_user.bio %}
                 <div class="prose max-w-none text-gray-600">{{ profile_user.bio|linebreaks }}</div>
                 {% else %}
@@ -77,25 +75,25 @@
             </div>
 
             <!-- Intersecting Events -->
-            <div class="bg-white rounded-xl shadow p-8 border border-gray-100">
+            <div class="ea-card p-8">
                 <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center"><i
-                        class="bi bi-calendar-event text-indigo-500 mr-2"></i> Mutual Events</h3>
+                        class="bi bi-calendar-event text-primary mr-2"></i> Mutual Events</h3>
                 {% if common_events %}
                 <div class="space-y-3">
                     {% for event in common_events %}
                     <a href="{% url 'attendee:event_detail' event.id %}"
-                        class="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition group">
+                        class="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:border-primary/30 hover:bg-primary/5 transition group">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                                class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold">
                                 {{ event.start_date|date:"d" }}</div>
                             <div>
-                                <h4 class="font-semibold text-gray-900 group-hover:text-indigo-700">{{ event.title }}
+                                <h4 class="font-semibold text-gray-900 group-hover:text-primary-dark">{{ event.title }}
                                 </h4>
                                 <p class="text-xs text-gray-500">{{ event.start_date|date:"M Y" }}</p>
                             </div>
                         </div>
-                        <i class="bi bi-chevron-right text-gray-400 group-hover:text-indigo-600"></i>
+                        <i class="bi bi-chevron-right text-gray-400 group-hover:text-primary"></i>
                     </a>
                     {% endfor %}
                 </div>
@@ -107,14 +105,14 @@
 
         <!-- Sidebar -->
         <div class="space-y-8">
-            <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+            <div class="ea-card p-6">
                 <h3 class="font-bold text-gray-900 mb-4 pb-2 border-b">Contact Info</h3>
                 <ul class="space-y-4 text-sm">
                     {% if connection_status == 'connected' %}
                     <li class="flex items-start gap-3">
                         <i class="bi bi-envelope text-gray-400 mt-0.5"></i>
                         <span class="text-gray-900 break-all"><a href="mailto:{{ profile_user.email }}"
-                                class="text-indigo-600 hover:underline">{{ profile_user.email }}</a></span>
+                                class="text-primary hover:underline">{{ profile_user.email }}</a></span>
                     </li>
                     {% else %}
                     <li
@@ -128,7 +126,7 @@
                     <li class="flex items-start gap-3">
                         <i class="bi bi-linkedin text-[#0077b5] mt-0.5"></i>
                         <a href="{{ profile_user.linkedin_url }}" target="_blank"
-                            class="text-gray-600 hover:text-indigo-600 truncate break-all">LinkedIn Profile</a>
+                            class="text-gray-600 hover:text-primary truncate break-all">LinkedIn Profile</a>
                     </li>
                     {% endif %}
 
@@ -136,7 +134,7 @@
                     <li class="flex items-start gap-3">
                         <i class="bi bi-twitter text-[#1DA1F2] mt-0.5"></i>
                         <a href="{{ profile_user.twitter_url }}" target="_blank"
-                            class="text-gray-600 hover:text-indigo-600 truncate break-all">Twitter Profile</a>
+                            class="text-gray-600 hover:text-primary truncate break-all">Twitter Profile</a>
                     </li>
                     {% endif %}
                 </ul>

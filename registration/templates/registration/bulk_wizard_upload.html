@@ -25,8 +25,8 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
             <div class="flex items-center">
-                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                <span class="ml-3 text-sm font-medium text-indigo-600">Upload File</span>
+                <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">1</div>
+                <span class="ml-3 text-sm font-medium text-primary">Upload File</span>
             </div>
             <div class="w-16 h-1 bg-gray-200 rounded"></div>
             <div class="flex items-center">
@@ -71,16 +71,16 @@
                     <!-- File Upload Area -->
                     <div>
                         <label class="block text-sm font-bold text-gray-800 mb-4">
-                            <i class="bi bi-paperclip text-indigo-600 mr-2"></i>Select File
+                            <i class="bi bi-paperclip text-primary mr-2"></i>Select File
                         </label>
                         <div class="relative">
                             <label for="{{ form.file.id_for_label }}" class="flex flex-col items-center justify-center w-full h-64 border-3 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-gradient-to-br from-gray-50 to-indigo-50 hover:from-indigo-50 hover:to-purple-50 hover:border-indigo-400 transition-all duration-300 group">
                                 <div class="flex flex-col items-center justify-center pt-6 pb-6">
                                     <div class="w-24 h-24 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                                        <i class="bi bi-cloud-arrow-up text-5xl text-indigo-600"></i>
+                                        <i class="bi bi-cloud-arrow-up text-5xl text-primary"></i>
                                     </div>
                                     <p class="mb-2 text-lg font-bold text-gray-700">
-                                        <span class="text-indigo-600">Click to upload</span> or drag and drop
+                                        <span class="text-primary">Click to upload</span> or drag and drop
                                     </p>
                                     <p class="text-sm text-gray-600">CSV (.csv) or Excel (.xlsx, .xls) files only</p>
                                     <p class="text-xs text-gray-500 mt-2">Maximum: 20MB, 10,000 rows</p>
@@ -119,7 +119,7 @@
                                 {{ form.skip_header }}
                             </div>
                             <div class="ml-3">
-                                <span class="text-sm font-semibold text-gray-800 group-hover:text-indigo-600 transition">{{ form.skip_header.label }}</span>
+                                <span class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">{{ form.skip_header.label }}</span>
                                 <p class="text-xs text-gray-600 mt-1">{{ form.skip_header.help_text }}</p>
                             </div>
                         </label>
@@ -185,7 +185,7 @@
                         <span><strong>Maximum rows:</strong> 10,000</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="bi bi-info-circle-fill text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <i class="bi bi-info-circle-fill text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                         <span><strong>Optional columns:</strong> Phone, Company, Job Title</span>
                     </li>
                 </ul>
@@ -271,13 +271,13 @@ function preventDefaults(e) {
 
 ['dragenter', 'dragover'].forEach(eventName => {
     dropZone.addEventListener(eventName, () => {
-        dropZone.classList.add('border-indigo-500', 'bg-indigo-100');
+        dropZone.classList.add('border-primary', 'bg-primary/10');
     }, false);
 });
 
 ['dragleave', 'drop'].forEach(eventName => {
     dropZone.addEventListener(eventName, () => {
-        dropZone.classList.remove('border-indigo-500', 'bg-indigo-100');
+        dropZone.classList.remove('border-primary', 'bg-primary/10');
     }, false);
 });
 

@@ -7,7 +7,7 @@
     <!-- Success Message -->
     <div class="bg-green-50 border border-green-200 rounded-2xl p-8 text-center mb-8">
         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-check text-green-600 text-3xl"></i>
+            <i class="bi bi-check-lg text-green-600 text-3xl"></i>
         </div>
         <h1 class="text-3xl font-bold text-green-800 mb-2">Purchase Successful!</h1>
         <p class="text-green-700 text-lg mb-4">
@@ -37,7 +37,7 @@
             </div>
             <div>
                 <p class="text-sm text-gray-600">Total Amount</p>
-                <p class="font-semibold text-2xl text-indigo-600">
+                <p class="font-semibold text-2xl text-primary">
                     {% if purchase.total_amount == 0 %}
                     FREE
                     {% else %}
@@ -50,7 +50,7 @@
         {% if purchase.discount_amount > 0 %}
         <div class="p-4 bg-green-50 rounded-lg mb-6">
             <p class="text-green-700">
-                <i class="fas fa-tag mr-2"></i>
+                <i class="bi bi-tag mr-2"></i>
                 You saved ${{ purchase.discount_amount }} with promo code: 
                 <span class="font-bold">{{ purchase.promo_code.code }}</span>
             </p>
@@ -121,12 +121,12 @@
     <!-- Action Buttons -->
     <div class="mt-8 flex gap-4 justify-center">
         <a href="{% url 'registration:my_purchases' %}" 
-           class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
-            <i class="fas fa-list mr-2"></i> View All My Purchases
+           class="ea-btn ea-btn-primary">
+            <i class="bi bi-list-ul mr-2"></i> View All My Purchases
         </a>
         <a href="{% url 'events:event_list' %}" 
            class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
-            <i class="fas fa-calendar mr-2"></i> Browse More Events
+            <i class="bi bi-calendar3 mr-2"></i> View Event Details
         </a>
     </div>
 </div>

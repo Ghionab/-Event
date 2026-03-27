@@ -37,7 +37,7 @@
                         </div>
 
                         <div class="mt-6 pt-4 border-t border-gray-100 flex gap-3">
-                            <a href="{% url 'registration:registration_detail' registration.id %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover transition text-sm font-medium">
+                            <a href="{% url 'registration:registration_detail' registration.id %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition text-sm font-medium">
                                 <i class="bi bi-eye mr-2"></i> View Details
                             </a>
                         </div>
@@ -52,7 +52,7 @@
             </div>
             <h3 class="text-xl font-semibold text-gray-600 mb-2">No Registrations Yet</h3>
             <p class="text-gray-500 mb-4">You haven't registered for any events yet.</p>
-            <a href="{% url 'event_list' %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium">
+            <a href="{% url 'event_list' %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium">
                 <i class="bi bi-search mr-2"></i> Browse Events
             </a>
         </div>

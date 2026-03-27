@@ -40,8 +40,8 @@
             </div>
             <div class="w-16 h-1 bg-green-600 rounded"></div>
             <div class="flex items-center">
-                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                <span class="ml-3 text-sm font-medium text-indigo-600">Validate Data</span>
+                <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">3</div>
+                <span class="ml-3 text-sm font-medium text-primary">Validate Data</span>
             </div>
             <div class="w-16 h-1 bg-gray-200 rounded"></div>
             <div class="flex items-center">
@@ -98,10 +98,10 @@
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                <i class="bi bi-list-ol text-blue-600 text-2xl"></i>
+                <i class="bi bi-list-ol text-primary text-2xl"></i>
             </div>
             <div>
-                <p class="text-2xl font-bold text-blue-600">{{ bulk_upload.total_rows }}</p>
+                <p class="text-2xl font-bold text-primary">{{ bulk_upload.total_rows }}</p>
                 <p class="text-sm text-gray-600">Total Rows</p>
             </div>
         </div>
@@ -246,7 +246,7 @@
                                 </a>
                             {% endif %}
                             
-                            <span class="px-3 py-2 bg-indigo-600 text-white rounded-lg">
+                            <span class="px-3 py-2 bg-primary text-white rounded-lg">
                                 {{ page_obj.number }}
                             </span>
                             
@@ -311,7 +311,7 @@
                     <hr class="border-gray-200">
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Ready to Import:</span>
-                        <span class="font-bold text-indigo-600">{{ validation_summary.valid|add:validation_summary.warning|default:0 }}</span>
+                        <span class="font-bold text-primary">{{ validation_summary.valid|add:validation_summary.warning|default:0 }}</span>
                     </div>
                 </div>
             </div>
@@ -339,7 +339,7 @@
                         <span><strong>Duplicate emails:</strong> Email already registered</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="bi bi-info-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <i class="bi bi-info-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                         <span><strong>Phone format:</strong> Phone number may be invalid</span>
                     </li>
                 </ul>
@@ -347,25 +347,25 @@
         </div>
 
         <!-- Next Steps -->
-        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-200 p-6 shadow-md">
+        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border-2 border-primary/20 p-6 shadow-md">
             <h4 class="text-base font-bold text-indigo-900 mb-4 flex items-center">
-                <i class="bi bi-lightbulb-fill text-indigo-600 mr-2 text-lg"></i>Next Steps
+                <i class="bi bi-lightbulb-fill text-primary mr-2 text-lg"></i>Next Steps
             </h4>
             <ul class="space-y-3 text-sm text-indigo-900">
                 <li class="flex items-start">
-                    <i class="bi bi-1-circle text-indigo-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <i class="bi bi-1-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                     <span>Review validation results above</span>
                 </li>
                 <li class="flex items-start">
-                    <i class="bi bi-2-circle text-indigo-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <i class="bi bi-2-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                     <span>Fix any critical errors by updating your file</span>
                 </li>
                 <li class="flex items-start">
-                    <i class="bi bi-3-circle text-indigo-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <i class="bi bi-3-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                     <span>Proceed to configure import options</span>
                 </li>
                 <li class="flex items-start">
-                    <i class="bi bi-4-circle text-indigo-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <i class="bi bi-4-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                     <span>Execute the final import</span>
                 </li>
             </ul>

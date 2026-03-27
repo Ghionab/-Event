@@ -1,84 +1,212 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}Sign Up - EventPortal{% endblock %}
+{% block title %}Sign Up — EventAxis{% endblock %}
+
+{% block extra_css %}
+.auth-hero {
+    background: linear-gradient(145deg, #1F3A5F 0%, #162C48 50%, #1F3A5F 100%);
+    position: relative;
+    overflow: hidden;
+}
+.auth-hero::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(200,162,74,0.18) 0%, transparent 70%);
+    border-radius: 50%;
+    top: -100px;
+    right: -100px;
+    pointer-events: none;
+}
+.auth-hero::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(42,79,122,0.25) 0%, transparent 70%);
+    border-radius: 50%;
+    bottom: -80px;
+    left: -60px;
+    pointer-events: none;
+}
+.auth-feature-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.password-strength { height: 4px; border-radius: 2px; transition: width 0.3s, background 0.3s; }
+{% endblock %}
 
 {% block content %}
-<div class="min-h-[80vh] flex items-center justify-center py-12 px-4">
-    <div class="max-w-md w-full">
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="text-center mb-8">
-                <i class="fas fa-calendar-alt text-indigo-600 text-4xl mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-900">Create Account</h2>
-                <p class="text-gray-500 mt-2">Join EventPortal to discover and register for events</p>
+<div class="min-h-[90vh] flex bg-surface">
+    <!-- Left Brand Panel -->
+    <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col justify-between p-12 xl:p-16 text-white">
+        <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-16">
+                <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                    <i class="bi bi-calendar-event text-accent text-lg"></i>
+                </div>
+                <span class="text-xl font-heading font-bold tracking-tight">EventAxis</span>
             </div>
-
-            <form method="post" class="space-y-6">
-                {% csrf_token %}
-
-                {% if form_errors %}
-                <div class="bg-red-50 text-red-600 p-4 rounded-lg">
-                    <ul class="list-disc list-inside">
-                        {% for error in form_errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
+            
+            <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-6">
+                Join the<br>
+                <span class="text-accent">EventAxis</span> community
+            </h1>
+            <p class="text-white/50 text-lg leading-relaxed max-w-sm">
+                Create your free account to discover events, purchase tickets, and connect with attendees.
+            </p>
+        </div>
+        
+        <div class="relative z-10 space-y-6">
+            <div class="flex items-start gap-4">
+                <div class="auth-feature-icon bg-white/10">
+                    <i class="bi bi-lightning-charge text-accent"></i>
                 </div>
-                {% endif %}
-
-                {% if form.errors %}
-                <div class="bg-red-50 text-red-600 p-4 rounded-lg">
-                    {{ form.errors }}
+                <div>
+                    <h4 class="font-semibold text-sm">Set up in 30 seconds</h4>
+                    <p class="text-white/40 text-sm mt-0.5">Quick registration — start exploring immediately</p>
                 </div>
-                {% endif %}
+            </div>
+            <div class="flex items-start gap-4">
+                <div class="auth-feature-icon bg-white/10">
+                    <i class="bi bi-ticket-perforated text-accent"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-sm">Digital Tickets</h4>
+                    <p class="text-white/40 text-sm mt-0.5">Manage all your event tickets in one place</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4">
+                <div class="auth-feature-icon bg-white/10">
+                    <i class="bi bi-graph-up text-accent"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-sm">Track Your Activity</h4>
+                    <p class="text-white/40 text-sm mt-0.5">Personal dashboard with all your event stats</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Form Panel -->
+    <div class="flex-1 flex items-center justify-center py-12 px-4 sm:px-8">
+        <div class="max-w-md w-full">
+            <!-- Mobile Logo -->
+            <div class="lg:hidden text-center mb-8">
+                <div class="w-14 h-14 ea-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <i class="bi bi-calendar-event text-white text-xl"></i>
+                </div>
+                <h2 class="text-xl font-heading font-bold text-gray-900">EventAxis</h2>
+            </div>
+            
+            <div class="ea-card p-8 shadow-lg">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-heading font-bold text-gray-900">Create your account</h2>
+                    <p class="text-gray-500 mt-1 text-sm">Start discovering and attending amazing events</p>
+                </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="id_first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                        <input type="text" name="first_name" id="id_first_name" required value="{{ first_name|default:'' }}"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+
+                    {% if form_errors %}
+                    <div class="ea-alert ea-alert-error">
+                        <i class="bi bi-exclamation-circle mr-2"></i>
+                        <ul class="list-disc list-inside">
+                            {% for error in form_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
                     </div>
-                    <div>
-                        <label for="id_last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                        <input type="text" name="last_name" id="id_last_name" required value="{{ last_name|default:'' }}"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    {% endif %}
+
+                    {% if form.errors %}
+                    <div class="ea-alert ea-alert-error">
+                        <i class="bi bi-exclamation-circle mr-2"></i>
+                        <span>{{ form.errors }}</span>
                     </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="ea-form-group mb-0">
+                            <label for="id_first_name" class="ea-form-label">First Name</label>
+                            <input type="text" name="first_name" id="id_first_name" required value="{{ first_name|default:'' }}"
+                                   class="ea-input">
+                        </div>
+                        <div class="ea-form-group mb-0">
+                            <label for="id_last_name" class="ea-form-label">Last Name</label>
+                            <input type="text" name="last_name" id="id_last_name" required value="{{ last_name|default:'' }}"
+                                   class="ea-input">
+                        </div>
+                    </div>
+
+                    <div class="ea-form-group mb-0">
+                        <label for="id_email" class="ea-form-label">Email Address</label>
+                        <input type="email" name="email" id="id_email" required value="{{ email|default:'' }}"
+                               class="ea-input"
+                               placeholder="you@example.com">
+                    </div>
+
+                    <div class="ea-form-group mb-0">
+                        <label for="id_password1" class="ea-form-label">Password</label>
+                        <input type="password" name="password1" id="id_password1" required
+                               class="ea-input" oninput="checkPasswordStrength(this.value)"
+                               placeholder="At least 8 characters">
+                        <div class="mt-2 flex gap-1">
+                            <div id="str-1" class="flex-1 password-strength bg-gray-200"></div>
+                            <div id="str-2" class="flex-1 password-strength bg-gray-200"></div>
+                            <div id="str-3" class="flex-1 password-strength bg-gray-200"></div>
+                            <div id="str-4" class="flex-1 password-strength bg-gray-200"></div>
+                        </div>
+                        <p id="str-text" class="text-xs text-gray-400 mt-1"></p>
+                    </div>
+
+                    <div class="ea-form-group mb-0">
+                        <label for="id_password2" class="ea-form-label">Confirm Password</label>
+                        <input type="password" name="password2" id="id_password2" required
+                               class="ea-input"
+                               placeholder="Confirm your password">
+                    </div>
+
+                    <div class="flex items-start">
+                        <input type="checkbox" required class="w-4 h-4 mt-0.5 text-primary border-gray-300 rounded focus:ring-primary">
+                        <span class="ml-2 text-sm text-gray-600">I agree to the <a href="#" class="text-primary hover:text-primary-dark font-medium">Terms of Service</a> and <a href="#" class="text-primary hover:text-primary-dark font-medium">Privacy Policy</a></span>
+                    </div>
+
+                    <button type="submit" class="ea-btn ea-btn-accent ea-btn-lg w-full">
+                        <i class="bi bi-person-plus mr-2"></i> Create Account
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <p class="text-gray-500 text-sm">Already have an account? <a href="/login/" class="text-primary hover:text-primary-dark font-semibold">Sign in</a></p>
                 </div>
-
-                <div>
-                    <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                    <input type="email" name="email" id="id_email" required value="{{ email|default:'' }}"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                           placeholder="you@example.com">
-                </div>
-
-                <div>
-                    <label for="id_password1" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <input type="password" name="password1" id="id_password1" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                           placeholder="At least 8 characters">
-                </div>
-
-                <div>
-                    <label for="id_password2" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                    <input type="password" name="password2" id="id_password2" required
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                           placeholder="Confirm your password">
-                </div>
-
-                <div class="flex items-start">
-                    <input type="checkbox" required class="w-4 h-4 mt-1 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                    <span class="ml-2 text-sm text-gray-600">I agree to the <a href="#" class="text-indigo-600 hover:text-indigo-800">Terms of Service</a> and <a href="#" class="text-indigo-600 hover:text-indigo-800">Privacy Policy</a></span>
-                </div>
-
-                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
-                    Create Account
-                </button>
-            </form>
-
-            <div class="mt-6 text-center">
-                <p class="text-gray-500">Already have an account? <a href="/login/" class="text-indigo-600 hover:text-indigo-800 font-medium">Sign in</a></p>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function checkPasswordStrength(pwd) {
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    
+    const colors = ['#EF4444', '#F59E0B', '#10B981', '#059669'];
+    const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+    
+    for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('str-' + i);
+        el.style.background = i <= score ? colors[Math.min(score - 1, 3)] : '#E5E7EB';
+    }
+    document.getElementById('str-text').textContent = pwd.length > 0 ? labels[Math.min(score - 1, 3)] || 'Too short' : '';
+}
+</script>
 {% endblock %}

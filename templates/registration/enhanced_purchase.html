@@ -6,8 +6,8 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <!-- Back Button -->
     <div class="mb-6">
-        <a href="{% url 'events:event_detail' event.id %}" class="text-indigo-600 hover:text-indigo-800">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Event
+        <a href="{% url 'events:event_detail' event.id %}" class="text-primary hover:text-primary-dark">
+            <i class="bi bi-arrow-left mr-2"></i> Back to Event
         </a>
     </div>
 
@@ -16,12 +16,12 @@
         <div class="flex items-center justify-between">
             <div class="flex-1">
                 <div class="flex items-center">
-                    <div id="step1-indicator" class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                    <div id="step1-indicator" class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
                         1
                     </div>
-                    <div class="flex-1 h-1 bg-indigo-600 mx-2"></div>
+                    <div class="flex-1 h-1 bg-primary mx-2"></div>
                 </div>
-                <p class="text-sm mt-2 font-medium text-indigo-600">Select Tickets</p>
+                <p class="text-sm mt-2 font-medium text-primary">Select Tickets</p>
             </div>
             <div class="flex-1">
                 <div class="flex items-center">
@@ -55,7 +55,7 @@
     <!-- Error Message -->
     <div id="errorMessage" class="hidden mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
         <div class="flex items-center gap-3">
-            <i class="fas fa-exclamation-circle text-red-600"></i>
+            <i class="bi bi-exclamation-circle-fill text-red-600"></i>
             <p class="text-red-700" id="errorText"></p>
         </div>
     </div>
@@ -66,14 +66,14 @@
         
         <div class="space-y-4">
             {% for ticket_type in ticket_types %}
-            <div class="border border-gray-200 rounded-lg p-6 hover:border-indigo-500 transition">
+            <div class="border border-gray-200 rounded-lg p-6 hover:border-primary transition">
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
                         <h3 class="text-lg font-bold text-gray-900">{{ ticket_type.name }}</h3>
                         <p class="text-gray-600 mt-1">{{ ticket_type.description }}</p>
                         {% if ticket_type.benefits %}
                         <div class="mt-2 text-sm text-gray-500">
-                            <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                            <i class="bi bi-check-circle-fill text-green-500 mr-1"></i>
                             {{ ticket_type.benefits|linebreaks }}
                         </div>
                         {% endif %}
@@ -82,7 +82,7 @@
                         </p>
                     </div>
                     <div class="ml-6 text-right">
-                        <p class="text-2xl font-bold text-indigo-600">
+                        <p class="text-2xl font-bold text-primary">
                             {% if ticket_type.price == 0 %}
                             FREE
                             {% else %}
@@ -92,7 +92,7 @@
                         <div class="mt-4">
                             <button type="button" 
                                     onclick="selectTicket('{{ ticket_type.id }}', '{{ ticket_type.name }}', '{{ ticket_type.price }}')"
-                                    class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+                                    class="ea-btn ea-btn-primary">
                                 Select Ticket
                             </button>
                         </div>
@@ -105,14 +105,14 @@
         <div class="mt-8 flex justify-between items-center">
             <div>
                 <p class="text-lg font-semibold">Total Tickets: <span id="totalTickets">0</span></p>
-                <p class="text-2xl font-bold text-indigo-600">Total: $<span id="totalAmount">0.00</span></p>
+                <p class="text-2xl font-bold text-primary">Total: $<span id="totalAmount">0.00</span></p>
             </div>
             <button onclick="goToStep2()" 
                     id="step1NextBtn"
                     disabled
-                    class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+                    class="ea-btn ea-btn-primary">
                 Next: Attendee Information
-                <i class="fas fa-arrow-right ml-2"></i>
+                <i class="bi bi-arrow-right ml-2"></i>
             </button>
         </div>
     </div>
@@ -127,7 +127,7 @@
                 <input type="checkbox" 
                        id="useSameInfo" 
                        onchange="toggleSameInfo()"
-                       class="form-checkbox h-5 w-5 text-indigo-600">
+                       class="form-checkbox h-5 w-5 text-primary">
                 <span class="ml-3 text-gray-700 font-medium">
                     Use the same information for all tickets
                 </span>
@@ -141,13 +141,13 @@
         <div class="mt-8 flex justify-between">
             <button onclick="goToStep1()" 
                     class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
-                <i class="fas fa-arrow-left mr-2"></i> Back
+                <i class="bi bi-arrow-left mr-2"></i> Back
             </button>
             <button onclick="goToStep3()" 
                     id="step2NextBtn"
-                    class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                    class="ea-btn ea-btn-primary">
                 Next: Additional Questions
-                <i class="fas fa-arrow-right ml-2"></i>
+                <i class="bi bi-arrow-right ml-2"></i>
             </button>
         </div>
     </div>
@@ -167,12 +167,12 @@
         <div class="mt-8 flex justify-between">
             <button onclick="goToStep2()" 
                     class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
-                <i class="fas fa-arrow-left mr-2"></i> Back
+                <i class="bi bi-arrow-left mr-2"></i> Back
             </button>
             <button onclick="goToStep4()" 
-                    class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+                    class="ea-btn ea-btn-primary">
                 Next: Review & Payment
-                <i class="fas fa-arrow-right ml-2"></i>
+                <i class="bi bi-arrow-right ml-2"></i>
             </button>
         </div>
     </div>
@@ -202,7 +202,7 @@
         </div>
 
         <!-- Total -->
-        <div class="mt-6 p-6 bg-indigo-50 rounded-lg">
+        <div class="mt-6 p-6 bg-primary/5 rounded-lg">
             <div class="flex justify-between items-center mb-2">
                 <span class="text-gray-700">Subtotal:</span>
                 <span class="font-semibold">$<span id="reviewSubtotal">0.00</span></span>
@@ -211,7 +211,7 @@
                 <span>Discount:</span>
                 <span class="font-semibold">-$<span id="reviewDiscount">0.00</span></span>
             </div>
-            <div class="flex justify-between items-center text-xl font-bold text-indigo-600 pt-2 border-t border-indigo-200">
+            <div class="flex justify-between items-center text-xl font-bold text-primary pt-2 border-t border-indigo-200">
                 <span>Total:</span>
                 <span>$<span id="reviewTotal">0.00</span></span>
             </div>
@@ -220,12 +220,12 @@
         <div class="mt-8 flex justify-between">
             <button onclick="goToStep3()" 
                     class="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-300 transition">
-                <i class="fas fa-arrow-left mr-2"></i> Back
+                <i class="bi bi-arrow-left mr-2"></i> Back
             </button>
             <button onclick="submitPurchase()" 
                     id="submitBtn"
                     class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition">
-                <i class="fas fa-check mr-2"></i> Complete Purchase
+                <i class="bi bi-check-lg mr-2"></i> Complete Purchase
             </button>
         </div>
     </div>
@@ -266,12 +266,12 @@ function selectTicket(ticketId, ticketName, ticketPrice) {
     document.querySelectorAll('button[onclick^="selectTicket"]').forEach(btn => {
         if (btn.getAttribute('onclick').includes(ticketId)) {
             btn.textContent = 'Selected';
-            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            btn.classList.remove('bg-primary', 'hover:bg-primary-dark');
             btn.classList.add('bg-green-600', 'hover:bg-green-700');
         } else {
             btn.textContent = 'Select Ticket';
             btn.classList.remove('bg-green-600', 'hover:bg-green-700');
-            btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            btn.classList.add('bg-primary', 'hover:bg-primary-dark');
         }
     });
 }
@@ -317,7 +317,7 @@ function showStep(step) {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`step${i}`).classList.add('hidden');
         const indicator = document.getElementById(`step${i}-indicator`);
-        indicator.classList.remove('bg-indigo-600', 'text-white');
+        indicator.classList.remove('bg-primary', 'text-white');
         indicator.classList.add('bg-gray-300', 'text-gray-600');
     }
     
@@ -325,7 +325,7 @@ function showStep(step) {
     document.getElementById(`step${step}`).classList.remove('hidden');
     const indicator = document.getElementById(`step${step}-indicator`);
     indicator.classList.remove('bg-gray-300', 'text-gray-600');
-    indicator.classList.add('bg-indigo-600', 'text-white');
+    indicator.classList.add('bg-primary', 'text-white');
     
     currentStep = step;
     hideError();
@@ -508,7 +508,7 @@ function generateOrderSummary() {
                         <p class="text-sm text-gray-600 mt-1">${attendee.attendee_name}</p>
                         <p class="text-sm text-gray-600">${attendee.attendee_email}</p>
                     </div>
-                    <p class="font-bold text-indigo-600">$${ticket.price.toFixed(2)}</p>
+                    <p class="font-bold text-primary">$${ticket.price.toFixed(2)}</p>
                 </div>
             </div>
         `;
@@ -556,7 +556,7 @@ function applyPromoCode() {
 function submitPurchase() {
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+    submitBtn.innerHTML = '<i class="bi bi-arrow-repeat ea-spin mr-2"></i> Processing...';
     
     // Prepare ticket data - since we only have one ticket now
     const ticket = {
@@ -587,13 +587,13 @@ function submitPurchase() {
         } else {
             showError(data.error || 'Purchase failed. Please try again.');
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Complete Purchase';
+            submitBtn.innerHTML = '<i class="bi bi-check-lg mr-2"></i> Complete Purchase';
         }
     })
     .catch(error => {
         showError('An error occurred. Please try again.');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Complete Purchase';
+        submitBtn.innerHTML = '<i class="bi bi-check-lg mr-2"></i> Complete Purchase';
     });
 }
 

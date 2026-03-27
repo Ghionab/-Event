@@ -3,13 +3,13 @@
 {% block title %}Manage Sessions - {{ event.title }}{% endblock %}
 
 {% block content %}
-<div class="header">
-    <h1>Manage Sessions for {{ event.title }}</h1>
-    <a href="{% url 'session_create' event.id %}" class="btn">Add Session</a>
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-heading font-bold text-primary">Manage Sessions for {{ event.title }}</h1>
+    <a href="{% url 'session_create' event.id %}" class="ea-btn ea-btn-primary">Add Session</a>
 </div>
 
-<div class="card">
-    <table class="table">
+<div class="ea-card">
+    <table class="ea-table">
         <thead>
             <tr>
                 <th>Title</th>

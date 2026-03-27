@@ -1,6 +1,6 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}My Registrations - EventHub{% endblock %}
+{% block title %}My Registrations - EventAxis{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -10,7 +10,7 @@
             <p class="mt-1 text-gray-600">Manage all your event registrations</p>
         </div>
         <a href="/events/"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+            class="ea-btn ea-btn-primary">
             <i class="bi bi-search mr-2"></i>Browse Events
         </a>
     </div>
@@ -20,11 +20,11 @@
         <div class="border-b border-gray-200">
             <nav class="flex -mb-px">
                 <a href="?filter=all"
-                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'all' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'all' %}border-primary text-primary{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
                     All
                 </a>
                 <a href="?filter=upcoming"
-                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'upcoming' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'upcoming' %}border-primary text-primary{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
                     Upcoming
                 </a>
                 <a href="?filter=waitlisted"
@@ -32,11 +32,11 @@
                     Waitlisted
                 </a>
                 <a href="?filter=past"
-                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'past' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'past' %}border-primary text-primary{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
                     Past
                 </a>
                 <a href="?filter=cancelled"
-                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'cancelled' %}border-indigo-500 text-indigo-600{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
+                    class="px-6 py-3 text-sm font-medium border-b-2 {% if filter_type == 'cancelled' %}border-primary text-primary{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}">
                     Cancelled
                 </a>
             </nav>
@@ -48,8 +48,8 @@
                 <input type="hidden" name="filter" value="{{ filter_type }}">
                 <input type="text" name="search" value="{{ search_query }}"
                     placeholder="Search by event name or registration number..."
-                    class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                    class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+                <button type="submit" class="ea-btn ea-btn-primary">
                     <i class="bi bi-search"></i>
                 </button>
             </form>
@@ -69,14 +69,14 @@
                             class="w-20 h-20 object-cover rounded-lg hidden sm:block">
                         {% else %}
                         <div
-                            class="w-20 h-20 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg hidden sm:block flex items-center justify-center">
+                            class="w-20 h-20 bg-gradient-to-br from-primary to-purple-500 rounded-lg hidden sm:block flex items-center justify-center">
                             <i class="bi bi-calendar-event text-white text-2xl"></i>
                         </div>
                         {% endif %}
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">
                                 <a href="{% url 'attendee:registration_detail' registration.id %}"
-                                    class="hover:text-indigo-600">
+                                    class="hover:text-primary">
                                     {{ registration.event.title }}
                                 </a>
                             </h3>
@@ -93,7 +93,7 @@
                                     &middot; {{ registration.registration_number }}
                                 </p>
                                 {% if registration.purchaser == user and registration.user != user %}
-                                <p class="text-indigo-600"><i class="bi bi-gift mr-2"></i>Purchased for: {{ registration.attendee_name }}</p>
+                                <p class="text-primary"><i class="bi bi-gift mr-2"></i>Purchased for: {{ registration.attendee_name }}</p>
                                 {% endif %}
                             </div>
                         </div>
@@ -115,12 +115,12 @@
                     </span>
                     {% if registration.ticket_type and registration.status != 'waitlisted' %}
                     <a href="{% url 'attendee:ticket_preview' registration.id %}" 
-                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center shadow transition mr-2">
+                       class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center shadow transition mr-2">
                         <i class="bi bi-eye mr-2"></i> Ticket
                     </a>
                     
                     <a href="{% url 'attendee:download_ticket' registration.id %}" 
-                       class="bg-white border hover:bg-gray-50 text-indigo-700 px-4 py-2 rounded-lg font-medium text-sm flex items-center shadow-sm transition">
+                       class="bg-white border hover:bg-gray-50 text-primary-dark px-4 py-2 rounded-lg font-medium text-sm flex items-center shadow-sm transition">
                         <i class="bi bi-download mr-2"></i> Download
                     </a>
                     {% endif %}
@@ -140,7 +140,7 @@
             {% endif %}
             {% for num in page_obj.paginator.page_range %}
             {% if page_obj.number == num %}
-            <span class="px-4 py-2 bg-indigo-600 text-white rounded-lg">{{ num }}</span>
+            <span class="px-4 py-2 bg-primary text-white rounded-lg">{{ num }}</span>
             {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <a
                 href="?filter={{ filter_type }}&search={{ search_query }}&page={{ num }}"
                 class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">{{ num }}</a>
@@ -161,7 +161,7 @@
         <p class="text-gray-500 mb-6">{% if filter_type != 'all' %}Try adjusting your filters or {% endif %}browse
             events to get started.</p>
         <a href="/events/"
-            class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+            class="ea-btn ea-btn-primary ea-btn-lg">
             Browse Events
         </a>
     </div>

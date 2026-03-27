@@ -46,8 +46,8 @@
             </div>
             <div class="w-16 h-1 bg-green-600 rounded"></div>
             <div class="flex items-center">
-                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
-                <span class="ml-3 text-sm font-medium text-indigo-600">Configure</span>
+                <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">4</div>
+                <span class="ml-3 text-sm font-medium text-primary">Configure</span>
             </div>
             <div class="w-16 h-1 bg-gray-200 rounded"></div>
             <div class="flex items-center">
@@ -115,7 +115,7 @@
                     <!-- Ticket Assignment -->
                     <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
                         <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                            <i class="bi bi-ticket text-blue-600 mr-2"></i>Ticket Assignment
+                            <i class="bi bi-ticket text-primary mr-2"></i>Ticket Assignment
                         </h4>
                         <p class="text-sm text-gray-600 mb-4">{{ form.ticket_assignment_mode.help_text }}</p>
                         
@@ -124,7 +124,7 @@
                                 <label class="flex items-start cursor-pointer group p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-all">
                                     {{ choice.tag }}
                                     <div class="ml-3">
-                                        <span class="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition">{{ choice.choice_label }}</span>
+                                        <span class="text-sm font-semibold text-gray-800 group-hover:text-primary transition">{{ choice.choice_label }}</span>
                                         <p class="text-xs text-gray-600 mt-1">
                                             {% if choice.choice_value == 'same_for_all' %}
                                                 All imported attendees will receive the same ticket type that you select below.
@@ -212,7 +212,7 @@
                     <hr class="border-gray-200">
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">Ready to Import:</span>
-                        <span class="font-bold text-indigo-600">{{ bulk_upload.valid_rows|add:bulk_upload.warning_rows }}</span>
+                        <span class="font-bold text-primary">{{ bulk_upload.valid_rows|add:bulk_upload.warning_rows }}</span>
                     </div>
                 </div>
             </div>
@@ -221,23 +221,23 @@
         <!-- Configuration Tips -->
         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 p-6 shadow-md">
             <h4 class="text-base font-bold text-blue-900 mb-4 flex items-center">
-                <i class="bi bi-lightbulb-fill text-blue-600 mr-2 text-lg"></i>Configuration Tips
+                <i class="bi bi-lightbulb-fill text-primary mr-2 text-lg"></i>Configuration Tips
             </h4>
             <ul class="space-y-3 text-sm text-blue-900">
                 <li class="flex items-start">
-                    <i class="bi bi-check2-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <i class="bi bi-check2-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                     <span><strong>Skip duplicates</strong> is recommended for most imports</span>
                 </li>
                 <li class="flex items-start">
-                    <i class="bi bi-check2-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <i class="bi bi-check2-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                     <span><strong>Same ticket for all</strong> is fastest for uniform events</span>
                 </li>
                 <li class="flex items-start">
-                    <i class="bi bi-check2-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <i class="bi bi-check2-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                     <span><strong>Email notifications</strong> help attendees know they're registered</span>
                 </li>
                 <li class="flex items-start">
-                    <i class="bi bi-info-circle text-blue-600 mr-2 mt-0.5 flex-shrink-0"></i>
+                    <i class="bi bi-info-circle text-primary mr-2 mt-0.5 flex-shrink-0"></i>
                     <span>You can always send emails later if needed</span>
                 </li>
             </ul>

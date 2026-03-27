@@ -1,6 +1,6 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}Registration Confirmed - EventPortal{% endblock %}
+{% block title %}Registration Confirmed - EventAxis{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -105,7 +105,7 @@
             <!-- Header Section -->
             <div class="success-gradient rounded-t-3xl p-6 text-center text-white">
                 <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-slow">
-                    <i class="fas fa-check text-white text-4xl"></i>
+                    <i class="bi bi-check-lg text-white text-4xl"></i>
                 </div>
                 <h1 class="text-4xl font-black mb-2 animate-slide-up">Registration Confirmed!</h1>
                 <p class="text-2xl font-black text-white animate-slide-up delay-100 drop-shadow-2xl bg-green-800/30 px-4 py-2 rounded-lg backdrop-blur-sm">You're all set for event</p>
@@ -118,14 +118,14 @@
                     <!-- Event Info -->
                     <div class="animate-slide-up delay-200">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <i class="fas fa-calendar-star text-green-600 mr-2"></i>
+                            <i class="bi bi-star text-green-600 mr-2"></i>
                             Event Details
                         </h3>
                         <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
                             <h4 class="font-bold text-gray-900 text-xl mb-2">{{ registration.event.title }}</h4>
                             <p class="text-gray-600 mb-3">{{ registration.event.start_date|date:"F d, Y" }} at {{ registration.event.start_date|date:"g:i A" }}</p>
                             <div class="flex items-center text-gray-500">
-                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <i class="bi bi-geo-alt-fill mr-2"></i>
                                 {% if registration.event.venue_name %}
                                     {{ registration.event.venue_name }}
                                 {% else %}
@@ -138,7 +138,7 @@
                     <!-- Registration Info -->
                     <div class="animate-slide-up delay-300">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                            <i class="fas fa-ticket-alt text-green-600 mr-2"></i>
+                            <i class="bi bi-ticket-perforated text-green-600 mr-2"></i>
                             Registration Info
                         </h3>
                         <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
@@ -153,7 +153,7 @@
                             <div>
                                 <p class="text-sm text-gray-500 mb-1">Status</p>
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                    <i class="fas fa-check-circle mr-1"></i>
+                                    <i class="bi bi-check-circle-fill mr-1"></i>
                                     {{ registration.get_status_display }}
                                 </span>
                             </div>
@@ -164,7 +164,7 @@
                 <!-- Attendee Info -->
                 <div class="bg-gray-50 rounded-xl p-6 mb-8 animate-slide-up delay-400">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-user text-green-600 mr-2"></i>
+                        <i class="bi bi-person-fill text-green-600 mr-2"></i>
                         Attendee Information
                     </h3>
                     <div class="grid md:grid-cols-3 gap-4">
@@ -186,7 +186,7 @@
                 <!-- QR Code Section -->
                 <div class="bg-blue-50 rounded-xl p-6 mb-8 animate-slide-up delay-400">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-qrcode text-blue-600 mr-2"></i>
+                        <i class="bi bi-qr-code text-primary mr-2"></i>
                         Check-in QR Code
                     </h3>
                     <div class="text-center">
@@ -195,7 +195,7 @@
                                 <img src="data:image/png;base64,{{ registration.generate_qr_code_image }}" alt="Check-in QR Code" class="w-32 h-32">
                             {% else %}
                                 <div class="w-32 h-32 bg-gray-200 flex items-center justify-center">
-                                    <i class="fas fa-qrcode text-gray-400 text-4xl"></i>
+                                    <i class="bi bi-qr-code text-gray-400 text-4xl"></i>
                                 </div>
                             {% endif %}
                         </div>
@@ -207,11 +207,11 @@
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up delay-400">
                     <a href="/my-registrations/" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                        <i class="fas fa-list-alt mr-2"></i>
+                        <i class="bi bi-list-ul mr-2"></i>
                         View My Registrations
                     </a>
                     <a href="/events/" class="inline-flex items-center justify-center px-8 py-4 bg-white border-2 border-green-600 text-green-600 font-semibold rounded-xl hover:bg-green-50 transition-all duration-200 transform hover:scale-105">
-                        <i class="fas fa-search mr-2"></i>
+                        <i class="bi bi-search mr-2"></i>
                         Browse More Events
                     </a>
                 </div>
@@ -219,7 +219,7 @@
                 <!-- Additional Info -->
                 <div class="mt-8 text-center animate-slide-up delay-400">
                     <div class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg">
-                        <i class="fas fa-envelope mr-2"></i>
+                        <i class="bi bi-envelope mr-2"></i>
                         <span class="text-sm">Confirmation email sent to {{ registration.attendee_email }}</span>
                     </div>
                 </div>
@@ -230,7 +230,7 @@
     <!-- Bottom Tips -->
     <div class="mt-8 text-center animate-slide-up delay-400">
         <p class="text-gray-500 text-sm">
-            <i class="fas fa-lightbulb text-yellow-500 mr-1"></i>
+            <i class="bi bi-lightbulb text-yellow-500 mr-1"></i>
             Tip: Save this page or take a screenshot for easy access to your registration details
         </p>
     </div>

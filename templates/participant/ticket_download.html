@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket - {{ registration.event.title }}</title>
     <!-- Tailwind -> using CDN for printable view -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         @media print {
@@ -48,7 +47,7 @@
             </a>
             <div class="flex gap-4">
                 <button onclick="window.print()"
-                    class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium shadow hover:bg-indigo-700 transition flex items-center gap-2">
+                    class="ea-btn ea-btn-primary">
                     <i class="bi bi-printer"></i> Print Ticket
                 </button>
             </div>

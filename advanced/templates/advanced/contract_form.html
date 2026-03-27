@@ -1,6 +1,6 @@
 {% extends 'organizers/base.html' %}
 
-{% block title %}{{ action }} Contract - EventHub{% endblock %}
+{% block title %}{{ action }} Contract - EventAxis{% endblock %}
 {% block header %}{{ action }} Contract{% endblock %}
 {% block subtitle %}{% if action == 'Create' %}Create a new vendor contract{% else %}Update contract details{% endif %}{% endblock %}
 
@@ -95,7 +95,7 @@
                         {% endif %}
                         {% if contract and contract.contract_file %}
                             <p class="mt-2 text-sm text-gray-600">
-                                Current file: <a href="{{ contract.contract_file.url }}" class="text-indigo-600 hover:text-indigo-800" target="_blank">{{ contract.contract_file.name }}</a>
+                                Current file: <a href="{{ contract.contract_file.url }}" class="text-primary hover:text-indigo-800" target="_blank">{{ contract.contract_file.name }}</a>
                             </p>
                         {% endif %}
                         <p class="mt-1 text-xs text-gray-500">Upload PDF, DOC, or DOCX files</p>
@@ -108,7 +108,7 @@
                         <i class="bi bi-arrow-left mr-2"></i>
                         Cancel
                     </a>
-                    <button type="submit" class="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    <button type="submit" class="inline-flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition">
                         <i class="bi bi-check-circle mr-2"></i>
                         {{ action }} Contract
                     </button>
@@ -125,28 +125,28 @@
         <div class="card-body">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex items-start">
-                    <i class="bi bi-info-circle text-indigo-600 text-xl mr-3 mt-1"></i>
+                    <i class="bi bi-info-circle text-primary text-xl mr-3 mt-1"></i>
                     <div>
                         <h4 class="font-medium text-gray-900">Contract Details</h4>
                         <p class="text-sm text-gray-600 mt-1">Include all important terms, deliverables, and payment schedules in the description.</p>
                     </div>
                 </div>
                 <div class="flex items-start">
-                    <i class="bi bi-file-earmark-text text-indigo-600 text-xl mr-3 mt-1"></i>
+                    <i class="bi bi-file-earmark-text text-primary text-xl mr-3 mt-1"></i>
                     <div>
                         <h4 class="font-medium text-gray-900">File Upload</h4>
                         <p class="text-sm text-gray-600 mt-1">Upload the signed contract document for record keeping and easy access.</p>
                     </div>
                 </div>
                 <div class="flex items-start">
-                    <i class="bi bi-calendar-check text-indigo-600 text-xl mr-3 mt-1"></i>
+                    <i class="bi bi-calendar-check text-primary text-xl mr-3 mt-1"></i>
                     <div>
                         <h4 class="font-medium text-gray-900">Contract Period</h4>
                         <p class="text-sm text-gray-600 mt-1">Set accurate start and end dates to track contract validity and renewals.</p>
                     </div>
                 </div>
                 <div class="flex items-start">
-                    <i class="bi bi-currency-dollar text-indigo-600 text-xl mr-3 mt-1"></i>
+                    <i class="bi bi-currency-dollar text-primary text-xl mr-3 mt-1"></i>
                     <div>
                         <h4 class="font-medium text-gray-900">Payment Terms</h4>
                         <p class="text-sm text-gray-600 mt-1">Clearly specify payment schedules, milestones, and any deposit requirements.</p>

@@ -4,153 +4,142 @@
 {% block title %}Bulk Badge Printing - {{ event.title }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>
-                    <i class="fas fa-id-badge"></i>
-                    Bulk Badge Printing
-                    <small class="text-muted">- {{ event.title }}</small>
-                </h2>
-                <div>
-                    <a href="/events/{{ event.id }}/" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Event
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-heading font-bold text-gray-900">
+                <i class="bi bi-person-badge mr-2 text-primary"></i>
+                Bulk Badge Printing
+            </h1>
+            <p class="text-gray-600 mt-1">{{ event.title }}</p>
+        </div>
+        <a href="/events/{{ event.id }}/" class="ea-btn ea-btn-secondary">
+            <i class="bi bi-arrow-left mr-2"></i> Back to Event
+        </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="ea-card bg-primary text-white">
+            <div class="p-6 text-center">
+                <p class="text-white/80 text-sm mb-1">Total Badges</p>
+                <p class="text-3xl font-bold">{{ total_badges }}</p>
+            </div>
+        </div>
+        <div class="ea-card bg-green-600 text-white">
+            <div class="p-6 text-center">
+                <p class="text-white/80 text-sm mb-1">Printed</p>
+                <p class="text-3xl font-bold">{{ badges|dictsort:"badge.is_printed"|length }}</p>
+            </div>
+        </div>
+        <div class="ea-card bg-yellow-500 text-white">
+            <div class="p-6 text-center">
+                <p class="text-white/80 text-sm mb-1">Pending</p>
+                <p class="text-3xl font-bold">{{ badges|dictsort:"badge.is_printed"|length }}</p>
+            </div>
+        </div>
+        <div class="ea-card bg-blue-500 text-white">
+            <div class="p-6 text-center">
+                <p class="text-white/80 text-sm mb-1">VIP Badges</p>
+                <p class="text-3xl font-bold">{{ badges|dictsort:"badge.badge_type"|length }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="ea-card mb-8">
+        <div class="p-6">
+            <div class="flex flex-wrap gap-3">
+                <button type="button" class="ea-btn ea-btn-primary" onclick="window.print()">
+                    <i class="bi bi-printer mr-2"></i> Print Badges
+                </button>
+                <a href="{% url 'registration:bulk_badge_download_pdf' event.id %}" 
+                   class="ea-btn ea-btn-success">
+                    <i class="bi bi-file-earmark-pdf mr-2"></i> Download PDF
+                </a>
+                <a href="{% url 'registration:bulk_badge_mark_printed' event.id %}" 
+                   class="ea-btn ea-btn-warning"
+                   onclick="return confirm('Mark all badges as printed?')">
+                    <i class="bi bi-check-lg mr-2"></i> Mark All Printed
+                </a>
+                <a href="{% url 'registration:qr_code_list' event.id %}" 
+                   class="ea-btn ea-btn-secondary">
+                    <i class="bi bi-qr-code mr-2"></i> QR Codes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badges Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="badges-container">
+        {% for item in badges %}
+        <div class="ea-card badge-card {% if item.badge.badge_type == 'vip' %}border-red-500 border-2{% endif %} overflow-hidden">
+            <div class="ea-card-header {% if item.badge.badge_type == 'vip' %}bg-red-600 text-white{% else %}bg-primary text-white{% endif %}">
+                <div class="flex justify-between items-center">
+                    <strong class="truncate">{{ event.title|truncatechars:30 }}</strong>
+                    {% if item.badge.badge_type == 'vip' %}
+                        <span class="ea-badge bg-white text-red-600">VIP</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="p-6 text-center">
+                <!-- QR Code -->
+                {% if item.qr_image %}
+                    <img src="data:image/png;base64,{{ item.qr_image }}" 
+                         alt="QR Code" 
+                         class="badge-qr mb-3 mx-auto"
+                         style="width: 80px; height: 80px;">
+                {% else %}
+                    <div class="badge-qr-placeholder mb-3 mx-auto">
+                        <i class="bi bi-qr-code fa-2x text-gray-400"></i>
+                    </div>
+                {% endif %}
+
+                <!-- Attendee Info -->
+                <h5 class="font-heading font-semibold text-lg mb-1">{{ item.badge.name }}</h5>
+                {% if item.badge.title %}
+                    <p class="text-gray-500 text-sm">{{ item.badge.title }}</p>
+                {% endif %}
+                {% if item.badge.company %}
+                    <p class="text-gray-500 text-sm">{{ item.badge.company }}</p>
+                {% endif %}
+
+                <!-- Registration Info -->
+                <div class="mt-3 text-sm text-gray-500">
+                    <p>Reg: {{ item.registration.registration_number }}</p>
+                    {% if item.badge.is_printed %}
+                        <span class="text-green-600">
+                            <i class="bi bi-check-circle-fill mr-1"></i> Printed
+                        </span>
+                    {% else %}
+                        <span class="text-yellow-600">
+                            <i class="bi bi-clock mr-1"></i> Pending
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <div class="flex gap-2">
+                    <a href="{% url 'registration:badge_view' item.registration.id %}" 
+                       class="ea-btn ea-btn-outline ea-btn-sm flex-1">
+                        <i class="bi bi-eye mr-1"></i> View
+                    </a>
+                    <a href="{% url 'registration:badge_print' item.registration.id %}" 
+                       class="ea-btn ea-btn-secondary ea-btn-sm flex-1">
+                        <i class="bi bi-printer mr-1"></i> Print
                     </a>
                 </div>
             </div>
-
-            <!-- Stats Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Badges</h5>
-                            <h2>{{ total_badges }}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Printed</h5>
-                            <h2>{{ badges|dictsort:"badge.is_printed"|length }}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-warning text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Pending</h5>
-                            <h2>{{ badges|dictsort:"badge.is_printed"|length }}</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-info text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">VIP Badges</h5>
-                            <h2>{{ badges|dictsort:"badge.badge_type"|length }}</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary" onclick="window.print()">
-                            <i class="fas fa-print"></i> Print Badges
-                        </button>
-                        <a href="{% url 'registration:bulk_badge_download_pdf' event.id %}" 
-                           class="btn btn-success">
-                            <i class="fas fa-file-pdf"></i> Download PDF
-                        </a>
-                        <a href="{% url 'registration:bulk_badge_mark_printed' event.id %}" 
-                           class="btn btn-warning"
-                           onclick="return confirm('Mark all badges as printed?')">
-                            <i class="fas fa-check"></i> Mark All Printed
-                        </a>
-                        <a href="{% url 'registration:qr_code_list' event.id %}" 
-                           class="btn btn-outline-secondary">
-                            <i class="fas fa-qrcode"></i> QR Codes
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Badges Grid -->
-            <div class="row" id="badges-container">
-                {% for item in badges %}
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card badge-card {% if item.badge.badge_type == 'vip' %}border-danger{% endif %}">
-                        <div class="card-header {% if item.badge.badge_type == 'vip' %}bg-danger text-white{% else %}bg-primary text-white{% endif %}">
-                            <strong>{{ event.title|truncatechars:30 }}</strong>
-                            {% if item.badge.badge_type == 'vip' %}
-                                <span class="badge badge-light float-right">VIP</span>
-                            {% endif %}
-                        </div>
-                        <div class="card-body text-center">
-                            <!-- QR Code -->
-                            {% if item.qr_image %}
-                                <img src="data:image/png;base64,{{ item.qr_image }}" 
-                                     alt="QR Code" 
-                                     class="badge-qr mb-2"
-                                     style="width: 80px; height: 80px;">
-                            {% else %}
-                                <div class="badge-qr-placeholder mb-2">
-                                    <i class="fas fa-qrcode fa-2x text-muted"></i>
-                                </div>
-                            {% endif %}
-
-                            <!-- Attendee Info -->
-                            <h5 class="card-title">{{ item.badge.name }}</h5>
-                            {% if item.badge.title %}
-                                <p class="text-muted">{{ item.badge.title }}</p>
-                            {% endif %}
-                            {% if item.badge.company %}
-                                <p class="text-muted">{{ item.badge.company }}</p>
-                            {% endif %}
-
-                            <!-- Registration Info -->
-                            <small class="text-muted">
-                                Reg: {{ item.registration.registration_number }}<br>
-                                {% if item.badge.is_printed %}
-                                    <span class="text-success">
-                                        <i class="fas fa-check-circle"></i> Printed
-                                    </span>
-                                {% else %}
-                                    <span class="text-warning">
-                                        <i class="fas fa-clock"></i> Pending
-                                    </span>
-                                {% endif %}
-                            </small>
-                        </div>
-                        <div class="card-footer">
-                            <div class="btn-group btn-group-sm w-100">
-                                <a href="{% url 'registration:badge_view' item.registration.id %}" 
-                                   class="btn btn-outline-primary">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                                <a href="{% url 'registration:badge_print' item.registration.id %}" 
-                                   class="btn btn-outline-secondary">
-                                    <i class="fas fa-print"></i> Print
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        No confirmed registrations found for badge printing.
-                    </div>
-                </div>
-                {% endfor %}
+        </div>
+        {% empty %}
+        <div class="col-span-full">
+            <div class="ea-alert ea-alert-info">
+                <i class="bi bi-info-circle-fill mr-2"></i>
+                No confirmed registrations found for badge printing.
             </div>
         </div>
+        {% endfor %}
     </div>
 </div>
 
@@ -167,7 +156,7 @@
         margin-bottom: 20px;
     }
     
-    .card-header {
+    .ea-card-header {
         background-color: #000 !important;
         color: #fff !important;
     }
@@ -176,7 +165,7 @@
         border: 1px solid #000 !important;
     }
     
-    .btn-group, .card-footer {
+    .ea-btn, .bg-gray-50 {
         display: none !important;
     }
 }
@@ -197,7 +186,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
     border-radius: 4px;
 }
 </style>
@@ -223,14 +211,14 @@ function printPreview() {
                     float: left; 
                     page-break-inside: avoid;
                 }
-                .card-header { 
+                .ea-card-header { 
                     background: #000; 
                     color: #fff; 
                     padding: 10px; 
                     text-align: center;
                     font-weight: bold;
                 }
-                .card-body { 
+                .p-6 { 
                     padding: 15px; 
                     text-align: center; 
                     height: calc(100% - 60px);
@@ -243,7 +231,7 @@ function printPreview() {
                 }
                 h5 { margin: 5px 0; font-size: 16px; }
                 p { margin: 2px 0; font-size: 12px; }
-                small { font-size: 10px; }
+                .text-sm { font-size: 10px; }
                 @media print {
                     body { margin: 0; }
                 }

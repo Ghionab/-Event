@@ -1,318 +1,219 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>Staff Login - Gate Portal</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <style>
-        :root {
-            --primary-color: #1e40af;
-            --primary-dark: #1e3a8a;
-            --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            padding: 1rem;
-        }
-        
-        .login-container {
-            width: 100%;
-            max-width: 420px;
-        }
-        
-        .login-card {
-            background: white;
-            border-radius: 2rem;
-            box-shadow: var(--card-shadow);
-            padding: 3rem 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-        
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 2rem 1.5rem;
-                border-radius: 1.5rem;
+    <title>Staff Login - EventAxis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/eventaxis-design-system.css' %}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary:     { DEFAULT: '#1F3A5F', dark: '#162C48', light: '#2A4F7A' },
+                        accent:      { DEFAULT: '#C8A24A', dark: '#B08E3A', light: '#D4B56A' },
+                        surface:     { DEFAULT: '#F5F6F7', white: '#FFFFFF' },
+                    },
+                    fontFamily: {
+                        heading: ['Poppins', 'Montserrat', 'system-ui', 'sans-serif'],
+                        body:    ['Inter', 'Open Sans', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: '0.5rem',
+                        lg:      '0.75rem',
+                        xl:      '1rem',
+                    },
+                    boxShadow: {
+                        card:    '0 1px 3px rgba(0,0,0,0.08)',
+                        hover:   '0 4px 12px rgba(0,0,0,0.08)',
+                        overlay: '0 10px 25px rgba(0,0,0,0.1)',
+                    }
+                }
             }
         }
-        
-        .login-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
+    </script>
+    <style>
+        .auth-hero {
+            background: linear-gradient(145deg, #1F3A5F 0%, #162C48 50%, #1F3A5F 100%);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .login-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        .auth-hero::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(200,162,74,0.18) 0%, transparent 70%);
             border-radius: 50%;
+            top: -100px;
+            right: -100px;
+            pointer-events: none;
+        }
+        .auth-hero::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(42,79,122,0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -80px;
+            left: -60px;
+            pointer-events: none;
+        }
+        .auth-feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.3);
-        }
-        
-        .login-icon i {
-            font-size: 2rem;
-            color: white;
-        }
-        
-        .login-title {
-            color: #1f2937;
-            font-weight: 700;
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .login-subtitle {
-            color: #6b7280;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-        
-        .form-floating {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-control {
-            border-radius: 1rem;
-            padding: 1rem 1.25rem;
-            border: 2px solid #e5e7eb;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-            background: #f9fafb;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
-            background: white;
-        }
-        
-        .form-floating > label {
-            color: #6b7280;
-            font-weight: 500;
-        }
-        
-        .btn-login {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
-            border-radius: 1rem;
-            padding: 1rem 2rem;
-            font-weight: 600;
-            font-size: 1rem;
-            width: 100%;
-            margin-top: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.3);
-        }
-        
-        .btn-login:hover {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, #1e3a8a 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.4);
-        }
-        
-        .btn-login:active {
-            transform: translateY(0);
-        }
-        
-        .alert {
-            border-radius: 1rem;
-            border: none;
-            padding: 1rem 1.25rem;
-            margin-bottom: 1.5rem;
-            font-weight: 500;
-        }
-        
-        .alert-danger {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #991b1b;
-            border-left: 4px solid #dc2626;
-        }
-        
-        .login-footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .login-footer small {
-            color: #6b7280;
-            font-weight: 500;
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-            z-index: 10;
-        }
-        
-        .form-control-with-icon {
-            padding-left: 3rem;
-        }
-        
-        /* Loading state */
-        .btn-login.loading {
-            opacity: 0.8;
-            pointer-events: none;
-        }
-        
-        .btn-login.loading::after {
-            content: '';
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 0.5rem;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            flex-shrink: 0;
         }
     </style>
 </head>
-<body>
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="login-icon">
-                    <i class="bi bi-shield-check"></i>
+<body class="bg-surface min-h-screen">
+    <div class="min-h-screen flex">
+        <!-- Left Brand Panel -->
+        <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col justify-between p-12 xl:p-16 text-white">
+            <div class="relative z-10">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 mb-16">
+                    <div class="bg-white rounded-lg px-3 py-2 shadow-sm">
+                        <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" class="ea-logo" style="height: 48px; width: auto; object-fit: contain;">
+                    </div>
                 </div>
-                <h1 class="login-title">Gate Staff Portal</h1>
-                <p class="login-subtitle">Secure Check-in & Entry Management</p>
+                
+                <!-- Headline -->
+                <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-6">
+                    Secure<br>
+                    <span class="text-accent">check-in portal</span>
+                </h1>
+                <p class="text-white/50 text-lg leading-relaxed max-w-sm">
+                    Your dedicated gate management and attendee verification system.
+                </p>
             </div>
             
-            {% if form.errors %}
-            <div class="alert alert-danger" role="alert">
-                <i class="bi bi-exclamation-circle me-2"></i>
-                Invalid email or password. Please try again.
+            <div class="relative z-10 space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-shield-check text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Gate Management</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Verify tickets and manage entry points</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-qr-code-scan text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">QR Code Scanning</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Fast, contactless ticket verification</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-people text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Live Attendance</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Real-time headcount and capacity tracking</p>
+                    </div>
+                </div>
             </div>
-            {% endif %}
-            
-            {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" role="alert">
-                    <i class="bi bi-info-circle me-2"></i>
-                    {{ message }}
-                </div>
-                {% endfor %}
-            {% endif %}
-            
-            <form method="post" id="loginForm">
-                {% csrf_token %}
-                
-                <div class="form-floating">
-                    <input type="email" 
-                           class="form-control" 
-                           id="username" 
-                           name="username" 
-                           placeholder="staff@example.com" 
-                           required 
-                           autofocus>
-                    <label for="username">
-                        <i class="bi bi-envelope me-2"></i>Email Address
-                    </label>
+        </div>
+        
+        <!-- Right Login Form -->
+        <div class="flex-1 flex items-center justify-center py-12 px-4 sm:px-8">
+            <div class="max-w-md w-full">
+                <!-- Mobile Logo -->
+                <div class="lg:hidden text-center mb-8">
+                    <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" class="ea-logo mx-auto mb-3" style="height: 48px; width: auto; object-fit: contain;">
+                    <h2 class="text-xl font-heading font-bold text-gray-900">EventAxis</h2>
                 </div>
                 
-                <div class="form-floating">
-                    <input type="password" 
-                           class="form-control" 
-                           id="password" 
-                           name="password" 
-                           placeholder="Enter your password" 
-                           required>
-                    <label for="password">
-                        <i class="bi bi-lock me-2"></i>Password
-                    </label>
+                <div class="ea-card p-8 shadow-lg">
+                    <div class="mb-8 text-center">
+                        <h2 class="text-2xl font-heading font-bold text-gray-900">Staff Login</h2>
+                        <p class="text-gray-500 mt-1 text-sm">Gate staff & check-in portal access</p>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="ea-alert {% if message.tags == 'success' %}ea-alert-success{% elif message.tags == 'error' %}ea-alert-error{% else %}ea-alert-info{% endif %} mb-6">
+                                <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'error' %}bi-exclamation-circle{% else %}bi-info-circle{% endif %}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if form.errors %}
+                        <div class="ea-alert ea-alert-error mb-6">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <div>
+                                <p class="font-medium">Invalid email or password</p>
+                                <p class="text-sm mt-1">Please check your credentials and try again.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" id="loginForm" class="space-y-5">
+                        {% csrf_token %}
+
+                        <div class="ea-form-group mb-0">
+                            <label for="id_email" class="ea-form-label">
+                                <i class="bi bi-envelope mr-2 text-primary"></i>Email Address
+                            </label>
+                            <input type="email" name="username" id="id_email" required autofocus
+                                   class="ea-input"
+                                   placeholder="staff@example.com">
+                        </div>
+
+                        <div class="ea-form-group mb-0">
+                            <label for="id_password" class="ea-form-label">
+                                <i class="bi bi-lock mr-2 text-primary"></i>Password
+                            </label>
+                            <input type="password" name="password" id="id_password" required
+                                   class="ea-input"
+                                   placeholder="Enter your password">
+                        </div>
+
+                        <input type="hidden" name="next" value="{{ next }}">
+
+                        <button type="submit" class="ea-btn ea-btn-primary ea-btn-lg w-full" id="loginBtn">
+                            <i class="bi bi-box-arrow-in-right mr-2"></i>Access Portal
+                        </button>
+                    </form>
+
+                    <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                        <p class="text-gray-500 text-sm">
+                            <i class="bi bi-info-circle mr-1"></i>
+                            Staff, Organizer, or Admin access only
+                        </p>
+                        <div class="mt-4">
+                            <a href="/" class="text-sm text-primary hover:text-primary-dark transition-colors inline-flex items-center">
+                                <i class="bi bi-arrow-left mr-1"></i> Back to Home
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                
-                <input type="hidden" name="next" value="{{ next }}">
-                
-                <button type="submit" class="btn btn-login" id="loginBtn">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>
-                    Access Portal
-                </button>
-            </form>
-            
-            <div class="login-footer">
-                <small>
-                    <i class="bi bi-info-circle me-1"></i>
-                    Staff, Organizer, or Admin access only
-                </small>
             </div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        // Function to get CSRF token from meta tag or cookie
-        function getCsrfToken() {
-            const metaTag = document.querySelector('meta[name="csrf-token"]');
-            if (metaTag) {
-                return metaTag.getAttribute('content');
-            }
-            // Fallback: get from cookie
-            const cookieValue = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('csrftoken='))
-                ?.split('=')[1];
-            return cookieValue || '';
-        }
-        
-        // Setup CSRF token for AJAX requests
-        const csrfToken = getCsrfToken();
-        
-        // Add CSRF token to all AJAX requests
-        document.addEventListener('DOMContentLoaded', function() {
-            const originalFetch = window.fetch;
-            window.fetch = function(url, options = {}) {
-                if (options.method && options.method !== 'GET') {
-                    options.headers = options.headers || {};
-                    options.headers['X-CSRFToken'] = getCsrfToken();
-                }
-                return originalFetch(url, options);
-            };
-        });
-        
         // Add loading state to login button
         document.getElementById('loginForm').addEventListener('submit', function() {
             const btn = document.getElementById('loginBtn');
-            btn.classList.add('loading');
-            btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Signing In...';
-        });
-        
-        // Auto-focus on first input
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstInput = document.getElementById('username');
-            if (firstInput) {
-                firstInput.focus();
-            }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat mr-2 ea-spin"></i>Signing In...';
         });
     </script>
 </body>

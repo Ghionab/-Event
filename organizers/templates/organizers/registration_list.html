@@ -14,36 +14,36 @@ View and manage all event registrations across your events
 
 {% block content %}
 <!-- Premium Header Banner -->
-<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 shadow-xl">
+<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-hero shadow-lg border border-primary/20">
     <div class="absolute inset-0 opacity-10">
         <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
     </div>
     <div class="relative px-8 py-8">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div class="flex items-center space-x-4">
-                <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                    <i class="bi bi-person-badge text-white text-3xl"></i>
+                <div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 shadow-inner">
+                    <i class="bi bi-person-badge text-white text-3xl drop-shadow-sm"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-white">{% if is_event_specific %}{{ event.title }}{% else %}All Registrations{% endif %}</h1>
-                    <p class="text-indigo-100 text-sm mt-1">{{ total_registrations }} registration{{ total_registrations|pluralize }} • ${{ total_revenue|floatformat:2 }} total revenue</p>
+                    <h1 class="text-2xl font-heading font-bold text-white tracking-tight">{% if is_event_specific %}{{ event.title }}{% else %}All Registrations{% endif %}</h1>
+                    <p class="text-white/80 text-sm mt-1 font-medium">{{ total_registrations }} registration{{ total_registrations|pluralize }} &bull; <span class="text-accent font-bold">${{ total_revenue|floatformat:2 }}</span> revenue</p>
                 </div>
             </div>
-            <div class="flex gap-3">
+            <div class="flex flex-wrap gap-3">
                 {% if event %}
-                <a href="{% url 'registration:manual_registration_create' event.id %}" class="inline-flex items-center px-4 py-2.5 bg-white text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all duration-200 font-semibold shadow-lg">
-                    <i class="bi bi-person-plus mr-2"></i>Add Attendee
+                <a href="{% url 'registration:manual_registration_create' event.id %}" class="inline-flex items-center px-4 py-2 bg-white text-primary rounded-lg hover:bg-gray-50 transition-all font-semibold shadow-sm text-sm border border-gray-100">
+                    <i class="bi bi-person-plus mr-2 text-lg"></i>Add Attendee
                 </a>
-                <a href="{% url 'registration:bulk_registration_upload' event.id %}" class="inline-flex items-center px-4 py-2.5 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-200 font-semibold shadow-lg">
-                    <i class="bi bi-upload mr-2"></i>Bulk Upload
+                <a href="{% url 'registration:bulk_registration_upload' event.id %}" class="inline-flex items-center px-4 py-2 bg-white/10 text-white backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all font-semibold shadow-sm text-sm border border-white/20">
+                    <i class="bi bi-upload mr-2 text-lg"></i>Bulk Upload
                 </a>
-                <a href="{% url 'organizers:organizer_registration_export' %}?event={{ event.id }}" class="inline-flex items-center px-4 py-2.5 bg-white text-emerald-600 rounded-lg hover:bg-emerald-50 transition-all duration-200 font-semibold shadow-lg">
-                    <i class="bi bi-download mr-2"></i>Export CSV
+                <a href="{% url 'organizers:organizer_registration_export' %}?event={{ event.id }}" class="inline-flex items-center px-4 py-2 bg-accent text-primary rounded-lg hover:bg-yellow-400 transition-all font-bold shadow-sm text-sm">
+                    <i class="bi bi-download mr-2 text-lg"></i>Export CSV
                 </a>
                 {% else %}
-                <a href="{% url 'organizers:organizer_registration_export' %}" class="inline-flex items-center px-4 py-2.5 bg-white text-emerald-600 rounded-lg hover:bg-emerald-50 transition-all duration-200 font-semibold shadow-lg">
-                    <i class="bi bi-download mr-2"></i>Export CSV
+                <a href="{% url 'organizers:organizer_registration_export' %}" class="inline-flex items-center px-4 py-2 bg-accent text-primary rounded-lg hover:bg-yellow-400 transition-all font-bold shadow-sm text-sm">
+                    <i class="bi bi-download mr-2 text-lg"></i>Export CSV
                 </a>
                 {% endif %}
             </div>
@@ -52,65 +52,65 @@ View and manage all event registrations across your events
 </div>
 
 <!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
-            <i class="bi bi-person-badge text-white text-xl"></i>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 group">
+    <div class="ea-stat-card hover:border-primary/30 transition-colors">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="ea-stat-card-title text-gray-500">Total Registrations</h3>
+            <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <i class="bi bi-person-badge text-lg"></i>
+            </div>
         </div>
-        <div>
-            <p class="text-2xl font-bold text-gray-900">{{ total_registrations }}</p>
-            <p class="text-sm text-gray-500">Total Registrations</p>
-        </div>
+        <p class="ea-stat-card-value text-gray-900">{{ total_registrations }}</p>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
-            <i class="bi bi-currency-dollar text-white text-xl"></i>
+    <div class="ea-stat-card hover:border-emerald-500/30 transition-colors">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="ea-stat-card-title text-gray-500">Total Revenue</h3>
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                <i class="bi bi-currency-dollar text-lg"></i>
+            </div>
         </div>
-        <div>
-            <p class="text-2xl font-bold text-gray-900">${{ total_revenue|floatformat:2 }}</p>
-            <p class="text-sm text-gray-500">Total Revenue</p>
-        </div>
+        <p class="ea-stat-card-value text-gray-900">${{ total_revenue|floatformat:2 }}</p>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-sm">
-            <i class="bi bi-check-circle text-white text-xl"></i>
+    <div class="ea-stat-card hover:border-blue-500/30 transition-colors">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="ea-stat-card-title text-gray-500">Checked In</h3>
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                <i class="bi bi-check-circle text-lg"></i>
+            </div>
         </div>
-        <div>
-            <p class="text-2xl font-bold text-gray-900">{{ checked_in_count }}</p>
-            <p class="text-sm text-gray-500">Checked In</p>
-        </div>
+        <p class="ea-stat-card-value text-gray-900">{{ checked_in_count }}</p>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-sm">
-            <i class="bi bi-hourglass-split text-white text-xl"></i>
+    <div class="ea-stat-card hover:border-amber-500/30 transition-colors">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="ea-stat-card-title text-gray-500">Pending</h3>
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+                <i class="bi bi-hourglass-split text-lg"></i>
+            </div>
         </div>
-        <div>
-            <p class="text-2xl font-bold text-gray-900">{{ pending_count }}</p>
-            <p class="text-sm text-gray-500">Pending</p>
-        </div>
+        <p class="ea-stat-card-value text-gray-900">{{ pending_count }}</p>
     </div>
 </div>
 
 <!-- Filters Card -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-        <h3 class="text-sm font-semibold text-gray-900">
-            <i class="bi bi-funnel mr-2 text-gray-500"></i>Filter Registrations
+<div class="ea-card mb-6">
+    <div class="ea-card-header bg-surface/50 border-b border-gray-100 py-3 px-5">
+        <h3 class="text-sm font-heading font-semibold text-gray-900 tracking-wide">
+            <i class="bi bi-funnel mr-2 text-primary"></i>Filter Registrations
         </h3>
     </div>
-    <div class="p-6">
+    <div class="ea-card-body p-5">
         <form method="get" class="flex flex-wrap gap-4 items-end">
             {% if not is_event_specific %}
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Event</label>
+            <div class="flex-1 min-w-[200px] ea-form-group mb-0 relative">
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Event</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="bi bi-calendar-event text-gray-400"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="bi bi-calendar-event"></i>
                     </div>
-                    <select name="event" class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                    <select name="event" class="ea-input !pl-10 !py-2 !px-3 text-sm">
                         <option value="">All Events</option>
                         {% for evt in events %}
                         <option value="{{ evt.id }}" {% if filters.event == evt.id|stringformat:"s" %}selected{% endif %}>{{ evt.title }}</option>
@@ -120,13 +120,13 @@ View and manage all event registrations across your events
             </div>
             {% endif %}
 
-            <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <div class="flex-1 min-w-[150px] ea-form-group mb-0 relative">
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Status</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="bi bi-flag text-gray-400"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="bi bi-flag"></i>
                     </div>
-                    <select name="status" class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                    <select name="status" class="ea-input !pl-10 !py-2 !px-3 text-sm">
                         <option value="">All Status</option>
                         <option value="pending" {% if filters.status == 'pending' %}selected{% endif %}>Pending</option>
                         <option value="confirmed" {% if filters.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
@@ -138,13 +138,13 @@ View and manage all event registrations across your events
                 </div>
             </div>
 
-            <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Ticket Type</label>
+            <div class="flex-1 min-w-[150px] ea-form-group mb-0 relative">
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Ticket Type</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="bi bi-ticket-perforated text-gray-400"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="bi bi-ticket-perforated"></i>
                     </div>
-                    <select name="ticket_type" class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                    <select name="ticket_type" class="ea-input !pl-10 !py-2 !px-3 text-sm">
                         <option value="">All Tickets</option>
                         {% for ticket in ticket_types %}
                         <option value="{{ ticket.id }}" {% if filters.ticket_type == ticket.id|stringformat:"s" %}selected{% endif %}>{{ ticket.name }}</option>
@@ -153,23 +153,23 @@ View and manage all event registrations across your events
                 </div>
             </div>
 
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+            <div class="flex-1 min-w-[200px] ea-form-group mb-0 relative">
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Search</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="bi bi-search text-gray-400"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="bi bi-search"></i>
                     </div>
                     <input type="text" name="search" value="{{ filters.search }}" placeholder="Name, email, or ID..." 
-                        class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                        class="ea-input !pl-10 !py-2 !px-3 text-sm">
                 </div>
             </div>
 
             <div class="flex gap-2">
-                <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium">
+                <button type="submit" class="ea-btn ea-btn-primary !py-2 !px-4 text-sm shadow-sm">
                     <i class="bi bi-funnel mr-2"></i>Apply
                 </button>
                 <a href="{% if is_event_specific %}{% url 'organizers:organizer_event_registration_list' event.id %}{% else %}{% url 'organizers:organizer_registration_list' %}{% endif %}" 
-                    class="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium">
+                    class="ea-btn bg-surface hover:bg-gray-100 border border-gray-200 text-gray-700 !py-2 !px-4 text-sm transition-colors">
                     Clear
                 </a>
             </div>
@@ -180,84 +180,89 @@ View and manage all event registrations across your events
 <!-- Bulk Actions and Export -->
 <form method="post" action="{% url 'organizers:organizer_registration_bulk_action' %}" id="bulkActionForm">
     {% csrf_token %}
-    <div class="flex flex-wrap gap-4 mb-4 items-center justify-between">
-        <div class="flex gap-2 items-center">
-            <input type="checkbox" id="selectAll" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
-            <label for="selectAll" class="text-sm font-medium text-gray-700">Select All</label>
-            <select name="action" class="ml-4 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <option value="">Bulk Actions...</option>
-                <option value="checkin">Check In</option>
-                <option value="cancel">Cancel</option>
-                <option value="email">Send Email</option>
-                <option value="print_badges">Print Badges</option>
+    <div class="flex flex-wrap gap-4 mb-4 items-center justify-between px-1">
+        <div class="flex gap-3 items-center bg-white border border-gray-200 p-2 rounded-xl shadow-sm">
+            <div class="flex items-center pl-2">
+                <input type="checkbox" id="selectAll" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-opacity-20 cursor-pointer">
+                <label for="selectAll" class="ml-2 text-sm font-semibold text-gray-700 cursor-pointer select-none">Select All</label>
+            </div>
+            <div class="h-6 w-px bg-gray-200 mx-1"></div>
+            <select name="action" class="ea-input !min-w-[160px] !py-1.5 !px-3 text-sm !bg-gray-50 border-transparent focus:!border-primary/50">
+                <option value="">Choose Bulk Action...</option>
+                <option value="checkin">Check In Selected</option>
+                <option value="cancel">Cancel Selected</option>
+                <option value="email">Send Email To Selected</option>
+                <option value="print_badges">Print Badges For Selected</option>
                 <option value="export">Export Selected</option>
             </select>
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium" onclick="return confirmBulkAction()">
+            <button type="submit" class="ea-btn ea-btn-primary !py-1.5 !px-4 text-sm font-medium shadow-sm ml-1" onclick="return confirmBulkAction()">
                 Apply
             </button>
         </div>
     </div>
 
     <!-- Registrations Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="ea-card overflow-hidden">
         <div class="overflow-x-auto">
             {% if registrations %}
-            <table class="w-full">
-                <thead class="bg-gray-50/80 border-b border-gray-100">
+            <table class="ea-table">
+                <thead>
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                        <th class="w-12 text-center">
                             <span class="sr-only">Select</span>
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Registration</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Attendee</th>
+                        <th>Registration</th>
+                        <th>Attendee</th>
                         {% if not is_event_specific %}
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Event</th>
+                        <th>Event</th>
                         {% endif %}
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Ticket</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Payment</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Check-in</th>
-                        <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
+                        <th>Ticket</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Check-in</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     {% for reg in registrations %}
-                    <tr class="hover:bg-gray-50/80 transition-colors duration-200 group">
-                        <td class="px-4 py-3">
-                            <input type="checkbox" name="registration_ids" value="{{ reg.id }}" class="row-checkbox w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                    <tr class="hover:bg-gray-50/50 transition-colors group">
+                        <td class="text-center">
+                            <input type="checkbox" name="registration_ids" value="{{ reg.id }}" class="row-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
                         </td>
-                        <td class="px-4 py-3">
-                            <p class="font-medium text-gray-900">{{ reg.registration_number }}</p>
-                            <p class="text-xs text-gray-500">{{ reg.created_at|date:"M d, Y" }}</p>
+                        <td>
+                            <p class="font-medium text-gray-900 font-mono text-sm uppercase">{{ reg.registration_number }}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ reg.created_at|date:"M d, Y" }}</p>
                         </td>
-                        <td class="px-4 py-3">
+                        <td>
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                                    <i class="bi bi-person text-gray-500 text-sm"></i>
+                                <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20 flex-shrink-0">
+                                    <span class="text-primary font-bold text-xs">{{ reg.attendee_name|slice:"2"|upper }}</span>
                                 </div>
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ reg.attendee_name }}</p>
-                                    <p class="text-xs text-gray-500">{{ reg.attendee_email }}</p>
+                                <div class="min-w-0">
+                                    <p class="font-semibold text-gray-900 text-sm truncate">{{ reg.attendee_name }}</p>
+                                    <p class="text-xs text-gray-500 truncate" title="{{ reg.attendee_email }}">{{ reg.attendee_email }}</p>
                                 </div>
                             </div>
                         </td>
                         {% if not is_event_specific %}
-                        <td class="px-4 py-3">
-                            <p class="text-sm text-gray-900">{{ reg.event.title|truncatechars:25 }}</p>
+                        <td>
+                            <p class="text-sm text-gray-900 font-medium truncate max-w-[150px]" title="{{ reg.event.title }}">{{ reg.event.title }}</p>
                         </td>
                         {% endif %}
-                        <td class="px-4 py-3">
-                            <span class="text-sm text-gray-600">{{ reg.ticket_type.name|default:"N/A" }}</span>
+                        <td>
+                            <span class="ea-badge bg-gray-100 text-gray-700 border-gray-200">
+                                <i class="bi bi-ticket-detailed mr-1 opacity-70"></i>{{ reg.ticket_type.name|default:"N/A" }}
+                            </span>
                         </td>
-                        <td class="px-4 py-3">
-                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full
-                                {% if reg.status == 'confirmed' %}bg-emerald-100 text-emerald-700 border border-emerald-200
-                                {% elif reg.status == 'pending' %}bg-amber-100 text-amber-700 border border-amber-200
-                                {% elif reg.status == 'checked_in' %}bg-blue-100 text-blue-700 border border-blue-200
-                                {% elif reg.status == 'cancelled' %}bg-rose-100 text-rose-700 border border-rose-200
-                                {% elif reg.status == 'refunded' %}bg-purple-100 text-purple-700 border border-purple-200
-                                {% elif reg.status == 'waitlisted' %}bg-gray-100 text-gray-700 border border-gray-200
-                                {% else %}bg-gray-100 text-gray-700 border border-gray-200{% endif %}">
+                        <td>
+                            <span class="ea-badge
+                                {% if reg.status == 'confirmed' %}bg-success/10 text-success border-success/20
+                                {% elif reg.status == 'pending' %}bg-warning/10 text-orange-600 border-orange-200
+                                {% elif reg.status == 'checked_in' %}bg-info/10 text-info border-info/20
+                                {% elif reg.status == 'cancelled' %}bg-error/10 text-error border-error/20
+                                {% elif reg.status == 'refunded' %}bg-purple-100 text-purple-700 border-purple-200
+                                {% elif reg.status == 'waitlisted' %}bg-gray-100 text-gray-700 border-gray-200
+                                {% else %}bg-gray-100 text-gray-700 border-gray-200{% endif %}">
                                 {% if reg.status == 'confirmed' %}<i class="bi bi-check-circle mr-1"></i>
                                 {% elif reg.status == 'pending' %}<i class="bi bi-hourglass mr-1"></i>
                                 {% elif reg.status == 'checked_in' %}<i class="bi bi-qr-code-scan mr-1"></i>
@@ -267,38 +272,50 @@ View and manage all event registrations across your events
                                 {{ reg.get_status_display|default:reg.status|title }}
                             </span>
                         </td>
-                        <td class="px-4 py-3">
-                            <p class="text-sm font-medium text-gray-900">${{ reg.ticket_type.price|default:0.00|floatformat:2 }}</p>
-                            {% if reg.promo_code %}
-                            <p class="text-xs text-emerald-600 font-medium"><i class="bi bi-tag mr-1"></i>{{ reg.promo_code.code }}</p>
-                            {% endif %}
+                        <td>
+                            <div class="flex flex-col gap-1 items-start">
+                                <span class="text-sm font-semibold text-gray-900">
+                                    {% if reg.ticket_type.price > 0 %}
+                                    ${{ reg.ticket_type.price|default:0.00|floatformat:2 }}
+                                    {% else %}
+                                    Free
+                                    {% endif %}
+                                </span>
+                                {% if reg.promo_code %}
+                                <span class="ea-badge bg-emerald-50 text-emerald-700 border-emerald-100 text-[10px] py-0">
+                                    <i class="bi bi-tag mr-0.5"></i>{{ reg.promo_code.code }}
+                                </span>
+                                {% endif %}
+                            </div>
                         </td>
-                        <td class="px-4 py-3">
+                        <td>
                             {% if reg.status == 'checked_in' %}
-                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                <i class="bi bi-check-circle mr-1"></i>Yes
-                            </span>
-                            <p class="text-xs text-gray-500 mt-1">{{ reg.checked_in_at|date:"M d, H:i" }}</p>
+                            <div class="flex flex-col gap-1 items-start">
+                                <span class="ea-badge bg-emerald-50 text-emerald-700 border-emerald-100">
+                                    <i class="bi bi-check-circle mr-1"></i>Yes
+                                </span>
+                                <span class="text-[10px] text-gray-500 font-medium whitespace-nowrap">{{ reg.checked_in_at|date:"M d, H:i" }}</span>
+                            </div>
                             {% else %}
-                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                            <span class="ea-badge bg-gray-100 text-gray-500 border-gray-200">
                                 <i class="bi bi-x-circle mr-1"></i>No
                             </span>
                             {% endif %}
                         </td>
-                        <td class="px-4 py-3 text-right">
-                            <div class="flex items-center justify-end gap-1">
-                                <a href="{% url 'organizers:organizer_registration_detail' reg.id %}" class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200" title="View">
+                        <td class="text-right">
+                            <div class="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <a href="{% url 'organizers:organizer_registration_detail' reg.id %}" class="w-8 h-8 flex items-center justify-center text-primary bg-primary/10 hover:bg-primary hover:text-white rounded-lg transition-colors ring-1 ring-primary/20 shadow-sm" title="View Details">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{% url 'organizers:organizer_registration_edit' reg.id %}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200" title="Edit">
+                                <a href="{% url 'organizers:organizer_registration_edit' reg.id %}" class="w-8 h-8 flex items-center justify-center text-info bg-info/10 hover:bg-info hover:text-white rounded-lg transition-colors ring-1 ring-info/20 shadow-sm" title="Edit Registration">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 {% if reg.status != 'cancelled' and reg.status != 'refunded' %}
-                                <a href="{% url 'organizers:organizer_registration_checkin' reg.id %}" class="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200" title="Check In"
+                                <a href="{% url 'organizers:organizer_registration_checkin' reg.id %}" class="w-8 h-8 flex items-center justify-center text-emerald-600 bg-emerald-50 hover:bg-emerald-600 hover:text-white rounded-lg transition-colors ring-1 ring-emerald-200 shadow-sm" title="Check In"
                                     onclick="return confirm('Check in {{ reg.attendee_name }}?')">
                                     <i class="bi bi-check-square"></i>
                                 </a>
-                                <a href="{% url 'organizers:organizer_registration_cancel' reg.id %}" class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all duration-200" title="Cancel">
+                                <a href="{% url 'organizers:organizer_registration_cancel' reg.id %}" class="w-8 h-8 flex items-center justify-center text-error bg-error/10 hover:bg-error hover:text-white rounded-lg transition-colors ring-1 ring-error/20 shadow-sm" title="Cancel">
                                     <i class="bi bi-x-circle"></i>
                                 </a>
                                 {% endif %}
@@ -309,16 +326,14 @@ View and manage all event registrations across your events
                 </tbody>
             </table>
             {% else %}
-            <div class="p-12 text-center">
-                <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <i class="bi bi-person-x text-gray-400 text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Registrations Found</h3>
-                <p class="text-gray-500 max-w-md mx-auto">
+            <div class="ea-empty-state py-16 bg-surface">
+                <i class="bi bi-person-x ea-empty-state-icon text-primary/30"></i>
+                <h3 class="ea-empty-state-title">No Registrations Found</h3>
+                <p class="text-gray-500 max-w-sm mx-auto mt-2 text-sm text-center">
                     {% if filters.search or filters.status or filters.event %}
                     Try adjusting your filters to see more results.
                     {% else %}
-                    No registrations have been submitted for your events yet. Share your event page to get registrations.
+                    No registrations have been submitted for your events yet. Share your event page to start collecting registrations.
                     {% endif %}
                 </p>
             </div>
@@ -329,27 +344,27 @@ View and manage all event registrations across your events
 
 <!-- Pagination -->
 {% if registrations.has_other_pages %}
-<div class="flex justify-center mt-6">
+<div class="flex justify-center mt-8">
     <nav class="flex items-center gap-2">
         {% if registrations.has_previous %}
         <a href="?page={{ registrations.previous_page_number }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
-            class="px-3 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            class="px-3 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm">
             <i class="bi bi-chevron-left"></i>
         </a>
         {% endif %}
 
         {% for num in registrations.paginator.page_range %}
         {% if registrations.number == num %}
-        <span class="px-3 py-2 text-white bg-indigo-600 rounded-lg font-medium">{{ num }}</span>
+        <span class="px-3.5 py-2 text-white bg-primary rounded-lg font-bold shadow-sm shadow-primary/30">{{ num }}</span>
         {% elif num > registrations.number|add:'-3' and num < registrations.number|add:'3' %}
         <a href="?page={{ num }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
-            class="px-3 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">{{ num }}</a>
+            class="px-3.5 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-primary transition-colors font-medium shadow-sm">{{ num }}</a>
         {% endif %}
         {% endfor %}
 
         {% if registrations.has_next %}
         <a href="?page={{ registrations.next_page_number }}{% for key, value in filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
-            class="px-3 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            class="px-3 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm">
             <i class="bi bi-chevron-right"></i>
         </a>
         {% endif %}

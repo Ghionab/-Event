@@ -1,12 +1,12 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}My Registrations - EventPortal{% endblock %}
+{% block title %}My Registrations — EventAxis{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="flex justify-between items-center mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">My Registrations</h1>
+            <h1 class="text-3xl font-heading font-bold text-primary">My Registrations</h1>
             <p class="text-gray-500 mt-1">View and manage your event registrations</p>
         </div>
     </div>
@@ -15,17 +15,17 @@
     <!-- Tabs -->
     <div class="border-b border-gray-200 mb-8">
         <nav class="flex space-x-8">
-            <a href="#" class="border-b-2 border-indigo-600 text-indigo-600 py-4 px-1 font-medium">Upcoming</a>
+            <a href="#" class="border-b-2 border-primary text-primary py-4 px-1 font-medium">Upcoming</a>
             <a href="#" class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 font-medium">Past</a>
             <a href="#" class="border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-4 px-1 font-medium">Cancelled</a>
         </nav>
     </div>
 
     <!-- Registrations List -->
-    <div id="registrationsList" class="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="p-8 text-center">
-            <i class="fas fa-spinner fa-spin text-indigo-600 text-4xl mb-4"></i>
-            <p class="text-gray-500">Loading registrations...</p>
+    <div id="registrationsList" class="ea-card overflow-hidden">
+        <div class="ea-empty-state py-12">
+            <i class="bi bi-arrow-repeat ea-spin text-primary text-4xl mb-4"></i>
+            <p class="ea-empty-state-description">Loading registrations...</p>
         </div>
     </div>
 
@@ -41,17 +41,17 @@
             const container = document.getElementById('registrationsList');
             if (data.length > 0) {
                 container.innerHTML = `
-                    <div class="divide-y divide-gray-200">
+                    <div class="divide-y divide-gray-100">
                         ${data.map(reg => `
-                            <div class="p-6 hover:bg-gray-50 transition">
+                            <div class="p-6 hover:bg-surface transition">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <h3 class="font-semibold text-gray-900">${reg.event_title || 'Event'}</h3>
+                                        <h3 class="font-heading font-semibold text-gray-900">${reg.event_title || 'Event'}</h3>
                                         <p class="text-sm text-gray-500">${reg.event_date ? new Date(reg.event_date).toLocaleDateString() : ''}</p>
                                         <p class="text-sm text-gray-600 mt-1">${reg.ticket_type_name ? reg.ticket_type_name : ''}</p>
                                     </div>
                                     <div class="text-right">
-                                        <span class="inline-block px-3 py-1 rounded-full text-sm font-medium ${reg.status === 'confirmed' ? 'bg-green-100 text-green-800' : reg.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}">
+                                        <span class="ea-badge ${reg.status === 'confirmed' ? 'ea-badge-success' : reg.status === 'pending' ? 'ea-badge-warning' : 'ea-badge-secondary'}">
                                             ${reg.status}
                                         </span>
                                         <p class="text-sm text-gray-500 mt-1">#${reg.registration_number}</p>
@@ -63,11 +63,11 @@
                 `;
             } else {
                 container.innerHTML = `
-                    <div class="p-8 text-center">
-                        <i class="fas fa-ticket-alt text-gray-300 text-6xl mb-4"></i>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">No Registrations Yet</h3>
-                        <p class="text-gray-500 mb-6">You haven't registered for any events yet.</p>
-                        <a href="/events/" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                    <div class="ea-empty-state py-12">
+                        <i class="bi bi-ticket-perforated ea-empty-state-icon"></i>
+                        <h3 class="ea-empty-state-title">No Registrations Yet</h3>
+                        <p class="ea-empty-state-description">You haven't registered for any events yet.</p>
+                        <a href="/events/" class="ea-btn ea-btn-accent ea-btn-lg">
                             Browse Events
                         </a>
                     </div>
@@ -77,10 +77,10 @@
         .catch(error => {
             console.error('Error loading registrations:', error);
             document.getElementById('registrationsList').innerHTML = `
-                <div class="p-8 text-center">
-                    <i class="fas fa-exclamation-circle text-gray-300 text-6xl mb-4"></i>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Error Loading Registrations</h3>
-                    <p class="text-gray-500 mb-6">Unable to load your registrations. Please try again later.</p>
+                <div class="ea-empty-state py-12">
+                    <i class="bi bi-exclamation-circle-fill ea-empty-state-icon"></i>
+                    <h3 class="ea-empty-state-title">Error Loading Registrations</h3>
+                    <p class="ea-empty-state-description">Unable to load your registrations. Please try again later.</p>
                 </div>
             `;
         });
@@ -88,11 +88,11 @@
     </script>
     {% else %}
     <!-- Not Logged In -->
-    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
-        <i class="fas fa-user-lock text-gray-300 text-6xl mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Login Required</h3>
-        <p class="text-gray-500 mb-6">Please login to view your registrations.</p>
-        <a href="/login/" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+    <div class="ea-empty-state py-12">
+        <i class="bi bi-person-lock ea-empty-state-icon"></i>
+        <h3 class="ea-empty-state-title">Login Required</h3>
+        <p class="ea-empty-state-description">Please login to view your registrations.</p>
+        <a href="/login/" class="ea-btn ea-btn-accent ea-btn-lg">
             Login
         </a>
     </div>

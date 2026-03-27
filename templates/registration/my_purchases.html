@@ -4,15 +4,15 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold mb-8">My Ticket Purchases</h1>
+    <h1 class="text-3xl font-heading font-bold text-primary mb-8">My Ticket Purchases</h1>
     
     {% if purchases %}
     <div class="space-y-6">
         {% for purchase in purchases %}
-        <div class="bg-white rounded-2xl shadow-xl p-6">
+        <div class="ea-card p-6">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h2 class="text-xl font-bold">{{ purchase.event.title }}</h2>
+                    <h2 class="text-xl font-heading font-semibold text-gray-900">{{ purchase.event.title }}</h2>
                     <p class="text-sm text-gray-600 mt-1">
                         Purchase #: <span class="font-mono">{{ purchase.purchase_number }}</span>
                     </p>
@@ -21,14 +21,10 @@
                     </p>
                 </div>
                 <div class="text-right">
-                    <span class="px-3 py-1 rounded-full text-sm font-semibold
-                        {% if purchase.payment_status == 'completed' %}bg-green-100 text-green-800
-                        {% elif purchase.payment_status == 'pending' %}bg-yellow-100 text-yellow-800
-                        {% elif purchase.payment_status == 'failed' %}bg-red-100 text-red-800
-                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    <span class="ea-badge {% if purchase.payment_status == 'completed' %}ea-badge-success{% elif purchase.payment_status == 'pending' %}ea-badge-warning{% elif purchase.payment_status == 'failed' %}ea-badge-error{% else %}ea-badge-secondary{% endif %}">
                         {{ purchase.payment_status|title }}
                     </span>
-                    <p class="text-2xl font-bold text-indigo-600 mt-2">
+                    <p class="text-2xl font-bold text-primary mt-2">
                         {% if purchase.total_amount == 0 %}
                         FREE
                         {% else %}
@@ -38,7 +34,7 @@
                 </div>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+            <div class="grid md:grid-cols-3 gap-4 mb-4 p-4 bg-surface rounded-lg">
                 <div>
                     <p class="text-sm text-gray-600">Total Tickets</p>
                     <p class="font-bold text-lg">{{ purchase.get_ticket_count }}</p>
@@ -55,11 +51,11 @@
             
             <div class="flex gap-3">
                 <a href="{% url 'registration:purchase_detail' purchase.id %}" 
-                   class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 transition">
+                   class="ea-btn ea-btn-primary">
                     View Details
                 </a>
                 <a href="{% url 'events:event_detail' purchase.event.id %}" 
-                   class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-bold hover:bg-gray-300 transition">
+                   class="ea-btn ea-btn-secondary">
                     View Event
                 </a>
             </div>
@@ -67,12 +63,12 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="bg-white rounded-2xl shadow-xl p-12 text-center">
-        <i class="fas fa-ticket-alt text-6xl text-gray-300 mb-4"></i>
-        <h2 class="text-2xl font-bold text-gray-700 mb-2">No Purchases Yet</h2>
+    <div class="ea-card ea-empty-state p-12 text-center">
+        <i class="bi bi-ticket-perforated text-6xl text-gray-300 mb-4"></i>
+        <h2 class="text-2xl font-heading font-bold text-gray-700 mb-2">No Purchases Yet</h2>
         <p class="text-gray-600 mb-6">You haven't purchased any tickets yet.</p>
         <a href="{% url 'events:event_list' %}" 
-           class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition">
+           class="ea-btn ea-btn-primary ea-btn-lg">
             Browse Events
         </a>
     </div>

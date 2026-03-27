@@ -13,7 +13,6 @@ django.setup()
 from django.contrib.auth.models import User
 from events.models import Event, EventSession
 from registration.models import Registration
-from coordinators.models import Coordinator
 from datetime import datetime
 
 def show_menu():

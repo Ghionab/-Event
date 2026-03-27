@@ -9,13 +9,13 @@
 {% block content %}
 <!-- Mark All Read Button -->
 <div class="flex justify-end mb-6">
-    <button class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+    <button class="text-sm text-primary hover:text-primary-700 font-medium transition-colors">
         <i class="bi bi-check-all mr-1"></i>Mark all as read
     </button>
 </div>
 
 <!-- Notifications List -->
-<div class="card">
+<div class="ea-card">
     <div class="overflow-x-auto">
         {% if notifications %}
         <table class="w-full">
@@ -56,7 +56,7 @@
                         {{ notification.created_at|timesince }} ago
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <button class="text-gray-400 hover:text-indigo-600">
+                        <button class="text-gray-400 hover:text-primary transition-colors">
                             <i class="bi bi-check-lg"></i>
                         </button>
                     </td>

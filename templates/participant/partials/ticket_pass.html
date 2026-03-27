@@ -20,7 +20,7 @@
                     {% if registration.event.logo %}
                     <img src="{{ registration.event.logo.url }}" alt="" class="w-5 h-5 object-contain rounded-sm">
                     {% endif %}
-                    <span class="text-white text-[10px] uppercase tracking-[0.2em] font-black italic">EventHub Pass</span>
+                    <span class="text-white text-[10px] uppercase tracking-[0.2em] font-black italic">EventAxis Pass</span>
                 </div>
             </div>
             
@@ -75,7 +75,7 @@
                     <div class="flex items-center gap-2 mb-3">
                         <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest"
                               style="background-color: {{ registration.event.primary_color }}15; color: {{ registration.event.primary_color }}; border: 1.5px solid {{ registration.event.primary_color }}30;">
-                            <i class="fas fa-crown mr-1.5 text-[10px]"></i>
+                            <i class="bi bi-award mr-1.5 text-[10px]"></i>
                             {{ registration.ticket_type.ticket_category|default:"GENERAL" }} ACCESS
                         </span>
                         {% if registration.event.logo %}
@@ -102,7 +102,7 @@
                      style="background: linear-gradient(135deg, {{ registration.event.primary_color }}08 0%, transparent 100%);">
                     <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
                          style="background-color: {{ registration.event.primary_color }}15; border: 2px solid {{ registration.event.primary_color }}20;">
-                        <i class="fas fa-user text-lg" style="color: {{ registration.event.primary_color }};"></i>
+                        <i class="bi bi-person-fill text-lg" style="color: {{ registration.event.primary_color }};"></i>
                     </div>
                     <div>
                         <p class="text-[11px] uppercase tracking-widest font-black mb-1" style="color: {{ registration.event.primary_color }};">Attendee</p>
@@ -116,7 +116,7 @@
                      style="background: linear-gradient(135deg, {{ registration.event.accent_color|default:registration.event.primary_color }}08 0%, transparent 100%);">
                     <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
                          style="background-color: {{ registration.event.accent_color|default:registration.event.primary_color }}15; border: 2px solid {{ registration.event.accent_color|default:registration.event.primary_color }}20;">
-                        <i class="fas fa-calendar-check text-lg" style="color: {{ registration.event.accent_color|default:registration.event.primary_color }};"></i>
+                        <i class="bi bi-calendar-check text-lg" style="color: {{ registration.event.accent_color|default:registration.event.primary_color }};"></i>
                     </div>
                     <div>
                         <p class="text-[11px] uppercase tracking-widest font-black mb-1" style="color: {{ registration.event.accent_color|default:registration.event.primary_color }};">Date & Time</p>
@@ -130,7 +130,7 @@
                      style="background: linear-gradient(135deg, {{ registration.event.secondary_color }}08 0%, transparent 100%);">
                     <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
                          style="background-color: {{ registration.event.secondary_color }}15; border: 2px solid {{ registration.event.secondary_color }}20;">
-                        <i class="fas fa-map-marker-alt text-lg" style="color: {{ registration.event.secondary_color }};"></i>
+                        <i class="bi bi-geo-alt-fill text-lg" style="color: {{ registration.event.secondary_color }};"></i>
                     </div>
                     <div class="flex-1">
                         <p class="text-[11px] uppercase tracking-widest font-black mb-1" style="color: {{ registration.event.secondary_color }};">Location</p>
@@ -156,10 +156,10 @@
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
                      style="background: linear-gradient(135deg, {{ registration.event.primary_color }} 0%, {{ registration.event.secondary_color }} 100%);">
-                    <i class="fas fa-check text-white text-xs"></i>
+                    <i class="bi bi-check-lg text-white text-xs"></i>
                 </div>
                 <div>
-                    <p class="text-[11px] font-black uppercase tracking-[0.15em]" style="color: {{ registration.event.primary_color }};">Verified EventHub Digital Pass</p>
+                    <p class="text-[11px] font-black uppercase tracking-[0.15em]" style="color: {{ registration.event.primary_color }};">Verified EventAxis Digital Pass</p>
                     <p class="text-[10px] text-gray-400">Secured & Authenticated</p>
                 </div>
             </div>

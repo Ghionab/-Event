@@ -1,12 +1,12 @@
 {% extends 'participant/base.html' %}
-{% block title %}{{ event.title }} - EventHub{% endblock %}
+{% block title %}{{ event.title }} - EventAxis{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="bg-white rounded-lg shadow overflow-hidden">
         {% if event.banner_image %}
         <img src="{{ event.banner_image.url }}" alt="" class="w-full h-64 object-cover">
         {% else %}
-        <div class="w-full h-64 bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+        <div class="w-full h-64 bg-gradient-to-r ea-gradient-primary flex items-center justify-center">
             <h1 class="text-4xl font-bold text-white text-center px-4">{{ event.title }}</h1>
         </div>
         {% endif %}
@@ -27,9 +27,9 @@
             </div>
             <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ event.title }}</h1>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-gray-600">
-                <p><i class="bi bi-calendar text-indigo-500 mr-2"></i>{{ event.start_date|date:"F d, Y" }} &middot; {{ event.start_date|date:"g:i A" }} &mdash; {{ event.end_date|date:"F d, Y" }} &middot; {{ event.end_date|date:"g:i A" }}</p>
-                <p><i class="bi bi-geo-alt text-indigo-500 mr-2"></i>{{ event.venue_name|default:"Virtual Event" }}</p>
-                {% if event.contact_email %}<p><i class="bi bi-envelope text-indigo-500 mr-2"></i>{{ event.contact_email
+                <p><i class="bi bi-calendar text-primary mr-2"></i>{{ event.start_date|date:"F d, Y" }} &middot; {{ event.start_date|date:"g:i A" }} &mdash; {{ event.end_date|date:"F d, Y" }} &middot; {{ event.end_date|date:"g:i A" }}</p>
+                <p><i class="bi bi-geo-alt text-primary mr-2"></i>{{ event.venue_name|default:"Virtual Event" }}</p>
+                {% if event.contact_email %}<p><i class="bi bi-envelope text-primary mr-2"></i>{{ event.contact_email
                     }}</p>{% endif %}
             </div>
             <div class="prose max-w-none mb-8">{{ event.description|linebreaks }}</div>
@@ -54,11 +54,11 @@
             {% for ticket in ticket_types %}
             <div class="border rounded-lg p-4 {% if ticket.computed_sold_out %}opacity-60{% endif %}">
                 <h3 class="font-semibold text-gray-900">{{ ticket.name }}</h3>
-                <p class="text-2xl font-bold text-indigo-600 my-2">${{ ticket.price }}</p>
+                <p class="text-2xl font-bold text-primary my-2">${{ ticket.price }}</p>
                 <p class="text-sm text-gray-500 mb-3">{{ ticket.computed_available }} remaining</p>
                 {% if not ticket.computed_sold_out %}
                 <a href="/events/{{ event.id }}/register/"
-                    class="block text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm">Register</a>
+                    class="ea-btn ea-btn-primary ea-btn-sm block text-center">Register</a>
                 {% else %}
                 <span class="block text-center bg-gray-300 text-gray-600 py-2 rounded-lg text-sm">Sold Out</span>
                 {% endif %}
@@ -90,8 +90,8 @@
                 {% if speaker.photo %}
                 <img src="{{ speaker.photo.url }}" alt="" class="w-20 h-20 rounded-full mx-auto mb-2 object-cover">
                 {% else %}
-                <div class="w-20 h-20 rounded-full mx-auto mb-2 bg-indigo-100 flex items-center justify-center">
-                    <i class="bi bi-person text-indigo-600 text-2xl"></i>
+                <div class="w-20 h-20 rounded-full mx-auto mb-2 bg-primary/10 flex items-center justify-center">
+                    <i class="bi bi-person text-primary text-2xl"></i>
                 </div>
                 {% endif %}
                 <h4 class="font-medium text-gray-900 text-sm">{{ speaker.name }}</h4>
@@ -106,8 +106,8 @@
     {% if dynamic_sessions %}
     <div class="bg-white rounded-xl shadow-lg p-6 mt-6">
         <div class="flex items-center gap-3 mb-6">
-            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <i class="bi bi-calendar-event text-indigo-600 text-xl"></i>
+            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <i class="bi bi-calendar-event text-primary text-xl"></i>
             </div>
             <h2 class="text-2xl font-bold text-gray-900">Event Schedule</h2>
         </div>
@@ -116,7 +116,7 @@
             {% for session in dynamic_sessions %}
             <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
                 <!-- Session Header -->
-                <div class="bg-indigo-600 text-white px-5 py-4">
+                <div class="bg-primary text-white px-5 py-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <span class="bg-white/20 px-3 py-1 rounded-full text-sm font-semibold">
@@ -125,7 +125,7 @@
                             <h3 class="text-lg font-semibold">{{ session.title }}</h3>
                         </div>
                         {% if session.session_start_time or session.session_end_time %}
-                        <div class="text-indigo-100 text-sm">
+                        <div class="text-primary/20 text-sm">
                             <i class="bi bi-clock mr-1"></i>
                             {% if session.session_start_time %}{{ session.session_start_time|time:"H:i" }}{% endif %}
                             {% if session.session_end_time %} - {{ session.session_end_time|time:"H:i" }}{% endif %}
@@ -139,7 +139,7 @@
                     <!-- Session Date/Time -->
                     {% if session.session_start_time or session.session_end_time %}
                     <div class="mb-4 pb-4 border-b border-gray-200">
-                        <div class="flex items-center gap-2 text-indigo-600">
+                        <div class="flex items-center gap-2 text-primary">
                             <i class="bi bi-calendar-event"></i>
                             <span class="font-medium">
                                 {% if session.session_start_time %}{{ session.session_start_time|date:"M d, Y" }}{% endif %}
@@ -156,8 +156,8 @@
                     {% if speakers %}
                     <div>
                         <div class="flex items-center gap-2 mb-4">
-                            <i class="bi bi-people-fill text-indigo-600"></i>
-                            <span class="text-sm font-semibold text-indigo-600 uppercase tracking-wide">Speakers</span>
+                            <i class="bi bi-people-fill text-primary"></i>
+                            <span class="text-sm font-semibold text-primary uppercase tracking-wide">Speakers</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             {% for speaker in speakers %}
@@ -166,8 +166,8 @@
                                     {% if speaker.speaker_profile_picture %}
                                     <img src="{{ speaker.speaker_profile_picture.url }}" alt="{{ speaker.speaker_name }}" class="w-24 h-24 rounded-xl object-cover flex-shrink-0 shadow-sm">
                                     {% else %}
-                                    <div class="w-24 h-24 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center flex-shrink-0 shadow-sm">
-                                        <i class="bi bi-person-fill text-indigo-400 text-4xl"></i>
+                                    <div class="w-24 h-24 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                        <i class="bi bi-person-fill text-primary text-4xl"></i>
                                     </div>
                                     {% endif %}
                                     <div class="flex-1 min-w-0">
@@ -175,7 +175,7 @@
                                         
                                         <!-- Speaker Time Window -->
                                         {% if speaker.speaker_start_time or speaker.speaker_end_time %}
-                                        <div class="flex items-center gap-1.5 mt-2 text-sm text-indigo-600 font-medium">
+                                        <div class="flex items-center gap-1.5 mt-2 text-sm text-primary font-medium">
                                             <i class="bi bi-clock"></i>
                                             <span>
                                                 {% if speaker.speaker_start_time %}{{ speaker.speaker_start_time|time:"H:i" }}{% endif %}
@@ -212,7 +212,7 @@
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Schedule Preview</h2>
         <div class="space-y-3">
             {% for session in dynamic_sessions %}
-            <div class="border-l-4 border-indigo-500 pl-4 py-2">
+            <div class="border-l-4 border-primary pl-4 py-2">
                 <h4 class="font-medium text-gray-900">{{ session.title }}</h4>
                 <p class="text-sm text-gray-500">{{ session.session_start_time|date:"M d" }} &middot; {{ session.session_start_time|date:"g:i A" }} &mdash; {{ session.session_end_time|date:"g:i A" }}</p>
             </div>

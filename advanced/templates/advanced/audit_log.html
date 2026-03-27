@@ -1,20 +1,20 @@
 {% extends 'organizers/base.html' %}
 
-{% block title %}Audit Log - EventHub{% endblock %}
+{% block title %}Audit Log - EventAxis{% endblock %}
 {% block header %}Audit Log{% endblock %}
 {% block subtitle %}Track all system activities and changes{% endblock %}
 
 {% block content %}
 <!-- Filters -->
-<div class="card mb-6">
-    <div class="card-header">
-        <h3 class="card-title">Filter Audit Logs</h3>
+<div class="ea-card mb-6">
+    <div class="ea-card-header">
+        <h3 class="font-heading font-semibold text-lg">Filter Audit Logs</h3>
     </div>
-    <div class="card-body">
+    <div class="p-6">
         <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
-                <select name="action" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label class="ea-form-label">Action</label>
+                <select name="action" class="ea-select">
                     <option value="">All Actions</option>
                     <option value="create">Created</option>
                     <option value="update">Updated</option>
@@ -26,8 +26,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">User</label>
-                <select name="user" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <label class="ea-form-label">User</label>
+                <select name="user" class="ea-select">
                     <option value="">All Users</option>
                     {% for user in users %}
                         <option value="{{ user.pk }}" {% if request.GET.user == user.pk|stringformat:"s" %}selected{% endif %}>{{ user.email }}</option>
@@ -35,15 +35,15 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                <input type="date" name="start_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" value="{{ request.GET.start_date|default:'' }}">
+                <label class="ea-form-label">Start Date</label>
+                <input type="date" name="start_date" class="ea-input" value="{{ request.GET.start_date|default:'' }}">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                <input type="date" name="end_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" value="{{ request.GET.end_date|default:'' }}">
+                <label class="ea-form-label">End Date</label>
+                <input type="date" name="end_date" class="ea-input" value="{{ request.GET.end_date|default:'' }}">
             </div>
             <div class="flex items-end">
-                <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                <button type="submit" class="ea-btn ea-btn-primary w-full">
                     <i class="bi bi-funnel mr-2"></i>
                     Filter
                 </button>
@@ -53,27 +53,27 @@
 </div>
 
 <!-- Audit Log Table -->
-<div class="card">
-    <div class="card-header">
+<div class="ea-card">
+    <div class="ea-card-header">
         <div class="flex justify-between items-center">
-            <h3 class="card-title">Activity Log</h3>
+            <h3 class="font-heading font-semibold text-lg">Activity Log</h3>
             <span class="text-sm text-gray-500">Showing last 100 entries</span>
         </div>
     </div>
-    <div class="card-body p-0">
+    <div class="p-0">
         <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
+            <table class="ea-table">
+                <thead>
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Content Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Content Type</th>
+                        <th>Description</th>
+                        <th>IP Address</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody>
                     {% for log in logs %}
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4 text-sm text-gray-900">
@@ -83,7 +83,7 @@
                         <td class="px-6 py-4">
                             {% if log.user %}
                                 <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-xs mr-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs mr-2">
                                         {{ log.user.email|slice:":2"|upper }}
                                     </div>
                                     <span class="text-sm text-gray-900">{{ log.user.email }}</span>
@@ -97,7 +97,7 @@
                                 {% if log.action == 'create' %}bg-green-100 text-green-800
                                 {% elif log.action == 'update' %}bg-blue-100 text-blue-800
                                 {% elif log.action == 'delete' %}bg-red-100 text-red-800
-                                {% elif log.action == 'login' %}bg-indigo-100 text-indigo-800
+                                {% elif log.action == 'login' %}bg-primary/10 text-indigo-800
                                 {% elif log.action == 'export' %}bg-purple-100 text-purple-800
                                 {% else %}bg-gray-100 text-gray-800{% endif %}">
                                 {{ log.get_action_display }}

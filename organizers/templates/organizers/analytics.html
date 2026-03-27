@@ -3,140 +3,161 @@
 
 {% block title %}Analytics - Event Organizer{% endblock %}
 
-{% block header %}Analytics{% endblock %}
+{% block header %}Analytics Overview{% endblock %}
 
-{% block subtitle %}Track your event performance{% endblock %}
+{% block subtitle %}Track your overall event performance and growth metrics{% endblock %}
 
 {% block content %}
 <!-- Stats Overview -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="ea-stat-card">
+        <div class="ea-stat-icon bg-info/10 text-info">
             <i class="bi bi-eye"></i>
         </div>
-        <div class="stat-content">
-            <h3>{{ total_views|default:0 }}</h3>
-            <p>Total Views</p>
+        <div>
+            <p class="ea-stat-value text-gray-900">{{ total_views|default:0 }}</p>
+            <p class="ea-stat-title">Total Views</p>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+    <div class="ea-stat-card">
+        <div class="ea-stat-icon bg-primary/10 text-primary">
             <i class="bi bi-person-check"></i>
         </div>
-        <div class="stat-content">
-            <h3>{{ total_registrations|default:0 }}</h3>
-            <p>Registrations</p>
+        <div>
+            <p class="ea-stat-value text-gray-900">{{ total_registrations|default:0 }}</p>
+            <p class="ea-stat-title">Registrations</p>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+    <div class="ea-stat-card">
+        <div class="ea-stat-icon bg-success/10 text-success">
             <i class="bi bi-check-circle"></i>
         </div>
-        <div class="stat-content">
-            <h3>{{ checked_in|default:0 }}</h3>
-            <p>Checked In</p>
+        <div>
+            <p class="ea-stat-value text-gray-900">{{ checked_in|default:0 }}</p>
+            <p class="ea-stat-title">Checked In</p>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+    <div class="ea-stat-card">
+        <div class="ea-stat-icon bg-accent/10 text-accent border border-accent/20 border-solid">
             <i class="bi bi-currency-dollar"></i>
         </div>
-        <div class="stat-content">
-            <h3>${{ total_revenue|default:"0.00"|floatformat:2 }}</h3>
-            <p>Total Revenue</p>
+        <div>
+            <p class="ea-stat-value text-gray-900 font-mono">${{ total_revenue|default:"0.00"|floatformat:2 }}</p>
+            <p class="ea-stat-title">Total Revenue</p>
         </div>
     </div>
 </div>
 
-<!-- Registration Trends -->
-<div class="card mb-8">
-    <div class="card-header">
-        <h3 class="card-title">Registration Trends</h3>
-    </div>
-    <div class="card-body">
-        {% if registrations %}
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Registrations</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Revenue</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    {% for reg in registrations %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 text-gray-800">{{ reg.date }}</td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
-                                {{ reg.count }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-800">${{ reg.revenue|default:"0.00"|floatformat:2 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Registration Trends -->
+    <div class="ea-card lg:col-span-1 h-full flex flex-col">
+        <div class="ea-card-header">
+            <h3 class="flex justify-between items-center text-lg font-bold">
+                <span class="flex items-center"><i class="bi bi-graph-up text-primary mr-2"></i>Registration Trends</span>
+            </h3>
         </div>
-        {% else %}
-        <div class="p-8 text-center">
-            <i class="bi bi-bar-chart text-gray-300 text-4xl mb-3"></i>
-            <p class="text-gray-500">No registration data available yet</p>
+        <div class="ea-card-body p-0 flex-1">
+            {% if registrations %}
+            <div class="overflow-x-auto h-full max-h-[400px]">
+                <table class="ea-table !mb-0">
+                    <thead class="sticky top-0 bg-white shadow-sm z-10">
+                        <tr>
+                            <th>Date</th>
+                            <th class="text-center">Regs</th>
+                            <th class="text-right">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for reg in registrations %}
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="font-medium text-gray-900 whitespace-nowrap text-sm">{{ reg.date }}</td>
+                            <td class="text-center">
+                                <span class="ea-badge bg-primary/10 text-primary border-primary/20">
+                                    {{ reg.count }}
+                                </span>
+                            </td>
+                            <td class="text-right font-mono font-bold text-gray-900 text-sm">
+                                ${{ reg.revenue|default:"0.00"|floatformat:2 }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="ea-empty-state h-full flex items-center justify-center py-12">
+                <i class="bi bi-bar-chart ea-empty-state-icon text-gray-300"></i>
+                <h3 class="ea-empty-state-title">No trend data</h3>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
-</div>
 
-<!-- Event Analytics Table -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Event Performance</h3>
-    </div>
-    <div class="overflow-x-auto">
-        {% if events %}
-        <table class="w-full">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Event</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Views</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Registrations</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Revenue</th>
-                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                {% for event in events %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background-color: {{ event.primary_color|default:'#667eea' }}20;">
-                                <i class="bi bi-calendar-event" style="color: {{ event.primary_color|default:'#667eea' }};"></i>
-                            </div>
-                            <span class="font-medium text-gray-800">{{ event.title }}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-gray-600">{{ event_metrics|get_item:event.id|get_item:'views'|default:"0" }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ event_metrics|get_item:event.id|get_item:'registrations'|default:"0" }}</td>
-                    <td class="px-6 py-4 text-gray-800 font-medium">${{ event_metrics|get_item:event.id|get_item:'revenue'|default:"0.00"|floatformat:2 }}</td>
-                    <td class="px-6 py-4 text-right">
-                        <a href="{% url 'organizers:organizer_analytics_event' event.id %}" class="text-indigo-600 hover:text-indigo-800 font-medium">
-                            View Details <i class="bi bi-arrow-right ml-1"></i>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="p-8 text-center">
-            <i class="bi bi-calendar-x text-gray-300 text-4xl mb-3"></i>
-            <p class="text-gray-500">No events found</p>
+    <!-- Event Analytics Table -->
+    <div class="ea-card lg:col-span-2 h-full flex flex-col">
+        <div class="ea-card-header border-b border-gray-100 bg-gray-50/50">
+            <h3 class="flex justify-between items-center text-lg font-bold">
+                <span class="flex items-center"><i class="bi bi-calendar-check text-primary mr-2"></i>Event Performance Overview</span>
+            </h3>
         </div>
-        {% endif %}
+        <div class="ea-card-body p-0 flex-1 overflow-hidden">
+            {% if events %}
+            <div class="overflow-x-auto h-full">
+                <table class="ea-table !mb-0">
+                    <thead>
+                        <tr>
+                            <th>Event Details</th>
+                            <th class="text-center">Views</th>
+                            <th class="text-center">Registrations</th>
+                            <th class="text-right">Revenue</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for event in events %}
+                        <tr class="hover:bg-primary/5 transition-colors group">
+                            <td>
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-4 shadow-sm group-hover:scale-110 transition-transform" style="background-color: {{ event.primary_color|default:'' }};">
+                                        {% if event.primary_color %}
+                                            <i class="bi bi-calendar-event text-white"></i>
+                                        {% else %}
+                                            <div class="w-full h-full bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+                                                <i class="bi bi-calendar-event text-primary"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <span class="font-bold text-gray-900 group-hover:text-primary transition-colors">{{ event.title }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center text-gray-600 font-mono text-sm">{{ event_metrics|get_item:event.id|get_item:'views'|default:"0" }}</td>
+                            <td class="text-center">
+                                <span class="ea-badge bg-gray-100 text-gray-900 font-mono">
+                                    {{ event_metrics|get_item:event.id|get_item:'registrations'|default:"0" }}
+                                </span>
+                            </td>
+                            <td class="text-right text-gray-900 font-bold font-mono text-sm">${{ event_metrics|get_item:event.id|get_item:'revenue'|default:"0.00"|floatformat:2 }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'organizers:organizer_analytics_event' event.id %}" class="w-8 h-8 rounded-lg flex items-center justify-center text-primary bg-primary/10 hover:bg-primary hover:text-white transition-colors mx-auto" title="View Detailed Analytics">
+                                    <i class="bi bi-pie-chart"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="ea-empty-state py-12">
+                <i class="bi bi-calendar-x ea-empty-state-icon text-gray-300"></i>
+                <h3 class="ea-empty-state-title">No events to analyze</h3>
+                <p class="text-gray-500 max-w-sm mx-auto text-sm">Create and publish an event to start collecting performance data.</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

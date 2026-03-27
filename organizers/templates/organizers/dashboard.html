@@ -8,19 +8,19 @@
 
 {% block content %}
 <!-- Premium Header Banner -->
-<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 shadow-xl">
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
+<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-hero shadow-xl border border-primary/20">
+    <div class="absolute inset-0 opacity-20 pointer-events-none">
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-accent rounded-full blur-3xl opacity-40 mix-blend-screen"></div>
+        <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl mix-blend-overlay"></div>
     </div>
-    <div class="relative px-8 py-8">
-        <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+    <div class="relative px-8 py-10">
+        <div class="flex items-center gap-5">
+            <div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
                 <i class="bi bi-grid-1x2 text-white text-3xl"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-bold text-white">Dashboard</h1>
-                <p class="text-indigo-100 text-sm mt-1">Here's what's happening with your events</p>
+                <h1 class="text-3xl font-heading font-black text-white tracking-tight">Dashboard Overview</h1>
+                <p class="text-white/80 text-sm mt-1.5 font-medium tracking-wide">Here's what's happening with your events</p>
             </div>
         </div>
     </div>
@@ -28,137 +28,132 @@
 
 <!-- Stats Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
-            <i class="bi bi-calendar-event text-white text-xl"></i>
+    <div class="ea-stat-card group">
+        <div class="ea-stat-icon bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+            <i class="bi bi-calendar-event"></i>
         </div>
         <div>
-            <p class="text-2xl font-bold text-gray-900">{{ total_events }}</p>
-            <p class="text-sm text-gray-500">Total Events</p>
+            <p class="ea-stat-value text-gray-900">{{ total_events }}</p>
+            <p class="ea-stat-title">Total Events</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center shadow-sm">
-            <i class="bi bi-check-circle text-white text-xl"></i>
+    <div class="ea-stat-card group">
+        <div class="ea-stat-icon bg-success/10 text-success group-hover:bg-success group-hover:text-white transition-colors">
+            <i class="bi bi-check-circle"></i>
         </div>
         <div>
-            <p class="text-2xl font-bold text-gray-900">{{ published_events }}</p>
-            <p class="text-sm text-gray-500">Published</p>
+            <p class="ea-stat-value text-gray-900">{{ published_events }}</p>
+            <p class="ea-stat-title">Published</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-            <i class="bi bi-calendar-check text-white text-xl"></i>
+    <div class="ea-stat-card group">
+        <div class="ea-stat-icon bg-accent/10 border-accent/20 border-solid border text-accent group-hover:bg-accent group-hover:text-white transition-colors">
+            <i class="bi bi-calendar-check"></i>
         </div>
         <div>
-            <p class="text-2xl font-bold text-gray-900">{{ upcoming_events }}</p>
-            <p class="text-sm text-gray-500">Upcoming</p>
+            <p class="ea-stat-value text-gray-900">{{ upcoming_events }}</p>
+            <p class="ea-stat-title">Upcoming</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-sm">
-            <i class="bi bi-people text-white text-xl"></i>
+    <div class="ea-stat-card group">
+        <div class="ea-stat-icon bg-info/10 text-info group-hover:bg-info group-hover:text-white transition-colors">
+            <i class="bi bi-people"></i>
         </div>
         <div>
-            <p class="text-2xl font-bold text-gray-900">{{ total_registrations }}</p>
-            <p class="text-sm text-gray-500">Registrations</p>
+            <p class="ea-stat-value text-gray-900 font-mono">{{ total_registrations }}</p>
+            <p class="ea-stat-title">Registrations</p>
         </div>
     </div>
 </div>
 
 <!-- Quick Actions -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <a href="{% url 'organizers:organizer_event_create' %}" class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group p-5">
-        <div class="text-center">
-            <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-indigo-200 transition-colors">
-                <i class="bi bi-plus-circle text-indigo-600 text-xl"></i>
-            </div>
-            <p class="font-medium text-gray-700 text-sm">Create Event</p>
+    <a href="{% url 'organizers:organizer_event_create' %}" class="ea-card hover:-translate-y-1 transition-all p-5 text-center group block text-decoration-none shadow-sm hover:shadow-md border border-gray-100 cursor-pointer">
+        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-primary transition-colors duration-300">
+            <i class="bi bi-plus-circle text-primary group-hover:text-white text-xl transition-colors"></i>
         </div>
+        <p class="font-bold text-gray-700 text-sm tracking-wide group-hover:text-primary transition-colors">Create Event</p>
     </a>
 
-    <a href="{% url 'organizers:organizer_event_list' %}" class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group p-5">
-        <div class="text-center">
-            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-200 transition-colors">
-                <i class="bi bi-calendar-check text-blue-600 text-xl"></i>
-            </div>
-            <p class="font-medium text-gray-700 text-sm">Manage Events</p>
+    <a href="{% url 'organizers:organizer_event_list' %}" class="ea-card hover:-translate-y-1 transition-all p-5 text-center group block text-decoration-none shadow-sm hover:shadow-md border border-gray-100 cursor-pointer">
+        <div class="w-12 h-12 bg-info/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-info transition-colors duration-300">
+            <i class="bi bi-calendar-check text-info group-hover:text-white text-xl transition-colors"></i>
         </div>
+        <p class="font-bold text-gray-700 text-sm tracking-wide group-hover:text-info transition-colors">Manage Events</p>
     </a>
 
-    <a href="{% url 'organizers:organizer_analytics' %}" class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group p-5">
-        <div class="text-center">
-            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-emerald-200 transition-colors">
-                <i class="bi bi-bar-chart-line text-emerald-600 text-xl"></i>
-            </div>
-            <p class="font-medium text-gray-700 text-sm">Analytics</p>
+    <a href="{% url 'organizers:organizer_analytics' %}" class="ea-card hover:-translate-y-1 transition-all p-5 text-center group block text-decoration-none shadow-sm hover:shadow-md border border-gray-100 cursor-pointer">
+        <div class="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-success transition-colors duration-300">
+            <i class="bi bi-bar-chart-line text-success group-hover:text-white text-xl transition-colors"></i>
         </div>
+        <p class="font-bold text-gray-700 text-sm tracking-wide group-hover:text-success transition-colors">Analytics</p>
     </a>
 
-    <a href="{% url 'organizers:organizer_settings' %}" class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group p-5">
-        <div class="text-center">
-            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-200 transition-colors">
-                <i class="bi bi-gear text-purple-600 text-xl"></i>
-            </div>
-            <p class="font-medium text-gray-700 text-sm">Settings</p>
+    <a href="{% url 'organizers:organizer_settings' %}" class="ea-card hover:-translate-y-1 transition-all p-5 text-center group block text-decoration-none shadow-sm hover:shadow-md border border-gray-100 cursor-pointer">
+        <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-gray-200 transition-colors duration-300">
+            <i class="bi bi-gear text-gray-600 group-hover:text-gray-900 text-xl transition-colors"></i>
         </div>
+        <p class="font-bold text-gray-700 text-sm tracking-wide group-hover:text-gray-900 transition-colors">Settings</p>
     </a>
 </div>
 
 <!-- Main Content Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Recent Events -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-                <i class="bi bi-calendar-event mr-2 text-gray-500"></i>Your Events
+    <div class="ea-card flex flex-col h-full">
+        <div class="ea-card-header bg-surface/50 border-b border-gray-100">
+            <h3 class="flex justify-between items-center text-lg font-bold">
+                <span class="flex items-center"><i class="bi bi-calendar-event text-primary mr-2"></i>Your Events</span>
+                <a href="{% url 'organizers:organizer_event_create' %}" class="text-sm text-primary hover:text-primary-dark font-medium flex items-center transition-colors">
+                    <i class="bi bi-plus-lg mr-1"></i>New Event
+                </a>
             </h3>
-            <a href="{% url 'organizers:organizer_event_create' %}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
-                <i class="bi bi-plus mr-1"></i>New Event
-            </a>
         </div>
-        <div class="divide-y divide-gray-100">
-            {% if events %}
-            {% for event in events %}
-            <div class="flex items-center justify-between p-4 hover:bg-gray-50/80 transition-colors duration-200 group">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: {{ event.primary_color|default:'#667eea' }}20;">
-                        <i class="bi bi-calendar-event" style="color: {{ event.primary_color|default:'#667eea' }};"></i>
+        <div class="ea-card-body p-0 flex-1 flex flex-col">
+            <div class="divide-y divide-gray-100 flex-1">
+                {% if events %}
+                {% for event in events %}
+                <div class="flex items-center justify-between p-4 hover:bg-primary/5 transition-colors duration-200 group cursor-pointer" onclick="window.location.href='{% url 'organizers:organizer_event_detail' event.id %}'">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-primary/10 group-hover:bg-primary transition-colors shadow-sm">
+                            <i class="bi bi-calendar-event text-primary group-hover:text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900 group-hover:text-primary transition-colors">{{ event.title }}</p>
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-0.5"><i class="bi bi-clock mr-1 opacity-50"></i>{{ event.start_date|date:"M d, Y" }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="font-medium text-gray-900">{{ event.title }}</p>
-                        <p class="text-sm text-gray-500">{{ event.start_date|date:"M d, Y" }}</p>
+                    <div class="flex items-center gap-3">
+                        <span class="ea-badge 
+                            {% if event.status == 'published' %}bg-success/10 text-success border-success/20
+                            {% elif event.status == 'draft' %}bg-warning/10 text-warning-dark border-warning/20
+                            {% else %}bg-gray-100 text-gray-600 border border-gray-200{% endif %}">
+                            {{ event.status|title }}
+                        </span>
+                        <div class="text-gray-300 group-hover:text-primary transition-colors translate-x-0 group-hover:translate-x-1 duration-300">
+                            <i class="bi bi-chevron-right text-lg"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full
-                        {% if event.status == 'published' %}bg-emerald-100 text-emerald-700 border border-emerald-200
-                        {% elif event.status == 'draft' %}bg-amber-100 text-amber-700 border border-amber-200
-                        {% else %}bg-gray-100 text-gray-700 border border-gray-200{% endif %}">
-                        {{ event.status|title }}
-                    </span>
-                    <a href="{% url 'organizers:organizer_event_detail' event.id %}" class="text-gray-400 hover:text-indigo-600 transition-colors">
-                        <i class="bi bi-chevron-right"></i>
+                {% endfor %}
+                {% else %}
+                <div class="ea-empty-state py-12 flex-1 flex flex-col items-center justify-center">
+                    <i class="bi bi-calendar-x ea-empty-state-icon text-gray-300"></i>
+                    <h4 class="ea-empty-state-title">No events yet</h4>
+                    <p class="text-sm text-gray-500 max-w-xs mx-auto text-center mb-6">Create your first event to start accepting registrations.</p>
+                    <a href="{% url 'organizers:organizer_event_create' %}" class="ea-btn ea-btn-primary shadow-lg">
+                        <i class="bi bi-plus-lg mr-2"></i> Create Event
                     </a>
                 </div>
+                {% endif %}
             </div>
-            {% endfor %}
-            <div class="p-4 border-t border-gray-100 text-center">
-                <a href="{% url 'organizers:organizer_event_list' %}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
-                    View All Events <i class="bi bi-arrow-right ml-1"></i>
-                </a>
-            </div>
-            {% else %}
-            <div class="p-8 text-center">
-                <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="bi bi-calendar-x text-gray-400 text-2xl"></i>
-                </div>
-                <p class="text-gray-500 mb-4">No events yet</p>
-                <a href="{% url 'organizers:organizer_event_create' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
-                    <i class="bi bi-plus mr-2"></i>Create Your First Event
+            {% if events %}
+            <div class="ea-card-footer text-center">
+                <a href="{% url 'organizers:organizer_event_list' %}" class="text-sm text-gray-500 hover:text-primary font-bold uppercase tracking-wider inline-flex items-center transition-colors group">
+                    View All Events <i class="bi bi-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
                 </a>
             </div>
             {% endif %}
@@ -166,85 +161,91 @@
     </div>
 
     <!-- Recent Registrations -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-                <i class="bi bi-person-badge mr-2 text-gray-500"></i>Recent Registrations
+    <div class="ea-card flex flex-col h-full">
+        <div class="ea-card-header bg-surface/50 border-b border-gray-100">
+            <h3 class="flex justify-between items-center text-lg font-bold">
+                <span class="flex items-center"><i class="bi bi-people text-info mr-2"></i>Recent Sign Ups</span>
+                <span class="ea-badge bg-gray-100 text-gray-600 font-mono">{{ total_registrations }} total</span>
             </h3>
-            <span class="text-xs text-gray-500">{{ total_registrations }} total</span>
         </div>
-        <div class="divide-y divide-gray-100">
-            {% if recent_registrations %}
-            {% for reg in recent_registrations %}
-            <div class="flex items-center justify-between p-4 hover:bg-gray-50/80 transition-colors duration-200">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                        <i class="bi bi-person text-gray-500"></i>
+        <div class="ea-card-body p-0 flex-1 flex flex-col">
+            <div class="divide-y divide-gray-100 flex-1">
+                {% if recent_registrations %}
+                {% for reg in recent_registrations %}
+                <div class="flex items-center justify-between p-4 hover:bg-info/5 transition-colors duration-200 group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 shadow-sm relative overflow-hidden group-hover:border-info/30 transition-colors">
+                            <i class="bi bi-person text-gray-400 text-xl group-hover:text-info transition-colors"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900">{{ reg.attendee_name }}</p>
+                            <p class="text-xs font-semibold text-gray-500 mt-0.5 truncate max-w-[150px] sm:max-w-xs text-primary/70">{{ reg.event.title }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="font-medium text-gray-900">{{ reg.attendee_name }}</p>
-                        <p class="text-sm text-gray-500">{{ reg.event.title|truncatechars:25 }}</p>
+                    <div class="text-right flex flex-col items-end">
+                        <span class="ea-badge mb-1.5
+                            {% if reg.status == 'confirmed' %}bg-success/10 text-success border-success/20
+                            {% elif reg.status == 'pending' %}bg-warning/10 text-warning-dark border-warning/20
+                            {% elif reg.status == 'cancelled' %}bg-error/10 text-error border-error/20
+                            {% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {{ reg.status|title }}
+                        </span>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ reg.created_at|date:"M d, P" }}</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full
-                        {% if reg.status == 'confirmed' %}bg-emerald-100 text-emerald-700 border border-emerald-200
-                        {% elif reg.status == 'pending' %}bg-amber-100 text-amber-700 border border-amber-200
-                        {% elif reg.status == 'cancelled' %}bg-rose-100 text-rose-700 border border-rose-200
-                        {% else %}bg-gray-100 text-gray-700 border border-gray-200{% endif %}">
-                        {{ reg.status|title }}
-                    </span>
-                    <p class="text-xs text-gray-400 mt-1">{{ reg.created_at|date:"M d" }}</p>
+                {% endfor %}
+                {% else %}
+                <div class="ea-empty-state py-12 flex-1 flex flex-col items-center justify-center">
+                    <i class="bi bi-people ea-empty-state-icon text-gray-300"></i>
+                    <h4 class="ea-empty-state-title">No registrations yet</h4>
+                    <p class="text-sm text-gray-500 max-w-xs mx-auto text-center">Registrations will appear here when attendees sign up for your events.</p>
                 </div>
+                {% endif %}
             </div>
-            {% endfor %}
-            {% else %}
-            <div class="p-8 text-center">
-                <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="bi bi-people text-gray-400 text-2xl"></i>
-                </div>
-                <p class="text-gray-500">No registrations yet</p>
-                <p class="text-sm text-gray-400 mt-2">Registrations will appear here when attendees sign up for your events.</p>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
 
 <!-- Notifications Section -->
 {% if notifications %}
-<div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-            <i class="bi bi-bell mr-2 text-gray-500"></i>Recent Notifications
+<div class="mt-8 ea-card">
+    <div class="ea-card-header bg-surface/50 border-b border-gray-100">
+        <h3 class="flex justify-between items-center text-lg font-bold">
+            <span class="flex items-center"><i class="bi bi-bell text-accent mr-2"></i>Activity Stream</span>
+            <a href="{% url 'organizers:organizer_notifications' %}" class="text-sm text-gray-500 hover:text-accent font-bold uppercase tracking-wider flex items-center transition-colors group">
+                View All <i class="bi bi-arrow-right ml-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+            </a>
         </h3>
-        <a href="{% url 'organizers:organizer_notifications' %}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
-            View All
-        </a>
     </div>
-    <div class="divide-y divide-gray-100">
-        {% for notification in notifications %}
-        <div class="flex items-start gap-4 p-4 hover:bg-gray-50/80 transition-colors duration-200">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-                {% if notification.notification_type == 'registration' %}bg-blue-100 text-blue-600
-                {% elif notification.notification_type == 'payment' %}bg-emerald-100 text-emerald-600
-                {% elif notification.notification_type == 'alert' %}bg-rose-100 text-rose-600
-                {% else %}bg-gray-100 text-gray-600{% endif %}">
-                <i class="bi
-                    {% if notification.notification_type == 'registration' %}bi-person-plus
-                    {% elif notification.notification_type == 'payment' %}bi-currency-dollar
-                    {% elif notification.notification_type == 'alert' %}bi-exclamation-triangle
-                    {% elif notification.notification_type == 'update' %}bi-arrow-repeat
-                    {% else %}bi-bell{% endif %}">
-                </i>
+    <div class="ea-card-body p-0">
+        <div class="divide-y divide-gray-100">
+            {% for notification in notifications %}
+            <div class="flex items-start gap-4 p-5 hover:bg-gray-50/70 transition-colors duration-200">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border
+                    {% if notification.notification_type == 'registration' %}bg-info/10 text-info border-info/20
+                    {% elif notification.notification_type == 'payment' %}bg-success/10 text-success border-success/20
+                    {% elif notification.notification_type == 'alert' %}bg-error/10 text-error border-error/20
+                    {% else %}bg-gray-50 text-gray-500 border-gray-200{% endif %}">
+                    <i class="bi text-lg
+                        {% if notification.notification_type == 'registration' %}bi-person-plus
+                        {% elif notification.notification_type == 'payment' %}bi-currency-dollar
+                        {% elif notification.notification_type == 'alert' %}bi-exclamation-triangle
+                        {% elif notification.notification_type == 'update' %}bi-arrow-repeat
+                        {% else %}bi-bell{% endif %}">
+                    </i>
+                </div>
+                <div class="flex-1 min-w-0 pr-4">
+                    <p class="font-bold text-gray-900 text-sm mb-0.5">{{ notification.title }}</p>
+                    <p class="text-sm text-gray-600 leading-snug">{{ notification.message }}</p>
+                </div>
+                <div class="whitespace-nowrap flex-shrink-0">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-white border border-gray-100 px-2.5 py-1 rounded-md shadow-sm">
+                        <i class="bi bi-clock mr-1 opacity-50"></i>{{ notification.created_at|timesince }}
+                    </span>
+                </div>
             </div>
-            <div class="flex-1 min-w-0">
-                <p class="font-medium text-gray-900">{{ notification.title }}</p>
-                <p class="text-sm text-gray-500">{{ notification.message }}</p>
-            </div>
-            <span class="text-xs text-gray-400 whitespace-nowrap">{{ notification.created_at|timesince }} ago</span>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endif %}

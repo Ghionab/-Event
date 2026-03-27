@@ -6,10 +6,10 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Speakers</h1>
+            <h1 class="text-3xl font-heading font-bold text-primary">Speakers</h1>
             <p class="text-gray-500 mt-1">Manage speakers for {{ event.title }}</p>
         </div>
-        <a href="{% url 'speaker_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium shadow-sm">
+        <a href="{% url 'speaker_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium shadow-sm">
             <i class="bi bi-plus-lg mr-2"></i> Add Speaker
         </a>
     </div>
@@ -17,12 +17,12 @@
     {% if speakers %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for speaker in speakers %}
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div class="ea-card ea-card-interactive overflow-hidden">
                     {% if speaker.photo %}
                         <img src="{{ speaker.photo.url }}" alt="{{ speaker.name }}" class="w-full h-48 object-cover">
                     {% else %}
-                        <div class="w-full h-48 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
-                            <i class="bi bi-person text-6xl text-indigo-300"></i>
+                        <div class="w-full h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                            <i class="bi bi-person text-6xl text-primary/40"></i>
                         </div>
                     {% endif %}
                     <div class="p-6">
@@ -84,7 +84,7 @@
             </div>
             <h3 class="text-xl font-semibold text-gray-600 mb-2">No Speakers Added</h3>
             <p class="text-gray-500 mb-4">Start by adding your first speaker.</p>
-            <a href="{% url 'speaker_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium">
+            <a href="{% url 'speaker_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium">
                 <i class="bi bi-plus-lg mr-2"></i> Add First Speaker
             </a>
         </div>

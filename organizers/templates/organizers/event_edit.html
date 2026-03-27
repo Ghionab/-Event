@@ -11,7 +11,7 @@
 {% block content %}
 <!-- Back Button -->
 <div class="mb-6">
-    <a href="{% url 'organizers:organizer_event_list' %}" class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+    <a href="{% url 'organizers:organizer_event_list' %}" class="inline-flex items-center text-gray-600 hover:text-primary transition-colors font-medium">
         <i class="bi bi-arrow-left mr-2"></i>Back to Events
     </a>
 </div>
@@ -19,27 +19,27 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <!-- Left Column: Event Details Form (2/3) -->
     <div class="lg:col-span-2 space-y-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Event Information</h3>
+        <div class="ea-card">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100">
+                <h3 class="text-lg font-heading font-semibold text-gray-900">Event Information</h3>
             </div>
-            <div class="card-body">
+            <div class="ea-card-body p-6">
                 <form method="post" enctype="multipart/form-data" id="event-form" class="space-y-6">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="save_event">
 
                     <!-- Error Display -->
                     {% if form.errors %}
-                    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                    <div class="bg-error/10 border-l-4 border-error p-4 mb-6 rounded-r-lg">
                         <div class="flex">
                             <div class="flex-shrink-0">
-                                <i class="bi bi-exclamation-triangle text-red-400"></i>
+                                <i class="bi bi-exclamation-triangle text-error"></i>
                             </div>
                             <div class="ml-3">
-                                <p class="text-sm text-red-700 font-bold mb-2">
+                                <p class="text-sm text-error font-bold mb-2">
                                     There were some errors with your submission:
                                 </p>
-                                <ul class="text-sm text-red-600 list-disc list-inside">
+                                <ul class="text-sm text-error/80 list-disc list-inside">
                                     {% for field, errors in form.errors.items %}
                                         {% for error in errors %}
                                             <li>{{ field|title }}: {{ error }}</li>
@@ -54,136 +54,136 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Title -->
-                        <div class="md:col-span-2">
-                            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                Event Title <span class="text-red-500">*</span>
+                        <div class="md:col-span-2 ea-form-group">
+                            <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Event Title <span class="text-error">*</span>
                             </label>
                             <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}"
                                    value="{{ form.title.value|default:event.title }}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                   class="ea-input"
                                    placeholder="Enter event title" required>
                         </div>
 
                         <!-- Description -->
-                        <div class="md:col-span-2">
-                            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="md:col-span-2 ea-form-group">
+                            <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                 Description
                             </label>
                             <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" rows="4"
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                      class="ea-input"
                                       placeholder="Describe your event">{{ form.description.value|default:event.description|default:'' }}</textarea>
                         </div>
 
                         <!-- Event Logo -->
-                        <div class="md:col-span-2">
-                            <label for="{{ form.logo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="bi bi-image mr-2"></i>Event Logo
+                        <div class="md:col-span-2 ea-form-group">
+                            <label for="{{ form.logo.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="bi bi-image mr-2 text-primary"></i>Event Logo
                             </label>
                             <div class="flex items-center space-x-4">
                                 <div class="flex-1">
                                     <input type="file" name="{{ form.logo.name }}" id="{{ form.logo.id_for_label }}"
                                            accept="image/*"
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                           class="w-full ea-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white file:transition-colors py-2">
                                 </div>
                                 {% if event.logo %}
-                                <div class="flex-shrink-0">
-                                    <img src="{{ event.logo.url }}" alt="Event logo" class="h-16 w-16 object-cover rounded-lg border border-gray-200">
+                                <div class="flex-shrink-0 relative group">
+                                    <img src="{{ event.logo.url }}" alt="Event logo" class="h-16 w-16 object-cover rounded-xl border border-gray-200 shadow-sm">
                                 </div>
                                 {% endif %}
                             </div>
                         </div>
 
                         <!-- Banner Image -->
-                        <div class="md:col-span-2">
-                            <label for="{{ form.banner_image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                <i class="bi bi-card-image mr-2"></i>Banner Image
+                        <div class="md:col-span-2 ea-form-group">
+                            <label for="{{ form.banner_image.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="bi bi-card-image mr-2 text-primary"></i>Banner Image
                             </label>
                             <div class="flex items-center space-x-4">
                                 <div class="flex-1">
                                     <input type="file" name="{{ form.banner_image.name }}" id="{{ form.banner_image.id_for_label }}"
                                            accept="image/*"
-                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                           class="w-full ea-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white file:transition-colors py-2">
                                 </div>
                                 {% if event.banner_image %}
                                 <div class="flex-shrink-0">
-                                    <img src="{{ event.banner_image.url }}" alt="Event banner" class="h-16 w-24 object-cover rounded-lg border border-gray-200">
+                                    <img src="{{ event.banner_image.url }}" alt="Event banner" class="h-16 w-24 object-cover rounded-xl border border-gray-200 shadow-sm">
                                 </div>
                                 {% endif %}
                             </div>
                         </div>
 
                         <!-- Start Date -->
-                        <div>
-                            <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                Start Date & Time <span class="text-red-500">*</span>
+                        <div class="ea-form-group">
+                            <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Start Date & Time <span class="text-error">*</span>
                             </label>
                             <input type="datetime-local" name="{{ form.start_date.name }}" id="{{ form.start_date.id_for_label }}"
                                    value="{{ event.start_date|date:'Y-m-d\TH:i' }}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                   class="ea-input"
                                    required>
                         </div>
 
                         <!-- End Date -->
-                        <div>
-                            <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="ea-form-group">
+                            <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                 End Date & Time
                             </label>
                             <input type="datetime-local" name="{{ form.end_date.name }}" id="{{ form.end_date.id_for_label }}"
                                    value="{{ event.end_date|date:'Y-m-d\TH:i' }}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                   class="ea-input">
                         </div>
 
                         <!-- Venue Name -->
-                        <div>
-                            <label for="{{ form.venue_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="ea-form-group">
+                            <label for="{{ form.venue_name.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                 Venue Name
                             </label>
                             <input type="text" name="{{ form.venue_name.name }}" id="{{ form.venue_name.id_for_label }}"
                                    value="{{ form.venue_name.value|default:event.venue_name|default:'' }}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                   class="ea-input"
                                    placeholder="e.g., Convention Center">
                         </div>
 
                         <!-- City -->
-                        <div>
-                            <label for="{{ form.city.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="ea-form-group">
+                            <label for="{{ form.city.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                 City
                             </label>
                             <input type="text" name="{{ form.city.name }}" id="{{ form.city.id_for_label }}"
                                    value="{{ form.city.value|default:event.city|default:'' }}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                   class="ea-input"
                                    placeholder="e.g., New York">
                         </div>
 
                         <!-- Country -->
-                        <div>
-                            <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="ea-form-group">
+                            <label for="{{ form.country.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                 Country
                             </label>
                             <input type="text" name="{{ form.country.name }}" id="{{ form.country.id_for_label }}"
                                    value="{{ form.country.value|default:event.country|default:'' }}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                   class="ea-input"
                                    placeholder="e.g., USA">
                         </div>
 
                         <!-- Max Attendees -->
-                        <div>
-                            <label for="{{ form.max_attendees.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div class="ea-form-group">
+                            <label for="{{ form.max_attendees.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                 Max Attendees
                             </label>
                             <input type="number" name="{{ form.max_attendees.name }}" id="{{ form.max_attendees.id_for_label }}"
                                    value="{{ form.max_attendees.value|default:event.max_attendees|default:'' }}"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                   class="ea-input"
                                    placeholder="Leave empty for unlimited">
                         </div>
 
                         <!-- Is Public -->
                         <div class="md:col-span-2">
-                            <label class="flex items-center">
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl bg-surface/50 cursor-pointer hover:bg-surface transition-colors">
                                 <input type="checkbox" name="{{ form.is_public.name }}" id="{{ form.is_public.id_for_label }}"
                                        {% if event.is_public %}checked{% endif %}
-                                       class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                <span class="ml-3 text-gray-700 font-medium">
+                                       class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-offset-2">
+                                <span class="ml-3 text-gray-900 font-medium">
                                     Make this event public
                                 </span>
                             </label>
@@ -192,10 +192,10 @@
 
                     <!-- Sessions & Speakers (Formset) -->
                     <div class="col-span-1 md:col-span-2 mt-8 pt-6 border-t border-gray-200">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="text-lg font-bold text-gray-900">Sessions & Speakers</h4>
-                            <button type="button" id="add-session-btn" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-sm font-medium">
-                                <i class="bi bi-plus-lg mr-1"></i>Add Session
+                        <div class="flex justify-between items-center mb-6">
+                            <h4 class="text-lg font-heading font-bold text-gray-900">Sessions & Speakers</h4>
+                            <button type="button" id="add-session-btn" class="ea-btn bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors border-none py-2 px-4">
+                                <i class="bi bi-plus-lg mr-1 text-lg"></i>Add Session
                             </button>
                         </div>
                         
@@ -203,17 +203,17 @@
                         
                         <div id="session-formset-container" class="space-y-6">
                             {% for form in session_formset.forms %}
-                            <div class="session-form-row card border border-gray-200 shadow-sm relative" data-session-id="{{ form.instance.pk|default:'new' }}">
-                                <div class="card-header bg-gray-50 border-b border-gray-200 py-3 flex justify-between items-center">
-                                    <h5 class="card-title text-sm text-gray-700 font-semibold session-title-display">Session {{ forloop.counter }}</h5>
+                            <div class="session-form-row ea-card border border-gray-200 shadow-sm relative overflow-hidden" data-session-id="{{ form.instance.pk|default:'new' }}">
+                                <div class="ea-card-header bg-surface border-b border-gray-200 py-4 flex justify-between items-center">
+                                    <h5 class="font-heading text-sm text-gray-900 font-semibold session-title-display uppercase tracking-wide">Session {{ forloop.counter }}</h5>
                                     {% if session_formset.can_delete %}
-                                    <label class="text-sm text-red-600 hover:text-red-800 cursor-pointer flex items-center">
+                                    <label class="text-sm text-error hover:text-red-800 cursor-pointer flex items-center font-medium bg-error/10 px-3 py-1.5 rounded-lg transition-colors">
                                         {{ form.DELETE }}
-                                        <span class="ml-1 select-none">Delete Session</span>
+                                        <span class="ml-2 select-none">Delete Session</span>
                                     </label>
                                     {% endif %}
                                 </div>
-                                <div class="card-body p-4">
+                                <div class="ea-card-body p-6">
                                     {% for hidden in form.hidden_fields %}
                                         {{ hidden }}
                                     {% endfor %}
@@ -223,35 +223,35 @@
                                     {% endif %}
                                     
                                     <!-- Session Title -->
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Session Title *</label>
-                                        <input type="text" name="{{ form.title.html_name }}" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500" required>
+                                    <div class="mb-5 ea-form-group">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Session Title *</label>
+                                        <input type="text" name="{{ form.title.html_name }}" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default:'' }}" class="ea-input" required>
                                     </div>
                                     
                                     <!-- Session Timing (Date & Time) -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Session Start <span class="text-gray-400 text-xs">(Optional)</span>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                        <div class="ea-form-group">
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Session Start <span class="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
                                             </label>
-                                            <input type="datetime-local" name="{{ form.session_start_time.html_name }}" id="{{ form.session_start_time.id_for_label }}" value="{{ form.session_start_time.value|default:''|date:'Y-m-d\TH:i' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                            <input type="datetime-local" name="{{ form.session_start_time.html_name }}" id="{{ form.session_start_time.id_for_label }}" value="{{ form.session_start_time.value|default:''|date:'Y-m-d\TH:i' }}" class="ea-input">
                                         </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Session End <span class="text-gray-400 text-xs">(Optional)</span>
+                                        <div class="ea-form-group">
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Session End <span class="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
                                             </label>
-                                            <input type="datetime-local" name="{{ form.session_end_time.html_name }}" id="{{ form.session_end_time.id_for_label }}" value="{{ form.session_end_time.value|default:''|date:'Y-m-d\TH:i' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                            <input type="datetime-local" name="{{ form.session_end_time.html_name }}" id="{{ form.session_end_time.id_for_label }}" value="{{ form.session_end_time.value|default:''|date:'Y-m-d\TH:i' }}" class="ea-input">
                                         </div>
                                     </div>
                                     
                                     <!-- Unified Speakers Section -->
-                                    <div class="border-t border-gray-200 pt-4 mt-4">
-                                        <div class="flex justify-between items-center mb-3">
-                                            <h6 class="text-sm font-semibold text-gray-700">
-                                                <i class="bi bi-people mr-1"></i>Speakers
+                                    <div class="border-t border-gray-100 pt-5 mt-2">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h6 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide">
+                                                <i class="bi bi-people mr-2 text-primary"></i>Speakers
                                             </h6>
-                                            <button type="button" class="add-speaker-btn px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-xs font-medium" data-session-id="{{ form.instance.pk|default:forloop.counter0 }}">
-                                                <i class="bi bi-plus-lg mr-1"></i>+ Add Speaker
+                                            <button type="button" class="add-speaker-btn px-3 py-1.5 bg-surface text-primary border border-gray-200 rounded-lg hover:border-primary transition-colors text-xs font-semibold" data-session-id="{{ form.instance.pk|default:forloop.counter0 }}">
+                                                <i class="bi bi-plus-lg mr-1"></i> Add Speaker
                                             </button>
                                         </div>
                                         <div class="speakers-container space-y-4" data-session-id="{{ form.instance.pk|default:forloop.counter0 }}">
@@ -259,55 +259,55 @@
                                             {% if speaker_formset %}
                                                 {{ speaker_formset.management_form }}
                                                 {% for speaker_form in speaker_formset.forms %}
-                                                <div class="speaker-form-row bg-gray-50 rounded-lg p-4 border border-gray-200 relative">
-                                                    <div class="flex justify-between items-center mb-3">
-                                                        <span class="text-sm font-medium text-gray-700">Speaker {{ forloop.counter }}</span>
-                                                        <button type="button" class="remove-speaker-btn text-red-500 hover:text-red-700 text-sm">
+                                                <div class="speaker-form-row bg-surface rounded-xl p-5 border border-gray-200 relative mb-4">
+                                                    <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                                                        <span class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Speaker {{ forloop.counter }}</span>
+                                                        <button type="button" class="remove-speaker-btn text-error hover:text-red-700 text-sm font-medium px-2 py-1 rounded bg-error/10 transition-colors">
                                                             <i class="bi bi-trash mr-1"></i>Remove
                                                         </button>
                                                     </div>
-                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                        <div class="md:col-span-2">
-                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                                                Name <span class="text-gray-400">(Optional)</span>
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div class="md:col-span-2 ea-form-group">
+                                                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                                                Name <span class="text-gray-400 font-normal ml-1">(Optional)</span>
                                                             </label>
-                                                            <input type="text" name="{{ speaker_form.speaker_name.html_name }}" value="{{ speaker_form.speaker_name.value|default:'' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                                                            <input type="text" name="{{ speaker_form.speaker_name.html_name }}" value="{{ speaker_form.speaker_name.value|default:'' }}" class="ea-input !py-2 !px-3 text-sm">
                                                         </div>
-                                                        <div class="md:col-span-2">
-                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                                                Bio <span class="text-gray-400">(Optional)</span>
+                                                        <div class="md:col-span-2 ea-form-group">
+                                                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                                                Bio <span class="text-gray-400 font-normal ml-1">(Optional)</span>
                                                             </label>
-                                                            <textarea name="{{ speaker_form.speaker_bio.html_name }}" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">{{ speaker_form.speaker_bio.value|default:'' }}</textarea>
+                                                            <textarea name="{{ speaker_form.speaker_bio.html_name }}" rows="2" class="ea-input !py-2 !px-3 text-sm">{{ speaker_form.speaker_bio.value|default:'' }}</textarea>
                                                         </div>
-                                                        <div class="md:col-span-2">
-                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                                                Profile Picture <span class="text-gray-400">(Optional)</span>
+                                                        <div class="md:col-span-2 ea-form-group">
+                                                            <label class="block text-xs font-semibold text-gray-700 mb-1 flex items-center">
+                                                                <i class="bi bi-image mr-1 text-primary"></i>Profile Picture <span class="text-gray-400 font-normal ml-1">(Optional)</span>
                                                             </label>
                                                             {% if speaker_form.instance.speaker_profile_picture %}
-                                                                <div class="mb-2 flex items-center gap-3">
-                                                                    <img src="{{ speaker_form.instance.speaker_profile_picture.url }}" class="w-8 h-8 rounded-full object-cover">
-                                                                    <span class="text-xs text-gray-500">Current</span>
+                                                                <div class="mb-3 flex items-center gap-3 bg-surface p-2 rounded-lg border border-gray-100">
+                                                                    <img src="{{ speaker_form.instance.speaker_profile_picture.url }}" class="w-10 h-10 rounded-full object-cover shadow-sm">
+                                                                    <span class="text-xs text-gray-500 font-medium">Current Image</span>
                                                                 </div>
                                                             {% endif %}
-                                                            <input type="file" name="{{ speaker_form.speaker_profile_picture.html_name }}" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                                            <input type="file" name="{{ speaker_form.speaker_profile_picture.html_name }}" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white file:transition-colors">
                                                         </div>
-                                                        <div class="md:col-span-2">
-                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                                                LinkedIn Profile URL <span class="text-gray-400">(Optional)</span>
+                                                        <div class="md:col-span-2 ea-form-group">
+                                                            <label class="block text-xs font-semibold text-gray-700 mb-1 flex items-center">
+                                                                <i class="bi bi-linkedin mr-1 text-[#0a66c2]"></i>LinkedIn Profile URL <span class="text-gray-400 font-normal ml-1">(Optional)</span>
                                                             </label>
-                                                            <input type="url" name="{{ speaker_form.speaker_linkedin_url.html_name }}" value="{{ speaker_form.speaker_linkedin_url.value|default:'' }}" placeholder="https://linkedin.com/in/username" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                                                            <input type="url" name="{{ speaker_form.speaker_linkedin_url.html_name }}" value="{{ speaker_form.speaker_linkedin_url.value|default:'' }}" placeholder="https://linkedin.com/in/username" class="ea-input !py-2 !px-3 text-sm">
                                                         </div>
-                                                        <div>
-                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                                                Start Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                                                        <div class="ea-form-group">
+                                                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                                                Start Time <span class="text-gray-400 font-normal ml-1">(Optional - HH:MM)</span>
                                                             </label>
-                                                            <input type="time" name="{{ speaker_form.speaker_start_time.html_name }}" value="{{ speaker_form.speaker_start_time.value|default:''|time:'H:i' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                                                            <input type="time" name="{{ speaker_form.speaker_start_time.html_name }}" value="{{ speaker_form.speaker_start_time.value|default:''|time:'H:i' }}" class="ea-input !py-2 !px-3 text-sm">
                                                         </div>
-                                                        <div>
-                                                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                                                End Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                                                        <div class="ea-form-group">
+                                                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                                                End Time <span class="text-gray-400 font-normal ml-1">(Optional - HH:MM)</span>
                                                             </label>
-                                                            <input type="time" name="{{ speaker_form.speaker_end_time.html_name }}" value="{{ speaker_form.speaker_end_time.value|default:''|time:'H:i' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                                                            <input type="time" name="{{ speaker_form.speaker_end_time.html_name }}" value="{{ speaker_form.speaker_end_time.value|default:''|time:'H:i' }}" class="ea-input !py-2 !px-3 text-sm">
                                                         </div>
                                                         {{ speaker_form.id }}
                                                         {% if speaker_form.instance.pk %}
@@ -327,47 +327,47 @@
 
                         <!-- Empty form for cloning -->
                         <div id="empty-session-form" class="hidden">
-                            <div class="session-form-row card border border-gray-200 shadow-sm relative mt-6" data-session-id="__prefix__">
-                                <div class="card-header bg-gray-50 border-b border-gray-200 py-3 flex justify-between items-center">
-                                    <h5 class="card-title text-sm text-gray-700 font-semibold session-title-display">New Session</h5>
-                                    <label class="text-sm text-red-600 hover:text-red-800 cursor-pointer flex items-center">
+                            <div class="session-form-row ea-card border border-gray-200 shadow-sm relative overflow-hidden mt-6" data-session-id="__prefix__">
+                                <div class="ea-card-header bg-surface border-b border-gray-200 py-4 flex justify-between items-center">
+                                    <h5 class="font-heading text-sm text-gray-900 font-semibold session-title-display uppercase tracking-wide">New Session</h5>
+                                    <label class="text-sm text-error hover:text-red-800 cursor-pointer flex items-center font-medium bg-error/10 px-3 py-1.5 rounded-lg transition-colors">
                                         <input type="checkbox" name="sessions-__prefix__-DELETE">
-                                        <span class="ml-1 select-none">Remove</span>
+                                        <span class="ml-2 select-none">Remove</span>
                                     </label>
                                 </div>
-                                <div class="card-body p-4">
+                                <div class="ea-card-body p-6">
                                     <input type="hidden" name="sessions-__prefix__-id" id="id_sessions-__prefix__-id">
                                     
                                     <!-- Session Title -->
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Session Title *</label>
-                                        <input type="text" name="sessions-__prefix__-title" id="id_sessions-__prefix__-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                    <div class="mb-5 ea-form-group">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Session Title *</label>
+                                        <input type="text" name="sessions-__prefix__-title" id="id_sessions-__prefix__-title" class="ea-input">
                                     </div>
                                     
                                     <!-- Session Timing (Date & Time) -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Session Start <span class="text-gray-400 text-xs">(Optional)</span>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                                        <div class="ea-form-group">
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Session Start <span class="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
                                             </label>
-                                            <input type="datetime-local" name="sessions-__prefix__-session_start_time" id="id_sessions-__prefix__-session_start_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                            <input type="datetime-local" name="sessions-__prefix__-session_start_time" id="id_sessions-__prefix__-session_start_time" class="ea-input">
                                         </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                Session End <span class="text-gray-400 text-xs">(Optional)</span>
+                                        <div class="ea-form-group">
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Session End <span class="text-gray-400 font-normal text-xs ml-1">(Optional)</span>
                                             </label>
-                                            <input type="datetime-local" name="sessions-__prefix__-session_end_time" id="id_sessions-__prefix__-session_end_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500">
+                                            <input type="datetime-local" name="sessions-__prefix__-session_end_time" id="id_sessions-__prefix__-session_end_time" class="ea-input">
                                         </div>
                                     </div>
                                     
                                     <!-- Unified Speakers Section -->
-                                    <div class="border-t border-gray-200 pt-4 mt-4">
-                                        <div class="flex justify-between items-center mb-3">
-                                            <h6 class="text-sm font-semibold text-gray-700">
-                                                <i class="bi bi-people mr-1"></i>Speakers
+                                    <div class="border-t border-gray-100 pt-5 mt-2">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h6 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide">
+                                                <i class="bi bi-people mr-2 text-primary"></i>Speakers
                                             </h6>
-                                            <button type="button" class="add-speaker-btn px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-xs font-medium" data-session-id="new___prefix__">
-                                                <i class="bi bi-plus-lg mr-1"></i>+ Add Speaker
+                                            <button type="button" class="add-speaker-btn px-3 py-1.5 bg-surface text-primary border border-gray-200 rounded-lg hover:border-primary transition-colors text-xs font-semibold" data-session-id="new___prefix__">
+                                                <i class="bi bi-plus-lg mr-1"></i> Add Speaker
                                             </button>
                                         </div>
                                         <div class="speakers-container space-y-4" data-session-id="new___prefix__">
@@ -379,9 +379,9 @@
                     </div>
 
                     <!-- Submit Buttons -->
-                    <div class="flex items-center justify-end gap-4 pt-6 border-t">
-                        <button type="submit" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
-                            <i class="bi bi-check-lg mr-2"></i>Save Event Changes
+                    <div class="flex items-center justify-end gap-4 pt-8 border-t border-gray-100 mt-8">
+                        <button type="submit" class="ea-btn ea-btn-primary shadow-lg hover:-translate-y-0.5 transition-all">
+                            <i class="bi bi-check-lg mr-2 text-lg"></i>Save Event Changes
                         </button>
                     </div>
                 </form>
@@ -389,101 +389,104 @@
         </div>
     </div>
 
-    <!-- Team Members Section -->
-    <div class="card" id="team">
-        <div class="card-header">
-            <h3 class="card-title">Event Team</h3>
-            <a href="{% url 'advanced:team_member_create' %}?event={{ event.id }}" class="text-sm px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">
-                <i class="bi bi-plus-lg mr-1"></i> Add New
-            </a>
-        </div>
-        <div class="card-body">
-            <!-- Current Team Members -->
-            {% if team_members %}
-            <div class="mb-6">
-                <h4 class="font-semibold text-gray-800 mb-3">Assigned Team Members</h4>
-                <div class="space-y-3">
-                    {% for member in team_members %}
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium mr-3">
-                                {{ member.user.get_full_name|slice:"2"|upper }}
+    <!-- Right Column: Sidebar (1/3) -->
+    <div class="space-y-6">
+        <!-- Team Members Section -->
+        <div class="ea-card" id="team">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide">Event Team</h3>
+                <a href="{% url 'advanced:team_member_create' %}?event={{ event.id }}" class="text-xs px-2.5 py-1 bg-primary/10 text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors">
+                    <i class="bi bi-plus-lg mr-1"></i> Add New
+                </a>
+            </div>
+            <div class="ea-card-body p-6">
+                <!-- Current Team Members -->
+                {% if team_members %}
+                <div class="mb-6">
+                    <h4 class="font-semibold text-gray-800 text-sm mb-3">Assigned Team Members</h4>
+                    <div class="space-y-3">
+                        {% for member in team_members %}
+                        <div class="flex items-center justify-between p-3 bg-surface border border-gray-200 rounded-xl hover:border-primary/30 transition-colors shadow-sm">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3 border border-primary/20">
+                                    {{ member.user.get_full_name|slice:"2"|upper }}
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 text-sm">{{ member.user.get_full_name|default:"member.user.email" }}</div>
+                                    <div class="text-xs text-gray-500">{{ member.user.email }}</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="font-medium text-gray-800">{{ member.user.get_full_name|default:"member.user.email" }}</div>
-                                <div class="text-sm text-gray-500">{{ member.user.email }}</div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="ea-badge 
+                                    {% if member.role == 'organizer' %}bg-primary/10 text-primary border border-primary/20
+                                    {% elif member.role == 'coordinator' %}bg-info/10 text-info border border-info/20
+                                    {% else %}bg-gray-100 text-gray-800 border border-gray-200{% endif %}">
+                                    {{ member.get_role_display }}
+                                </span>
+                                <form method="post" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="remove_team_member">
+                                    <input type="hidden" name="team_member_id" value="{{ member.id }}">
+                                    <button type="submit" class="text-error hover:text-red-700 transition" title="Remove Member" onclick="return confirm('Remove this team member from the event?')">
+                                        <i class="bi bi-x-circle text-lg"></i>
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                {% if member.role == 'organizer' %}bg-purple-100 text-purple-800
-                                {% elif member.role == 'coordinator' %}bg-blue-100 text-blue-800
-                                {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                {{ member.get_role_display }}
-                            </span>
-                            <form method="post" class="inline">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="remove_team_member">
-                                <input type="hidden" name="team_member_id" value="{{ member.id }}">
-                                <button type="submit" class="p-1 text-red-600 hover:bg-red-50 rounded" onclick="return confirm('Remove this team member from the event?')">
-                                    <i class="bi bi-x-circle"></i>
-                                </button>
-                            </form>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                </div>
+                <!-- Divider -->
+                <hr class="border-gray-100 my-5">
+                {% endif %}
+
+                <!-- Assign New Team Member -->
+                <div>
+                    <h4 class="font-semibold text-gray-800 text-sm mb-3">Assign Team Member</h4>
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="assign_team_member">
+                        <div class="ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Select Existing Member</label>
+                            <select name="team_member_id" required class="ea-input !py-2 !px-3 text-sm">
+                                <option value="">Choose a team member...</option>
+                                {% for member in all_team_members %}
+                                    {% if member.event != event %}
+                                    <option value="{{ member.id }}">{{ member.user.get_full_name|default:"member.user.email" }} ({{ member.get_role_display }})</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full ea-btn ea-btn-accent shadow-sm py-2">
+                            <i class="bi bi-person-plus mr-2"></i>Assign to Event
+                        </button>
+                    </form>
                 </div>
             </div>
-            {% endif %}
-
-            <!-- Assign New Team Member -->
-            <div>
-                <h4 class="font-semibold text-gray-800 mb-3">Assign Team Member</h4>
-                <form method="post" class="space-y-4">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="assign_team_member">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Select Team Member</label>
-                        <select name="team_member_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                            <option value="">Choose a team member...</option>
-                            {% for member in all_team_members %}
-                                {% if member.event != event %}
-                                <option value="{{ member.id }}">{{ member.user.get_full_name|default:"member.user.email" }} ({{ member.get_role_display }})</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                        <i class="bi bi-person-plus mr-2"></i>Assign to Event
-                    </button>
-                </form>
-            </div>
         </div>
-    </div>
 
-    <!-- Right Column: Ticket Management (1/3) -->
-    <div class="space-y-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Tickets</h3>
-                <button onclick="showAddTicketForm()" class="text-sm px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition">
-                    <i class="bi bi-plus-lg"></i> Add
+        <!-- Tickets Section -->
+        <div class="ea-card">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide">Tickets</h3>
+                <button onclick="showAddTicketForm()" class="text-xs px-2.5 py-1 bg-primary/10 text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-colors">
+                    <i class="bi bi-plus-lg mr-1"></i> Add
                 </button>
             </div>
-            <div class="card-body">
+            <div class="ea-card-body p-6">
                 <!-- Add Ticket Form -->
-                <div id="addTicketForm" class="hidden mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <h4 class="font-semibold mb-4">Add New Ticket</h4>
+                <div id="addTicketForm" class="hidden mb-6 p-5 bg-surface border border-gray-200 rounded-xl shadow-sm">
+                    <h4 class="font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">Add New Ticket</h4>
                     <form method="post" class="space-y-4">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="add_ticket">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-                            <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <div class="ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Name *</label>
+                            <input type="text" name="name" required class="ea-input !py-2 !px-3 text-sm">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <select name="ticket_category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <div class="ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Category</label>
+                            <select name="ticket_category" class="ea-input !py-2 !px-3 text-sm">
                                 <option value="regular">Regular</option>
                                 <option value="vip">VIP</option>
                                 <option value="early_bird">Early Bird</option>
@@ -492,28 +495,28 @@
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-                                <input type="number" name="price" min="0" step="0.01" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                            <div class="ea-form-group">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Price ($)</label>
+                                <input type="number" name="price" min="0" step="0.01" value="0" class="ea-input !py-2 !px-3 text-sm">
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
-                                <input type="number" name="quantity_available" min="1" value="100" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                            <div class="ea-form-group">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Quantity *</label>
+                                <input type="number" name="quantity_available" min="1" value="100" required class="ea-input !py-2 !px-3 text-sm">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1 text-xs">Sales Start *</label>
-                                <input type="datetime-local" name="sales_start" value="{{ event.start_date|date:'Y-m-d\TH:i' }}" required class="w-full px-2 py-1 border border-gray-300 rounded-lg text-sm">
+                            <div class="ea-form-group">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Sales Start *</label>
+                                <input type="datetime-local" name="sales_start" value="{{ event.start_date|date:'Y-m-d\TH:i' }}" required class="ea-input !py-2 !px-3 text-xs">
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1 text-xs">Sales End *</label>
-                                <input type="datetime-local" name="sales_end" value="{{ event.end_date|date:'Y-m-d\TH:i' }}" required class="w-full px-2 py-1 border border-gray-300 rounded-lg text-sm">
+                            <div class="ea-form-group">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Sales End *</label>
+                                <input type="datetime-local" name="sales_end" value="{{ event.end_date|date:'Y-m-d\TH:i' }}" required class="ea-input !py-2 !px-3 text-xs">
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Add</button>
-                            <button type="button" onclick="hideAddTicketForm()" class="px-4 py-2 border border-gray-300 rounded-lg">Cancel</button>
+                        <div class="flex gap-3 pt-2">
+                            <button type="submit" class="flex-1 ea-btn ea-btn-primary py-2 text-sm">Add</button>
+                            <button type="button" onclick="hideAddTicketForm()" class="ea-btn bg-surface hover:bg-gray-100 border border-gray-200 text-gray-700 py-2 text-sm">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -522,25 +525,27 @@
                 {% if tickets %}
                 <div class="space-y-4">
                     {% for ticket in tickets %}
-                    <div class="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition group">
+                    <div class="p-4 bg-surface border border-gray-200 rounded-xl hover:shadow-md transition-shadow group relative">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h4 class="font-bold text-gray-800">{{ ticket.name }}</h4>
-                                <p class="text-sm text-gray-500">
-                                    <span class="px-1.5 py-0.5 bg-gray-100 rounded text-xs">{{ ticket.get_ticket_category_display }}</span> • 
-                                    {% if ticket.price > 0 %}${{ ticket.price }}{% else %}FREE{% endif %} 
-                                    • {{ ticket.quantity_available }} qty
-                                </p>
+                                <h4 class="font-bold text-gray-900 flex items-center">
+                                    <i class="bi bi-ticket-perforated mr-2 text-accent"></i>{{ ticket.name }}
+                                </h4>
+                                <div class="mt-2 flex flex-wrap gap-2 text-xs font-medium text-gray-600">
+                                    <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded">{{ ticket.get_ticket_category_display }}</span>
+                                    <span class="bg-success/10 text-success border border-success/20 px-2 py-1 rounded">{% if ticket.price > 0 %}${{ ticket.price|floatformat:2 }}{% else %}FREE{% endif %}</span>
+                                    <span class="bg-primary/10 text-primary border border-primary/20 px-2 py-1 rounded">{{ ticket.quantity_available }} qty</span>
+                                </div>
                             </div>
-                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                                <button onclick="editTicket({{ ticket.id }}, '{{ ticket.name|escapejs }}', '{{ ticket.ticket_category|escapejs }}', {{ ticket.price }}, {{ ticket.quantity_available }}, '{{ ticket.sales_start|date:'Y-m-d\TH:i' }}', '{{ ticket.sales_end|date:'Y-m-d\TH:i' }}')" class="p-1 text-blue-600 hover:bg-blue-50 rounded">
+                            <div class="flex flex-col gap-2 absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="editTicket({{ ticket.id }}, '{{ ticket.name|escapejs }}', '{{ ticket.ticket_category|escapejs }}', {{ ticket.price }}, {{ ticket.quantity_available }}, '{{ ticket.sales_start|date:'Y-m-d\TH:i' }}', '{{ ticket.sales_end|date:'Y-m-d\TH:i' }}')" class="w-8 h-8 flex items-center justify-center text-primary bg-primary/10 hover:bg-primary hover:text-white rounded-lg transition-colors shadow-sm" title="Edit Ticket">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                                 <form method="post" class="inline" onsubmit="return confirm('Delete this ticket?')">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="delete_ticket">
                                     <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
-                                    <button type="submit" class="p-1 text-red-600 hover:bg-red-50 rounded">
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center text-error bg-error/10 hover:bg-error hover:text-white rounded-lg transition-colors shadow-sm" title="Delete Ticket">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
@@ -550,9 +555,9 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="text-center py-8 text-gray-500">
-                    <i class="bi bi-ticket-detached text-4xl mb-2 block"></i>
-                    <p class="text-sm">No tickets added yet</p>
+                <div class="ea-empty-state rounded-lg border border-dashed border-gray-200 bg-gray-50/50 py-8">
+                    <i class="bi bi-ticket-detailed ea-empty-state-icon text-primary/30"></i>
+                    <p class="ea-empty-state-title">No tickets configured</p>
                 </div>
                 {% endif %}
             </div>
@@ -561,22 +566,24 @@
 </div>
 
 <!-- Edit Ticket Modal -->
-<div id="editTicketModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
-        <h3 class="text-lg font-bold mb-4">Edit Ticket</h3>
+<div id="editTicketModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl transform scale-100 transition-transform ring-1 ring-gray-900/10">
+        <h3 class="text-xl font-heading font-bold text-gray-900 mb-6 flex items-center border-b border-gray-100 pb-4">
+            <i class="bi bi-pencil-square text-primary mr-2"></i>Edit Ticket
+        </h3>
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="action" value="edit_ticket">
             <input type="hidden" name="ticket_id" id="editTicketId">
 
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Ticket Name</label>
-                    <input type="text" name="name" id="editTicketName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            <div class="space-y-5">
+                <div class="ea-form-group">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Ticket Name</label>
+                    <input type="text" name="name" id="editTicketName" required class="ea-input">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <select name="ticket_category" id="editTicketCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                <div class="ea-form-group">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                    <select name="ticket_category" id="editTicketCategory" class="ea-input">
                         <option value="regular">Regular</option>
                         <option value="vip">VIP</option>
                         <option value="early_bird">Early Bird</option>
@@ -584,33 +591,33 @@
                         <option value="free">Free</option>
                     </select>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-                        <input type="number" name="price" id="editTicketPrice" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="ea-form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Price ($)</label>
+                        <input type="number" name="price" id="editTicketPrice" min="0" step="0.01" class="ea-input">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                        <input type="number" name="quantity_available" id="editTicketQuantity" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <div class="ea-form-group">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Quantity</label>
+                        <input type="number" name="quantity_available" id="editTicketQuantity" min="1" class="ea-input">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Sales Start *</label>
-                        <input type="datetime-local" name="sales_start" id="editTicketSalesStart" required class="w-full px-2 py-1 border border-gray-300 rounded-lg text-sm">
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="ea-form-group">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Sales Start *</label>
+                        <input type="datetime-local" name="sales_start" id="editTicketSalesStart" required class="ea-input text-sm">
                     </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Sales End *</label>
-                        <input type="datetime-local" name="sales_end" id="editTicketSalesEnd" required class="w-full px-2 py-1 border border-gray-300 rounded-lg text-sm">
+                    <div class="ea-form-group">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Sales End *</label>
+                        <input type="datetime-local" name="sales_end" id="editTicketSalesEnd" required class="ea-input text-sm">
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end gap-3 mt-6">
-                <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+            <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-100">
+                <button type="button" onclick="closeEditModal()" class="ea-btn bg-surface border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
                     Cancel
                 </button>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                <button type="submit" class="ea-btn ea-btn-primary shadow-md hover:-translate-y-0.5 transition-all">
                     Save Changes
                 </button>
             </div>
@@ -630,8 +637,6 @@
             eventForm.addEventListener('submit', function(e) {
                 console.log('DEBUG: Event form submit triggered');
             });
-        } else {
-            console.error('DEBUG: Event form not found!');
         }
         
         const addSessionBtn = document.getElementById('add-session-btn');
@@ -639,16 +644,10 @@
         const totalFormsInput = document.getElementById('id_sessions-TOTAL_FORMS');
         const emptyFormTemplate = document.getElementById('empty-session-form');
 
-        console.log('DEBUG: addSessionBtn:', addSessionBtn);
-        console.log('DEBUG: container:', container);
-        console.log('DEBUG: totalFormsInput:', totalFormsInput);
-        console.log('DEBUG: emptyFormTemplate:', emptyFormTemplate);
-
         if (addSessionBtn && container && totalFormsInput && emptyFormTemplate) {
             addSessionBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('DEBUG: Add session clicked');
                 let formCount = parseInt(totalFormsInput.value);
                 
                 // Replace __prefix__ with the correct index
@@ -667,7 +666,6 @@
                 // Update the total forms count
                 totalFormsInput.value = formCount + 1;
                 
-                // Update session number
                 updateSessionNumbers();
             });
         }
@@ -714,49 +712,49 @@
             const index = speakerCount;
             
             const speakerHtml = `
-                <div class="speaker-form-row bg-gray-50 rounded-lg p-4 border border-gray-200 relative">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-sm font-medium text-gray-700">Speaker ${index + 1}</span>
-                        <button type="button" class="remove-speaker-btn text-red-500 hover:text-red-700 text-sm">
+                <div class="speaker-form-row bg-surface rounded-xl p-5 border border-gray-200 relative mb-4">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
+                        <span class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Speaker ${index + 1}</span>
+                        <button type="button" class="remove-speaker-btn text-error hover:text-red-700 text-sm font-medium px-2 py-1 rounded bg-error/10 transition-colors">
                             <i class="bi bi-trash mr-1"></i>Remove
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                Name <span class="text-gray-400">(Optional)</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2 ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                Name <span class="text-gray-400 font-normal ml-1">(Optional)</span>
                             </label>
-                            <input type="text" name="${prefix}-${index}-speaker_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                            <input type="text" name="${prefix}-${index}-speaker_name" class="ea-input !py-2 !px-3 text-sm">
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                Bio <span class="text-gray-400">(Optional)</span>
+                        <div class="md:col-span-2 ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                Bio <span class="text-gray-400 font-normal ml-1">(Optional)</span>
                             </label>
-                            <textarea name="${prefix}-${index}-speaker_bio" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm"></textarea>
+                            <textarea name="${prefix}-${index}-speaker_bio" rows="2" class="ea-input !py-2 !px-3 text-sm"></textarea>
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                Profile Picture <span class="text-gray-400">(Optional)</span>
+                        <div class="md:col-span-2 ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1 flex items-center">
+                                <i class="bi bi-image mr-1 text-primary"></i>Profile Picture <span class="text-gray-400 font-normal ml-1">(Optional)</span>
                             </label>
-                            <input type="file" name="${prefix}-${index}-speaker_profile_picture" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                            <input type="file" name="${prefix}-${index}-speaker_profile_picture" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white file:transition-colors">
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                LinkedIn Profile URL <span class="text-gray-400">(Optional)</span>
+                        <div class="md:col-span-2 ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1 flex items-center">
+                                <i class="bi bi-linkedin mr-1 text-[#0a66c2]"></i>LinkedIn Profile URL <span class="text-gray-400 font-normal ml-1">(Optional)</span>
                             </label>
-                            <input type="url" name="${prefix}-${index}-speaker_linkedin_url" placeholder="https://linkedin.com/in/username" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                            <input type="url" name="${prefix}-${index}-speaker_linkedin_url" placeholder="https://linkedin.com/in/username" class="ea-input !py-2 !px-3 text-sm">
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                Start Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                        <div class="ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                Start Time <span class="text-gray-400 font-normal ml-1">(Optional - HH:MM)</span>
                             </label>
-                            <input type="time" name="${prefix}-${index}-speaker_start_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                            <input type="time" name="${prefix}-${index}-speaker_start_time" class="ea-input !py-2 !px-3 text-sm">
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1">
-                                End Time <span class="text-gray-400">(Optional - HH:MM)</span>
+                        <div class="ea-form-group">
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                End Time <span class="text-gray-400 font-normal ml-1">(Optional - HH:MM)</span>
                             </label>
-                            <input type="time" name="${prefix}-${index}-speaker_end_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-indigo-500 text-sm">
+                            <input type="time" name="${prefix}-${index}-speaker_end_time" class="ea-input !py-2 !px-3 text-sm">
                         </div>
                     </div>
                 </div>
@@ -767,6 +765,18 @@
     });
 
     function showAddTicketForm() {
+        // Reset form inputs (except hidden fields and csrf)
+        const form = document.querySelector('#addTicketForm form');
+        const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
+        inputs.forEach(input => {
+            if(input.name !== 'quantity_available' && input.type !== 'datetime-local' && input.name !== 'price' && input.name !== 'ticket_category') {
+                input.value = '';
+            } else if (input.name === 'quantity_available') {
+                input.value = '100';
+            } else if (input.name === 'price') {
+                input.value = '0';
+            }
+        });
         document.getElementById('addTicketForm').classList.remove('hidden');
     }
 

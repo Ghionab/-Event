@@ -9,104 +9,104 @@
 {% block content %}
 <!-- Stats Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-            <i class="bi bi-eye"></i>
+    <div class="ea-stat-card group">
+        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shadow-sm group-hover:bg-primary transition-colors">
+            <i class="bi bi-eye text-primary group-hover:text-white text-xl transition-colors"></i>
         </div>
-        <div class="stat-content">
-            <h3>{{ analytics.total_views|default:0 }}</h3>
-            <p>Total Views</p>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
-            <i class="bi bi-person-check"></i>
-        </div>
-        <div class="stat-content">
-            <h3>{{ total_registrations }}</h3>
-            <p>Registrations</p>
+        <div>
+            <p class="text-2xl font-heading font-bold text-gray-900">{{ analytics.total_views|default:0 }}</p>
+            <p class="text-sm text-gray-500 font-medium">Total Views</p>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
-            <i class="bi bi-ticket"></i>
+    <div class="ea-stat-card group">
+        <div class="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center shadow-sm group-hover:bg-success transition-colors">
+            <i class="bi bi-person-check text-success group-hover:text-white text-xl transition-colors"></i>
         </div>
-        <div class="stat-content">
-            <h3>{{ total_tickets_sold }}</h3>
-            <p>Tickets Sold</p>
+        <div>
+            <p class="text-2xl font-heading font-bold text-gray-900">{{ total_registrations }}</p>
+            <p class="text-sm text-gray-500 font-medium">Registrations</p>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-            <i class="bi bi-currency-dollar"></i>
+    <div class="ea-stat-card group">
+        <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center shadow-sm group-hover:bg-accent transition-colors">
+            <i class="bi bi-ticket text-accent-dark group-hover:text-white text-xl transition-colors"></i>
         </div>
-        <div class="stat-content">
-            <h3>${{ total_revenue|floatformat:2 }}</h3>
-            <p>Revenue</p>
+        <div>
+            <p class="text-2xl font-heading font-bold text-gray-900">{{ total_tickets_sold }}</p>
+            <p class="text-sm text-gray-500 font-medium">Tickets Sold</p>
+        </div>
+    </div>
+
+    <div class="ea-stat-card group">
+        <div class="w-12 h-12 bg-info/10 rounded-xl flex items-center justify-center shadow-sm group-hover:bg-info transition-colors">
+            <i class="bi bi-currency-dollar text-info group-hover:text-white text-xl transition-colors"></i>
+        </div>
+        <div>
+            <p class="text-2xl font-heading font-bold text-gray-900">${{ total_revenue|floatformat:2 }}</p>
+            <p class="text-sm text-gray-500 font-medium">Revenue</p>
         </div>
     </div>
 </div>
 
 <!-- Action Buttons -->
 <div class="flex flex-wrap gap-3 mb-8">
-    <a href="{% url 'organizers:organizer_event_edit' event.id %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+    <a href="{% url 'organizers:organizer_event_edit' event.id %}" class="ea-btn ea-btn-primary shadow-sm hover:-translate-y-0.5 transition-all">
         <i class="bi bi-pencil mr-2"></i>Edit Event
     </a>
-    <a href="{% url 'registration:manual_registration_list' event.id %}" class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
-        <i class="bi bi-person-plus mr-2"></i>Manage Registrations
+    <a href="{% url 'registration:manual_registration_list' event.id %}" class="ea-btn ea-btn-accent shadow-sm hover:-translate-y-0.5 transition-all">
+        <i class="bi bi-person-plus mr-2 text-primary-dark"></i><span class="text-primary-dark">Manage Registrations</span>
     </a>
-    <a href="{% url 'organizers:organizer_analytics_event' event.id %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+    <a href="{% url 'organizers:organizer_analytics_event' event.id %}" class="ea-btn bg-success text-white hover:bg-success-dark shadow-sm hover:-translate-y-0.5 border-transparent transition-all">
         <i class="bi bi-bar-chart-line mr-2"></i>Analytics
     </a>
-    <a href="{% url 'organizers:organizer_event_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+    <a href="{% url 'organizers:organizer_event_list' %}" class="ea-btn bg-surface text-gray-700 hover:bg-gray-200 border-gray-200 shadow-sm transition-all hover:-translate-y-0.5">
         <i class="bi bi-arrow-left mr-2"></i>Back to Events
     </a>
 </div>
 
 <!-- Event Details Card -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-    <div class="lg:col-span-2 card">
-        <div class="card-header">
-            <h3 class="card-title">Event Details</h3>
-            <span class="px-3 py-1 text-xs font-medium rounded-full
-                {% if event.status == 'published' %}bg-green-100 text-green-700
-                {% elif event.status == 'draft' %}bg-yellow-100 text-yellow-700
-                {% elif event.status == 'cancelled' %}bg-red-100 text-red-700
+    <div class="lg:col-span-2 ea-card">
+        <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide">Event Details</h3>
+            <span class="ea-badge
+                {% if event.status == 'published' %}ea-badge-success
+                {% elif event.status == 'draft' %}ea-badge-warning
+                {% elif event.status == 'cancelled' %}ea-badge-error
                 {% else %}bg-gray-100 text-gray-700{% endif %}">
                 {{ event.status|title }}
             </span>
         </div>
-        <div class="card-body">
+        <div class="ea-card-body p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h4 class="text-sm font-medium text-gray-500 mb-1">Type</h4>
-                    <p class="text-gray-800">{{ event.get_event_type_display|default:"Not specified" }}</p>
+                    <h4 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider text-xs">Type</h4>
+                    <p class="text-gray-800 font-medium">{{ event.get_event_type_display|default:"Not specified" }}</p>
                 </div>
                 <div>
-                    <h4 class="text-sm font-medium text-gray-500 mb-1">Max Attendees</h4>
-                    <p class="text-gray-800">{{ event.max_attendees|default:"Unlimited" }}</p>
+                    <h4 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider text-xs">Max Attendees</h4>
+                    <p class="text-gray-800 font-medium">{{ event.max_attendees|default:"Unlimited" }}</p>
                 </div>
                 <div>
-                    <h4 class="text-sm font-medium text-gray-500 mb-1">Start Date</h4>
-                    <p class="text-gray-800">{{ event.start_date|date:"F d, Y \a\t g:i A" }}</p>
+                    <h4 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider text-xs">Start Date</h4>
+                    <p class="text-gray-800 font-medium">{{ event.start_date|date:"F d, Y \a\t g:i A" }}</p>
                 </div>
                 <div>
-                    <h4 class="text-sm font-medium text-gray-500 mb-1">End Date</h4>
-                    <p class="text-gray-800">{{ event.end_date|date:"F d, Y \a\t g:i A" }}</p>
+                    <h4 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider text-xs">End Date</h4>
+                    <p class="text-gray-800 font-medium">{{ event.end_date|date:"F d, Y \a\t g:i A" }}</p>
                 </div>
                 <div class="md:col-span-2">
-                    <h4 class="text-sm font-medium text-gray-500 mb-1">Venue</h4>
-                    <p class="text-gray-800">{{ event.venue_name|default:"Not specified" }}
+                    <h4 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider text-xs">Venue</h4>
+                    <p class="text-gray-800 font-medium">{{ event.venue_name|default:"Not specified" }}
                         {% if event.city %}, {{ event.city }}{% endif %}
                         {% if event.country %}, {{ event.country }}{% endif %}
                     </p>
                 </div>
                 {% if event.description %}
                 <div class="md:col-span-2">
-                    <h4 class="text-sm font-medium text-gray-500 mb-1">Description</h4>
+                    <h4 class="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider text-xs">Description</h4>
                     <p class="text-gray-800">{{ event.description }}</p>
                 </div>
                 {% endif %}
@@ -115,25 +115,25 @@
     </div>
 
     <!-- Quick Info -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Quick Info</h3>
+    <div class="ea-card">
+        <div class="ea-card-header bg-surface/50 border-b border-gray-100">
+            <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide">Quick Info</h3>
         </div>
-        <div class="card-body space-y-4">
+        <div class="ea-card-body p-6 space-y-4">
             <div class="flex items-center justify-between">
-                <span class="text-gray-500">Registrations</span>
-                <span class="font-semibold text-indigo-600">{{ total_registrations|default:0 }}</span>
+                <span class="text-gray-500 font-medium">Registrations</span>
+                <span class="font-semibold text-primary">{{ total_registrations|default:0 }}</span>
             </div>
             <div class="flex items-center justify-between">
-                <span class="text-gray-500">Checked In</span>
-                <span class="font-semibold text-green-600">{{ checked_in_count|default:0 }}</span>
+                <span class="text-gray-500 font-medium">Checked In</span>
+                <span class="font-semibold text-success">{{ checked_in_count|default:0 }}</span>
             </div>
             <div class="flex items-center justify-between">
-                <span class="text-gray-500">Revenue</span>
-                <span class="font-semibold text-green-600">${{ total_revenue|floatformat:2 }}</span>
+                <span class="text-gray-500 font-medium">Revenue</span>
+                <span class="font-semibold text-success">${{ total_revenue|floatformat:2 }}</span>
             </div>
             <hr class="border-gray-200">
-            <a href="{% url 'organizers:organizer_send_email' %}?event={{ event.id }}" class="block text-center text-indigo-600 hover:text-indigo-800 font-medium">
+            <a href="{% url 'organizers:organizer_send_email' %}?event={{ event.id }}" class="block text-center text-primary hover:text-primary-dark font-medium transition-colors">
                 <i class="bi bi-envelope mr-1"></i>Send Announcement
             </a>
         </div>
@@ -141,30 +141,30 @@
 </div>
 
 <!-- Sessions & Speakers -->
-<div class="card mb-8">
-    <div class="card-header border-b border-gray-100 flex justify-between items-center bg-white rounded-t-lg">
-        <h3 class="card-title text-lg font-semibold text-gray-800"><i class="bi bi-mic text-indigo-500 mr-2"></i>Sessions & Speakers</h3>
-        <a href="{% url 'organizers:organizer_event_edit' event.id %}#sessions" class="text-sm px-3 py-1 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 font-medium transition">
+<div class="ea-card mb-8">
+    <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide flex items-center"><i class="bi bi-mic text-primary mr-2"></i>Sessions & Speakers</h3>
+        <a href="{% url 'organizers:organizer_event_edit' event.id %}#sessions" class="text-sm px-3 py-1 bg-primary/10 text-primary rounded-md hover:bg-primary hover:text-white font-medium transition-colors">
             <i class="bi bi-pencil mr-1"></i>Manage
         </a>
     </div>
-    <div class="card-body p-0">
+    <div class="ea-card-body p-0">
         {% if sessions %}
             <div class="divide-y divide-gray-100">
                 {% for session in sessions %}
-                <div class="p-5 hover:bg-gray-50 transition duration-150">
+                <div class="p-5 hover:bg-surface/80 transition duration-150">
                     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
                         <div class="flex-1">
-                            <h4 class="text-md font-semibold text-gray-800 mb-1">{{ session.title }}</h4>
+                            <h4 class="text-base font-semibold text-gray-800 mb-1">{{ session.title }}</h4>
                             <div class="flex flex-wrap items-center text-sm text-gray-500 mb-3 gap-y-1 gap-x-4">
                                 {% if session.session_start_time and session.session_end_time %}
-                                    <div class="flex items-center">
-                                        <i class="bi bi-calendar-event mr-1.5 text-gray-400"></i>
+                                    <div class="flex items-center font-medium">
+                                        <i class="bi bi-calendar-event mr-1.5 text-primary"></i>
                                         <span>{{ session.session_start_time|date:"M d, g:i A" }} - {{ session.session_end_time|date:"g:i A" }}</span>
                                     </div>
                                 {% elif session.session_start_time %}
-                                    <div class="flex items-center">
-                                        <i class="bi bi-calendar-event mr-1.5 text-gray-400"></i>
+                                    <div class="flex items-center font-medium">
+                                        <i class="bi bi-calendar-event mr-1.5 text-primary"></i>
                                         <span>Starts {{ session.session_start_time|date:"M d, g:i A" }}</span>
                                     </div>
                                 {% endif %}
@@ -175,15 +175,15 @@
                                     <h5 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Speakers</h5>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {% for speaker in session.all_speakers %}
-                                            <div class="flex items-center bg-white border border-gray-100 rounded-lg p-2 shadow-sm">
+                                            <div class="flex items-center bg-white border border-gray-100 rounded-lg p-2 shadow-sm hover:border-primary/30 transition-colors">
                                                 {% if speaker.speaker_profile_picture %}
                                                     <img src="{{ speaker.speaker_profile_picture.url }}" alt="{{ speaker.speaker_name|default:'Speaker' }}" class="w-10 h-10 rounded-full object-cover mr-3 border border-gray-200">
                                                 {% else %}
-                                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-600 flex items-center justify-center mr-3 font-semibold text-sm border border-indigo-50">
+                                                    <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mr-3 font-semibold text-sm border border-primary/20">
                                                         {% if speaker.speaker_name %}
                                                             {{ speaker.speaker_name|make_list|first|upper }}
                                                         {% else %}
-                                                            <i class="bi bi-person"></i>
+                                                            <i class="bi bi-person text-lg"></i>
                                                         {% endif %}
                                                     </div>
                                                 {% endif %}
@@ -207,11 +207,11 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="p-8 text-center bg-gray-50 rounded-b-lg">
-                <i class="bi bi-calendar-x text-gray-300 text-4xl mb-3"></i>
-                <p class="text-gray-500 mb-4">No sessions scheduled for this event yet.</p>
-                <a href="{% url 'organizers:organizer_event_edit' event.id %}#sessions" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                    <i class="bi bi-plus-circle mr-1"></i> Add your first session
+            <div class="ea-empty-state rounded-b-xl border-t-0 border-x-0">
+                <i class="bi bi-mic ea-empty-state-icon text-primary/30"></i>
+                <p class="ea-empty-state-title">No sessions scheduled for this event yet.</p>
+                <a href="{% url 'organizers:organizer_event_edit' event.id %}#sessions" class="ea-btn ea-btn-primary mt-2">
+                    <i class="bi bi-plus-circle mr-1 text-lg"></i> Add your first session
                 </a>
             </div>
         {% endif %}
@@ -219,80 +219,80 @@
 </div>
 
 <!-- Registrations Table -->
-<div class="card mb-8">
-    <div class="card-header">
-        <h3 class="card-title">Recent Registrations</h3>
-        <span class="text-sm text-gray-500">{{ registrations|length }} total</span>
+<div class="ea-card mb-8">
+    <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide">Recent Registrations</h3>
+        <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ registrations|length }} total</span>
     </div>
     <div class="overflow-x-auto">
         {% if registrations %}
-        <table class="w-full">
-            <thead class="bg-gray-50">
+        <table class="ea-table">
+            <thead class="bg-gray-50/50">
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Attendee</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                    <th>Attendee</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Date</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for reg in registrations %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">
+                <tr class="hover:bg-surface/80 transition-colors duration-200">
+                    <td>
                         <div class="flex items-center">
-                            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                            <div class="w-8 h-8 bg-surface border border-gray-200 rounded-full flex items-center justify-center mr-3">
                                 <i class="bi bi-person text-gray-500"></i>
                             </div>
                             <span class="font-medium text-gray-800">{{ reg.attendee_name }}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ reg.attendee_email }}</td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {% if reg.status == 'confirmed' %}bg-green-100 text-green-700
-                            {% elif reg.status == 'pending' %}bg-yellow-100 text-yellow-700
-                            {% elif reg.status == 'cancelled' %}bg-red-100 text-red-700
+                    <td class="text-sm text-gray-600">{{ reg.attendee_email }}</td>
+                    <td>
+                        <span class="ea-badge
+                            {% if reg.status == 'confirmed' %}ea-badge-success
+                            {% elif reg.status == 'pending' %}ea-badge-warning
+                            {% elif reg.status == 'cancelled' %}ea-badge-error
                             {% else %}bg-gray-100 text-gray-700{% endif %}">
                             {{ reg.status|title }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ reg.created_at|date:"M d, Y" }}</td>
+                    <td class="text-sm text-gray-600">{{ reg.created_at|date:"M d, Y" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <div class="p-8 text-center">
-            <i class="bi bi-people text-gray-300 text-4xl mb-3"></i>
-            <p class="text-gray-500">No registrations yet</p>
+        <div class="ea-empty-state rounded-b-xl border-t-0 border-x-0">
+            <i class="bi bi-people ea-empty-state-icon text-primary/30"></i>
+            <p class="ea-empty-state-title">No registrations yet</p>
         </div>
         {% endif %}
     </div>
 </div>
 
 <!-- Ticket Sales Summary -->
-<div class="card mb-8">
-    <div class="card-header">
-        <h3 class="card-title">Ticket Sales Summary</h3>
+<div class="ea-card mb-8">
+    <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide">Ticket Sales Summary</h3>
     </div>
     <div class="overflow-x-auto">
         {% if ticket_sales %}
-        <table class="w-full">
-            <thead class="bg-gray-50">
+        <table class="ea-table">
+            <thead class="bg-gray-50/50">
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Ticket Type</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sold</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Revenue</th>
+                    <th>Ticket Type</th>
+                    <th>Price</th>
+                    <th>Sold</th>
+                    <th>Revenue</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for sale in ticket_sales %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 font-medium text-gray-800">{{ sale.name }}</td>
-                    <td class="px-6 py-4 text-gray-600">${{ sale.price|default:"0.00" }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ sale.sold }}</td>
-                    <td class="px-6 py-4 font-semibold text-green-600">${{ sale.revenue|floatformat:2 }}</td>
+                <tr class="hover:bg-surface/80 transition-colors duration-200">
+                    <td class="font-medium text-gray-800">{{ sale.name }}</td>
+                    <td class="text-gray-600">${{ sale.price|default:"0.00" }}</td>
+                    <td class="text-gray-600 font-semibold">{{ sale.sold }}</td>
+                    <td class="font-bold text-success">${{ sale.revenue|floatformat:2 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -301,69 +301,71 @@
                     <td class="px-6 py-4 font-bold text-gray-800">Total</td>
                     <td class="px-6 py-4"></td>
                     <td class="px-6 py-4 font-bold text-gray-800">{{ total_tickets_sold }}</td>
-                    <td class="px-6 py-4 font-bold text-green-600">${{ total_revenue|floatformat:2 }}</td>
+                    <td class="px-6 py-4 font-bold text-success">${{ total_revenue|floatformat:2 }}</td>
                 </tr>
             </tfoot>
         </table>
         {% else %}
-        <div class="p-8 text-center">
-            <i class="bi bi-ticket text-gray-300 text-4xl mb-3"></i>
-            <p class="text-gray-500">No tickets sold yet</p>
+        <div class="ea-empty-state rounded-b-xl border-t-0 border-x-0">
+            <i class="bi bi-ticket ea-empty-state-icon text-primary/30"></i>
+            <p class="ea-empty-state-title">No tickets sold yet</p>
         </div>
         {% endif %}
     </div>
 </div>
 
 <!-- Team Members -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Event Team</h3>
-        <a href="{% url 'organizers:organizer_event_edit' event.id %}#team" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+<div class="ea-card mb-8">
+    <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide flex items-center">
+            <i class="bi bi-people mr-2 text-primary"></i>Event Team
+        </h3>
+        <a href="{% url 'organizers:organizer_event_edit' event.id %}#team" class="text-sm text-primary hover:text-primary-dark font-medium transition-colors">
             <i class="bi bi-pencil mr-1"></i>Manage Team
         </a>
     </div>
     <div class="overflow-x-auto">
         {% if team_members %}
-        <table class="w-full">
-            <thead class="bg-gray-50">
+        <table class="ea-table">
+            <thead class="bg-gray-50/50">
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Department</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for member in team_members %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">
+                <tr class="hover:bg-surface/80 transition-colors duration-200">
+                    <td>
                         <div class="flex items-center">
-                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium mr-3 text-sm">
+                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3 text-xs border border-primary/20">
                                 {{ member.user.get_full_name|slice:"2"|upper }}
                             </div>
                             <div class="font-medium text-gray-800">{{ member.user.get_full_name|default:member.user.email }}</div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-gray-600">{{ member.user.email }}</td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                            {% if member.role == 'organizer' %}bg-purple-100 text-purple-800
-                            {% elif member.role == 'coordinator' %}bg-blue-100 text-blue-800
-                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    <td class="text-gray-600">{{ member.user.email }}</td>
+                    <td>
+                        <span class="ea-badge 
+                            {% if member.role == 'organizer' %}bg-primary/10 text-primary border border-primary/20
+                            {% elif member.role == 'coordinator' %}bg-info/10 text-info border border-info/20
+                            {% else %}bg-gray-100 text-gray-800 border-gray-200{% endif %}">
                             {{ member.get_role_display }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-gray-600">{{ member.department|default:'-' }}</td>
+                    <td class="text-gray-600 font-medium">{{ member.department|default:'-' }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <div class="p-8 text-center">
-            <i class="bi bi-people text-gray-300 text-4xl mb-3"></i>
-            <p class="text-gray-500">No team members assigned to this event yet.</p>
-            <a href="{% url 'organizers:organizer_event_edit' event.id %}#team" class="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                <i class="bi bi-person-plus mr-2"></i>Add Team Members
+        <div class="ea-empty-state rounded-b-xl border-t-0 border-x-0">
+            <i class="bi bi-people ea-empty-state-icon text-primary/30"></i>
+            <p class="ea-empty-state-title">No team members assigned to this event yet.</p>
+            <a href="{% url 'organizers:organizer_event_edit' event.id %}#team" class="ea-btn ea-btn-primary mt-3">
+                <i class="bi bi-person-plus mr-2 text-lg"></i> Add Team Members
             </a>
         </div>
         {% endif %}
@@ -371,37 +373,39 @@
 </div>
 
 <!-- Ticket Types -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Ticket Types</h3>
-        <a href="{% url 'organizers:organizer_event_edit' event.id %}#tickets" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+<div class="ea-card">
+    <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="text-sm font-heading font-semibold text-gray-900 uppercase tracking-wide flex items-center">
+            <i class="bi bi-tags mr-2 text-primary"></i>Ticket Types
+        </h3>
+        <a href="{% url 'organizers:organizer_event_edit' event.id %}#tickets" class="text-sm text-primary hover:text-primary-dark font-medium transition-colors">
             <i class="bi bi-plus mr-1"></i>Add Ticket Type
         </a>
     </div>
     <div class="overflow-x-auto">
         {% if ticket_types %}
-        <table class="w-full">
-            <thead class="bg-gray-50">
+        <table class="ea-table">
+            <thead class="bg-gray-50/50">
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sold</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Available</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Sold</th>
+                    <th>Available</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for ticket in ticket_types %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 font-medium text-gray-800">{{ ticket.name }}</td>
-                    <td class="px-6 py-4 text-gray-600">${{ ticket.price|default:"0.00" }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ ticket.computed_sold|default:0 }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ ticket.computed_available|default:"Unlimited" }}</td>
-                    <td class="px-6 py-4">
+                <tr class="hover:bg-surface/80 transition-colors duration-200">
+                    <td class="font-medium text-gray-800">{{ ticket.name }}</td>
+                    <td class="text-gray-600">${{ ticket.price|default:"0.00" }}</td>
+                    <td class="text-gray-600 font-semibold">{{ ticket.computed_sold|default:0 }}</td>
+                    <td class="text-gray-600 font-semibold">{{ ticket.computed_available|default:"Unlimited" }}</td>
+                    <td>
                         {% if ticket.is_active %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
+                        <span class="ea-badge ea-badge-success">Active</span>
                         {% else %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Inactive</span>
+                        <span class="ea-badge bg-gray-100 text-gray-700">Inactive</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -409,9 +413,9 @@
             </tbody>
         </table>
         {% else %}
-        <div class="p-8 text-center">
-            <i class="bi bi-ticket text-gray-300 text-4xl mb-3"></i>
-            <p class="text-gray-500">No ticket types configured</p>
+        <div class="ea-empty-state rounded-b-xl border-t-0 border-x-0">
+            <i class="bi bi-ticket ea-empty-state-icon text-primary/30"></i>
+            <p class="ea-empty-state-title">No ticket types configured</p>
         </div>
         {% endif %}
     </div>

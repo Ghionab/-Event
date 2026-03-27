@@ -1,23 +1,24 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}Browse Events - EventPortal{% endblock %}
+{% block title %}Browse Events — EventAxis{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Page Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Browse Events</h1>
-            <p class="text-gray-500 mt-1">Discover events happening near you</p>
+            <h1 class="text-3xl font-heading font-bold text-gray-900">Browse Events</h1>
+            <p class="text-gray-500 mt-2">Discover events happening near you</p>
         </div>
         <div class="mt-4 md:mt-0 flex space-x-4">
-            <select class="border border-gray-300 rounded-lg px-4 py-2" onchange="filterByType(this.value)">
+            <select class="ea-input ea-select w-40" onchange="filterByType(this.value)">
                 <option value="">All Categories</option>
                 <option value="conference">Conference</option>
                 <option value="workshop">Workshop</option>
                 <option value="meetup">Meetup</option>
                 <option value="webinar">Webinar</option>
             </select>
-            <select class="border border-gray-300 rounded-lg px-4 py-2" onchange="sortEvents(this.value)">
+            <select class="ea-input ea-select w-40" onchange="sortEvents(this.value)">
                 <option value="-start_date">Latest First</option>
                 <option value="start_date">Earliest First</option>
             </select>
@@ -25,47 +26,55 @@
     </div>
 
     <!-- Search Bar -->
-    <div class="bg-white rounded-xl shadow-sm p-4 mb-8">
-        <form class="flex flex-col md:flex-row gap-4">
-            <div class="flex-1 relative">
-                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="searchInput" placeholder="Search events..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-            </div>
-            <div class="flex gap-4">
-                <input type="date" id="dateInput" class="border border-gray-300 rounded-lg px-4 py-3">
-                <button type="button" onclick="searchEvents()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-        </form>
+    <div class="ea-card mb-8">
+        <div class="ea-card-body">
+            <form class="flex flex-col md:flex-row gap-4" onsubmit="event.preventDefault(); searchEvents();">
+                <div class="flex-1 relative">
+                    <i class="bi bi-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Search events by name, location, or category..." 
+                           class="ea-input w-full pl-12 pr-4 py-3">
+                </div>
+                <div class="flex gap-4">
+                    <input type="date" id="dateInput" class="ea-input px-4 py-3">
+                    <button type="submit" class="ea-btn ea-btn-primary ea-btn-lg whitespace-nowrap">
+                        <i class="bi bi-search mr-2"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Events Grid -->
     <div id="eventsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Events will be loaded here -->
-        <div class="col-span-full text-center py-12">
-            <i class="fas fa-spinner fa-spin text-indigo-600 text-3xl"></i>
-            <p class="text-gray-500 mt-4">Loading events...</p>
+        <div class="col-span-full ea-empty-state">
+            <div class="ea-empty-state-icon">
+                <i class="bi bi-arrow-repeat animate-spin"></i>
+            </div>
+            <h3 class="ea-empty-state-title">Loading Events</h3>
+            <p class="ea-empty-state-text">Please wait while we fetch the latest events...</p>
         </div>
     </div>
 
     <!-- Pagination -->
     <div id="pagination" class="mt-12 flex justify-center hidden">
         <nav class="flex items-center space-x-2">
-            <button onclick="prevPage()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">Previous</button>
-            <span id="pageInfo" class="px-4 py-2 text-gray-600"></span>
-            <button onclick="nextPage()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50">Next</button>
+            <button onclick="prevPage()" class="ea-btn ea-btn-outline">Previous</button>
+            <span id="pageInfo" class="px-4 py-2 text-gray-600 font-medium"></span>
+            <button onclick="nextPage()" class="ea-btn ea-btn-outline">Next</button>
         </nav>
     </div>
 
     <!-- Empty State -->
     <div id="emptyState" class="hidden">
-        <div class="bg-white rounded-xl shadow-sm p-12 text-center">
-            <i class="fas fa-calendar-check text-gray-300 text-6xl mb-4"></i>
-            <p class="text-gray-500 text-lg">No events found</p>
-            <p class="text-gray-400 mb-6">Try adjusting your search or filters</p>
-            <button onclick="clearFilters()" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
-                Clear Filters
+        <div class="ea-empty-state ea-card">
+            <div class="ea-empty-state-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <h3 class="ea-empty-state-title">No Events Found</h3>
+            <p class="ea-empty-state-text">Try adjusting your search criteria or filters to find what you're looking for.</p>
+            <button onclick="clearFilters()" class="ea-btn ea-btn-accent ea-btn-lg">
+                <i class="bi bi-arrow-counterclockwise mr-2"></i> Clear Filters
             </button>
         </div>
     </div>
@@ -112,32 +121,32 @@
         pagination.classList.remove('hidden');
 
         grid.innerHTML = eventsList.map(event => `
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden card-hover transition cursor-pointer" onclick="viewEvent(${event.id})">
-                <div class="h-48 bg-gradient-to-br ${getRandomGradient()} flex items-center justify-center relative">
+            <div class="ea-card ea-card-interactive cursor-pointer overflow-hidden" onclick="viewEvent(${event.id})">
+                <div class="h-48 ea-gradient-hero flex items-center justify-center relative">
                     ${event.logo ? 
                         `<img src="${event.logo}" alt="${event.title}" class="h-full w-full object-cover">` :
-                        `<i class="fas fa-calendar-alt text-white text-6xl opacity-50"></i>`
+                        `<i class="bi bi-calendar-event text-white text-6xl opacity-50"></i>`
                     }
-                    <span class="absolute top-4 right-4 bg-white/90 text-gray-800 text-xs font-semibold px-2.5 py-1 rounded">
+                    <span class="ea-badge ea-badge-primary absolute top-4 right-4 bg-white/90">
                         ${event.event_type || 'Event'}
                     </span>
                 </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-bold text-gray-900 mt-3 mb-2 truncate">${event.title}</h3>
+                <div class="ea-card-body">
+                    <h3 class="text-xl font-heading font-bold text-gray-900 mb-2 truncate">${event.title}</h3>
                     <p class="text-gray-500 text-sm mb-4 line-clamp-2">${event.description || 'No description available'}</p>
                     <div class="flex items-center text-sm text-gray-500 mb-4">
-                        <i class="fas fa-calendar mr-2"></i>
+                        <i class="bi bi-calendar3 mr-2 text-primary"></i>
                         <span>${formatDate(event.start_date)}</span>
-                        <span class="mx-2">|</span>
-                        <i class="fas fa-map-marker-alt mr-2"></i>
+                        <span class="mx-2 text-gray-300">|</span>
+                        <i class="bi bi-geo-alt mr-2 text-primary"></i>
                         <span class="truncate">${event.venue_name || 'TBD'} ${event.city ? ', ' + event.city : ''}</span>
                     </div>
                     <div class="flex items-center justify-between">
                         ${event.has_tickets 
-                            ? `<span class="${event.is_free ? 'text-green-600' : 'text-indigo-600'} font-bold">${event.price_display || 'Price TBD'}</span>`
-                            : `<span class="text-gray-500 font-medium text-sm"><i class="fas fa-info-circle mr-1"></i>Tickets coming soon</span>`
+                            ? `<span class="${event.is_free ? 'text-success font-bold' : 'text-primary font-bold'}">${event.price_display || 'Price TBD'}</span>`
+                            : `<span class="text-gray-500 font-medium text-sm"><i class="bi bi-info-circle mr-1"></i>Tickets coming soon</span>`
                         }
-                        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm">
+                        <button class="ea-btn ea-btn-primary ea-btn-sm">
                             View Details
                         </button>
                     </div>
@@ -216,18 +225,23 @@
 
     function showEmptyState() {
         document.getElementById('eventsGrid').innerHTML = `
-            <div class="col-span-full text-center py-12">
-                <i class="fas fa-exclamation-circle text-gray-300 text-6xl mb-4"></i>
-                <p class="text-gray-500 text-lg">Unable to load events</p>
-                <p class="text-gray-400">Please try again later</p>
+            <div class="col-span-full ea-empty-state">
+                <div class="ea-empty-state-icon">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+                <h3 class="ea-empty-state-title">Unable to Load Events</h3>
+                <p class="ea-empty-state-text">Please try refreshing the page or check your connection.</p>
+                <button onclick="location.reload()" class="ea-btn ea-btn-outline ea-btn-lg mt-4">
+                    <i class="bi bi-arrow-clockwise mr-2"></i> Refresh Page
+                </button>
             </div>
         `;
     }
 
     function getRandomGradient() {
         const gradients = [
-            'from-indigo-400 to-purple-500',
-            'from-blue-400 to-indigo-500',
+            'from-primary to-purple-500',
+            'from-primary to-primary-dark',
             'from-green-400 to-teal-500',
             'from-orange-400 to-red-500',
             'from-pink-400 to-rose-500',

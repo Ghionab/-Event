@@ -8,161 +8,209 @@
 
 {% block content %}
 <div class="mb-6 flex flex-wrap gap-4 items-center justify-between">
-    <a href="{% url 'organizers:organizer_registration_list' %}" class="inline-flex items-center text-gray-600 hover:text-indigo-600 transition">
+    <a href="{% url 'organizers:organizer_registration_list' %}" class="inline-flex items-center text-gray-600 hover:text-primary transition-colors font-medium">
         <i class="bi bi-arrow-left mr-2"></i>Back to Registrations
     </a>
-    <div class="flex gap-2">
-        <a href="{% url 'organizers:organizer_registration_edit' registration.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-            <i class="bi bi-pencil mr-2"></i>Edit
+    <div class="flex flex-wrap gap-3">
+        <a href="{% url 'organizers:organizer_registration_edit' registration.id %}" class="ea-btn ea-btn-surface !py-2 !px-4 text-sm shadow-sm ring-1 ring-gray-200">
+            <i class="bi bi-pencil mr-2 text-primary"></i>Edit
         </a>
         {% if registration.status != 'checked_in' and registration.status != 'cancelled' and registration.status != 'refunded' %}
-        <a href="{% url 'organizers:organizer_registration_checkin' registration.id %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" onclick="return confirm('Check in {{ registration.attendee_name }}?')">
+        <a href="{% url 'organizers:organizer_registration_checkin' registration.id %}" class="ea-btn bg-emerald-600 hover:bg-emerald-700 text-white !py-2 !px-4 text-sm shadow-md transition-colors" onclick="return confirm('Check in {{ registration.attendee_name }}?')">
             <i class="bi bi-check-circle mr-2"></i>Check In
         </a>
         {% endif %}
-        <a href="{% url 'organizers:organizer_registration_resend_ticket' registration.id %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+        <a href="{% url 'organizers:organizer_registration_resend_ticket' registration.id %}" class="ea-btn bg-info hover:bg-blue-600 text-white !py-2 !px-4 text-sm shadow-md transition-colors">
             <i class="bi bi-envelope mr-2"></i>Resend Ticket
         </a>
         {% if registration.status == 'confirmed' %}
-        <a href="{% url 'organizers:organizer_registration_refund' registration.id %}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+        <a href="{% url 'organizers:organizer_registration_refund' registration.id %}" class="ea-btn bg-purple-600 hover:bg-purple-700 text-white !py-2 !px-4 text-sm shadow-md transition-colors">
             <i class="bi bi-currency-dollar mr-2"></i>Refund
         </a>
         {% endif %}
         {% if registration.status != 'cancelled' and registration.status != 'refunded' %}
-        <a href="{% url 'organizers:organizer_registration_cancel' registration.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+        <a href="{% url 'organizers:organizer_registration_cancel' registration.id %}" class="ea-btn ea-btn-error !py-2 !px-4 text-sm shadow-md">
             <i class="bi bi-x-circle mr-2"></i>Cancel
         </a>
         {% endif %}
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <!-- Left Column - Main Info -->
     <div class="lg:col-span-2 space-y-6">
         <!-- Attendee Information -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-person mr-2 text-indigo-600"></i>Attendee Information
+        <div class="ea-card relative overflow-hidden">
+            <!-- Decorative accent strip -->
+            <div class="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-2xl"></div>
+            
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 flex justify-between items-center py-4 px-6 relative z-10 pl-7">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 tracking-wide uppercase">
+                    <i class="bi bi-person mr-2 text-primary"></i>Attendee Information
                 </h3>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    {% if registration.status == 'confirmed' %}bg-green-100 text-green-700
-                    {% elif registration.status == 'pending' %}bg-yellow-100 text-yellow-700
-                    {% elif registration.status == 'checked_in' %}bg-blue-100 text-blue-700
-                    {% elif registration.status == 'cancelled' %}bg-red-100 text-red-700
-                    {% elif registration.status == 'refunded' %}bg-purple-100 text-purple-700
-                    {% else %}bg-gray-100 text-gray-700{% endif %}">
+                <span class="ea-badge shadow-sm
+                    {% if registration.status == 'confirmed' %}bg-success/10 text-success border-success/20
+                    {% elif registration.status == 'pending' %}bg-warning/10 text-orange-600 border-orange-200
+                    {% elif registration.status == 'checked_in' %}bg-info/10 text-info border-info/20
+                    {% elif registration.status == 'cancelled' %}bg-error/10 text-error border-error/20
+                    {% elif registration.status == 'refunded' %}bg-purple-100 text-purple-700 border-purple-200
+                    {% else %}bg-gray-100 text-gray-700 border-gray-200{% endif %}">
+                    {% if registration.status == 'confirmed' %}<i class="bi bi-check-circle mr-1"></i>{% endif %}
                     {{ registration.get_status_display|default:registration.status|title }}
                 </span>
             </div>
-            <div class="card-body">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="ea-card-body p-6 pl-7">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
-                        <p class="text-lg font-medium text-gray-900">{{ registration.attendee_name }}</p>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
+                        <p class="text-xl font-bold text-gray-900">{{ registration.attendee_name }}</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
-                        <p class="text-gray-900">{{ registration.attendee_email }}</p>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email</label>
+                        <div class="flex items-center">
+                            <i class="bi bi-envelope mr-2 text-gray-400"></i>
+                            <p class="text-gray-900 font-medium">{{ registration.attendee_email }}</p>
+                        </div>
                         {% if registration.user %}
-                        <p class="text-xs text-gray-500 mt-1">User Account: {{ registration.user.email }}</p>
+                        <p class="text-xs text-gray-500 mt-2 flex items-center bg-gray-50 inline-flex px-2 py-1 rounded">
+                            <i class="bi bi-person-badge mr-1"></i> User Account: {{ registration.user.email }}
+                        </p>
                         {% endif %}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Phone</label>
-                        <p class="text-gray-900">{{ registration.attendee_phone|default:"Not provided" }}</p>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Phone</label>
+                        <div class="flex items-center">
+                            <i class="bi bi-telephone mr-2 text-gray-400"></i>
+                            <p class="text-gray-900 font-medium">{{ registration.attendee_phone|default:"Not provided" }}</p>
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Registration Number</label>
-                        <p class="text-gray-900 font-mono">{{ registration.registration_number }}</p>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Registration #</label>
+                        <div class="inline-block bg-primary/5 border border-primary/20 px-3 py-1.5 rounded-lg text-primary font-mono font-bold tracking-wider">
+                            <i class="bi bi-hash mr-1"></i>{{ registration.registration_number }}
+                        </div>
                     </div>
                 </div>
                 
                 {% if registration.special_requests %}
-                <div class="mt-6 pt-6 border-t border-gray-100">
-                    <label class="block text-sm font-medium text-gray-500 mb-2">Special Requests</label>
-                    <p class="text-gray-700 bg-gray-50 p-3 rounded-lg">{{ registration.special_requests }}</p>
+                <div class="mt-8 pt-6 border-t border-gray-100">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                        <i class="bi bi-journal-text mr-1 text-primary"></i>Special Requests
+                    </label>
+                    <div class="bg-surface border border-gray-200 p-4 rounded-xl text-gray-700 leading-relaxed shadow-sm">
+                        {{ registration.special_requests }}
+                    </div>
                 </div>
                 {% endif %}
             </div>
         </div>
 
         <!-- Event and Ticket Information -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-calendar-event mr-2 text-indigo-600"></i>Event & Ticket Details
+        <div class="ea-card">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 py-4 px-6">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 tracking-wide uppercase">
+                    <i class="bi bi-calendar-event mr-2 text-primary"></i>Event & Ticket Details
                 </h3>
             </div>
-            <div class="card-body">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Event</label>
-                        <p class="text-lg font-medium text-gray-900">{{ registration.event.title }}</p>
-                        <p class="text-sm text-gray-500">{{ registration.event.start_date|date:"F d, Y" }} at {{ registration.event.start_date|date:"g:i A" }}</p>
-                        <a href="{% url 'organizers:organizer_event_detail' registration.event.id %}" class="text-sm text-indigo-600 hover:text-indigo-800 mt-2 inline-block">
-                            View Event <i class="bi bi-arrow-right"></i>
+            <div class="ea-card-body p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-100 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-white hover:text-primary transition-colors opacity-10">
+                            <i class="bi bi-calendar-star text-9xl"></i>
+                        </div>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 relative z-10">Event</label>
+                        <p class="text-lg font-bold text-gray-900 relative z-10">{{ registration.event.title }}</p>
+                        <div class="flex items-center gap-2 mt-3 text-sm text-gray-600 font-medium relative z-10">
+                            <i class="bi bi-calendar3"></i>
+                            <span>{{ registration.event.start_date|date:"F d, Y" }}</span>
+                            <span class="mx-1">&bull;</span>
+                            <i class="bi bi-clock"></i>
+                            <span>{{ registration.event.start_date|date:"g:i A" }}</span>
+                        </div>
+                        <a href="{% url 'organizers:organizer_event_detail' registration.event.id %}" class="ea-btn bg-white hover:bg-gray-100 border border-gray-200 text-primary !py-1.5 !px-3 text-xs mt-4 relative z-10 inline-flex">
+                            View Event Dashboard <i class="bi bi-arrow-right ml-1"></i>
                         </a>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Ticket Type</label>
-                        <p class="text-lg font-medium text-gray-900">{{ registration.ticket_type.name|default:"N/A" }}</p>
-                        {% if registration.ticket_type %}
-                        <p class="text-sm text-gray-500">{{ registration.ticket_type.get_ticket_category_display }}</p>
-                        {% endif %}
+                    <div class="flex flex-col justify-center border-l border-gray-100 pl-8">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 relative">
+                            Ticket Type
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-accent/20 text-accent flex items-center justify-center border border-accent/30 shadow-sm">
+                                <i class="bi bi-ticket-detailed text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xl font-bold text-gray-900">{{ registration.ticket_type.name|default:"N/A" }}</p>
+                                {% if registration.ticket_type %}
+                                <p class="ea-badge bg-gray-100 text-gray-600 mt-1 uppercase text-[10px] tracking-widest font-bold">
+                                    {{ registration.ticket_type.get_ticket_category_display }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Payment Information -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-credit-card mr-2 text-indigo-600"></i>Payment Information
+        <div class="ea-card">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 py-4 px-6">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 tracking-wide uppercase">
+                    <i class="bi bi-credit-card mr-2 text-primary"></i>Payment Information
                 </h3>
             </div>
-            <div class="card-body">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="ea-card-body p-6">
+                <div class="flex flex-wrap items-center gap-8 justify-between lg:justify-start lg:gap-16">
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Total Amount</label>
-                        <p class="text-2xl font-bold text-gray-900">${{ registration.total_amount }}</p>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Amount</label>
+                        <p class="text-3xl font-bold text-gray-900 flex items-baseline">
+                            <span class="text-lg text-gray-400 font-medium mr-1">$</span>{{ registration.total_amount }}
+                        </p>
                     </div>
+                    <div class="w-px h-12 bg-gray-200 hidden lg:block"></div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Discount</label>
-                        <p class="text-lg text-gray-900">${{ registration.discount_amount|default:"0.00" }}</p>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Discount</label>
+                        <p class="text-xl font-semibold text-success flex items-baseline">
+                            <span class="text-sm font-medium mr-1">- $</span>{{ registration.discount_amount|default:"0.00" }}
+                        </p>
                     </div>
+                    <div class="w-px h-12 bg-gray-200 hidden lg:block"></div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Promo Code</label>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Promo Code</label>
                         {% if registration.promo_code %}
-                        <p class="text-lg font-medium text-green-600">{{ registration.promo_code.code }}</p>
-                        <p class="text-xs text-gray-500">
+                        <div class="inline-flex items-center px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 shadow-sm">
+                            <i class="bi bi-tag-fill mr-2"></i>
+                            <span class="font-bold tracking-wide">{{ registration.promo_code.code }}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 font-medium mt-2">
                             {{ registration.promo_code.get_discount_type_display }} - {{ registration.promo_code.discount_value }}{% if registration.promo_code.discount_type == 'percentage' %}%{% endif %}
                         </p>
                         {% else %}
-                        <p class="text-gray-500">No promo code used</p>
+                        <p class="text-gray-400 font-medium mt-1">No code</p>
                         {% endif %}
                     </div>
                 </div>
                 
                 {% if registration.refund_amount > 0 %}
-                <div class="mt-6 p-4 bg-red-50 rounded-lg border border-red-100">
-                    <div class="flex items-center gap-2 text-red-700 mb-2">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        <span class="font-medium">Refund Information</span>
+                <div class="mt-8 p-5 bg-error/5 rounded-xl border border-error/20 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-2 h-full bg-error rounded-r-xl"></div>
+                    <div class="flex items-center gap-2 text-error mb-4">
+                        <i class="bi bi-exclamation-triangle-fill text-lg"></i>
+                        <span class="font-bold tracking-wide uppercase text-sm">Refund Information</span>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                            <span class="text-gray-500">Refund Amount:</span>
-                            <span class="font-medium text-red-600">${{ registration.refund_amount }}</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+                        <div class="bg-white p-3 rounded-lg border border-error/10">
+                            <span class="block text-xs text-gray-500 uppercase font-semibold mb-1">Amount</span>
+                            <span class="text-xl font-bold text-error">${{ registration.refund_amount }}</span>
                         </div>
-                        <div>
-                            <span class="text-gray-500">Reason:</span>
-                            <span class="font-medium">{{ registration.refund_reason|default:"Not specified" }}</span>
+                        <div class="bg-white p-3 rounded-lg border border-error/10">
+                            <span class="block text-xs text-gray-500 uppercase font-semibold mb-1">Reason</span>
+                            <span class="font-medium text-gray-900">{{ registration.refund_reason|default:"Not specified" }}</span>
                         </div>
-                        <div>
-                            <span class="text-gray-500">Refunded At:</span>
-                            <span class="font-medium">{{ registration.refunded_at|date:"M d, Y H:i"|default:"N/A" }}</span>
+                        <div class="bg-white p-3 rounded-lg border border-error/10">
+                            <span class="block text-xs text-gray-500 uppercase font-semibold mb-1">Date</span>
+                            <span class="font-medium text-gray-900">{{ registration.refunded_at|date:"M d, Y"|default:"N/A" }}</span>
                         </div>
                     </div>
                 </div>
@@ -172,18 +220,18 @@
 
         <!-- Custom Fields -->
         {% if custom_responses %}
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-clipboard-data mr-2 text-indigo-600"></i>Custom Field Responses
+        <div class="ea-card">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 py-4 px-6">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 tracking-wide uppercase">
+                    <i class="bi bi-clipboard-data mr-2 text-primary"></i>Custom Field Responses
                 </h3>
             </div>
-            <div class="card-body">
-                <div class="space-y-4">
+            <div class="ea-card-body p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {% for field, value in custom_responses.items %}
-                    <div class="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
-                        <label class="block text-sm font-medium text-gray-500 mb-1">{{ field|title }}</label>
-                        <p class="text-gray-900">{{ value|default:"No response" }}</p>
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{{ field|title }}</label>
+                        <p class="text-gray-900 font-medium">{{ value|default:"No response" }}</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -192,43 +240,52 @@
         {% endif %}
 
         <!-- Check-in History -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-check-square mr-2 text-indigo-600"></i>Check-in History
+        <div class="ea-card">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 py-4 px-6">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 tracking-wide uppercase">
+                    <i class="bi bi-check-square mr-2 text-primary"></i>Check-in History
                 </h3>
             </div>
-            <div class="card-body">
+            <div class="ea-card-body p-6">
                 {% if checkins %}
                 <div class="space-y-4">
                     {% for checkin in checkins %}
-                    <div class="flex items-start gap-4 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="bi bi-check text-green-600"></i>
+                    <div class="flex items-start gap-4 p-4 bg-surface border border-gray-200 rounded-xl shadow-sm hover:border-emerald-200 transition-colors">
+                        <div class="w-12 h-12 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center flex-shrink-0 text-emerald-600">
+                            <i class="bi bi-check-lg text-xl"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="font-medium text-gray-900">Checked In</p>
-                            <p class="text-sm text-gray-500">{{ checkin.check_in_time|date:"F d, Y at g:i A" }}</p>
-                            <div class="flex gap-4 mt-1 text-xs text-gray-500">
-                                <span><i class="bi bi-person mr-1"></i>By: {{ checkin.checked_in_by.get_full_name|default:checkin.checked_in_by.email|default:"Unknown" }}</span>
-                                <span><i class="bi bi-gear mr-1"></i>Method: {{ checkin.get_method_display|default:checkin.method }}</span>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-bold text-gray-900 text-lg tracking-tight">Checked In</p>
+                                    <p class="text-sm text-gray-500 font-medium">{{ checkin.check_in_time|date:"F d, Y at g:i A" }}</p>
+                                </div>
+                                <span class="ea-badge bg-gray-100 text-gray-600">
+                                    <i class="bi bi-gear mr-1"></i>{{ checkin.get_method_display|default:checkin.method }}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4 text-xs font-medium text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <div class="flex items-center"><i class="bi bi-person mr-2 text-primary"></i>By: {{ checkin.checked_in_by.get_full_name|default:checkin.checked_in_by.email|default:"Unknown" }}</div>
                                 {% if checkin.location %}
-                                <span><i class="bi bi-geo-alt mr-1"></i>{{ checkin.location }}</span>
+                                <div class="flex items-center"><i class="bi bi-geo-alt mr-2 text-primary"></i>{{ checkin.location }}</div>
                                 {% endif %}
                             </div>
                             {% if checkin.notes %}
-                            <p class="text-sm text-gray-600 mt-2 bg-white p-2 rounded">{{ checkin.notes }}</p>
+                            <div class="mt-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm text-sm text-gray-700 flex items-start">
+                                <i class="bi bi-card-text text-gray-400 mt-1 mr-2"></i>
+                                <span>{{ checkin.notes }}</span>
+                            </div>
                             {% endif %}
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="text-center py-6">
-                    <i class="bi bi-clock text-gray-300 text-4xl mb-3"></i>
-                    <p class="text-gray-500">Not checked in yet</p>
+                <div class="ea-empty-state py-12 border border-dashed border-gray-200">
+                    <i class="bi bi-clock ea-empty-state-icon text-gray-300"></i>
+                    <p class="ea-empty-state-title">Not checked in yet</p>
                     {% if registration.status != 'cancelled' and registration.status != 'refunded' %}
-                    <a href="{% url 'organizers:organizer_registration_checkin' registration.id %}" class="mt-3 inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" onclick="return confirm('Check in {{ registration.attendee_name }}?')">
+                    <a href="{% url 'organizers:organizer_registration_checkin' registration.id %}" class="mt-4 ea-btn bg-emerald-600 hover:bg-emerald-700 text-white shadow-md inline-flex" onclick="return confirm('Check in {{ registration.attendee_name }}?')">
                         <i class="bi bi-check-circle mr-2"></i>Check In Now
                     </a>
                     {% endif %}
@@ -241,83 +298,103 @@
     <!-- Right Column - QR Code and Quick Info -->
     <div class="space-y-6">
         <!-- QR Code -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-qr-code mr-2 text-indigo-600"></i>QR Code
+        <div class="ea-card text-center">
+            <div class="ea-card-header bg-primary text-white py-3 border-b-0 rounded-t-2xl">
+                <h3 class="text-sm font-heading font-semibold tracking-wide uppercase">
+                    <i class="bi bi-qr-code mr-2"></i>Access Pass
                 </h3>
             </div>
-            <div class="card-body text-center">
+            <div class="ea-card-body p-6 pt-8 pb-8 bg-surface bg-gradient-to-b from-gray-50 to-white">
                 {% if qr_code %}
-                <img src="data:image/png;base64,{{ qr_code }}" alt="Registration QR Code" class="mx-auto mb-4 max-w-[200px]">
-                <p class="text-sm text-gray-500 mb-2">Scan at check-in</p>
-                <p class="text-xs text-gray-400 font-mono">{{ registration.qr_code }}</p>
+                <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-100 inline-block mb-5 rotate-1 hover:rotate-0 transition-transform cursor-pointer">
+                    <img src="data:image/png;base64,{{ qr_code }}" alt="Registration QR Code" class="w-48 h-48 mx-auto mix-blend-multiply">
+                </div>
+                <p class="text-sm text-gray-900 font-bold tracking-wide uppercase">Ready for Scan</p>
+                <div class="bg-gray-100 inline-block px-4 py-2 rounded-lg mt-3 border border-gray-200">
+                    <p class="text-xs text-gray-700 font-mono font-bold tracking-[0.2em]">{{ registration.qr_code }}</p>
+                </div>
                 {% else %}
-                <p class="text-gray-500">QR code not available</p>
+                <div class="w-48 h-48 mx-auto bg-gray-100 rounded-xl flex items-center justify-center border-2 border-dashed border-gray-300 mb-5">
+                    <i class="bi bi-qr-code text-4xl text-gray-400 opacity-50"></i>
+                </div>
+                <p class="text-gray-500 font-medium">QR code not available</p>
                 {% endif %}
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Quick Actions</h3>
+        <!-- Quick Actions Sidebar -->
+        <div class="ea-card">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 py-4 px-5">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 tracking-wide uppercase">Platform Links</h3>
             </div>
-            <div class="card-body space-y-3">
-                <a href="mailto:{{ registration.attendee_email }}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                    <i class="bi bi-envelope text-blue-600"></i>
-                    <span class="text-sm font-medium">Email Attendee</span>
+            <div class="ea-card-body p-4 space-y-2">
+                <a href="mailto:{{ registration.attendee_email }}" class="flex items-center gap-3 p-3 bg-surface hover:bg-info/5 rounded-xl border border-transparent hover:border-info/20 transition-all group">
+                    <div class="w-8 h-8 rounded-lg bg-info/10 text-info flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="bi bi-envelope"></i>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-700 group-hover:text-info">Email Attendee</span>
                 </a>
-                <a href="{% url 'organizers:organizer_event_registration_list' registration.event.id %}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                    <i class="bi bi-people text-indigo-600"></i>
-                    <span class="text-sm font-medium">View Event Registrations</span>
+                <a href="{% url 'organizers:organizer_event_registration_list' registration.event.id %}" class="flex items-center gap-3 p-3 bg-surface hover:bg-primary/5 rounded-xl border border-transparent hover:border-primary/20 transition-all group">
+                    <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-700 group-hover:text-primary">Event Registrations</span>
                 </a>
-                <a href="{% url 'organizers:organizer_registration_export' %}?event={{ registration.event.id }}" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                    <i class="bi bi-download text-green-600"></i>
-                    <span class="text-sm font-medium">Export Event Registrations</span>
+                <a href="{% url 'organizers:organizer_registration_export' %}?event={{ registration.event.id }}" class="flex items-center gap-3 p-3 bg-surface hover:bg-success/5 rounded-xl border border-transparent hover:border-success/20 transition-all group">
+                    <div class="w-8 h-8 rounded-lg bg-success/10 text-success flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="bi bi-cloud-download"></i>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-700 group-hover:text-success">Export Data</span>
                 </a>
             </div>
         </div>
 
         <!-- Registration Timeline -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="bi bi-clock-history mr-2 text-indigo-600"></i>Timeline
+        <div class="ea-card">
+            <div class="ea-card-header bg-surface/50 border-b border-gray-100 py-4 px-5">
+                <h3 class="text-sm font-heading font-semibold text-gray-900 tracking-wide uppercase">
+                    <i class="bi bi-clock-history mr-2 text-primary"></i>Activity Log
                 </h3>
             </div>
-            <div class="card-body">
-                <div class="space-y-4 text-sm">
-                    <div class="flex gap-3">
-                        <div class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+            <div class="ea-card-body p-5">
+                <div class="relative pl-6 space-y-6 before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gray-100 before:z-0">
+                    <!-- Created -->
+                    <div class="relative z-10">
+                        <div class="absolute -left-[27px] w-4 h-4 rounded-full bg-white border-4 border-info shadow-sm ring-4 ring-white"></div>
                         <div>
-                            <p class="font-medium">Registered</p>
-                            <p class="text-gray-500">{{ registration.created_at|date:"M d, Y g:i A" }}</p>
+                            <p class="font-bold text-gray-900 text-sm">Created</p>
+                            <p class="text-xs text-gray-500 font-medium mt-1">{{ registration.created_at|date:"M d, Y" }} &bull; {{ registration.created_at|date:"g:i A" }}</p>
                         </div>
                     </div>
+                    
+                    <!-- Checked In -->
                     {% if registration.checked_in_at %}
-                    <div class="flex gap-3">
-                        <div class="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                    <div class="relative z-10">
+                        <div class="absolute -left-[27px] w-4 h-4 rounded-full bg-white border-4 border-success shadow-sm ring-4 ring-white"></div>
                         <div>
-                            <p class="font-medium">Checked In</p>
-                            <p class="text-gray-500">{{ registration.checked_in_at|date:"M d, Y g:i A" }}</p>
+                            <p class="font-bold text-gray-900 text-sm">Checked In</p>
+                            <p class="text-xs text-gray-500 font-medium mt-1">{{ registration.checked_in_at|date:"M d, Y" }} &bull; {{ registration.checked_in_at|date:"g:i A" }}</p>
                         </div>
                     </div>
                     {% endif %}
+                    
+                    <!-- Refunded -->
                     {% if registration.refunded_at %}
-                    <div class="flex gap-3">
-                        <div class="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                    <div class="relative z-10">
+                        <div class="absolute -left-[27px] w-4 h-4 rounded-full bg-white border-4 border-error shadow-sm ring-4 ring-white"></div>
                         <div>
-                            <p class="font-medium">Refunded</p>
-                            <p class="text-gray-500">{{ registration.refunded_at|date:"M d, Y g:i A" }}</p>
+                            <p class="font-bold text-gray-900 text-sm">Refund Issued</p>
+                            <p class="text-xs text-gray-500 font-medium mt-1">{{ registration.refunded_at|date:"M d, Y" }} &bull; {{ registration.refunded_at|date:"g:i A" }}</p>
                         </div>
                     </div>
                     {% endif %}
-                    <div class="flex gap-3">
-                        <div class="flex-shrink-0 w-2 h-2 bg-gray-300 rounded-full mt-2"></div>
+                    
+                    <!-- Updated -->
+                    <div class="relative z-10">
+                        <div class="absolute -left-[27px] w-4 h-4 rounded-full bg-white border-4 border-gray-300 shadow-sm ring-4 ring-white"></div>
                         <div>
-                            <p class="font-medium">Last Updated</p>
-                            <p class="text-gray-500">{{ registration.updated_at|date:"M d, Y g:i A" }}</p>
+                            <p class="font-bold text-gray-900 text-sm">Last Synced</p>
+                            <p class="text-xs text-gray-500 font-medium mt-1">{{ registration.updated_at|date:"M d, Y" }} &bull; {{ registration.updated_at|date:"g:i A" }}</p>
                         </div>
                     </div>
                 </div>

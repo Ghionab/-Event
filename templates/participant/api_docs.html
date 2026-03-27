@@ -1,32 +1,32 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}API Documentation - EventPortal{% endblock %}
+{% block title %}API Documentation - EventAxis{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="text-center mb-12">
-        <i class="fas fa-code text-indigo-600 text-5xl mb-4"></i>
+        <i class="bi bi-code-slash text-primary text-5xl mb-4"></i>
         <h1 class="text-4xl font-bold text-gray-900">API Documentation</h1>
-        <p class="text-gray-500 mt-2">RESTful API for EventPortal integration</p>
+        <p class="text-gray-500 mt-2">RESTful API for EventAxis integration</p>
     </div>
 
     <div class="grid md:grid-cols-2 gap-8">
         <!-- Authentication -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <h2 class="text-xl font-bold mb-4 flex items-center">
-                <span class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm">1</span>
+                <span class="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm">1</span>
                 Authentication
             </h2>
             <div class="space-y-4">
-                <div class="border-l-4 border-indigo-500 pl-4">
+                <div class="border-l-4 border-primary pl-4">
                     <p class="font-mono text-sm bg-gray-100 p-2 rounded">POST /api/v1/auth/login/</p>
                     <p class="text-gray-600 text-sm mt-1">Login with email and password</p>
                 </div>
-                <div class="border-l-4 border-indigo-500 pl-4">
+                <div class="border-l-4 border-primary pl-4">
                     <p class="font-mono text-sm bg-gray-100 p-2 rounded">POST /api/v1/auth/logout/</p>
                     <p class="text-gray-600 text-sm mt-1">Logout and clear session</p>
                 </div>
-                <div class="border-l-4 border-indigo-500 pl-4">
+                <div class="border-l-4 border-primary pl-4">
                     <p class="font-mono text-sm bg-gray-100 p-2 rounded">GET /api/v1/auth/user/</p>
                     <p class="text-gray-600 text-sm mt-1">Get current user info</p>
                 </div>
@@ -76,8 +76,8 @@
                 Interactive Docs
             </h2>
             <p class="text-gray-600 mb-4">Use our interactive Swagger documentation to explore and test the API.</p>
-            <a href="/api/docs/" target="_blank" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-                <i class="fas fa-external-link-alt mr-2"></i> Open Swagger UI
+            <a href="/api/docs/" target="_blank" class="ea-btn ea-btn-primary">
+                <i class="bi bi-box-arrow-up-right mr-2"></i> Open Swagger UI
             </a>
         </div>
     </div>
@@ -87,15 +87,15 @@
         <h3 class="text-lg font-bold mb-4">API Rate Limits</h3>
         <div class="grid md:grid-cols-3 gap-6">
             <div>
-                <p class="text-indigo-400 font-semibold">Anonymous Users</p>
+                <p class="text-primary font-semibold">Anonymous Users</p>
                 <p class="text-2xl font-bold">100 requests/hour</p>
             </div>
             <div>
-                <p class="text-indigo-400 font-semibold">Authenticated Users</p>
+                <p class="text-primary font-semibold">Authenticated Users</p>
                 <p class="text-2xl font-bold">1000 requests/hour</p>
             </div>
             <div>
-                <p class="text-indigo-400 font-semibold">Authentication</p>
+                <p class="text-primary font-semibold">Authentication</p>
                 <p class="text-2xl font-bold">Session Cookie</p>
             </div>
         </div>

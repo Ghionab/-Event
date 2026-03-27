@@ -26,8 +26,8 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Breadcrumb -->
     <nav class="mb-6 text-sm text-gray-500 print-hide">
-        <a href="{% url 'attendee:dashboard' %}" class="hover:text-indigo-600">Dashboard</a> /
-        <a href="{% url 'attendee:my_registrations' %}" class="hover:text-indigo-600">My Registrations</a> /
+        <a href="{% url 'attendee:dashboard' %}" class="hover:text-primary">Dashboard</a> /
+        <a href="{% url 'attendee:my_registrations' %}" class="hover:text-primary">My Registrations</a> /
         <span class="text-gray-900">{{ registration.event.title }}</span>
     </nav>
 
@@ -40,7 +40,7 @@
                 <img src="{{ registration.event.banner_image.url }}" alt="" class="w-full h-48 object-cover">
                 {% else %}
                 <div
-                    class="w-full h-48 bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                    class="w-full h-48 bg-gradient-to-r ea-gradient-primary flex items-center justify-center">
                     <h2 class="text-3xl font-bold text-white">{{ registration.event.title }}</h2>
                 </div>
                 {% endif %}
@@ -62,15 +62,15 @@
                     </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
                             <div class="flex items-center gap-2">
-                                <i class="bi bi-calendar text-indigo-500"></i>
+                                <i class="bi bi-calendar text-primary"></i>
                             <span>{{ registration.event.start_date|date:"F d, Y" }} &middot; {{ registration.event.start_date|date:"g:i A" }}</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <i class="bi bi-geo-alt text-indigo-500"></i>
+                                <i class="bi bi-geo-alt text-primary"></i>
                                 <span>{{ registration.event.venue_name|default:"Virtual Event" }}</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <i class="bi bi-ticket text-indigo-500"></i>
+                                <i class="bi bi-ticket text-primary"></i>
                             <span>
                                 {% if registration.ticket_type %}
                                     {{ registration.ticket_type.name }}
@@ -80,13 +80,13 @@
                             </span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <i class="bi bi-hash text-indigo-500"></i>
+                                <i class="bi bi-hash text-primary"></i>
                                 <span>{{ registration.registration_number }}</span>
                             </div>
                             {% if registration.purchaser == user and registration.user != user %}
                             <div class="flex items-center gap-2 sm:col-span-2">
-                                <i class="bi bi-gift text-indigo-500"></i>
-                                <span class="text-indigo-600">Purchased for: {{ registration.attendee_name }} ({{ registration.attendee_email }})</span>
+                                <i class="bi bi-gift text-primary"></i>
+                                <span class="text-primary">Purchased for: {{ registration.attendee_name }} ({{ registration.attendee_email }})</span>
                             </div>
                             {% endif %}
                     </div>
@@ -161,17 +161,17 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">Event Schedule</h3>
-                    <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{{ dynamic_sessions|length }} Sessions</span>
+                    <span class="text-xs font-medium text-primary bg-primary/5 px-2 py-1 rounded-full">{{ dynamic_sessions|length }} Sessions</span>
                 </div>
                 <div class="space-y-4">
                     {% for session in dynamic_sessions %}
-                    <div class="group relative bg-white border border-gray-100 rounded-xl p-4 hover:border-indigo-200 hover:shadow-md transition-all duration-300 {% if session.id in saved_session_ids %}bg-indigo-50/30 border-indigo-100{% endif %}">
+                    <div class="group relative bg-white border border-gray-100 rounded-xl p-4 hover:border-primary/30 hover:shadow-md transition-all duration-300 {% if session.id in saved_session_ids %}bg-primary/5/30 border-primary/20{% endif %}">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">{{ session.session_start_time|date:"g:i A" }}</span>
+                                    <span class="text-xs font-bold text-primary uppercase tracking-wider">{{ session.session_start_time|date:"g:i A" }}</span>
                                     <span class="text-gray-300">&bull;</span>
-                                    <h4 class="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{{ session.title }}</h4>
+                                    <h4 class="font-bold text-gray-900 group-hover:text-primary transition-colors">{{ session.title }}</h4>
                                 </div>
                                 <p class="text-sm text-gray-500 line-clamp-1 mb-3">{{ session.description|default:"No description provided." }}</p>
                                 
@@ -182,7 +182,7 @@
                                         {% if ss.speaker_profile_picture %}
                                         <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="{{ ss.speaker_profile_picture.url }}" alt="{{ ss.speaker_name }}">
                                         {% else %}
-                                        <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-indigo-100 flex items-center justify-center text-xs font-medium text-indigo-600">
+                                        <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
                                             {{ ss.speaker_name|slice:":1" }}
                                         </div>
                                         {% endif %}
@@ -201,7 +201,7 @@
                                 </div>
                                 {% endif %}
                                 {% if session.id in saved_session_ids %}
-                                <div class="h-8 w-8 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-sm">
+                                <div class="h-8 w-8 bg-primary text-white rounded-full flex items-center justify-center shadow-sm">
                                     <i class="bi bi-bookmark-fill text-xs"></i>
                                 </div>
                                 {% endif %}
@@ -229,7 +229,7 @@
                 <p class="text-xs text-gray-500 mb-4">Show this at the event entrance</p>
                 <div class="space-y-2 print-hide">
                     <a href="{% url 'attendee:ticket_preview' registration.id %}"
-                        class="inline-flex w-full items-center justify-center gap-2 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                        class="ea-btn ea-btn-primary ea-btn-sm w-full">
                         <i class="bi bi-file-earmark-pdf"></i> Ticket
                     </a>
                 </div>

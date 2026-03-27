@@ -8,13 +8,13 @@
         <h1 class="text-2xl font-bold">QR Code Management</h1>
         <div class="flex gap-2">
             <a href="{% url 'registration:qr_code_print' event.id %}" class="btn btn-secondary" target="_blank">
-                <i class="fas fa-print"></i> Print All
+                <i class="bi bi-printer-fill"></i> Print All
             </a>
             <a href="{% url 'registration:qr_code_send_emails' event.id %}" class="btn btn-info">
-                <i class="fas fa-envelope"></i> Send All via Email
+                <i class="bi bi-envelope-fill"></i> Send All via Email
             </a>
             <a href="{% url 'registration:checkin_analytics' event.id %}" class="btn btn-primary">
-                <i class="fas fa-chart-line"></i> Analytics
+                <i class="bi bi-graph-up"></i> Analytics
             </a>
             <a href="{% url 'organizer_event_detail' event.id %}" class="btn btn-secondary">
                 Back to Event
@@ -30,7 +30,7 @@
         </div>
         <div class="bg-white rounded-lg shadow p-4">
             <div class="text-sm text-gray-500">Confirmed</div>
-            <div class="text-2xl font-bold text-blue-600">{{ confirmed }}</div>
+            <div class="text-2xl font-bold text-primary">{{ confirmed }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-4">
             <div class="text-sm text-gray-500">Checked In</div>
@@ -95,7 +95,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <div class="flex gap-2">
-                            <a href="{% url 'registration:qr_code_download' reg.id %}" class="text-blue-600 hover:text-blue-900" target="_blank">View QR</a>
+                            <a href="{% url 'registration:qr_code_download' reg.id %}" class="text-primary hover:text-blue-900" target="_blank">View QR</a>
                             <a href="{% url 'registration:badge_view' reg.id %}" class="text-green-600 hover:text-green-900">Badge</a>
                             {% if reg.status == 'checked_in' %}
                             <a href="{% url 'registration:checkin_undo' reg.id %}" class="text-yellow-600 hover:text-yellow-900">Undo</a>

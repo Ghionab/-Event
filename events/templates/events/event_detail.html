@@ -15,7 +15,7 @@
         <a href="{% url 'event_list' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
             <i class="bi bi-arrow-left mr-2"></i> Back to Events
         </a>
-        <a href="{% url 'event_landing' slug=event.slug %}" target="_blank" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primaryHover transition">
+        <a href="{% url 'event_landing' slug=event.slug %}" target="_blank" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
             <i class="bi bi-globe mr-2"></i> View Public Page
         </a>
     </div>
@@ -53,7 +53,7 @@
             <!-- Info Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 p-6 bg-gray-50 rounded-xl">
                 <div class="flex items-start space-x-4">
-                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                         <i class="bi bi-calendar3 text-xl text-primary"></i>
                     </div>
                     <div>
@@ -107,7 +107,7 @@
     {% if sessions %}
     <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
         <div class="p-6 border-b border-gray-100 flex items-center">
-            <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
+            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
                 <i class="bi bi-mic text-xl text-primary"></i>
             </div>
             <h2 class="text-xl font-bold text-gray-800">Event Schedule & Speakers</h2>
@@ -270,7 +270,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium text-lg shadow-md hover:shadow-lg">
+                        <button type="submit" class="w-full md:w-auto px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium text-lg shadow-md hover:shadow-lg">
                             <i class="bi bi-check-lg mr-2"></i> Complete Registration
                         </button>
                     </form>

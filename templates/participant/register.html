@@ -1,26 +1,26 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}Register for Event - EventPortal{% endblock %}
+{% block title %}Register for Event - EventAxis{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="mb-8">
-        <a href="/events/{{ event_id }}/" class="text-indigo-600 hover:text-indigo-800">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Event
+        <a href="/events/{{ event_id }}/" class="ea-btn ea-btn-ghost ea-btn-sm">
+            <i class="bi bi-arrow-left mr-2"></i> Back to Event
         </a>
     </div>
 
     <!-- Success Message -->
     <div id="successMessage" class="hidden mb-6">
-        <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-check text-green-600 text-2xl"></i>
+        <div class="ea-card p-8 text-center" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+            <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-check-lg text-success text-2xl"></i>
             </div>
-            <h2 class="text-2xl font-bold text-green-800 mb-2">Registration Successful!</h2>
-            <p class="text-green-700 mb-2" id="successText">Your registration has been confirmed.</p>
-            <p class="text-sm text-green-600 mb-4" id="regNumber"></p>
+            <h2 class="text-2xl font-heading font-bold text-success-dark mb-2">Registration Successful!</h2>
+            <p class="text-success mb-2" id="successText">Your registration has been confirmed.</p>
+            <p class="text-sm text-success/70 mb-4" id="regNumber"></p>
             <a href="/my-registrations/"
-                class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition">
+                class="ea-btn ea-btn-success ea-btn-lg">
                 View My Registrations
             </a>
         </div>
@@ -28,23 +28,23 @@
 
     <!-- Error Message -->
     <div id="errorMessage" class="hidden mb-6">
-        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div class="ea-alert ea-alert-error">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-exclamation text-red-600"></i>
+                <div class="w-10 h-10 bg-error/10 rounded-full flex items-center justify-center">
+                    <i class="bi bi-exclamation-triangle text-error"></i>
                 </div>
-                <h3 class="text-lg font-bold text-red-800">Registration Failed</h3>
+                <h3 class="text-lg font-heading font-bold text-error">Registration Failed</h3>
             </div>
-            <p class="text-red-700 mb-3" id="errorText">An error occurred during registration.</p>
-            <button onclick="location.reload()" class="text-red-600 hover:text-red-800 font-medium">
+            <p class="text-error mb-3" id="errorText">An error occurred during registration.</p>
+            <button onclick="location.reload()" class="ea-btn ea-btn-outline ea-btn-sm">
                 Try Again
             </button>
         </div>
     </div>
 
     <!-- Registration Form -->
-    <div id="registrationFormContainer" class="bg-white rounded-2xl shadow-xl p-8">
-        <h1 class="text-2xl font-bold mb-2">Register for Event</h1>
+    <div id="registrationFormContainer" class="ea-card p-8">
+        <h1 class="text-2xl font-heading font-bold mb-2">Register for Event</h1>
         <p class="text-gray-500 mb-6" id="eventInfo">Loading event details...</p>
 
         <form onsubmit="return doRegister(event)">
@@ -52,56 +52,54 @@
             <input type="hidden" id="eventId" value="{{ event_id }}">
 
             <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name <span
-                            class="text-red-500">*</span></label>
-                    <input type="text" id="fullName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                <div class="ea-form-group mb-0">
+                    <label class="ea-form-label">Full Name <span class="text-error">*</span></label>
+                    <input type="text" id="fullName" required class="ea-input"
                         placeholder="John Doe">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email <span
-                            class="text-red-500">*</span></label>
-                    <input type="email" id="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                <div class="ea-form-group mb-0">
+                    <label class="ea-form-label">Email <span class="text-error">*</span></label>
+                    <input type="email" id="email" required class="ea-input"
                         placeholder="john@example.com">
                 </div>
             </div>
 
-            <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                <input type="tel" id="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+            <div class="ea-form-group mt-6 mb-0">
+                <label class="ea-form-label">Phone Number</label>
+                <input type="tel" id="phone" class="ea-input"
                     placeholder="+1 234 567 8900">
             </div>
 
-            <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Special Requests</label>
-                <textarea id="specialRequests" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg"
+            <div class="ea-form-group mt-6 mb-0">
+                <label class="ea-form-label">Special Requests</label>
+                <textarea id="specialRequests" rows="3" class="ea-input"
                     placeholder="Any special requirements?"></textarea>
             </div>
 
-            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                <p class="font-semibold mb-4">Select Your Tickets:</p>
+            <div class="mt-6 p-4 bg-surface rounded-xl">
+                <p class="font-heading font-semibold mb-4">Select Your Tickets:</p>
                 <div id="ticketSelection" class="space-y-4">
                     <div class="text-gray-500">Loading tickets...</div>
                 </div>
                 
                 <div class="mt-4">
-                    <button type="button" onclick="addTicket()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700">
-                        <i class="fas fa-plus mr-2"></i>Add Ticket
+                    <button type="button" onclick="addTicket()" class="ea-btn ea-btn-primary ea-btn-sm">
+                        <i class="bi bi-plus-lg mr-2"></i>Add Ticket
                     </button>
                 </div>
                 
-                <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-                    <p class="font-semibold text-blue-800">Your Selected Tickets:</p>
+                <div class="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/10">
+                    <p class="font-heading font-semibold text-primary">Your Selected Tickets:</p>
                     <div id="selectedTicketsDisplay" class="space-y-2">
-                        <p class="text-blue-600">No tickets selected</p>
+                        <p class="text-primary/70">No tickets selected</p>
                     </div>
-                    <p class="font-bold text-lg text-blue-800 mt-2" id="totalInfo">Total: FREE</p>
+                    <p class="font-bold text-lg text-primary mt-2" id="totalInfo">Total: FREE</p>
                 </div>
             </div>
 
             <button type="submit" id="submitBtn"
-                class="w-full bg-indigo-600 text-white py-4 rounded-lg font-bold mt-6 hover:bg-indigo-700">
-                Complete Registration
+                class="ea-btn ea-btn-accent ea-btn-lg w-full mt-6">
+                <i class="bi bi-check-circle-fill mr-2"></i> Complete Registration
             </button>
         </form>
     </div>
@@ -163,7 +161,7 @@
                                 ${ticket.benefits ? `<p class="text-gray-500 text-xs mt-2">${ticket.benefits}</p>` : ''}
                             </div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-indigo-600">${priceText}</div>
+                                <div class="text-2xl font-bold text-primary">${priceText}</div>
                                 <select id="ticket-qty-${ticket.id}" class="mt-2 border border-gray-300 rounded px-2 py-1">
                                     <option value="0">0</option>
                                     <option value="1">1</option>
@@ -232,7 +230,7 @@
         var totalInfo = document.getElementById('totalInfo');
         
         if (selectedTickets.length === 0) {
-            display.innerHTML = '<p class="text-blue-600">No tickets selected</p>';
+            display.innerHTML = '<p class="text-primary">No tickets selected</p>';
             totalInfo.textContent = 'Total: FREE';
             return;
         }
@@ -253,7 +251,7 @@
                     <div class="flex justify-between items-center p-3 bg-blue-100 rounded">
                         <div>
                             <span class="font-semibold">${ticket.name}</span>
-                            <span class="text-blue-600 ml-2">x ${st.quantity}</span>
+                            <span class="text-primary ml-2">x ${st.quantity}</span>
                         </div>
                         <div class="font-bold text-blue-800">${totalText}</div>
                     </div>

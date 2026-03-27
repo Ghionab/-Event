@@ -1,15 +1,20 @@
 {% extends 'participant/base.html' %}
-{% block title %}Notifications - EventHub{% endblock %}
+{% block title %}Notifications — EventAxis{% endblock %}
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <nav class="ea-breadcrumb mb-6" aria-label="Breadcrumb">
+        <a href="{% url 'attendee:dashboard' %}"><i class="bi bi-house mr-1"></i> Dashboard</a>
+        <i class="bi bi-chevron-right ea-breadcrumb-separator"></i>
+        <span class="ea-breadcrumb-current">Notifications</span>
+    </nav>
     <div class="flex justify-between items-center mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Notifications</h1>
+            <h1 class="text-3xl font-heading font-bold text-primary">Notifications</h1>
             <p class="mt-1 text-gray-600">{{ unread_count }} unread notification{{ unread_count|pluralize }}</p>
         </div>
         {% if unread_count > 0 %}
         <a href="{% url 'attendee:mark_all_notifications_read' %}"
-            class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+            class="text-primary hover:text-primary-800 text-sm font-medium transition-colors">
             <i class="bi bi-check-all mr-1"></i>Mark All as Read
         </a>
         {% endif %}
@@ -18,16 +23,16 @@
     <!-- Filter Tabs -->
     <div class="flex gap-2 mb-6">
         <a href="?filter=all"
-            class="px-4 py-2 rounded-lg text-sm font-medium {% if filter_type == 'all' %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 border{% endif %}">All</a>
+            class="px-4 py-2 rounded-lg text-sm font-medium {% if filter_type == 'all' %}bg-primary text-white{% else %}bg-white text-gray-700 border{% endif %} transition">All</a>
         <a href="?filter=unread"
-            class="px-4 py-2 rounded-lg text-sm font-medium {% if filter_type == 'unread' %}bg-indigo-600 text-white{% else %}bg-white text-gray-700 border{% endif %}">Unread</a>
+            class="px-4 py-2 rounded-lg text-sm font-medium {% if filter_type == 'unread' %}bg-primary text-white{% else %}bg-white text-gray-700 border{% endif %} transition">Unread</a>
     </div>
 
     {% if page_obj %}
     <div class="space-y-3">
         {% for notification in page_obj %}
         <div
-            class="bg-white rounded-lg shadow p-4 {% if not notification.is_read %}border-l-4 border-indigo-500 bg-indigo-50{% endif %} hover:shadow-md transition">
+            class="bg-white rounded-lg shadow p-4 {% if not notification.is_read %}border-l-4 border-primary bg-primary/10{% endif %} hover:shadow-md transition">
             <div class="flex items-start gap-3">
                 <div class="flex-shrink-0 mt-1">
                     {% if notification.notification_type == 'event_update' %}<i
@@ -39,7 +44,7 @@
                     {% elif notification.notification_type == 'session_alert' %}<i
                         class="bi bi-play-circle text-purple-500 text-lg"></i>
                     {% elif notification.notification_type == 'new_message' %}<i
-                        class="bi bi-chat-dots text-indigo-500 text-lg"></i>
+                        class="bi bi-chat-dots text-primary text-lg"></i>
                     {% else %}<i class="bi bi-megaphone text-gray-500 text-lg"></i>{% endif %}
                 </div>
                 <div class="flex-1">
@@ -49,7 +54,7 @@
                 </div>
                 {% if not notification.is_read %}
                 <a href="{% url 'attendee:mark_notification_read' notification.id %}"
-                    class="text-gray-400 hover:text-indigo-600 text-sm" title="Mark as read">
+                    class="text-gray-400 hover:text-primary text-sm transition-colors" title="Mark as read">
                     <i class="bi bi-check2"></i>
                 </a>
                 {% endif %}
@@ -67,9 +72,9 @@
     </div>
     {% endif %}
     {% else %}
-    <div class="bg-white rounded-lg shadow p-12 text-center">
+    <div class="ea-empty-state py-12">
         <i class="bi bi-bell text-gray-300 text-6xl mb-4 block"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">No notifications</h3>
+        <h3 class="text-xl font-heading font-semibold text-gray-900 mb-2">No notifications</h3>
         <p class="text-gray-500">You're all caught up!</p>
     </div>
     {% endif %}

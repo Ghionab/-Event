@@ -1,43 +1,109 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Event Management System{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>{% block title %}EventAxis — Event Management{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/eventaxis-design-system.css' %}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary:     { DEFAULT: '#1F3A5F', dark: '#162C48', light: '#2A4F7A' },
+                        accent:      { DEFAULT: '#C8A24A', dark: '#B08E3A', light: '#D4B56A' },
+                        surface:     { DEFAULT: '#F5F6F7', white: '#FFFFFF' },
+                    },
+                    fontFamily: {
+                        heading: ['Poppins', 'Montserrat', 'system-ui', 'sans-serif'],
+                        body:    ['Inter', 'Open Sans', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: '0.5rem',
+                        lg:      '0.75rem',
+                        xl:      '1rem',
+                    },
+                    boxShadow: {
+                        card:    '0 1px 3px rgba(0,0,0,0.08)',
+                        hover:   '0 4px 12px rgba(0,0,0,0.08)',
+                        overlay: '0 10px 25px rgba(0,0,0,0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: var(--ea-font-body);
+            background: var(--ea-bg);
+            color: var(--ea-text);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Event Management</a>
-            <div class="navbar-nav ms-auto">
-                {% if user.is_authenticated %}
-                    <a class="nav-link" href="/admin/">Admin</a>
-                    <a class="nav-link" href="/organizers/">Organizer</a>
-                    <a class="nav-link" href="/accounts/logout/">Logout</a>
-                {% else %}
-                    <a class="nav-link" href="/accounts/login/">Login</a>
-                {% endif %}
+<body class="bg-surface min-h-screen font-body flex flex-col">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-primary via-primary-dark to-primary border-b border-white/5 sticky top-0 z-50 shadow-xl backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="/" class="flex items-center hover:opacity-90 transition-opacity">
+                    <i class="bi bi-calendar-event text-2xl mr-2.5" style="background: linear-gradient(135deg, var(--ea-accent), #FFE5A3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 4px rgba(200, 162, 74, 0.4));"></i>
+                    <span class="font-heading font-black tracking-tight text-xl text-white">Event<span class="text-accent">Axis</span></span>
+                </a>
+                <div class="flex items-center space-x-1">
+                    {% if user.is_authenticated %}
+                        <a href="/admin/" class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg text-sm font-medium transition">Admin</a>
+                        <a href="/organizers/" class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg text-sm font-medium transition">Organizer</a>
+                        <a href="/accounts/logout/" class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg text-sm font-medium transition">Logout</a>
+                    {% else %}
+                        <a href="/accounts/login/" class="text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg text-sm font-medium transition">Login</a>
+                        <a href="/register/" class="bg-accent text-primary-dark px-4 py-2 rounded-lg text-sm font-semibold hover:bg-accent-dark transition ml-2">Sign Up</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
 
-    <main class="container mt-4">
-        {% if messages %}
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="p-4 mb-4 rounded-xl flex items-center gap-3 {% if message.tags == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% elif message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-primary/5 text-blue-700 border border-blue-200{% endif %}">
+                    <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'error' %}bi-exclamation-circle{% else %}bi-info-circle{% endif %} text-lg"></i>
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.remove()" class="ml-auto text-gray-400 hover:text-gray-600">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
             {% endfor %}
-        {% endif %}
+        </div>
+    {% endif %}
 
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {% block content %}
         {% endblock %}
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Footer -->
+    <footer class="bg-primary border-t border-white/10 mt-auto pt-8 pb-6 bg-gradient-to-br from-primary-dark to-primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-white/50 text-sm">
+                    &copy; 2026 EventAxis. All rights reserved.
+                </div>
+                <div class="text-white/40 text-xs">
+                    Built with <i class="bi bi-heart-fill text-accent/60"></i> in Ethiopia
+                </div>
+            </div>
+        </div>
+    </footer>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

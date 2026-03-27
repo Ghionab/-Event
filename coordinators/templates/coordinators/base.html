@@ -1,140 +1,289 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Coordinator Portal{% endblock %} - EventAxis</title>
-    
+    <title>{% block title %}Event Coordinator - EventAxis{% endblock %}</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Design System -->
+    <link rel="stylesheet" href="{% static 'css/eventaxis-design-system.css' %}">
     
     <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            /* Bootstrap overrides */
+            --bs-primary: #1F3A5F;
+            --bs-secondary: #6B7280;
+            --bs-success: #059669;
+            --bs-info: #0284C7;
+            --bs-warning: #D97706;
+            --bs-danger: #DC2626;
+            --bs-light: #F5F6F7;
+            --bs-dark: #162C48;
+            --bs-body-font-family: 'Inter', sans-serif;
+            --bs-link-color: #1F3A5F;
+            --bs-link-hover-color: #C8A24A;
         }
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
-            margin: 2px 0;
+        
+        body {
+            font-family: var(--ea-font-body);
+            background-color: var(--ea-bg);
+            color: var(--ea-text);
+        }
+
+        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+            font-family: var(--ea-font-heading);
+            font-weight: 600;
+        }
+        
+        .coordinator-sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 60px 0 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
+
+        .coordinator-brand {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            font-family: var(--ea-font-heading);
+            font-size: 1.35rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
             color: white;
-            background: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
+        
+        .coordinator-brand i {
+            background: linear-gradient(135deg, var(--ea-accent), #FFE5A3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(200, 162, 74, 0.4));
         }
-        .stat-card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: calc(100vh - 64px);
+            padding-top: 1rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .coordinator-sidebar .nav-link {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.65);
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 0.25rem 0.75rem;
+            border-radius: var(--ea-radius-md);
+            position: relative;
+        }
+
+        .coordinator-sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            left: -0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--ea-accent);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+            border-radius: 0 4px 4px 0;
+            opacity: 0;
+        }
+
+        .coordinator-sidebar .nav-link:hover {
+            color: white;
+            background: rgba(255,255,255,0.08);
+            transform: translateX(4px);
+        }
+
+        .coordinator-sidebar .nav-link.active {
+            color: var(--ea-accent);
+            background: linear-gradient(90deg, rgba(200, 162, 74, 0.15) 0%, rgba(200, 162, 74, 0.05) 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .coordinator-sidebar .nav-link.active::before {
+            transform: scaleY(0.7);
+            opacity: 1;
+        }
+
+        .coordinator-sidebar .nav-link i {
+            font-size: 1.1rem;
             transition: transform 0.3s ease;
         }
-        .stat-card:hover {
-            transform: translateY(-5px);
+
+        .coordinator-sidebar .nav-link:hover i {
+            transform: scale(1.1);
         }
-        .navbar-brand {
-            font-weight: bold;
-            color: white !important;
+
+        .coordinator-main {
+            margin-left: 250px;
+            padding: 2rem;
         }
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+
+        .coordinator-topbar {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            margin-left: 250px;
         }
+
+        /* Helper Classes Overrides to match design system */
+        .btn-primary {
+            background-color: var(--ea-primary);
+            border-color: var(--ea-primary);
+        }
+        .btn-primary:hover {
+            background-color: var(--ea-primary-dark);
+            border-color: var(--ea-primary-dark);
+        }
+        
+        .btn-outline-primary {
+            color: var(--ea-primary);
+            border-color: var(--ea-primary);
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--ea-primary);
+            border-color: var(--ea-primary);
+            color: white;
+        }
+
+        .card {
+            border-radius: var(--ea-radius-xl);
+            border: 1px solid var(--ea-border);
+            box-shadow: var(--ea-shadow-sm);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid var(--ea-border-light);
+            padding: 1.25rem 1.5rem;
+            border-top-left-radius: calc(var(--ea-radius-xl) - 1px) !important;
+            border-top-right-radius: calc(var(--ea-radius-xl) - 1px) !important;
+        }
+
+        @media (max-width: 767.98px) {
+            .coordinator-sidebar {
+                transform: translateX(-100%);
+            }
+            .coordinator-sidebar.show {
+                transform: translateX(0);
+            }
+            .coordinator-main, .coordinator-topbar {
+                margin-left: 0;
+            }
+        }
+        
+        {% block extra_css %}{% endblock %}
     </style>
-    
-    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h4 class="navbar-brand text-white">
-                            <i class="fas fa-calendar-check me-2"></i>
-                            Coordinator Portal
-                        </h4>
-                    </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
-                               href="{% url 'coordinators:dashboard' %}">
-                                <i class="fas fa-tachometer-alt me-2"></i>
-                                Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'event' in request.resolver_match.url_name %}active{% endif %}" 
-                               href="{% url 'coordinators:event_list' %}">
-                                <i class="fas fa-calendar me-2"></i>
-                                My Events
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}" 
-                               href="{% url 'coordinators:analytics' %}">
-                                <i class="fas fa-chart-bar me-2"></i>
-                                Analytics
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <hr class="text-white-50">
-                    
-                    <div class="text-white-50 small px-3">
-                        <p class="mb-1">Logged in as:</p>
-                        <p class="mb-0 fw-bold">{{ user.email }}</p>
-                        <p class="mb-3">Coordinator</p>
-                        <a href="{% url 'coordinators:coordinator_logout' %}" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-sign-out-alt me-1"></i> Logout
-                        </a>
-                    </div>
-                </div>
-            </nav>
 
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <!-- Top Navigation -->
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">{% block page_title %}Dashboard{% endblock %}</h1>
-                    
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        {% block page_actions %}{% endblock %}
-                    </div>
-                </div>
-
-                <!-- Messages -->
-                {% if messages %}
-                    <div class="alert-container">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                <!-- Content -->
-                {% block content %}{% endblock %}
-            </main>
+    <!-- Sidebar -->
+    <nav id="sidebarMenu" class="coordinator-sidebar">
+        <a href="{% url 'coordinators:dashboard' %}" class="coordinator-brand">
+            <i class="bi bi-calendar-event text-accent me-2"></i> Event<span class="text-accent">Axis</span>
+        </a>
+        <div class="sidebar-sticky pt-3 mt-4">
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-2 text-white-50 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.1em; font-weight: 600;">
+                <span>Coordinator Portal</span>
+            </h6>
+            <ul class="nav flex-column mb-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'coordinators:dashboard' %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+            </ul>
         </div>
-    </div>
+    </nav>
 
-    <!-- Bootstrap JS -->
+    <!-- Topbar -->
+    <header class="coordinator-topbar">
+        <button class="navbar-toggler d-md-none position-absolute right-0 top-0 me-3 mt-3 shadow-none border-0 bg-transparent text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-list fs-3"></i>
+        </button>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark fw-medium" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2 border" style="width: 32px; height: 32px; color: var(--ea-primary); font-weight: 600;">
+                    <i class="bi bi-person"></i>
+                </div>
+                <span>{{ user.first_name|default:user.username }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 radius-lg mt-2" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item py-2 text-danger fw-medium" href="{% url 'coordinators:coordinator_logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="coordinator-main">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+            <h1 class="h3 mb-0" style="color: var(--ea-text);">{% block page_title %}Dashboard{% endblock %}</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                {% block page_actions %}{% endblock %}
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: var(--ea-radius-md);">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Font Awesome -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <script>
+        // Simple sidebar toggle for mobile
+        document.querySelector('.navbar-toggler').addEventListener('click', function() {
+            document.getElementById('sidebarMenu').classList.toggle('show');
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>

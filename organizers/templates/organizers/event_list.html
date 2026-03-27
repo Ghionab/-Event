@@ -8,51 +8,51 @@
 
 {% block content %}
 <!-- Premium Header Banner -->
-<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 shadow-xl">
+<div class="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary-dark to-primary shadow-xl border border-primary-light/30">
     <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-accent rounded-full blur-3xl opacity-20"></div>
         <div class="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
     </div>
     <div class="relative px-8 py-8">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-center space-x-4">
-                <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                    <i class="bi bi-calendar-check text-white text-3xl"></i>
+                <div class="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+                    <i class="bi bi-calendar-check text-accent text-3xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-white">My Events</h1>
-                    <p class="text-indigo-100 text-sm mt-1">{{ events|length }} event{{ events|length|pluralize }} total</p>
+                    <h1 class="text-2xl font-heading font-bold text-white">My Events</h1>
+                    <p class="text-white/70 text-sm mt-1">{{ events|length }} event{{ events|length|pluralize }} total</p>
                 </div>
             </div>
-            <a href="{% url 'organizers:organizer_event_create' %}" class="inline-flex items-center px-5 py-2.5 bg-white text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all duration-200 font-semibold shadow-lg">
-                <i class="bi bi-plus-lg mr-2"></i>Create New Event
+            <a href="{% url 'organizers:organizer_event_create' %}" class="ea-btn ea-btn-accent shadow-lg">
+                <i class="bi bi-plus-lg"></i> Create New Event
             </a>
         </div>
     </div>
 </div>
 
 <!-- Events Table -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="ea-card">
     <div class="overflow-x-auto">
         {% if events %}
-        <table class="w-full">
-            <thead class="bg-gray-50/80 border-b border-gray-100">
+        <table class="ea-table">
+            <thead class="bg-surface/50">
                 <tr>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Event</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Type</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Date</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Registrations</th>
-                    <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
+                    <th>Event</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Registrations</th>
+                    <th class="text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 {% for event in events %}
-                <tr class="hover:bg-gray-50/80 transition-colors duration-200 group">
-                    <td class="px-6 py-4">
+                <tr class="hover:bg-surface/80 transition-colors duration-200 group">
+                    <td>
                         <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-3" style="background-color: {{ event.primary_color|default:'#667eea' }}20;">
-                                <i class="bi bi-calendar-event" style="color: {{ event.primary_color|default:'#667eea' }};"></i>
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center mr-3 bg-primary/10 group-hover:bg-primary transition-colors">
+                                <i class="bi bi-calendar-event text-primary group-hover:text-white"></i>
                             </div>
                             <div>
                                 <p class="font-medium text-gray-900">{{ event.title }}</p>
@@ -60,41 +60,41 @@
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                    <td>
+                        <span class="ea-badge bg-gray-100 text-gray-700">
                             {{ event.get_event_type_display|default:"Event" }}
                         </span>
                     </td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full
-                            {% if event.status == 'published' %}bg-emerald-100 text-emerald-700 border border-emerald-200
-                            {% elif event.status == 'draft' %}bg-amber-100 text-amber-700 border border-amber-200
-                            {% elif event.status == 'cancelled' %}bg-rose-100 text-rose-700 border border-rose-200
-                            {% else %}bg-gray-100 text-gray-700 border border-gray-200{% endif %}">
+                    <td>
+                        <span class="ea-badge
+                            {% if event.status == 'published' %}ea-badge-success
+                            {% elif event.status == 'draft' %}ea-badge-warning
+                            {% elif event.status == 'cancelled' %}ea-badge-error
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
                             {% if event.status == 'published' %}<i class="bi bi-check-circle mr-1"></i>
                             {% elif event.status == 'draft' %}<i class="bi bi-pencil-square mr-1"></i>
                             {% elif event.status == 'cancelled' %}<i class="bi bi-x-circle mr-1"></i>{% endif %}
                             {{ event.status|title }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-600">
+                    <td class="text-sm text-gray-600">
                         {{ event.start_date|date:"M d, Y" }}
                     </td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    <td>
+                        <span class="ea-badge ea-badge-primary">
                             <i class="bi bi-person mr-1"></i>{{ event.registrations.count }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-right">
+                    <td class="text-right">
                         <div class="flex items-center justify-end gap-1">
-                            <a href="{% url 'organizers:organizer_event_detail' event.id %}" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200" title="View">
-                                <i class="bi bi-eye"></i>
+                            <a href="{% url 'organizers:organizer_event_detail' event.id %}" class="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="View">
+                                <i class="bi bi-eye text-lg"></i>
                             </a>
-                            <a href="{% url 'organizers:organizer_event_edit' event.id %}" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200" title="Edit">
-                                <i class="bi bi-pencil"></i>
+                            <a href="{% url 'organizers:organizer_event_edit' event.id %}" class="p-2 text-gray-400 hover:text-info hover:bg-info/10 rounded-lg transition-colors" title="Edit">
+                                <i class="bi bi-pencil text-lg"></i>
                             </a>
-                            <a href="{% url 'organizers:organizer_event_delete' event.id %}" class="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all duration-200" title="Delete">
-                                <i class="bi bi-trash"></i>
+                            <a href="{% url 'organizers:organizer_event_delete' event.id %}" class="p-2 text-gray-400 hover:text-error hover:bg-error/10 rounded-lg transition-colors" title="Delete">
+                                <i class="bi bi-trash text-lg"></i>
                             </a>
                         </div>
                     </td>
@@ -104,14 +104,12 @@
         </table>
         {% else %}
         <!-- Empty State -->
-        <div class="p-12 text-center">
-            <div class="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <i class="bi bi-calendar-x text-indigo-600 text-3xl"></i>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">No Events Yet</h3>
-            <p class="text-gray-500 mb-8 max-w-md mx-auto">Create your first event to get started. You can manage registrations, send communications, and track analytics.</p>
-            <a href="{% url 'organizers:organizer_event_create' %}" class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
-                <i class="bi bi-plus-lg mr-2"></i>Create Your First Event
+        <div class="ea-empty-state">
+            <i class="bi bi-calendar-x ea-empty-state-icon text-primary/30"></i>
+            <h3 class="ea-empty-state-title">No Events Yet</h3>
+            <p class="ea-empty-state-text">Create your first event to get started. You can manage registrations, send communications, and track analytics.</p>
+            <a href="{% url 'organizers:organizer_event_create' %}" class="ea-btn ea-btn-primary mt-2">
+                <i class="bi bi-plus text-lg mr-1"></i> Create Your First Event
             </a>
         </div>
         {% endif %}

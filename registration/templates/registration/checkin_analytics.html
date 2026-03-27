@@ -5,21 +5,20 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Check-in Analytics</h1>
-        <a href="{% url 'registration:qr_code_list' event.id %}" class="btn btn-secondary">
-            Back to QR Codes
-        </a>
+        <h1 class="text-2xl font-heading font-bold text-primary">Check-in Analytics</h1>
+        <a href="{% url 'registration:qr_code_list' event.id %}" class="ea-btn ea-btn-ghost">Back to QR Codes</a>
     </div>
 
     <!-- Main Stats -->
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-4">
+        <div class="ea-stat-card">
+            <div class="ea-stat-icon ea-stat-icon-primary mb-4">
             <div class="text-sm text-gray-500">Total Registrations</div>
             <div class="text-3xl font-bold">{{ total }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-4">
             <div class="text-sm text-gray-500">Confirmed</div>
-            <div class="text-3xl font-bold text-blue-600">{{ confirmed }}</div>
+            <div class="text-3xl font-bold text-primary">{{ confirmed }}</div>
         </div>
         <div class="bg-white rounded-lg shadow p-4">
             <div class="text-sm text-gray-500">Checked In</div>
@@ -36,8 +35,8 @@
     </div>
 
     <!-- Progress Bar -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-lg font-semibold mb-4">Check-in Progress</h2>
+    <div class="ea-card p-6 mb-6">
+        <h2 class="text-lg font-heading font-semibold mb-4">Check-in Progress</h2>
         <div class="w-full bg-gray-200 rounded-full h-6">
             <div class="bg-green-600 h-6 rounded-full text-white text-center text-sm leading-6" style="width: {{ check_in_rate }}%">
                 {{ check_in_rate|floatform:1 }}%
@@ -51,8 +50,8 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Check-ins by Ticket Type -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Check-ins by Ticket Type</h2>
+        <div class="ea-card p-6">
+            <h2 class="text-lg font-heading font-semibold mb-4">Check-ins by Ticket Type</h2>
             {% if checkins_by_ticket %}
             <table class="min-w-full">
                 <thead>
@@ -102,13 +101,13 @@
     <!-- Quick Actions -->
     <div class="mt-6 flex gap-4">
         <a href="{% url 'registration:manual_check_in' event.id %}" class="btn btn-primary">
-            <i class="fas fa-qrcode"></i> Manual Check-in
+            <i class="bi bi-qr-code"></i> Manual Check-in
         </a>
         <a href="{% url 'registration:qr_check_in' %}" class="btn btn-secondary">
-            <i class="fas fa-camera"></i> QR Scanner
+            <i class="bi bi-camera-fill"></i> QR Scanner
         </a>
         <a href="{% url 'registration:checkin_history' event.id %}" class="btn btn-secondary">
-            <i class="fas fa-history"></i> Full History
+            <i class="bi bi-clock-history"></i> Full History
         </a>
     </div>
 </div>

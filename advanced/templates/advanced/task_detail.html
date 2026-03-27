@@ -1,6 +1,6 @@
 {% extends 'organizers/base.html' %}
 
-{% block title %}{{ task.title }} - EventHub{% endblock %}
+{% block title %}{{ task.title }} - EventAxis{% endblock %}
 {% block header %}{{ task.title }}{% endblock %}
 {% block subtitle %}Task details and progress tracking{% endblock %}
 
@@ -30,7 +30,7 @@
         {% endif %}
     </div>
     <div class="flex gap-2">
-        <a href="{% url 'advanced:task_update' task.pk %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+        <a href="{% url 'advanced:task_update' task.pk %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition">
             <i class="bi bi-pencil mr-2"></i>
             Edit Task
         </a>
@@ -64,7 +64,7 @@
                         <dd class="mt-1 text-sm text-gray-900">
                             {% if task.assigned_to %}
                                 <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-xs mr-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs mr-2">
                                         {{ task.assigned_to.user.email|slice:":2"|upper }}
                                     </div>
                                     {{ task.assigned_to.user.email }}
@@ -102,7 +102,7 @@
                     <div class="md:col-span-2">
                         <dt class="text-sm font-medium text-gray-500">Depends On</dt>
                         <dd class="mt-1 text-sm">
-                            <a href="{% url 'advanced:task_detail' task.depends_on.pk %}" class="text-indigo-600 hover:text-indigo-800">
+                            <a href="{% url 'advanced:task_detail' task.depends_on.pk %}" class="text-primary hover:text-indigo-800">
                                 {{ task.depends_on.title }}
                             </a>
                         </dd>
@@ -143,12 +143,12 @@
                             <span class="text-sm font-medium text-gray-900">{{ task.progress_percentage }}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-3">
-                            <div class="bg-indigo-600 h-3 rounded-full transition-all" style="width: {{ task.progress_percentage }}%"></div>
+                            <div class="bg-primary h-3 rounded-full transition-all" style="width: {{ task.progress_percentage }}%"></div>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-blue-50 rounded-lg p-4">
-                            <div class="text-sm text-blue-600 font-medium">Estimated Hours</div>
+                        <div class="bg-primary/5 rounded-lg p-4">
+                            <div class="text-sm text-primary font-medium">Estimated Hours</div>
                             <div class="text-2xl font-bold text-blue-900 mt-1">
                                 {% if task.estimated_hours %}{{ task.estimated_hours }}{% else %}—{% endif %}
                             </div>
@@ -178,7 +178,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ form.comment.errors.0 }}</p>
                         {% endif %}
                     </div>
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition">
                         <i class="bi bi-chat-left-text mr-2"></i>
                         Add Comment
                     </button>
@@ -186,10 +186,10 @@
                 
                 <div class="space-y-4">
                     {% for comment in comments %}
-                        <div class="border-l-4 border-indigo-500 pl-4 py-2">
+                        <div class="border-l-4 border-primary pl-4 py-2">
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-xs mr-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs mr-2">
                                         {{ comment.user.email|slice:":2"|upper }}
                                     </div>
                                     <span class="font-medium text-gray-900">{{ comment.user.email }}</span>
@@ -225,7 +225,7 @@
                     </button>
                 </form>
                 {% endif %}
-                <a href="{% url 'advanced:task_update' task.pk %}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                <a href="{% url 'advanced:task_update' task.pk %}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition">
                     <i class="bi bi-pencil mr-2"></i>
                     Edit Task
                 </a>

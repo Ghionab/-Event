@@ -1,10 +1,10 @@
-﻿{% extends 'participant/base.html' %}
-{% block title %}Materials: {{ event.title }} - EventHub{% endblock %}
+{% extends 'participant/base.html' %}
+{% block title %}Materials: {{ event.title }} - EventAxis{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <nav class="mb-6 text-sm text-gray-500">
-        <a href="{% url 'attendee:dashboard' %}" class="hover:text-indigo-600">Dashboard</a> /
-        <a href="{% url 'attendee:registration_detail' registration.id %}" class="hover:text-indigo-600">{{ event.title
+        <a href="{% url 'attendee:dashboard' %}" class="hover:text-primary">Dashboard</a> /
+        <a href="{% url 'attendee:registration_detail' registration.id %}" class="hover:text-primary">{{ event.title
             }}</a> /
         <span class="text-gray-900">Materials</span>
     </nav>
@@ -46,11 +46,11 @@
                             class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition group">
                             <i class="bi bi-filetype-pdf text-3xl text-red-500"></i>
                             <div class="flex-1">
-                                <p class="font-medium text-gray-900 group-hover:text-indigo-600 transition">{{
+                                <p class="font-medium text-gray-900 group-hover:text-primary transition">{{
                                     session.title }} Slides</p>
                                 <p class="text-xs text-gray-500">{{ session.slides.size|filesizeformat }}</p>
                             </div>
-                            <i class="bi bi-download text-gray-400 group-hover:text-indigo-600"></i>
+                            <i class="bi bi-download text-gray-400 group-hover:text-primary"></i>
                         </a>
                     </div>
                     {% endif %}
@@ -64,7 +64,7 @@
                             {% for resource in session.resources %}
                             <a href="{{ resource.url }}" target="_blank"
                                 class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition group">
-                                <span class="text-sm font-medium text-gray-700 group-hover:text-indigo-600"><i
+                                <span class="text-sm font-medium text-gray-700 group-hover:text-primary"><i
                                         class="bi bi-link-45deg mr-2 text-gray-400"></i>{{ resource.title }}</span>
                                 <i class="bi bi-box-arrow-up-right text-xs text-gray-400"></i>
                             </a>

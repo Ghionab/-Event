@@ -121,7 +121,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {% if row.registration %}
-                            <a href="{% url 'registration:registration_detail' row.registration.id %}" class="text-blue-600 hover:text-blue-900">
+                            <a href="{% url 'registration:registration_detail' row.registration.id %}" class="text-primary hover:text-blue-900">
                                 {{ row.registration.registration_number }}
                             </a>
                             {% else %}

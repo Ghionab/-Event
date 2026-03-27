@@ -1,54 +1,66 @@
 {% extends 'participant/base.html' %}
-{% block title %}{{ event.title }} Schedule - EventHub{% endblock %}
+{% block title %}{{ event.title }} Schedule — EventAxis{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <nav class="mb-6 text-sm text-gray-500">
-        <a href="{% url 'attendee:dashboard' %}" class="hover:text-indigo-600">Dashboard</a> /
-        <a href="{% url 'attendee:registration_detail' registration.id %}" class="hover:text-indigo-600">{{ event.title }}</a> /
-        <span class="text-gray-900">Schedule</span>
+    <!-- Breadcrumb -->
+    <nav class="ea-breadcrumb" aria-label="Breadcrumb">
+        <a href="{% url 'attendee:dashboard' %}"><i class="bi bi-house mr-1"></i> Dashboard</a>
+        <i class="bi bi-chevron-right ea-breadcrumb-separator"></i>
+        <a href="{% url 'attendee:registration_detail' registration.id %}">{{ event.title }}</a>
+        <i class="bi bi-chevron-right ea-breadcrumb-separator"></i>
+        <span class="ea-breadcrumb-current">Schedule</span>
     </nav>
 
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ event.title }} &mdash; Schedule</h1>
+    <!-- Page Header -->
+    <div class="ea-page-header mb-8">
+        <div>
+            <h1 class="ea-page-header-title">{{ event.title }} — Schedule</h1>
+        </div>
     </div>
 
+    <!-- Track Legend -->
     {% if tracks %}
     <div class="flex flex-wrap gap-2 mb-6">
         {% for track in tracks %}
-        <span class="text-xs px-3 py-1 rounded-full border"
-            style="border-color: {{ track.color }}; color: {{ track.color }}">{{ track.name }}</span>
+        <span class="ea-badge text-xs px-3 py-1"
+            style="border: 1px solid {{ track.color }}; color: {{ track.color }}; background: {{ track.color }}08;">{{ track.name }}</span>
         {% endfor %}
     </div>
     {% endif %}
 
+    <!-- Sessions by Day -->
     {% for day, day_sessions in sessions_by_day.items %}
     <div class="mb-8">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b">{{ day|date:"l, F d, Y" }}</h2>
-        <div class="space-y-3">
+        <h2 class="text-lg font-heading font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">{{ day|date:"l, F d, Y" }}</h2>
+        <div class="space-y-3 ea-stagger">
             {% for session in day_sessions %}
-            <div class="group bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:border-indigo-200 hover:shadow-md transition-all duration-300 border-l-4 {% if session.id in saved_session_ids %}border-indigo-500 bg-indigo-50/20{% else %}border-gray-200{% endif %}">
+            <div class="ea-card group p-5 border-l-4 {% if session.id in saved_session_ids %}border-primary bg-primary/[0.03]{% else %}border-gray-200{% endif %} hover:border-primary/50 transition-all duration-300">
                 <div class="flex flex-col md:flex-row justify-between gap-6">
                     <div class="flex-1">
+                        <!-- Time & Track -->
                         <div class="flex items-center gap-3 mb-2">
-                            <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                            <span class="ea-badge ea-badge-primary text-xs font-bold">
                                 {{ session.session_start_time|date:"g:i A" }} &ndash; {{ session.session_end_time|date:"g:i A" }}
                             </span>
                             {% if session.track %}
-                            <span class="text-xs font-medium px-2 py-1 rounded-full border" style="border-color: {{ session.track.color }}; color: {{ session.track.color }}; background-color: {{ session.track.color }}10">
+                            <span class="ea-badge text-xs" style="border: 1px solid {{ session.track.color }}; color: {{ session.track.color }}; background-color: {{ session.track.color }}10;">
                                 {{ session.track.name }}
                             </span>
                             {% endif %}
                         </div>
                         
-                        <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">{{ session.title }}</h3>
+                        <!-- Title -->
+                        <h3 class="text-lg font-heading font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors">{{ session.title }}</h3>
                         
+                        <!-- Description -->
                         {% if session.description %}
                         <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ session.description }}</p>
                         {% endif %}
                         
+                        <!-- Location -->
                         {% if session.location %}
                         <div class="flex items-center text-xs text-gray-500 mb-4">
-                            <i class="bi bi-geo-alt mr-1.5 text-indigo-500"></i>
+                            <i class="bi bi-geo-alt mr-1.5 text-primary"></i>
                             {{ session.location }}
                         </div>
                         {% endif %}
@@ -60,7 +72,7 @@
                                 {% if ss.speaker_profile_picture %}
                                 <img src="{{ ss.speaker_profile_picture.url }}" alt="{{ ss.speaker_name }}" class="w-6 h-6 rounded-full object-cover">
                                 {% else %}
-                                <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-600">
+                                <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
                                     {{ ss.speaker_name|slice:":1" }}
                                 </div>
                                 {% endif %}
@@ -70,17 +82,17 @@
                         </div>
                     </div>
 
+                    <!-- Actions -->
                     <div class="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-3">
                         <button onclick="toggleSession({{ session.id }})" id="save-btn-{{ session.id }}"
-                            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200
-                                {% if session.id in saved_session_ids %}bg-indigo-600 text-white shadow-indigo-200 shadow-lg{% else %}border border-indigo-600 text-indigo-600 hover:bg-indigo-50{% endif %}">
-                            <i class="bi {% if session.id in saved_session_ids %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
-                            {% if session.id in saved_session_ids %}Saved{% else %}Save Session{% endif %}
+                            class="ea-btn ea-btn-sm transition-all duration-200
+                                {% if session.id in saved_session_ids %}ea-btn-primary shadow-md{% else %}ea-btn-outline{% endif %}">
+                            <i class="bi {% if session.id in saved_session_ids %}bi-bookmark-fill{% else %}bi-bookmark{% endif %} mr-1"></i>
+                            {% if session.id in saved_session_ids %}Saved{% else %}Save{% endif %}
                         </button>
                         <a href="{% url 'attendee:session_feedback' session.id %}"
-                            class="flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
-                            <i class="bi bi-star"></i>
-                            Rate
+                            class="ea-btn ea-btn-ghost ea-btn-sm">
+                            <i class="bi bi-star mr-1"></i> Rate
                         </a>
                     </div>
                 </div>
@@ -90,9 +102,12 @@
         </div>
     </div>
     {% empty %}
-    <div class="bg-white rounded-lg shadow p-12 text-center">
-        <i class="bi bi-calendar-x text-gray-300 text-6xl mb-4 block"></i>
-        <h3 class="text-xl font-semibold text-gray-700">No sessions available yet</h3>
+    <div class="ea-card">
+        <div class="ea-empty-state py-12">
+            <i class="bi bi-calendar-x text-gray-300 text-6xl mb-4 block"></i>
+            <h3 class="ea-empty-state-title">No sessions available yet</h3>
+            <p class="ea-empty-state-text">The schedule for this event hasn't been published yet. Check back closer to the event date.</p>
+        </div>
     </div>
     {% endfor %}
 </div>
@@ -110,9 +125,3 @@
 </script>
 {% endblock %}
 {% endblock %}
-
-
-
-
-
-

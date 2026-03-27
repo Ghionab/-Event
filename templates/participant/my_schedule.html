@@ -1,54 +1,58 @@
 {% extends 'participant/base.html' %}
-{% block title %}My Schedule - EventHub{% endblock %}
+{% block title %}My Schedule — EventAxis{% endblock %}
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex justify-between items-center mb-8">
+    <nav class="ea-breadcrumb mb-6" aria-label="Breadcrumb">
+        <a href="{% url 'attendee:dashboard' %}"><i class="bi bi-house mr-1"></i> Dashboard</a>
+        <i class="bi bi-chevron-right ea-breadcrumb-separator"></i>
+        <span class="ea-breadcrumb-current">My Schedule</span>
+    </nav>
+    <!-- Page Header -->
+    <div class="ea-page-header mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">My Schedule</h1>
-            <p class="mt-1 text-gray-600">Your saved sessions across all events</p>
+            <h1 class="ea-page-header-title">My Schedule</h1>
+            <p class="ea-page-header-subtitle">Your saved sessions across all events</p>
         </div>
-        <div class="flex gap-2">
+        <div class="ea-page-header-actions">
             <a href="{% url 'attendee:export_schedule' %}"
-                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                class="ea-btn ea-btn-primary">
                 <i class="bi bi-calendar-plus mr-2"></i>Export to iCal
             </a>
         </div>
     </div>
 
     {% if conflicts %}
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-        <p class="text-yellow-800 font-medium"><i class="bi bi-exclamation-triangle mr-2"></i>Schedule Conflicts
-            Detected</p>
-        <p class="text-yellow-700 text-sm mt-1">Some of your saved sessions overlap. Review the highlighted items below.
-        </p>
+    <div class="ea-alert ea-alert-warning mb-6">
+        <i class="bi bi-exclamation-triangle mr-2"></i>
+        <div>
+            <p class="font-medium">Schedule Conflicts Detected</p>
+            <p class="text-sm mt-0.5 opacity-80">Some of your saved sessions overlap. Review the highlighted items below.</p>
+        </div>
     </div>
     {% endif %}
 
     {% if schedule_items %}
-    <div class="space-y-4">
+    <div class="space-y-4 ea-stagger">
         {% for item in schedule_items %}
-        <div
-            class="bg-white rounded-lg shadow p-5 border-l-4 {% if forloop.counter0 in conflicts %}border-yellow-500 bg-yellow-50{% else %}border-indigo-500{% endif %}">
+        <div class="ea-card p-5 border-l-4 {% if forloop.counter0 in conflicts %}border-warning bg-warning/5{% else %}border-primary{% endif %}">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-xs text-indigo-600 font-medium uppercase tracking-wide">{{ item.event.title }}</p>
-                    <h3 class="text-lg font-semibold text-gray-900 mt-1">{{ item.session.title }}</h3>
-                    <div class="mt-2 text-sm text-gray-600 space-y-1">
-                        <p><i class="bi bi-calendar mr-2"></i>{{ item.session.start_time|date:"F d, Y" }}</p>
-                        <p><i class="bi bi-clock mr-2"></i>{{ item.session.start_time|date:"g:i A" }} — {{
-                            item.session.end_time|date:"g:i A" }}</p>
-                        {% if item.session.location %}<p><i class="bi bi-geo-alt mr-2"></i>{{ item.session.location }}
-                        </p>{% endif %}
+                    <p class="ea-caption text-primary font-semibold uppercase tracking-wide mb-1">{{ item.event.title }}</p>
+                    <h3 class="text-lg font-heading font-semibold text-gray-900 mt-1">{{ item.session.title }}</h3>
+                    <div class="mt-3 text-sm text-gray-600 space-y-1.5">
+                        <p class="flex items-center gap-2"><i class="bi bi-calendar3 text-primary text-xs"></i> {{ item.session.start_time|date:"F d, Y" }}</p>
+                        <p class="flex items-center gap-2"><i class="bi bi-clock text-primary text-xs"></i> {{ item.session.start_time|date:"g:i A" }} — {{ item.session.end_time|date:"g:i A" }}</p>
+                        {% if item.session.location %}<p class="flex items-center gap-2"><i class="bi bi-geo-alt text-primary text-xs"></i> {{ item.session.location }}</p>{% endif %}
                     </div>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex gap-2 flex-shrink-0">
                     <a href="{% url 'attendee:add_to_google_calendar' item.session.id %}"
-                        class="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 text-sm"
+                        class="ea-btn ea-btn-sm ea-btn-outline text-xs"
                         title="Add to Google Calendar - Get phone notifications!" target="_blank">
-                        <i class="bi bi-google mr-1"></i>Google Calendar
+                        <i class="bi bi-google mr-1"></i>Google Cal
                     </a>
                     <a href="{% url 'attendee:session_feedback' item.session.id %}"
-                        class="text-indigo-600 hover:text-indigo-800 text-sm" title="Rate Session">
+                        class="ea-btn ea-btn-ghost ea-btn-sm" title="Rate Session">
                         <i class="bi bi-star"></i>
                     </a>
                 </div>
@@ -57,12 +61,14 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="bg-white rounded-lg shadow p-12 text-center">
-        <i class="bi bi-calendar3 text-gray-300 text-6xl mb-4 block"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">No sessions saved yet</h3>
-        <p class="text-gray-500 mb-6">Browse event schedules and save sessions to build your personal schedule.</p>
-        <a href="{% url 'attendee:my_registrations' %}"
-            class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">View My Events</a>
+    <div class="ea-card">
+        <div class="ea-empty-state py-14">
+            <i class="bi bi-calendar3 text-gray-300 text-6xl mb-4 block"></i>
+            <h3 class="ea-empty-state-title">No sessions saved yet</h3>
+            <p class="ea-empty-state-text">Browse event schedules and save sessions to build your personal schedule.</p>
+            <a href="{% url 'attendee:my_registrations' %}"
+                class="ea-btn ea-btn-primary ea-btn-lg mt-4">View My Events</a>
+        </div>
     </div>
     {% endif %}
 </div>

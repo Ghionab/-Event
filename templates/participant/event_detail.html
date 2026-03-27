@@ -1,12 +1,12 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}Event Details - EventPortal{% endblock %}
+{% block title %}Event Details - EventAxis{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" id="eventContainer">
     <!-- Loading State -->
     <div class="text-center py-12">
-        <i class="fas fa-spinner fa-spin text-indigo-600 text-4xl"></i>
+        <i class="bi bi-arrow-repeat ea-spin text-primary text-4xl"></i>
         <p class="text-gray-500 mt-4">Loading event...</p>
     </div>
 </div>
@@ -342,14 +342,14 @@
                         event.logo ? 
                         `<img src="${event.logo}" alt="${event.title}" class="h-48 w-48 object-contain z-10 drop-shadow-2xl">` :
                         `<div class="text-center z-10">
-                            <i class="fas fa-calendar-star text-white text-7xl mb-4 opacity-90"></i>
+                            <i class="bi bi-star text-white text-7xl mb-4 opacity-90"></i>
                             <p class="text-white text-xl font-light tracking-widest">${formatEventType(event.event_type)}</p>
                          </div>`
                     }
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30"></div>
                     <div class="absolute top-6 left-6 z-20">
                         <a href="/events/" class="bg-white/95 hover:bg-white text-gray-800 px-4 py-2 rounded-full text-sm font-medium transition shadow-lg backdrop-blur-sm">
-                            <i class="fas fa-arrow-left mr-2"></i> Back to Events
+                            <i class="bi bi-arrow-left mr-2"></i> Back to Events
                         </a>
                     </div>
                     <div class="absolute top-6 right-6 z-20">
@@ -381,7 +381,7 @@
                         <div class="event-info-card">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-xl event-theme-bg-primary flex items-center justify-center">
-                                    <i class="fas fa-calendar-alt text-white text-xl"></i>
+                                    <i class="bi bi-calendar-event text-white text-xl"></i>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Date</p>
@@ -393,7 +393,7 @@
                         <div class="event-info-card">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-xl event-theme-bg-accent flex items-center justify-center">
-                                    <i class="fas fa-clock text-white text-xl"></i>
+                                    <i class="bi bi-clock text-white text-xl"></i>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Time</p>
@@ -405,7 +405,7 @@
                         <div class="event-info-card">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-xl event-theme-bg-secondary flex items-center justify-center">
-                                    <i class="fas fa-map-marker-alt text-white text-xl"></i>
+                                    <i class="bi bi-geo-alt-fill text-white text-xl"></i>
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Location</p>
@@ -420,7 +420,7 @@
                             <p class="text-gray-500 mt-2">${event.description || 'No description available'}</p>
                             ${event.city || event.country ? `
                             <p class="text-gray-400 mt-2">
-                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                <i class="bi bi-geo-alt-fill mr-2"></i>
                                 ${event.venue_name || ''} ${event.city ? ', ' + event.city : ''} ${event.country ? ', ' + event.country : ''}
                             </p>
                             ` : ''}
@@ -441,7 +441,7 @@
                     <div class="grid md:grid-cols-3 gap-6 mt-8 pt-8 border-t">
                         <div class="flex items-center">
                             <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 event-theme-bg-light" style="background-color: ${themeColors.background};">
-                                <i class="fas fa-calendar event-theme-primary" style="color: ${themeColors.primary};"></i>
+                                <i class="bi bi-calendar event-theme-primary" style="color: ${themeColors.primary};"></i>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Start Date</p>
@@ -450,7 +450,7 @@
                         </div>
                         <div class="flex items-center">
                             <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 event-theme-bg-light" style="background-color: ${themeColors.background};">
-                                <i class="fas fa-calendar-check event-theme-primary" style="color: ${themeColors.primary};"></i>
+                                <i class="bi bi-calendar-check event-theme-primary" style="color: ${themeColors.primary};"></i>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">End Date</p>
@@ -459,7 +459,7 @@
                         </div>
                         <div class="flex items-center">
                             <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 event-theme-bg-light" style="background-color: ${themeColors.background};">
-                                <i class="fas fa-tag event-theme-accent" style="color: ${themeColors.accent};"></i>
+                                <i class="bi bi-tag event-theme-accent" style="color: ${themeColors.accent};"></i>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Status</p>
@@ -482,7 +482,7 @@
                         ${event.virtual_meeting_url ? `
                         <div class="mt-8 p-4 rounded-lg border event-theme-bg-light" style="background-color: ${themeColors.background}; border-color: ${themeColors.primary};">
                             <h3 class="font-semibold mb-2 event-theme-primary" style="color: ${themeColors.primary};">
-                                <i class="fas fa-video mr-2"></i>Virtual Event
+                                <i class="bi bi-camera-video mr-2"></i>Virtual Event
                             </h3>
                             <p class="event-theme-secondary" style="color: ${themeColors.secondary};">This event has a virtual component.</p>
                         </div>
@@ -496,7 +496,7 @@
                 <div id="ticketsSection">
                     <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
                         <h3 class="text-lg font-bold mb-4">
-                            <i class="fas fa-ticket-alt mr-2 event-theme-primary" style="color: ${themeColors.primary};"></i>Tickets
+                            <i class="bi bi-ticket-perforated mr-2 event-theme-primary" style="color: ${themeColors.primary};"></i>Tickets
                         </h3>
 
                         ${tickets.length > 0 ? `
@@ -527,7 +527,7 @@
                         </div>
                         ` : `
                         <div class="text-center py-6 text-gray-500">
-                            <i class="fas fa-ticket-alt text-gray-300 text-4xl mb-3"></i>
+                            <i class="bi bi-ticket-perforated text-gray-300 text-4xl mb-3"></i>
                             <p>No tickets available yet</p>
                             <a href="/events/${eventId}/register/" class="mt-4 inline-block event-theme-primary hover:opacity-80 transition" style="color: ${themeColors.primary};">
                                 Register for updates
@@ -539,16 +539,16 @@
                             <h4 class="font-semibold mb-3">Share This Event</h4>
                             <div class="flex space-x-3">
                                 <button onclick="shareEvent('twitter')" class="w-10 h-10 text-white rounded-full flex items-center justify-center transition" style="background-color: #1DA1F2;">
-                                    <i class="fab fa-twitter"></i>
+                                    <i class="bi bi-twitter"></i>
                                 </button>
                                 <button onclick="shareEvent('facebook')" class="w-10 h-10 text-white rounded-full flex items-center justify-center transition" style="background-color: #4267B2;">
-                                    <i class="fab fa-facebook-f"></i>
+                                    <i class="bi bi-facebook"></i>
                                 </button>
                                 <button onclick="shareEvent('linkedin')" class="w-10 h-10 text-white rounded-full flex items-center justify-center transition" style="background-color: #0077b5;">
-                                    <i class="fab fa-linkedin-in"></i>
+                                    <i class="bi bi-linkedin"></i>
                                 </button>
                                 <button onclick="shareEvent('copy')" class="w-10 h-10 rounded-full flex items-center justify-center transition" style="background-color: ${themeColors.secondary}; color: white;" title="Copy link">
-                                    <i class="fas fa-link"></i>
+                                    <i class="bi bi-link-45deg"></i>
                                 </button>
                             </div>
                         </div>
@@ -571,13 +571,13 @@
                 <!-- Ticket Header with Category & Badges -->
                 <div class="ticket-header flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <i class="fas fa-ticket-alt text-white/80"></i>
+                        <i class="bi bi-ticket-perforated text-white/80"></i>
                         <span class="ticket-badge">${ticket.ticket_category || 'GENERAL'}</span>
                         ${event.logo ? `<img src="${event.logo}" alt="" class="w-4 h-4 object-contain rounded-sm opacity-80">` : ''}
                     </div>
                     <div class="flex items-center gap-2">
-                        ${isPopular ? '<span class="text-[10px] font-bold text-white/90 bg-amber-500 px-2 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-fire mr-1"></i>POPULAR</span>' : ''}
-                        ${isRecommended ? '<span class="text-[10px] font-bold text-white/90 bg-emerald-500 px-2 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-star mr-1"></i>BEST VALUE</span>' : ''}
+                        ${isPopular ? '<span class="text-[10px] font-bold text-white/90 bg-amber-500 px-2 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="bi bi-fire mr-1"></i>POPULAR</span>' : ''}
+                        ${isRecommended ? '<span class="text-[10px] font-bold text-white/90 bg-emerald-500 px-2 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="bi bi-star-fill mr-1"></i>BEST VALUE</span>' : ''}
                         ${isSoldOut ? '<span class="text-xs font-bold text-white/90 bg-red-500 px-3 py-1.5 rounded-lg shadow-sm">SOLD OUT</span>' : ''}
                     </div>
                 </div>
@@ -613,7 +613,7 @@
                         <ul class="space-y-1">
                             ${ticket.features.map(feature => `
                                 <li class="text-xs text-gray-600 flex items-center gap-1.5">
-                                    <i class="fas fa-check text-green-500 text-[10px]"></i>
+                                    <i class="bi bi-check-lg text-green-500 text-[10px]"></i>
                                     ${feature}
                                 </li>
                             `).join('')}
@@ -629,10 +629,10 @@
                                ${isSoldOut ? 'disabled' : ''} onchange="updateTicketQuantity(${ticket.id}, this.checked ? 1 : 0)">
                         
                         ${isSoldOut 
-                            ? '<span class="text-sm text-gray-400 font-medium px-4 py-2"><i class="fas fa-ban mr-1.5"></i>Unavailable</span>'
+                            ? '<span class="text-sm text-gray-400 font-medium px-4 py-2"><i class="bi bi-ban mr-1.5"></i>Unavailable</span>'
                             : `<button onclick="toggleTicketSelection(${ticket.id})" id="btn-${ticket.id}" 
                                 class="ticket-select-btn px-6 py-2.5 text-sm font-bold rounded-full shadow-sm hover:shadow-md transition-all active:scale-95">
-                                <i class="fas fa-cart-plus mr-2"></i>Select Ticket
+                                <i class="bi bi-cart-plus mr-2"></i>Select Ticket
                              </button>`
                         }
                     </div>
@@ -754,14 +754,14 @@
         });
         
         document.querySelectorAll('[id^="btn-"]').forEach(button => {
-            button.innerHTML = '<i class="fas fa-cart-plus mr-2"></i>Select Ticket';
+            button.innerHTML = '<i class="bi bi-cart-plus mr-2"></i>Select Ticket';
             button.classList.remove('selected');
         });
         
         // Select this ticket if it wasn't selected before
         if (!wasSelected) {
             checkbox.checked = true;
-            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Selected';
+            btn.innerHTML = '<i class="bi bi-check-lg mr-2"></i>Selected';
             btn.classList.add('selected');
         }
         
@@ -780,10 +780,10 @@
         
         if (btn) {
             if (quantity > 0) {
-                btn.innerHTML = '<i class="fas fa-check mr-2"></i>Selected';
+                btn.innerHTML = '<i class="bi bi-check-lg mr-2"></i>Selected';
                 btn.classList.add('selected');
             } else {
-                btn.innerHTML = '<i class="fas fa-cart-plus mr-2"></i>Select Ticket';
+                btn.innerHTML = '<i class="bi bi-cart-plus mr-2"></i>Select Ticket';
                 btn.classList.remove('selected');
             }
         }
@@ -795,11 +795,11 @@
         const container = document.getElementById('eventContainer');
         container.innerHTML = `
             <div class="bg-white rounded-xl shadow-sm p-12 text-center">
-                <i class="fas fa-exclamation-circle text-gray-300 text-6xl mb-4"></i>
+                <i class="bi bi-exclamation-circle-fill text-gray-300 text-6xl mb-4"></i>
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
                 <p class="text-gray-500 mb-4">The event you're looking for doesn't exist or has been removed.</p>
                 ${errorMessage ? `<p class="text-red-500 text-sm mb-4 font-mono bg-red-50 p-2 rounded">Error: ${errorMessage}</p>` : ''}
-                <a href="/events/" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                <a href="/events/" class="ea-btn ea-btn-primary ea-btn-lg">
                     Browse Events
                 </a>
             </div>
@@ -936,11 +936,11 @@
             return `
                 <div class="bg-white rounded-xl shadow-sm p-8 mt-8">
                     <h2 class="text-2xl font-bold mb-6 event-theme-secondary" style="color: ${themeColors.secondary};">
-                        <i class="fas fa-calendar-alt mr-3 event-theme-primary" style="color: ${themeColors.primary};"></i>
+                        <i class="bi bi-calendar-event mr-3 event-theme-primary" style="color: ${themeColors.primary};"></i>
                         Event Schedule & Sessions
                     </h2>
                     <div class="text-center py-12 text-gray-500">
-                        <i class="fas fa-calendar-times text-4xl mb-4"></i>
+                        <i class="bi bi-calendar-x text-4xl mb-4"></i>
                         <p class="text-lg">No sessions scheduled yet</p>
                         <p class="text-sm mt-2">Check back later for the complete schedule.</p>
                     </div>
@@ -951,7 +951,7 @@
         return `
             <div class="bg-white rounded-xl shadow-sm p-8 mt-8">
                 <h2 class="text-2xl font-bold mb-6 event-theme-secondary" style="color: ${themeColors.secondary};">
-                    <i class="fas fa-calendar-alt mr-3 event-theme-primary" style="color: ${themeColors.primary};"></i>
+                    <i class="bi bi-calendar-event mr-3 event-theme-primary" style="color: ${themeColors.primary};"></i>
                     Event Schedule & Sessions
                 </h2>
                 
@@ -978,12 +978,12 @@
                             <h3 class="text-xl font-bold text-gray-900 mb-2">${session.title}</h3>
                             <div class="flex items-center gap-4 text-sm text-gray-600">
                                 <span class="flex items-center gap-1">
-                                    <i class="fas fa-clock event-theme-primary" style="color: ${themeColors.primary};"></i>
+                                    <i class="bi bi-clock event-theme-primary" style="color: ${themeColors.primary};"></i>
                                     ${sessionTime}
                                 </span>
                                 ${session.location ? `
                                 <span class="flex items-center gap-1">
-                                    <i class="fas fa-map-marker-alt event-theme-accent" style="color: ${themeColors.accent};"></i>
+                                    <i class="bi bi-geo-alt-fill event-theme-accent" style="color: ${themeColors.accent};"></i>
                                     ${session.location}
                                 </span>
                                 ` : ''}
@@ -1011,7 +1011,7 @@
                 ${hasSpeakers ? `
                 <div class="p-6">
                     <h4 class="text-lg font-semibold mb-4 text-gray-900">
-                        <i class="fas fa-microphone-alt mr-2 event-theme-primary" style="color: ${themeColors.primary};"></i>
+                        <i class="bi bi-mic mr-2 event-theme-primary" style="color: ${themeColors.primary};"></i>
                         Speaker${session.speakers.length > 1 ? 's' : ''}
                     </h4>
                     <div class="space-y-4">
@@ -1049,7 +1049,7 @@
                         <h5 class="text-xl font-bold text-gray-900 leading-tight">${speaker.name || 'Speaker'}</h5>
                         ${speakingTime ? `
                         <p class="text-base font-medium event-theme-primary" style="color: ${themeColors.primary};">
-                            <i class="fas fa-clock mr-2"></i>${speakingTime}
+                            <i class="bi bi-clock mr-2"></i>${speakingTime}
                         </p>
                         ` : ''}
                     </div>
@@ -1072,7 +1072,7 @@
                            target="_blank" 
                            class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
                            title="LinkedIn Profile">
-                            <i class="fab fa-linkedin text-lg"></i>
+                            <i class="bi bi-linkedin text-lg"></i>
                             <span>LinkedIn</span>
                         </a>
                         ` : ''}

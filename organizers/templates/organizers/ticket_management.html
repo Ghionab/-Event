@@ -1,138 +1,167 @@
 {% extends 'organizers/base.html' %}
 
-{% block header %}Ticket Management{% endblock %}
+{% block title %}Ticket Management - Event Organizer{% endblock %}
 
-{% block subtitle %}Manage tickets for all your events{% endblock %}
+{% block header %}Ticket Inventory{% endblock %}
+
+{% block subtitle %}Manage ticket types, pricing, and availability across all your events{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<div class="flex justify-between items-center mb-8">
-    <div>
-        <h2 class="text-lg font-semibold text-gray-700">{{ events|length }} events with tickets</h2>
+<!-- Page Header Actions -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-surface p-4 rounded-xl border border-gray-200 shadow-sm">
+    <div class="flex items-center">
+        <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mr-3 border border-primary/20">
+            <i class="bi bi-ticket-detailed text-primary text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Global Tickets</h2>
+            <p class="text-xs font-semibold text-gray-500">{{ events|length }} active event{% if events|length != 1 %}s{% endif %}</p>
+        </div>
     </div>
-    <a href="{% url 'organizers:organizer_event_create' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-        <i class="bi bi-plus-lg mr-2"></i>Create Event
+    <a href="{% url 'organizers:organizer_event_create' %}" class="ea-btn ea-btn-primary shadow-sm w-full sm:w-auto">
+        <i class="bi bi-plus-lg mr-2"></i>Create New Event
     </a>
 </div>
 
 {% if events %}
     {% for event in events %}
-    <div class="card mb-8">
-        <div class="card-header">
-            <div class="flex items-center justify-between">
+    <div class="ea-card mb-8 overflow-hidden group/card shadow-sm hover:shadow-md transition-shadow">
+        <div class="ea-card-header bg-gray-50/50 border-b border-gray-100">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background-color: {{ event.primary_color|default:'#667eea' }}20;">
-                        <i class="bi bi-calendar-event" style="color: {{ event.primary_color|default:'#667eea' }};"></i>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 shadow-sm relative overflow-hidden group-hover/card:scale-105 transition-transform" style="background-color: {{ event.primary_color|default:'' }};">
+                        {% if event.primary_color %}
+                            <i class="bi bi-calendar-event text-white text-xl"></i>
+                        {% else %}
+                            <div class="absolute inset-0 bg-primary/10"></div>
+                            <i class="bi bi-calendar-event text-primary text-xl relative z-10"></i>
+                            <div class="absolute inset-0 border border-primary/20 rounded-xl"></div>
+                        {% endif %}
                     </div>
                     <div>
-                        <h3 class="card-title">{{ event.title }}</h3>
-                        <p class="text-sm text-gray-500">{{ event.start_date|date:"F d, Y" }}</p>
+                        <h3 class="text-lg font-bold text-gray-900 mb-0.5">{{ event.title }}</h3>
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <i class="bi bi-calendar3 mr-1 opacity-50"></i>{{ event.start_date|date:"F d, Y" }}
+                        </p>
                     </div>
                 </div>
-                <a href="#" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition text-sm font-medium">
-                    <i class="bi bi-plus-lg mr-2"></i>Add Ticket
+                <a href="{% url 'organizers:organizer_event_setup' event.id %}#tickets" class="ea-btn bg-white border border-gray-200 text-gray-700 hover:text-primary hover:border-primary/50 transition-colors shadow-sm text-sm py-1.5 px-4 w-full sm:w-auto">
+                    <i class="bi bi-plus-lg mr-1.5 text-primary"></i>Add Ticket Type
                 </a>
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Ticket Name</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Available</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sold</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Sales Window</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    {% for ticket in tickets %}
-                        {% if ticket.event.id == event.id %}
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="bi bi-ticket text-indigo-600 text-sm"></i>
+        <div class="ea-card-body p-0">
+            <div class="overflow-x-auto">
+                <table class="ea-table !mb-0">
+                    <thead class="bg-white">
+                        <tr>
+                            <th>Ticket Type</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Available</th>
+                            <th class="w-48">Sales Progress</th>
+                            <th>Sales Window</th>
+                            <th>Status</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for ticket in tickets %}
+                            {% if ticket.event.id == event.id %}
+                            <tr class="hover:bg-primary/5 transition-colors group">
+                                <td>
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-gray-100 group-hover:bg-primary/10 rounded-full flex items-center justify-center mr-3 transition-colors border border-transparent group-hover:border-primary/20">
+                                            <i class="bi bi-ticket-perforated text-gray-500 group-hover:text-primary transition-colors text-sm"></i>
+                                        </div>
+                                        <span class="font-bold text-gray-900">{{ ticket.name }}</span>
                                     </div>
-                                    <span class="font-medium text-gray-800">{{ ticket.name }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-gray-600">
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                                    {{ ticket.get_ticket_category_display }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                {% if ticket.price > 0 %}
-                                    <span class="font-bold text-gray-800">${{ ticket.price }}</span>
-                                {% else %}
-                                    <span class="font-bold text-green-600">FREE</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-6 py-4 text-gray-600">{{ ticket.available_quantity }}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-gray-800 font-medium">{{ ticket.quantity_sold }}</span>
-                                    {% if ticket.available_quantity > 0 %}
-                                    <div class="w-16 bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-indigo-500 h-1.5 rounded-full" style="width: {% widthratio ticket.quantity_sold ticket.available_quantity 100 %}%"></div>
-                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ea-badge bg-gray-100 text-gray-600 font-bold uppercase tracking-widest text-[10px] shadow-none">
+                                        {{ ticket.get_ticket_category_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if ticket.price > 0 %}
+                                        <span class="font-bold text-gray-900 font-mono">${{ ticket.price|floatformat:2 }}</span>
+                                    {% else %}
+                                        <span class="font-bold text-success font-mono uppercase text-sm">FREE</span>
                                     {% endif %}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                <div>{{ ticket.sales_start|date:"M d" }} - {{ ticket.sales_end|date:"M d, Y" }}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                {% if ticket.is_active %}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                                    Active
-                                </span>
-                                {% else %}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                                    Inactive
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                </td>
+                                <td><span class="text-gray-600 font-bold font-mono">{{ ticket.available_quantity }}</span></td>
+                                <td>
+                                    <div class="flex items-center gap-3 w-full max-w-[150px]">
+                                        <span class="text-gray-900 font-bold font-mono text-sm w-8 text-right">{{ ticket.quantity_sold }}</span>
+                                        <div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                            {% if ticket.available_quantity > 0 %}
+                                            <div class="bg-primary h-1.5 rounded-full relative" style="width: {% widthratio ticket.quantity_sold ticket.available_quantity 100 %}%">
+                                                <div class="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
+                                            </div>
+                                            {% else %}
+                                            <div class="bg-gray-300 h-1.5 rounded-full" style="width: 100%"></div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex items-center text-xs font-semibold text-gray-600 tracking-wide bg-gray-50 px-2 py-1 rounded-md border border-gray-100 inline-flex">
+                                        <i class="bi bi-calendar2-range mr-1.5 opacity-50"></i>
+                                        {{ ticket.sales_start|date:"M d" }} - {{ ticket.sales_end|date:"M d, Y" }}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if ticket.is_active %}
+                                    <span class="ea-badge bg-success/10 text-success border-success/20">
+                                        Active
+                                    </span>
+                                    {% else %}
+                                    <span class="ea-badge bg-gray-100 text-gray-500 border-gray-200 shadow-none">
+                                        Inactive
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex flex-nowrap items-center justify-end gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
+                                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-info hover:bg-info/10 rounded-lg transition-colors" title="Edit Ticket">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-error hover:bg-error/10 rounded-lg transition-colors" title="Delete Ticket">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-12">
+                                <div class="ea-empty-state border-none !p-0">
+                                    <i class="bi bi-ticket-detailed ea-empty-state-icon text-gray-300"></i>
+                                    <h4 class="ea-empty-state-title text-base mt-2">No tickets created</h4>
+                                    <a href="{% url 'organizers:organizer_event_setup' event.id %}#tickets" class="ea-btn bg-surface border border-gray-200 text-gray-700 hover:bg-gray-50 mt-4 !py-1.5">
+                                        <i class="bi bi-plus text-lg"></i> Add First Ticket
+                                    </a>
                                 </div>
                             </td>
                         </tr>
-                        {% endif %}
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                            <i class="bi bi-ticket-detached text-gray-300 text-4xl mb-3"></i>
-                            <p>No tickets for this event yet</p>
-                            <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mt-2 inline-block">
-                                Add your first ticket
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     {% endfor %}
 {% else %}
-<div class="card">
-    <div class="card-body text-center py-12">
-        <i class="bi bi-calendar-x text-gray-300 text-5xl mb-4"></i>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No Events Yet</h3>
-        <p class="text-gray-500 mb-6">Create an event to start adding tickets.</p>
-        <a href="{% url 'organizers:organizer_event_create' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-            <i class="bi bi-plus-lg mr-2"></i>Create Your First Event
+<div class="ea-card">
+    <div class="ea-card-body text-center py-16">
+        <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-100 shadow-inner">
+            <i class="bi bi-ticket-detailed text-gray-300 text-5xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2 font-heading tracking-tight">Empty Inventory</h3>
+        <p class="text-gray-500 mb-8 max-w-sm mx-auto text-sm">Create an event first before managing ticket types.</p>
+        <a href="{% url 'organizers:organizer_event_create' %}" class="ea-btn ea-btn-primary shadow-lg hover:-translate-y-1 transition-transform">
+            <i class="bi bi-plus-lg mr-2 text-lg"></i>Create Your First Event
         </a>
     </div>
 </div>

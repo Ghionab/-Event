@@ -1,6 +1,6 @@
 {% extends 'participant/base.html' %}
 
-{% block title %}Browse Events - EventHub{% endblock %}
+{% block title %}Browse Events - EventAxis{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -19,7 +19,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                     <input type="text" name="search" value="{{ search_query }}" placeholder="Event name..."
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary">
                 </div>
 
                 <!-- Event Type -->
@@ -78,11 +78,11 @@
                 </div>
 
                 <button type="submit"
-                    class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+                    class="ea-btn ea-btn-primary ea-btn-sm w-full">
                     Apply Filters
                 </button>
                 <a href="/events/"
-                    class="block text-center text-sm text-gray-500 hover:text-indigo-600">Clear All</a>
+                    class="block text-center text-sm text-gray-500 hover:text-primary">Clear All</a>
             </form>
         </div>
 
@@ -96,7 +96,7 @@
                     <img src="{{ event.banner_image.url }}" alt="" class="w-full h-40 object-cover">
                     {% else %}
                     <div
-                        class="w-full h-40 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                        class="w-full h-40 bg-gradient-to-br from-primary to-purple-500 flex items-center justify-center">
                         <i class="bi bi-calendar-event text-white text-4xl"></i>
                     </div>
                     {% endif %}
@@ -110,7 +110,7 @@
                             </span>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                            <a href="{% url 'attendee:event_detail' event.id %}" class="hover:text-indigo-600">{{
+                            <a href="{% url 'attendee:event_detail' event.id %}" class="hover:text-primary">{{
                                 event.title }}</a>
                         </h3>
                         <div class="space-y-1 text-sm text-gray-500 mb-4">
@@ -118,7 +118,7 @@
                             <p><i class="bi bi-geo-alt mr-2"></i>{{ event.venue_name|default:"Online" }}</p>
                         </div>
                         <a href="{% url 'attendee:event_detail' event.id %}"
-                            class="block text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium transition">
+                            class="ea-btn ea-btn-primary ea-btn-sm block text-center">
                             View Details
                         </a>
                     </div>
@@ -136,7 +136,7 @@
                     {% endif %}
                     {% for num in page_obj.paginator.page_range %}
                     {% if page_obj.number == num %}
-                    <span class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm">{{ num }}</span>
+                    <span class="px-4 py-2 bg-primary text-white rounded-lg text-sm">{{ num }}</span>
                     {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <a
                         href="?{{ request.GET.urlencode }}&page={{ num }}"
                         class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 text-sm">{{ num }}</a>

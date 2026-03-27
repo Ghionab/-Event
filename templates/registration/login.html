@@ -1,54 +1,55 @@
-{% extends "base.html" %}
+{% extends "participant/base.html" %}
 {% load static %}
 
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="text-center">Login</h4>
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 bg-surface">
+    <div class="max-w-md w-full">
+        <div class="ea-card p-8">
+            <div class="text-center mb-8">
+                <div class="mb-4">
+                    <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" class="ea-logo mx-auto" style="height: 48px; width: auto; object-fit: contain;">
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {% if form.errors %}
-                            <div class="alert alert-danger">
-                                {% for field, errors in form.errors.items %}
-                                    {% for error in errors %}
-                                        <p>{{ error }}</p>
-                                    {% endfor %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label">Email</label>
-                            <input type="email" name="username" class="form-control" id="id_username" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" id="id_password" required>
-                        </div>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Login</button>
-                        </div>
-                        
-                        {% if next %}
-                            <input type="hidden" name="next" value="{{ next }}">
-                        {% endif %}
-                    </form>
-                    
-                    <hr>
-                    <div class="text-center">
-                        <p>Don't have an account? <a href="{% url 'registration:register_for_event' 1 %}">Register here</a></p>
+                <h2 class="text-2xl font-heading font-bold text-gray-900">Welcome Back</h2>
+                <p class="text-gray-500 mt-2">Sign in to your account</p>
+            </div>
+
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                    <div class="ea-alert ea-alert-error">
+                        <i class="bi bi-exclamation-circle-fill mr-2"></i>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        {% endfor %}
                     </div>
+                {% endif %}
+                
+                <div class="ea-form-group mb-0">
+                    <label for="id_username" class="ea-form-label">Email</label>
+                    <input type="email" name="username" class="ea-input" id="id_username" required placeholder="you@example.com">
                 </div>
+                
+                <div class="ea-form-group mb-0">
+                    <label for="id_password" class="ea-form-label">Password</label>
+                    <input type="password" name="password" class="ea-input" id="id_password" required placeholder="Enter your password">
+                </div>
+                
+                <button type="submit" class="ea-btn ea-btn-primary ea-btn-lg w-full">
+                    <i class="bi bi-box-arrow-in-right mr-2"></i> Login
+                </button>
+                
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+            </form>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                <p class="text-gray-500">Don't have an account? <a href="{% url 'registration:register_for_event' 1 %}" class="text-primary hover:text-primary-dark font-medium">Register here</a></p>
             </div>
         </div>
     </div>

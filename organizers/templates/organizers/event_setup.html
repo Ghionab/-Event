@@ -8,96 +8,99 @@
 
 {% block content %}
 <!-- Progress Steps -->
-<div class="mb-8">
-    <div class="flex items-center justify-between">
-        <div class="flex-1">
+<div class="mb-8 overflow-x-auto pb-4">
+    <div class="flex items-center justify-between min-w-[600px] px-2">
+        <div class="flex-1 relative z-10">
             <div class="flex flex-col items-center">
-                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                <span class="text-sm mt-2 text-indigo-600 font-medium">Details</span>
+                <div class="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center font-bold shadow-md shadow-primary/20 transition-all border border-primary/20">1</div>
+                <span class="text-sm mt-3 text-primary font-bold tracking-wide">Details</span>
             </div>
         </div>
-        <div class="flex-1 h-1 bg-indigo-200">
-            <div class="h-full bg-indigo-600" style="width: 100%"></div>
+        <div class="flex-1 h-1.5 bg-gray-100 rounded-full mx-[-20px] relative z-0">
+            <div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 100%"></div>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 relative z-10">
             <div class="flex flex-col items-center">
-                <div class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                <span class="text-sm mt-2 text-indigo-600 font-medium">Tickets</span>
+                <div class="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center font-bold shadow-md shadow-primary/20 transition-all border border-primary/20">2</div>
+                <span class="text-sm mt-3 text-primary font-bold tracking-wide">Tickets</span>
             </div>
         </div>
-        <div class="flex-1 h-1 bg-gray-200">
-            <div class="h-full bg-indigo-600" style="width: 0%" id="progress-team"></div>
+        <div class="flex-1 h-1.5 bg-gray-100 rounded-full mx-[-20px] relative z-0">
+            <div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%" id="progress-team"></div>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 relative z-10">
             <div class="flex flex-col items-center">
-                <div class="w-10 h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold" id="step-team">3</div>
-                <span class="text-sm mt-2 text-gray-500" id="label-team">Team</span>
+                <div class="w-10 h-10 bg-white text-gray-500 border-2 border-gray-200 rounded-xl flex items-center justify-center font-bold transition-all duration-300" id="step-team">3</div>
+                <span class="text-sm mt-3 text-gray-500 font-medium tracking-wide transition-colors" id="label-team">Team</span>
             </div>
         </div>
-        <div class="flex-1 h-1 bg-gray-200">
-            <div class="h-full bg-indigo-600" style="width: 0%" id="progress-invite"></div>
+        <div class="flex-1 h-1.5 bg-gray-100 rounded-full mx-[-20px] relative z-0">
+            <div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%" id="progress-invite"></div>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 relative z-10">
             <div class="flex flex-col items-center">
-                <div class="w-10 h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold" id="step-invite">4</div>
-                <span class="text-sm mt-2 text-gray-500" id="label-invite">Invitations</span>
+                <div class="w-10 h-10 bg-white text-gray-500 border-2 border-gray-200 rounded-xl flex items-center justify-center font-bold transition-all duration-300" id="step-invite">4</div>
+                <span class="text-sm mt-3 text-gray-500 font-medium tracking-wide transition-colors" id="label-invite">Invitations</span>
             </div>
         </div>
-        <div class="flex-1 h-1 bg-gray-200">
-            <div class="h-full bg-indigo-600" style="width: 0%" id="progress-finish"></div>
+        <div class="flex-1 h-1.5 bg-gray-100 rounded-full mx-[-20px] relative z-0">
+            <div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 0%" id="progress-finish"></div>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 relative z-10">
             <div class="flex flex-col items-center">
-                <div class="w-10 h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center font-bold" id="step-finish">5</div>
-                <span class="text-sm mt-2 text-gray-500" id="label-finish">Finish</span>
+                <div class="w-10 h-10 bg-white text-gray-500 border-2 border-gray-200 rounded-xl flex items-center justify-center font-bold transition-all duration-300" id="step-finish">5</div>
+                <span class="text-sm mt-3 text-gray-500 font-medium tracking-wide transition-colors" id="label-finish">Finish</span>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Tab Navigation -->
-<div class="mb-6">
-    <div class="flex border-b border-gray-200">
-        <button onclick="showTab('tickets')" class="tab-btn px-6 py-3 text-indigo-600 border-b-2 border-indigo-600 font-medium" id="tab-tickets">
+<div class="mb-6 overflow-x-auto">
+    <div class="flex border-b border-gray-200 min-w-[500px]">
+        <button onclick="showTab('tickets')" class="tab-btn px-6 py-3.5 text-primary border-b-2 border-primary bg-primary/5 font-bold text-sm tracking-wide transition-all" id="tab-tickets">
             <i class="bi bi-ticket-detailed mr-2"></i>Tickets
         </button>
-        <button onclick="showTab('team')" class="tab-btn px-6 py-3 text-gray-500 hover:text-gray-700 font-medium" id="tab-team">
+        <button onclick="showTab('team')" class="tab-btn px-6 py-3.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-b-2 border-transparent font-semibold text-sm tracking-wide transition-all" id="tab-team">
             <i class="bi bi-people mr-2"></i>Team
         </button>
-        <button onclick="showTab('invitations')" class="tab-btn px-6 py-3 text-gray-500 hover:text-gray-700 font-medium" id="tab-invitations">
+        <button onclick="showTab('invitations')" class="tab-btn px-6 py-3.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-b-2 border-transparent font-semibold text-sm tracking-wide transition-all" id="tab-invitations">
             <i class="bi bi-envelope mr-2"></i>Invitations
         </button>
-        <button onclick="showTab('finish')" class="tab-btn px-6 py-3 text-gray-500 hover:text-gray-700 font-medium" id="tab-finish">
+        <button onclick="showTab('finish')" class="tab-btn px-6 py-3.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 border-b-2 border-transparent font-semibold text-sm tracking-wide transition-all" id="tab-finish">
             <i class="bi bi-check-circle mr-2"></i>Finish
         </button>
     </div>
 </div>
 
 <!-- Tab Contents -->
-<div class="card">
-    <div class="card-body">
+<div class="ea-card">
+    <div class="ea-card-body p-8 border-t-[3px] border-primary rounded-t-xl">
 
         <!-- Tickets Tab -->
-        <div id="content-tickets" class="tab-content">
-            <div class="flex justify-between items-center mb-6">
+        <div id="content-tickets" class="tab-content transition-opacity duration-300">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-100 pb-4">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Ticket Types</h3>
-                    <p class="text-sm text-gray-500">Add tickets for your event</p>
+                    <h3 class="text-xl font-heading font-bold text-gray-900 flex items-center">
+                        <i class="bi bi-ticket mr-2 text-primary"></i>Ticket Types
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">Configure the tickets available for your event attendees</p>
                 </div>
             </div>
 
             <!-- Add Ticket Form -->
-            <form method="post" class="mb-8 p-6 bg-gray-50 rounded-lg">
+            <form method="post" class="mb-8 p-6 bg-surface border border-gray-200 rounded-xl relative overflow-hidden shadow-sm hover:border-primary/30 transition-colors">
+                <div class="absolute top-0 left-0 w-1 h-full bg-primary rounded-l-xl"></div>
                 {% csrf_token %}
                 <input type="hidden" name="action" value="add_ticket">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Ticket Name <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="e.g., General Admission">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                    <div class="ea-form-group mb-0">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Ticket Name <span class="text-error">*</span></label>
+                        <input type="text" name="name" required class="ea-input !py-2 !px-3 text-sm" placeholder="e.g., General Admission">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                        <select name="ticket_category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <div class="ea-form-group mb-0">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Category</label>
+                        <select name="ticket_category" class="ea-input !py-2 !px-3 text-sm">
                             <option value="regular">General</option>
                             <option value="vip">VIP</option>
                             <option value="early_bird">Early Bird</option>
@@ -105,110 +108,119 @@
                             <option value="group">Group</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-                        <input type="number" name="price" min="0" step="0.01" value="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="0">
+                    <div class="ea-form-group mb-0">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Price ($)</label>
+                        <input type="number" name="price" min="0" step="0.01" value="0" class="ea-input !py-2 !px-3 text-sm font-mono" placeholder="0">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity <span class="text-red-500">*</span></label>
-                        <input type="number" name="quantity_available" min="1" value="100" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="100">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Sales Start <span class="text-red-500">*</span></label>
-                        <input type="datetime-local" name="sales_start" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Sales End <span class="text-red-500">*</span></label>
-                        <input type="datetime-local" name="sales_end" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <div class="ea-form-group mb-0">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Quantity <span class="text-error">*</span></label>
+                        <input type="number" name="quantity_available" min="1" value="100" required class="ea-input !py-2 !px-3 text-sm font-mono" placeholder="100">
                     </div>
                 </div>
-                <button type="submit" class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                    <i class="bi bi-plus-lg mr-2"></i>Add Ticket
-                </button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                    <div class="ea-form-group mb-0">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Sales Start <span class="text-error">*</span></label>
+                        <input type="datetime-local" name="sales_start" required class="ea-input !py-2 !px-3 text-sm">
+                    </div>
+                    <div class="ea-form-group mb-0">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Sales End <span class="text-error">*</span></label>
+                        <input type="datetime-local" name="sales_end" required class="ea-input !py-2 !px-3 text-sm">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end border-t border-gray-100 pt-5">
+                    <button type="submit" class="ea-btn ea-btn-primary !py-2 shadow-md">
+                        <i class="bi bi-plus-lg mr-2 text-lg"></i>Add Ticket
+                    </button>
+                </div>
             </form>
 
             <!-- Existing Tickets -->
             {% if tickets %}
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Ticket</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Price</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Quantity</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Sold</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        {% for ticket in tickets %}
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <span class="font-medium text-gray-800">{{ ticket.name }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                                    {{ ticket.get_ticket_category_display }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                {% if ticket.price > 0 %}
-                                    <span class="font-bold text-gray-800">${{ ticket.price }}</span>
-                                {% else %}
-                                    <span class="font-bold text-green-600">FREE</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-6 py-4 text-gray-600">{{ ticket.quantity_available }}</td>
-                            <td class="px-6 py-4 text-gray-600">{{ ticket.quantity_sold }}</td>
-                            <td class="px-6 py-4">
-                                {% if ticket.is_active %}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
-                                {% else %}
-                                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Inactive</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <form method="post" class="inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="delete_ticket">
-                                    <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
-                                    <button type="submit" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" onclick="return confirm('Are you sure you want to delete this ticket?')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="overflow-hidden border border-gray-200 rounded-xl mb-6 shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="ea-table !mb-0">
+                        <thead>
+                            <tr>
+                                <th>Ticket</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Qty. Total</th>
+                                <th>Sold</th>
+                                <th>Status</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for ticket in tickets %}
+                            <tr class="hover:bg-gray-50/50 transition-colors group">
+                                <td>
+                                    <span class="font-bold text-gray-900 flex items-center">
+                                        <i class="bi bi-tag mr-2 text-primary opacity-50"></i>{{ ticket.name }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="ea-badge bg-gray-100 text-gray-600 uppercase text-[10px] tracking-widest font-bold">
+                                        {{ ticket.get_ticket_category_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if ticket.price > 0 %}
+                                        <span class="font-bold text-gray-900 font-mono">${{ ticket.price|floatformat:2 }}</span>
+                                    {% else %}
+                                        <span class="font-bold text-success font-mono uppercase text-sm">FREE</span>
+                                    {% endif %}
+                                </td>
+                                <td><span class="text-gray-600 font-medium font-mono text-sm">{{ ticket.quantity_available }}</span></td>
+                                <td><span class="text-gray-600 font-medium font-mono text-sm">{{ ticket.quantity_sold }}</span></td>
+                                <td>
+                                    {% if ticket.is_active %}
+                                    <span class="ea-badge bg-success/10 text-success border-success/20">Active</span>
+                                    {% else %}
+                                    <span class="ea-badge bg-gray-100 text-gray-500 border-gray-200">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-right">
+                                    <form method="post" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete_ticket">
+                                        <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                                        <button type="submit" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-error hover:bg-error/10 rounded-lg transition-colors ml-auto group-hover:text-error group-hover:bg-error/5" onclick="return confirm('Are you sure you want to delete this ticket?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% else %}
-            <div class="text-center py-8 text-gray-500">
-                <i class="bi bi-ticket-detached text-gray-300 text-4xl mb-3"></i>
-                <p>No tickets added yet</p>
+            <div class="ea-empty-state py-12 border border-dashed border-gray-200">
+                <i class="bi bi-ticket-detailed ea-empty-state-icon text-gray-300"></i>
+                <h3 class="ea-empty-state-title">No tickets configured</h3>
+                <p class="text-gray-500 max-w-sm mx-auto text-sm">Use the form above to add the first ticket type for this event.</p>
             </div>
             {% endif %}
 
-            <div class="mt-6 flex justify-end">
-                <button onclick="showTab('team')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                    Next: Assign Team <i class="bi bi-arrow-right ml-2"></i>
+            <div class="mt-8 flex justify-end">
+                <button onclick="showTab('team')" class="ea-btn bg-gray-900 hover:bg-black text-white shadow-lg group">
+                    Next Step <i class="bi bi-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
                 </button>
             </div>
         </div>
 
         <!-- Team Tab -->
-        <div id="content-team" class="tab-content hidden">
-            <div class="flex justify-between items-center mb-6">
+        <div id="content-team" class="tab-content hidden transition-opacity duration-300">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-100 pb-4">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Assign Team Members</h3>
-                    <p class="text-sm text-gray-500">Select team members to help manage this event</p>
+                    <h3 class="text-xl font-heading font-bold text-gray-900 flex items-center">
+                        <i class="bi bi-people mr-2 text-primary"></i>Assign Event Team
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">Select team members to grant them administrative access to this event</p>
                 </div>
-                <a href="{% url 'advanced:team_member_create' %}?event={{ event.id }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                    <i class="bi bi-person-plus mr-2"></i>Add Team Member
+                <a href="{% url 'advanced:team_member_create' %}?event={{ event.id }}" class="ea-btn ea-btn-surface !py-2 mt-4 md:mt-0 shadow-sm border border-gray-200">
+                    <i class="bi bi-person-plus mr-2 text-primary"></i>New Member
                 </a>
             </div>
 
@@ -218,150 +230,157 @@
                 <input type="hidden" name="action" value="assign_team">
                 
                 <!-- Team Members Table -->
-                <div class="card mb-6">
-                    <div class="card-body p-0">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <input type="checkbox" id="selectAllTeam" class="w-4 h-4 text-indigo-600 rounded">
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                {% for member in team_members %}
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4">
-                                        <input type="checkbox" name="team_members" value="{{ member.id }}" class="team-checkbox w-4 h-4 text-indigo-600 rounded" {% if member.is_assigned %}checked{% endif %}>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium mr-3">
-                                                {{ member.user.get_full_name|slice:"2"|upper }}
-                                            </div>
-                                            <div>
-                                                <div class="font-medium text-gray-900">{{ member.user.get_full_name|default:"member.user.email" }}</div>
-                                                {% if member.user.get_full_name %}
-                                                    <div class="text-sm text-gray-500">{{ member.user.email }}</div>
-                                                {% endif %}
-                                            </div>
+                <div class="overflow-hidden border border-gray-200 rounded-xl mb-6 shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="ea-table !mb-0">
+                        <thead>
+                            <tr>
+                                <th class="w-12 text-center">
+                                    <input type="checkbox" id="selectAllTeam" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-opacity-20 cursor-pointer">
+                                </th>
+                                <th>Team Member</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for member in team_members %}
+                            <tr class="hover:bg-gray-50/50 transition-colors cursor-pointer" onclick="const cb=this.querySelector('.team-checkbox'); if(event.target.tagName !== 'INPUT' && event.target.tagName !== 'A' && event.target.tagName !== 'I') { cb.checked = !cb.checked; }">
+                                <td class="text-center">
+                                    <input type="checkbox" name="team_members" value="{{ member.id }}" class="team-checkbox w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-opacity-20 cursor-pointer" {% if member.is_assigned %}checked{% endif %}>
+                                </td>
+                                <td>
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3 border border-primary/20 flex-shrink-0">
+                                            {{ member.user.get_full_name|slice:"2"|upper }}
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-900">{{ member.user.email }}</div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                            {% if member.role == 'organizer' %}bg-purple-100 text-purple-800
-                                            {% elif member.role == 'coordinator' %}bg-blue-100 text-blue-800
-                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                            {{ member.get_role_display }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        {% if member.is_assigned %}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                Assigned to Event
-                                            </span>
-                                        {% else %}
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                Available
-                                            </span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-6 py-4 text-sm">
-                                        <div class="flex gap-2">
-                                            <a href="{% url 'advanced:team_member_update' member.pk %}?from_setup=1&event={{ event.id }}" class="text-indigo-600 hover:text-indigo-900" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            {% if member.is_assigned %}
-                                                <a href="#" class="text-red-600 hover:text-red-900" 
-                                                   onclick="removeFromEvent('{{ member.id }}')" title="Remove from Event">
-                                                    <i class="bi bi-x-circle"></i>
-                                                </a>
+                                        <div>
+                                            <div class="font-bold text-gray-900 text-sm">{{ member.user.get_full_name|default:"member.user.email" }}</div>
+                                            {% if member.user.get_full_name %}
+                                                <div class="text-xs text-gray-500">{{ member.user.email }}</div>
                                             {% endif %}
                                         </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ea-badge 
+                                        {% if member.role == 'organizer' %}bg-primary/10 text-primary border-primary/20
+                                        {% elif member.role == 'coordinator' %}bg-info/10 text-info border-info/20
+                                        {% else %}bg-gray-100 text-gray-600 border-gray-200{% endif %}">
+                                        {{ member.get_role_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if member.is_assigned %}
+                                        <span class="ea-badge bg-emerald-50 text-emerald-700 border-emerald-100 text-xs">
+                                            <i class="bi bi-check2 mr-1"></i>Assigned
+                                        </span>
+                                    {% else %}
+                                        <span class="ea-badge bg-gray-100 text-gray-500 border-gray-200 text-xs shadow-none">
+                                            Available
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{% url 'advanced:team_member_update' member.pk %}?from_setup=1&event={{ event.id }}" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Edit Profile">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        {% if member.is_assigned %}
+                                            <button type="button" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-error hover:bg-error/10 rounded-lg transition-colors" 
+                                               onclick="removeFromEvent('{{ member.id }}')" title="Remove access">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-            
-            <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p class="text-sm text-blue-800">
-                    <i class="bi bi-info-circle mr-2"></i>
-                    Select team members above to assign them to this event. Team members can help manage registrations, check-ins, and event communications.
-                </p>
-            </div>
-            
-            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                <i class="bi bi-check-lg mr-2"></i>Save Team Assignment
-            </button>
-        </form>
+                
+                <div class="mb-6 p-4 bg-info/10 rounded-xl border border-info/20 flex items-start">
+                    <i class="bi bi-info-circle text-info mt-0.5 mr-3 text-lg"></i>
+                    <p class="text-sm text-blue-900 font-medium leading-relaxed">
+                        Select team members to assign them to this event. Assigned members will have administrative privileges according to their role.
+                    </p>
+                </div>
+                
+                <div class="flex justify-between items-center mt-8">
+                    <button type="button" onclick="showTab('tickets')" class="ea-btn bg-surface border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors">
+                        <i class="bi bi-arrow-left mr-2"></i>Previous
+                    </button>
+                    <div class="flex gap-3">
+                        <button type="submit" class="ea-btn ea-btn-primary shadow-sm hover:-translate-y-0.5 transition-all outline-offset-2">
+                            <i class="bi bi-check2 mr-2 text-lg"></i>Save Assignments
+                        </button>
+                        <button type="button" onclick="showTab('invitations')" class="ea-btn bg-gray-900 hover:bg-black text-white shadow-lg group">
+                            Next Stage <i class="bi bi-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
             {% else %}
-            <div class="text-center py-12 text-gray-500 mb-6">
-                <i class="bi bi-people text-gray-300 text-5xl mb-4"></i>
-                <p class="text-lg font-medium mb-2">No team members available</p>
-                <p class="text-sm text-gray-400 mb-4">Add team members to help manage your events</p>
-                <a href="{% url 'advanced:team_member_create' %}?event={{ event.id }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                    <i class="bi bi-plus-circle mr-2"></i>Add Team Member
+            <div class="ea-empty-state py-12 border border-dashed border-gray-200 mb-8">
+                <i class="bi bi-people ea-empty-state-icon text-gray-300"></i>
+                <h3 class="ea-empty-state-title">No team members setup yet</h3>
+                <p class="text-sm text-gray-500 max-w-sm mx-auto mb-6">You are doing everything solo! Add team members if you need help managing this event.</p>
+                <a href="{% url 'advanced:team_member_create' %}?event={{ event.id }}" class="ea-btn ea-btn-primary !py-2 shadow-sm inline-flex">
+                    <i class="bi bi-person-plus mr-2 text-lg"></i>Add Your First Member
                 </a>
             </div>
-            {% endif %}
 
-            <div class="flex justify-between">
-                <button onclick="showTab('tickets')" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                    <i class="bi bi-arrow-left mr-2"></i>Back
+            <div class="flex justify-between mt-8">
+                <button onclick="showTab('tickets')" class="ea-btn bg-surface border border-gray-200 text-gray-700 hover:bg-gray-50">
+                    <i class="bi bi-arrow-left mr-2"></i>Previous
                 </button>
-                <button onclick="showTab('invitations')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                    Next: Send Invitations <i class="bi bi-arrow-right ml-2"></i>
+                <button onclick="showTab('invitations')" class="ea-btn bg-gray-900 hover:bg-black text-white shadow-lg group">
+                    Skip To Next <i class="bi bi-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
                 </button>
             </div>
+            {% endif %}
         </div>
 
         <!-- Invitations Tab -->
-        <div id="content-invitations" class="tab-content hidden">
-            <div class="flex justify-between items-center mb-6">
+        <div id="content-invitations" class="tab-content hidden transition-opacity duration-300">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-100 pb-4">
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Send Invitations</h3>
-                    <p class="text-sm text-gray-500">Invite people to your event via email or SMS</p>
+                    <h3 class="text-xl font-heading font-bold text-gray-900 flex items-center">
+                        <i class="bi bi-envelope-paper mr-2 text-primary"></i>Mass Invitations
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">Blast out emails and SMS messages to rapidly gather attendees</p>
                 </div>
             </div>
 
-            <form method="post">
+            <form method="post" class="space-y-6 max-w-3xl">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="send_invitations">
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="bi bi-envelope mr-2"></i>Email Addresses
+                <div class="ea-form-group mb-0">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="bi bi-envelope-at mr-2 text-primary"></i>Email Addresses
                     </label>
-                    <textarea name="emails" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter email addresses separated by commas (e.g., john@example.com, jane@example.com)"></textarea>
-                    <p class="text-sm text-gray-500 mt-1">Separate multiple emails with commas</p>
+                    <textarea name="emails" rows="3" class="ea-input font-mono text-sm leading-relaxed whitespace-pre-wrap" placeholder="john@example.com, jane@example.com"></textarea>
+                    <p class="text-xs text-gray-500 mt-2 font-medium"><i class="bi bi-info-circle mr-1"></i>Separate multiple emails with commas</p>
                 </div>
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="bi bi-phone mr-2"></i>Phone Numbers
+                <div class="ea-form-group mb-0">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="bi bi-phone mr-2 text-primary"></i>Phone Numbers (SMS)
                     </label>
-                    <textarea name="phone_numbers" rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter phone numbers separated by commas (e.g., +1234567890, +0987654321)"></textarea>
-                    <p class="text-sm text-gray-500 mt-1">Separate multiple numbers with commas</p>
+                    <textarea name="phone_numbers" rows="2" class="ea-input font-mono text-sm leading-relaxed whitespace-pre-wrap" placeholder="+1234567890, +0987654321"></textarea>
+                    <p class="text-xs text-gray-500 mt-2 font-medium"><i class="bi bi-info-circle mr-1"></i>Separate multiple numbers with commas (Include country code)</p>
                 </div>
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="bi bi-chat-dots mr-2"></i>Invitation Message
+                <div class="ea-form-group mb-0 relative">
+                    <div class="absolute inset-0 bg-primary/5 rounded-xl pointer-events-none -z-10 scale-[1.02] translate-y-2 blur"></div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="bi bi-chat-left-text mr-2 text-primary"></i>Message Template
                     </label>
-                    <textarea name="message" rows="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Write your invitation message here...">You're invited to {{ event.title }}!
+                    <textarea name="message" rows="6" class="ea-input shadow-inner font-mono text-sm leading-relaxed resize-y" placeholder="Write your template...">You're invited to {{ event.title }}!
 
 Date: {{ event.start_date|date:"F d, Y" }}
 Venue: {{ event.venue_name|default:"TBA" }}
@@ -369,16 +388,16 @@ Venue: {{ event.venue_name|default:"TBA" }}
 We hope to see you there!</textarea>
                 </div>
 
-                <div class="flex justify-between items-center">
-                    <button type="button" onclick="showTab('team')" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                        <i class="bi bi-arrow-left mr-2"></i>Back
+                <div class="flex flex-col sm:flex-row justify-between items-center sm:gap-4 mt-8 pt-6 border-t border-gray-100">
+                    <button type="button" onclick="showTab('team')" class="ea-btn bg-surface border border-gray-200 text-gray-700 hover:bg-gray-50 w-full sm:w-auto mb-4 sm:mb-0">
+                        <i class="bi bi-arrow-left mr-2"></i>Previous
                     </button>
-                    <div class="flex gap-3">
-                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                            <i class="bi bi-send mr-2"></i>Send Invitations
+                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <button type="submit" class="ea-btn ea-btn-primary shadow-lg w-full sm:w-auto">
+                            <i class="bi bi-send mr-2 text-lg"></i>Blast Invitations
                         </button>
-                        <button type="button" onclick="showTab('finish')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                            Skip to Finish <i class="bi bi-arrow-right ml-2"></i>
+                        <button type="button" onclick="showTab('finish')" class="ea-btn bg-gray-900 hover:bg-black text-white shadow-lg w-full sm:w-auto group">
+                            Final Step <i class="bi bi-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
                         </button>
                     </div>
                 </div>
@@ -386,55 +405,55 @@ We hope to see you there!</textarea>
         </div>
 
         <!-- Finish Tab -->
-        <div id="content-finish" class="tab-content hidden">
-            <div class="text-center py-8">
-                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="bi bi-check-lg text-green-600 text-4xl"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Ready to Go!</h3>
-                <p class="text-gray-500 mb-8">You've completed the setup for "{{ event.title }}"</p>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left max-w-2xl mx-auto">
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-center gap-2 mb-2">
-                            <i class="bi bi-ticket-detailed text-indigo-600"></i>
-                            <span class="font-medium">Tickets</span>
-                        </div>
-                        <p class="text-sm text-gray-600">{{ tickets|length }} ticket type(s) added</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-center gap-2 mb-2">
-                            <i class="bi bi-people text-indigo-600"></i>
-                            <span class="font-medium">Team</span>
-                        </div>
-                        <p class="text-sm text-gray-600">{{ team_members|length }} member(s) available</p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-center gap-2 mb-2">
-                            <i class="bi bi-envelope text-indigo-600"></i>
-                            <span class="font-medium">Invitations</span>
-                        </div>
-                        <p class="text-sm text-gray-600">Ready to send</p>
+        <div id="content-finish" class="tab-content hidden transition-opacity duration-500">
+            <div class="text-center py-12 max-w-2xl mx-auto">
+                <div class="relative inline-block mb-8">
+                    <div class="absolute inset-0 bg-success/20 rounded-full scale-150 blur-xl animate-pulse"></div>
+                    <div class="w-24 h-24 bg-gradient-to-tr from-success to-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-success/30 relative z-10">
+                        <i class="bi bi-check-lg text-white text-5xl"></i>
                     </div>
                 </div>
+                
+                <h3 class="text-3xl font-heading font-black text-gray-900 mb-3 tracking-tight">Setup Complete!</h3>
+                <p class="text-gray-500 mb-10 text-lg">"{{ event.title }}" is ready to accept registrations</p>
 
-                <form method="post" class="max-w-md mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
+                    <div class="p-6 bg-surface border border-gray-100 rounded-2xl shadow-sm hover:-translate-y-1 transition-transform group">
+                        <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+                            <i class="bi bi-ticket-detailed text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900 mb-1">Tickets</h4>
+                        <p class="text-sm text-gray-500 font-medium">{{ tickets|length }} configured types</p>
+                    </div>
+                    
+                    <div class="p-6 bg-surface border border-gray-100 rounded-2xl shadow-sm hover:-translate-y-1 transition-transform group">
+                        <div class="w-12 h-12 bg-info/10 rounded-xl flex items-center justify-center text-info mb-4 group-hover:scale-110 transition-transform">
+                            <i class="bi bi-people text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900 mb-1">Team</h4>
+                        <p class="text-sm text-gray-500 font-medium">{{ team_members|length }} members assigned</p>
+                    </div>
+                    
+                    <div class="p-6 bg-surface border border-gray-100 rounded-2xl shadow-sm hover:-translate-y-1 transition-transform group">
+                        <div class="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-accent mb-4 group-hover:scale-110 transition-transform border border-accent/20">
+                            <i class="bi bi-broadcast text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-900 mb-1">Status</h4>
+                        <p class="text-sm text-gray-500 font-medium">Published & Live</p>
+                    </div>
+                </div>
+
+                <form method="post" class="w-full">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="finish">
-                    <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <p class="text-sm text-green-800">
-                            <i class="bi bi-check-circle-fill mr-2"></i>
-                            <strong>Event is already published!</strong> Your event is live and visible to attendees.
-                        </p>
-                    </div>
-                    <button type="submit" class="w-full px-8 py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-lg font-medium">
-                        <i class="bi bi-check-lg mr-2"></i>Finish Setup
+                    <button type="submit" class="w-full sm:w-auto px-12 py-4 bg-gray-900 hover:bg-black text-white rounded-xl transition-all text-lg font-bold shadow-xl shadow-gray-900/20 hover:-translate-y-0.5 inline-flex items-center justify-center">
+                        Launch Event Dashboard <i class="bi bi-rocket-takeoff ml-3"></i>
                     </button>
                 </form>
 
-                <div class="mt-6">
-                    <button onclick="showTab('tickets')" class="text-gray-500 hover:text-gray-700">
-                        <i class="bi bi-arrow-left mr-2"></i>Go back and make changes
+                <div class="mt-8">
+                    <button onclick="showTab('invitations')" class="text-sm text-gray-500 hover:text-primary font-semibold transition-colors">
+                        <i class="bi bi-arrow-left mr-1"></i> Actually, let me make some changes
                     </button>
                 </div>
             </div>
@@ -444,9 +463,9 @@ We hope to see you there!</textarea>
 </div>
 
 <!-- Back to Events Link -->
-<div class="mt-6 text-center">
-    <a href="{% url 'organizers:organizer_event_list' %}" class="text-gray-500 hover:text-gray-700">
-        <i class="bi bi-arrow-left mr-1"></i>Back to Events
+<div class="mt-8 mb-6 text-center">
+    <a href="{% url 'organizers:organizer_event_list' %}" class="inline-flex items-center text-sm font-semibold text-gray-500 hover:text-primary transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
+        <i class="bi bi-grid mr-2 text-lg"></i>Return to All Events
     </a>
 </div>
 
@@ -455,20 +474,28 @@ We hope to see you there!</textarea>
         // Hide all tab contents
         document.querySelectorAll('.tab-content').forEach(function(content) {
             content.classList.add('hidden');
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0');
         });
 
-        // Show selected tab content
-        document.getElementById('content-' + tabName).classList.remove('hidden');
+        // Show selected tab content with fade
+        var newTab = document.getElementById('content-' + tabName);
+        newTab.classList.remove('hidden');
+        // Small delay to allow display block to apply before opacity transition
+        setTimeout(() => {
+            newTab.classList.remove('opacity-0');
+            newTab.classList.add('opacity-100');
+        }, 10);
 
-        // Update tab button styles
+        // Update tab button styles according to EA standard
         document.querySelectorAll('.tab-btn').forEach(function(btn) {
-            btn.classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
-            btn.classList.add('text-gray-500');
+            btn.classList.remove('text-primary', 'border-primary', 'bg-primary/5', 'font-bold');
+            btn.classList.add('text-gray-500', 'border-transparent', 'font-semibold');
         });
 
         var activeBtn = document.getElementById('tab-' + tabName);
-        activeBtn.classList.remove('text-gray-500');
-        activeBtn.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
+        activeBtn.classList.remove('text-gray-500', 'border-transparent', 'font-semibold');
+        activeBtn.classList.add('text-primary', 'border-primary', 'bg-primary/5', 'font-bold');
 
         // Update progress steps
         updateProgress(tabName);
@@ -483,24 +510,29 @@ We hope to see you there!</textarea>
             var stepEl = document.getElementById('step-' + steps[i-1]);
             var labelEl = document.getElementById('label-' + steps[i-1]);
 
+            if (!stepEl || !labelEl) continue;
+
             if (i < stepNum) {
                 // Completed steps
-                stepEl.classList.remove('bg-gray-200', 'text-gray-600');
-                stepEl.classList.add('bg-green-500', 'text-white');
-                labelEl.classList.remove('text-gray-500');
-                labelEl.classList.add('text-green-600', 'font-medium');
+                stepEl.classList.remove('bg-white', 'text-gray-500', 'border-gray-200', 'border-2', 'bg-primary', 'border-primary/20', 'shadow-md', 'shadow-primary/20');
+                stepEl.classList.add('bg-success', 'text-white', 'border-0', 'shadow-sm', 'shadow-success/20');
+                stepEl.innerHTML = '<i class="bi bi-check-lg"></i>'; // Add checkmark
+                labelEl.classList.remove('text-gray-500', 'text-primary');
+                labelEl.classList.add('text-success', 'font-bold');
             } else if (i === stepNum) {
                 // Current step
-                stepEl.classList.remove('bg-gray-200', 'text-gray-600');
-                stepEl.classList.add('bg-indigo-600', 'text-white');
-                labelEl.classList.remove('text-gray-500');
-                labelEl.classList.add('text-indigo-600', 'font-medium');
+                stepEl.classList.remove('bg-white', 'text-gray-500', 'border-gray-200', 'border-2', 'bg-success', 'border-0', 'shadow-success/20');
+                stepEl.classList.add('bg-primary', 'text-white', 'border', 'border-primary/20', 'shadow-md', 'shadow-primary/20');
+                stepEl.innerHTML = i.toString();
+                labelEl.classList.remove('text-gray-500', 'text-success');
+                labelEl.classList.add('text-primary', 'font-bold');
             } else {
                 // Future steps
-                stepEl.classList.remove('bg-green-500', 'text-white', 'bg-indigo-600', 'text-white');
-                stepEl.classList.add('bg-gray-200', 'text-gray-600');
-                labelEl.classList.remove('text-green-600', 'text-indigo-600', 'font-medium');
-                labelEl.classList.add('text-gray-500');
+                stepEl.classList.remove('bg-success', 'text-white', 'bg-primary', 'border-primary/20', 'shadow-md', 'shadow-primary/20', 'border-0', 'border');
+                stepEl.classList.add('bg-white', 'text-gray-500', 'border-2', 'border-gray-200');
+                stepEl.innerHTML = (i+1).toString();
+                labelEl.classList.remove('text-success', 'text-primary', 'font-bold');
+                labelEl.classList.add('text-gray-500', 'font-medium');
             }
         }
 
@@ -510,14 +542,12 @@ We hope to see you there!</textarea>
 
         for (var j = 0; j < progressBars.length; j++) {
             var bar = document.getElementById(progressBars[j]);
+            if (!bar) continue;
+            
             if (stepNum > barStepNums[j]) {
                 bar.style.width = '100%';
-                bar.classList.remove('bg-gray-200');
-                bar.classList.add('bg-indigo-600');
             } else {
                 bar.style.width = '0%';
-                bar.classList.remove('bg-indigo-600');
-                bar.classList.add('bg-gray-200');
             }
         }
     }
@@ -529,7 +559,7 @@ We hope to see you there!</textarea>
             form.method = 'POST';
             form.action = window.location.href;
             
-            // Add CSRF token (assuming it's available in the page)
+            // Add CSRF token
             var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
             if (csrfToken) {
                 var csrfInput = document.createElement('input');
@@ -558,8 +588,9 @@ We hope to see you there!</textarea>
         }
     }
 
-    // Select all functionality
+    // Initialize logic
     document.addEventListener('DOMContentLoaded', function() {
+        // Select all team members checkbox
         var selectAllCheckbox = document.getElementById('selectAllTeam');
         if (selectAllCheckbox) {
             selectAllCheckbox.addEventListener('change', function() {
@@ -569,30 +600,44 @@ We hope to see you there!</textarea>
                 });
             });
         }
-    });
-
-    // Initialize
-    showTab('tickets');
-    
-    // Select all team members checkbox
-    const selectAllTeam = document.getElementById('selectAllTeam');
-    if (selectAllTeam) {
-        selectAllTeam.addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.team-checkbox');
-            checkboxes.forEach(cb => cb.checked = this.checked);
-        });
-    }
-    
-    // Move checkboxes to form on submit
-    const teamForm = document.getElementById('teamAssignmentForm');
-    if (teamForm) {
-        teamForm.addEventListener('submit', function(e) {
-            const checkboxes = document.querySelectorAll('.team-checkbox');
-            checkboxes.forEach(cb => {
-                const clone = cb.cloneNode(true);
-                teamForm.appendChild(clone);
+        
+        // Move checkboxes to form on submit
+        const teamForm = document.getElementById('teamAssignmentForm');
+        if (teamForm) {
+            teamForm.addEventListener('submit', function(e) {
+                // Ensure checked inputs outside the form (if any) are appended
+                // Our tables are inside the form now so this shouldn't be strictly necessary
+                // but kept for safety in case DOM structure shifts
+                const checkboxes = document.querySelectorAll('.team-checkbox');
+                if(!teamForm.contains(checkboxes[0])) {
+                    checkboxes.forEach(cb => {
+                        if(cb.checked) {
+                            const clone = cb.cloneNode(true);
+                            // Hide the clone so it doesn't duplicate UI visually
+                            clone.style.display = 'none';
+                            teamForm.appendChild(clone);
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Set initial tab based on hash if present, otherwise default to tickets
+        const hash = window.location.hash.replace('#', '');
+        const validTabs = ['tickets', 'team', 'invitations', 'finish'];
+        if (hash && validTabs.includes(hash)) {
+            showTab(hash);
+        } else {
+            showTab('tickets');
+        }
+        
+        // Update URL hash when clicking tabs to preserve state on reload
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const tabId = this.id.replace('tab-', '');
+                history.replaceState(undefined, undefined, "#" + tabId);
             });
         });
-    }
+    });
 </script>
 {% endblock %}

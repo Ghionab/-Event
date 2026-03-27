@@ -6,10 +6,10 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Tracks</h1>
+            <h1 class="text-3xl font-heading font-bold text-primary">Tracks</h1>
             <p class="text-gray-500 mt-1">Manage tracks for {{ event.title }}</p>
         </div>
-        <a href="{% url 'track_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium shadow-sm">
+        <a href="{% url 'track_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium shadow-sm">
             <i class="bi bi-plus-lg mr-2"></i> Add Track
         </a>
     </div>
@@ -17,7 +17,7 @@
     {% if tracks %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {% for track in tracks %}
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div class="ea-card overflow-hidden">
                     <div class="px-6 py-4 flex justify-between items-center" style="background-color: {{ track.color }}; color: white;">
                         <h3 class="font-semibold">{{ track.name }}</h3>
                         <span class="px-3 py-1 text-xs font-medium rounded-full bg-white/30">
@@ -51,7 +51,7 @@
             </div>
             <h3 class="text-xl font-semibold text-gray-600 mb-2">No Tracks Created</h3>
             <p class="text-gray-500 mb-4">Start by adding your first track.</p>
-            <a href="{% url 'track_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primaryHover transition font-medium">
+            <a href="{% url 'track_create' event.id %}" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium">
                 <i class="bi bi-plus-lg mr-2"></i> Add First Track
             </a>
         </div>

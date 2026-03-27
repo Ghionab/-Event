@@ -1,6 +1,6 @@
 {% extends 'organizers/base.html' %}
 
-{% block title %}{{ action }} Task - EventHub{% endblock %}
+{% block title %}{{ action }} Task - EventAxis{% endblock %}
 {% block header %}{{ action }} Task{% endblock %}
 {% block subtitle %}{% if action == 'Create' %}Create a new task for your event{% else %}Update task details{% endif %}{% endblock %}
 
@@ -162,7 +162,7 @@
                         {% endif %}
                         {% if task and task.attachment %}
                             <p class="mt-1 text-sm text-gray-600">
-                                Current file: <a href="{{ task.attachment.url }}" class="text-indigo-600 hover:text-indigo-800" target="_blank">{{ task.attachment.name }}</a>
+                                Current file: <a href="{{ task.attachment.url }}" class="text-primary hover:text-indigo-800" target="_blank">{{ task.attachment.name }}</a>
                             </p>
                         {% endif %}
                     </div>
@@ -185,7 +185,7 @@
                         <i class="bi bi-arrow-left mr-2"></i>
                         Cancel
                     </a>
-                    <button type="submit" class="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    <button type="submit" class="inline-flex items-center px-6 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition">
                         <i class="bi bi-check-circle mr-2"></i>
                         {{ action }} Task
                     </button>

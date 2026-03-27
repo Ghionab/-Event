@@ -1,184 +1,215 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coordinator Login - EventAxis</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/eventaxis-design-system.css' %}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary:     { DEFAULT: '#1F3A5F', dark: '#162C48', light: '#2A4F7A' },
+                        accent:      { DEFAULT: '#C8A24A', dark: '#B08E3A', light: '#D4B56A' },
+                        surface:     { DEFAULT: '#F5F6F7', white: '#FFFFFF' },
+                    },
+                    fontFamily: {
+                        heading: ['Poppins', 'Montserrat', 'system-ui', 'sans-serif'],
+                        body:    ['Inter', 'Open Sans', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: '0.5rem',
+                        lg:      '0.75rem',
+                        xl:      '1rem',
+                    },
+                    boxShadow: {
+                        card:    '0 1px 3px rgba(0,0,0,0.08)',
+                        hover:   '0 4px 12px rgba(0,0,0,0.08)',
+                        overlay: '0 10px 25px rgba(0,0,0,0.1)',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+        .auth-hero {
+            background: linear-gradient(145deg, #1F3A5F 0%, #162C48 50%, #1F3A5F 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-hero::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(200,162,74,0.18) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+            pointer-events: none;
+        }
+        .auth-hero::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(42,79,122,0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -80px;
+            left: -60px;
+            pointer-events: none;
+        }
+        .auth-feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        .login-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            overflow: hidden;
-            max-width: 900px;
-            width: 100%;
-        }
-        .login-sidebar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 3rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .login-form {
-            padding: 3rem;
-        }
-        .form-control {
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-            padding: 12px 15px;
-            margin-bottom: 1rem;
-        }
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: 600;
-            width: 100%;
-            transition: transform 0.3s ease;
-        }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        }
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            flex-shrink: 0;
         }
     </style>
 </head>
-<body>
-    <div class="login-container">
-        <div class="row g-0">
-            <!-- Left Sidebar -->
-            <div class="col-lg-6 login-sidebar">
-                <div class="text-center">
-                    <i class="fas fa-calendar-check fa-4x mb-4"></i>
-                    <h2 class="mb-4">Coordinator Portal</h2>
-                    <p class="mb-4">Manage your assigned events with powerful coordination tools</p>
-                    
-                    <div class="row text-start mt-4">
-                        <div class="col-12 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-calendar-alt feature-icon me-3"></i>
-                                <div>
-                                    <h6 class="mb-0">Event Management</h6>
-                                    <small>Control all aspects of your assigned events</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-users feature-icon me-3"></i>
-                                <div>
-                                    <h6 class="mb-0">Speaker & Sponsor Management</h6>
-                                    <small>Coordinate speakers and sponsors efficiently</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-chart-line feature-icon me-3"></i>
-                                <div>
-                                    <h6 class="mb-0">Analytics Dashboard</h6>
-                                    <small>Track event performance and attendance</small>
-                                </div>
-                            </div>
-                        </div>
+<body class="bg-surface min-h-screen">
+    <div class="min-h-screen flex">
+        <!-- Left Brand Panel -->
+        <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col justify-between p-12 xl:p-16 text-white">
+            <div class="relative z-10">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 mb-16">
+                    <div class="bg-white rounded-lg px-3 py-2 shadow-sm">
+                        <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" class="ea-logo" style="height: 48px; width: auto; object-fit: contain;">
+                    </div>
+                </div>
+                
+                <!-- Headline -->
+                <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-6">
+                    Coordinate<br>
+                    <span class="text-accent">amazing events</span>
+                </h1>
+                <p class="text-white/50 text-lg leading-relaxed max-w-sm">
+                    Your portal for managing event operations, staff, and logistics.
+                </p>
+            </div>
+            
+            <div class="relative z-10 space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-calendar-check text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Event Coordination</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Manage all aspects of your assigned events</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-people text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Staff Management</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Coordinate speakers, sponsors, and volunteers</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-graph-up text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Analytics Dashboard</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Track attendance and event performance</p>
                     </div>
                 </div>
             </div>
-            
-            <!-- Right Login Form -->
-            <div class="col-lg-6 login-form">
-                <div class="text-center mb-4">
-                    <h3 class="mb-3">Welcome Back</h3>
-                    <p class="text-muted">Sign in to access your coordinator dashboard</p>
+        </div>
+        
+        <!-- Right Login Form -->
+        <div class="flex-1 flex items-center justify-center py-12 px-4 sm:px-8">
+            <div class="max-w-md w-full">
+                <!-- Mobile Logo -->
+                <div class="lg:hidden text-center mb-8">
+                    <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" class="ea-logo mx-auto mb-3" style="height: 48px; width: auto; object-fit: contain;">
+                    <h2 class="text-xl font-heading font-bold text-gray-900">EventAxis</h2>
                 </div>
                 
-                {% if messages %}
-                    <div class="alert-container mb-4">
+                <div class="ea-card p-8 shadow-lg">
+                    <div class="mb-8 text-center">
+                        <h2 class="text-2xl font-heading font-bold text-gray-900">Coordinator Login</h2>
+                        <p class="text-gray-500 mt-1 text-sm">Sign in to access your dashboard</p>
+                    </div>
+
+                    {% if messages %}
                         {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <div class="ea-alert {% if message.tags == 'success' %}ea-alert-success{% elif message.tags == 'error' %}ea-alert-error{% else %}ea-alert-info{% endif %} mb-6">
+                                <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'error' %}bi-exclamation-circle{% else %}bi-info-circle{% endif %}"></i>
+                                <span>{{ message }}</span>
                             </div>
                         {% endfor %}
-                    </div>
-                {% endif %}
-                
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email Address</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-envelope"></i>
-                            </span>
-                            <input type="email" 
-                                   class="form-control" 
-                                   id="email" 
-                                   name="email" 
-                                   placeholder="coordinator@example.com"
-                                   required>
+                    {% endif %}
+
+                    {% if form.errors %}
+                        <div class="ea-alert ea-alert-error mb-6">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <div>
+                                <p class="font-medium">Invalid email or password</p>
+                                <p class="text-sm mt-1">Please check your credentials and try again.</p>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="password" class="form-label">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-lock"></i>
-                            </span>
-                            <input type="password" 
-                                   class="form-control" 
-                                   id="password" 
-                                   name="password" 
-                                   placeholder="Enter your password"
-                                   required>
+                    {% endif %}
+
+                    <form method="post" class="space-y-5">
+                        {% csrf_token %}
+
+                        <div class="ea-form-group mb-0">
+                            <label for="id_email" class="ea-form-label">
+                                <i class="bi bi-envelope mr-2 text-primary"></i>Email Address
+                            </label>
+                            <input type="email" name="email" id="id_email" required
+                                   class="ea-input"
+                                   placeholder="coordinator@example.com">
                         </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-login mb-3">
-                        <i class="fas fa-sign-in-alt me-2"></i>
-                        Sign In
-                    </button>
-                </form>
-                
-                <div class="text-center">
-                    <p class="text-muted mb-0">
-                        <small>Need access? Contact your event administrator</small>
-                    </p>
-                    <div class="mt-3">
-                        <a href="{% url 'organizers:organizer_login' %}" class="text-decoration-none">
-                            <small><i class="fas fa-arrow-left me-1"></i> Back to Organizer Portal</small>
-                        </a>
+
+                        <div class="ea-form-group mb-0">
+                            <label for="id_password" class="ea-form-label">
+                                <i class="bi bi-lock mr-2 text-primary"></i>Password
+                            </label>
+                            <input type="password" name="password" id="id_password" required
+                                   class="ea-input"
+                                   placeholder="Enter your password">
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                                <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                            </label>
+                            <a href="#" class="text-sm text-primary hover:text-primary-dark transition-colors">Forgot password?</a>
+                        </div>
+
+                        <button type="submit" class="ea-btn ea-btn-primary ea-btn-lg w-full">
+                            <i class="bi bi-box-arrow-in-right mr-2"></i>Sign In
+                        </button>
+                    </form>
+
+                    <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                        <p class="text-gray-500 text-sm">
+                            Need access? <span class="text-gray-400">Contact your event administrator</span>
+                        </p>
+                        <div class="mt-4">
+                            <a href="/" class="text-sm text-primary hover:text-primary-dark transition-colors inline-flex items-center">
+                                <i class="bi bi-arrow-left mr-1"></i> Back to Home
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error — EventAxis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/eventaxis-design-system.css' %}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#1F3A5F', dark: '#162C48', light: '#2A4F7A' },
+                        accent:  { DEFAULT: '#C8A24A', dark: '#B08E3A', light: '#D4B56A' },
+                        surface: { DEFAULT: '#F5F6F7' },
+                    },
+                    fontFamily: {
+                        heading: ['Poppins', 'system-ui', 'sans-serif'],
+                        body:    ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface min-h-screen font-body flex flex-col">
+    <!-- Minimal Nav -->
+    <nav class="bg-gradient-to-r from-primary via-primary-dark to-primary border-b border-white/5 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="/" class="flex items-center hover:opacity-90 transition-opacity">
+                    <i class="bi bi-calendar-event text-2xl mr-2.5" style="background: linear-gradient(135deg, var(--ea-accent), #FFE5A3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    <span class="font-heading font-black tracking-tight text-xl text-white">Event<span class="text-accent">Axis</span></span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 500 Content -->
+    <main class="flex-1 flex items-center justify-center px-4 py-20">
+        <div class="text-center max-w-lg">
+            <!-- Decorative 500 number -->
+            <div class="relative mb-8">
+                <span class="text-[10rem] font-heading font-black text-red-500/5 leading-none select-none">500</span>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-24 h-24 bg-red-50 rounded-2xl flex items-center justify-center">
+                        <i class="bi bi-exclamation-triangle text-red-500 text-4xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <h1 class="text-3xl font-heading font-bold text-gray-900 mb-3">Something went wrong</h1>
+            <p class="text-gray-500 text-lg mb-8 max-w-md mx-auto">
+                We're experiencing a temporary issue. Our team has been notified. Please try again in a moment.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="/" class="ea-btn ea-btn-primary ea-btn-lg">
+                    <i class="bi bi-house mr-2"></i> Go Home
+                </a>
+                <button onclick="location.reload()" class="ea-btn ea-btn-outline ea-btn-lg">
+                    <i class="bi bi-arrow-clockwise mr-2"></i> Try Again
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-gray-400 text-sm">
+        &copy; 2026 EventAxis. All rights reserved.
+    </footer>
+</body>
+</html>

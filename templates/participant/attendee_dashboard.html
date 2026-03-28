@@ -71,7 +71,8 @@
                 <p class="mt-2 text-white/60 text-base max-w-lg">Your personal hub for discovering events, managing tickets, and connecting with the community.</p>
             </div>
             <div class="flex items-center gap-3">
-                <a href="{% url 'participant_events' %}" class="ea-btn ea-btn-accent ea-btn-lg shadow-lg">
+                {% url 'participant_events' as p_events_url %}
+                <a href="{{ p_events_url|default:'/events/' }}" class="ea-btn ea-btn-accent ea-btn-lg shadow-lg">
                     <i class="bi bi-compass mr-2"></i> Explore Events
                 </a>
             </div>

@@ -1,18 +1,16 @@
-<!DOCTYPE html>
-<html>
+{% extends 'participant/base.html' %}
 
-<head>
-    <title>Register for Event</title>
-    </head>
+{% block title %}Register for Event — EventAxis{% endblock %}
 
-<body class="bg-gray-50 min-h-screen py-12">
+{% block content %}
+<div class="bg-surface py-12 min-h-[calc(100vh-200px)]">
     <div class="max-w-xl mx-auto px-4">
-        <a href="/events/{{ event_id }}/" class="text-primary hover:text-primary-dark mb-6 inline-block">
-            &larr; Back to Event
+        <a href="/events/{{ event_id }}/" class="text-primary hover:text-primary-dark mb-6 inline-flex items-center font-medium transition-colors">
+            <i class="bi bi-arrow-left mr-2"></i> Back to Event
         </a>
 
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-            <h1 class="text-2xl font-bold mb-6">Register for Event</h1>
+        <div class="bg-white rounded-2xl shadow-overlay p-8">
+            <h1 class="text-2xl font-heading font-bold mb-6 text-gray-900">Register for Event</h1>
 
             <!-- Who is this for? Selection -->
             <div class="mb-8">
@@ -43,165 +41,189 @@
                 <input type="hidden" name="event_id" value="{{ event_id }}">
                 <input type="hidden" name="for_myself" id="forMyselfInput" value="true">
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2">Full Name *</label>
-                    <input type="text" name="full_name" id="attendee_name" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
+                        <input type="text" name="full_name" id="attendee_name" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Email *</label>
+                        <input type="email" name="email" id="attendee_email" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+                        <input type="tel" name="phone" id="attendee_phone" 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Special Requests</label>
+                        <textarea name="special_requests" rows="3"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200"></textarea>
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2">Email *</label>
-                    <input type="email" name="email" id="attendee_email" required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                <div class="mt-8">
+                    <button type="submit" id="submitBtn"
+                        class="ea-btn ea-btn-primary ea-btn-xl w-full shadow-lg">
+                        Complete Registration
+                    </button>
                 </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2">Phone</label>
-                    <input type="tel" name="phone" id="attendee_phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2">Special Requests</label>
-                    <textarea name="special_requests" rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
-                </div>
-
-                <button type="submit" id="submitBtn"
-                    class="ea-btn ea-btn-primary ea-btn-xl w-full">
-                    Complete Registration
-                </button>
             </form>
-
-            <script>
-                // User info for autofill
-                const userInfo = {
-                    name: "{{ request.user.get_full_name|default:request.user.username }}",
-                    email: "{{ request.user.email }}",
-                    phone: "{{ request.user.phone|default:'' }}"
-                };
-
-                function selectRecipient(type) {
-                    const btnMyself = document.getElementById('btnMyself');
-                    const btnSomeone = document.getElementById('btnSomeone');
-                    const forMyselfInput = document.getElementById('forMyselfInput');
-                    
-                    if (type === 'myself') {
-                        forMyselfInput.value = "true";
-                        btnMyself.className = "flex flex-col items-center justify-center p-4 border-2 rounded-xl transition-all duration-200 bg-primary/5 border-primary text-primary-dark";
-                        btnSomeone.className = "flex flex-col items-center justify-center p-4 border-2 rounded-xl transition-all duration-200 border-gray-200 text-gray-500 hover:border-primary/30 hover:text-primary";
-                        
-                        // Autofill
-                        document.getElementById('attendee_name').value = userInfo.name;
-                        document.getElementById('attendee_email').value = userInfo.email;
-                        document.getElementById('attendee_phone').value = userInfo.phone;
-                    } else {
-                        forMyselfInput.value = "false";
-                        btnSomeone.className = "flex flex-col items-center justify-center p-4 border-2 rounded-xl transition-all duration-200 bg-primary/5 border-primary text-primary-dark";
-                        btnMyself.className = "flex flex-col items-center justify-center p-4 border-2 rounded-xl transition-all duration-200 border-gray-200 text-gray-500 hover:border-primary/30 hover:text-primary";
-                        
-                        // Clear (or let user type)
-                        document.getElementById('attendee_name').value = "";
-                        document.getElementById('attendee_email').value = "";
-                        document.getElementById('attendee_phone').value = "";
-                    }
-                }
-
-                // Show tickets from sessionStorage on load
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Initialize with "For Myself"
-                    selectRecipient('myself');
-                    
-                    const savedTickets = sessionStorage.getItem('selectedTickets');
-                    if (savedTickets) {
-                        try {
-                            const tickets = JSON.parse(savedTickets);
-                            if (tickets.length > 0) {
-                                const summary = document.getElementById('ticketsSummary');
-                                const list = document.getElementById('ticketsList');
-                                summary.classList.remove('hidden');
-                                list.innerHTML = tickets.map(t => `
-                                    <div class="flex justify-between text-sm text-primary-dark">
-                                        <span>${t.ticket_name || 'Ticket #' + t.ticket_id}</span>
-                                        <span>x${t.quantity}</span>
-                                    </div>
-                                `).join('');
-                            }
-                        } catch (e) {
-                            console.error('Error parsing tickets:', e);
-                        }
-                    }
-                });
-
-                function handleSubmit(event) {
-                    event.preventDefault();
-                    
-                    const form = document.getElementById('registrationForm');
-                    const submitBtn = document.getElementById('submitBtn');
-                    const formData = new FormData(form);
-                    
-                    // Disable button
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Processing...';
-                    
-                    // Convert FormData to object
-                    const data = {};
-                    formData.forEach((value, key) => {
-                        if (key !== 'csrfmiddlewaretoken') {
-                            data[key] = value;
-                        }
-                    });
-
-                    // Add tickets from sessionStorage
-                    const selectedTickets = sessionStorage.getItem('selectedTickets');
-                    if (selectedTickets) {
-                        try {
-                            data['tickets'] = JSON.parse(selectedTickets);
-                        } catch (e) {
-                            console.error('Error parsing selected tickets:', e);
-                        }
-                    }
-                    
-                    // Submit via fetch
-                    fetch('/api/v1/register/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify(data)
-                    })
-                    .then(async response => {
-                        const isJson = response.headers.get('content-type')?.includes('application/json');
-                        const data = isJson ? await response.json() : null;
-                        
-                        if (!response.ok) {
-                            throw new Error(data?.error || data?.message || `Server error: ${response.status}`);
-                        }
-                        return data;
-                    })
-                    .then(data => {
-                        if (data && data.id && data.registration_number) {
-                            // Success - clear tickets and redirect to success page
-                            sessionStorage.removeItem('selectedTickets');
-                            const successUrl = data.success_url || `/registration/success/${data.id}/`;
-                            window.location.href = successUrl;
-                        } else {
-                            throw new Error('Invalid response from server');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Registration failed: ' + error.message);
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Complete Registration';
-                    });
-                    
-                    return false;
-                }
-            </script>
         </div>
     </div>
-</body>
+</div>
+{% endblock %}
 
-</html>
+{% block extra_js %}
+<script>
+    // User info for autofill
+    const userInfo = {
+        name: "{{ request.user.get_full_name|default:request.user.username }}",
+        email: "{{ request.user.email }}",
+        phone: "{{ request.user.phone|default:'' }}"
+    };
+
+    function selectRecipient(type) {
+        const btnMyself = document.getElementById('btnMyself');
+        const btnSomeone = document.getElementById('btnSomeone');
+        const forMyselfInput = document.getElementById('forMyselfInput');
+        
+        if (type === 'myself') {
+            forMyselfInput.value = "true";
+            btnMyself.className = "flex flex-col items-center justify-center p-4 border-2 rounded-xl transition-all duration-200 bg-primary/5 border-primary text-primary-dark";
+            btnSomeone.className = "flex flex-col items-center justify-center p-4 border-2 rounded-xl transition-all duration-200 border-gray-200 text-gray-500 hover:border-primary/30 hover:text-primary";
+            
+            // Autofill
+            document.getElementById('attendee_name').value = userInfo.name;
+            document.getElementById('attendee_email').value = userInfo.email;
+            document.getElementById('attendee_phone').value = userInfo.phone;
+        } else {
+            forMyselfInput.value = "false";
+            btnSomeone.className = "flex flex-col items-center justify-center p-4 border-2 rounded-xl transition-all duration-200 bg-primary/5 border-primary text-primary-dark";
+            btnMyself.className = "flex flex-col items-center justify-center p-4 border-2 rounded-xl transition-all duration-200 border-gray-200 text-gray-500 hover:border-primary/30 hover:text-primary";
+            
+            // Clear (or let user type)
+            document.getElementById('attendee_name').value = "";
+            document.getElementById('attendee_email').value = "";
+            document.getElementById('attendee_phone').value = "";
+        }
+    }
+
+    // Show tickets from sessionStorage on load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize with "For Myself"
+        selectRecipient('myself');
+        
+        const savedTickets = sessionStorage.getItem('selectedTickets');
+        if (savedTickets) {
+            try {
+                const tickets = JSON.parse(savedTickets);
+                if (tickets.length > 0) {
+                    const summary = document.getElementById('ticketsSummary');
+                    const list = document.getElementById('ticketsList');
+                    summary.classList.remove('hidden');
+                    list.innerHTML = tickets.map(t => `
+                        <div class="flex justify-between text-sm text-primary-dark font-medium px-2 py-1 bg-white/50 rounded-lg">
+                            <span>${t.ticket_name || 'Ticket #' + t.ticket_id}</span>
+                            <span class="bg-primary/10 text-primary-dark px-2 py-0.5 rounded-full">x${t.quantity}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Error parsing tickets:', e);
+            }
+        }
+    });
+
+    function handleSubmit(event) {
+        event.preventDefault();
+        
+        const form = document.getElementById('registrationForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const formData = new FormData(form);
+        
+        // Disable button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split mr-2 animate-pulse"></i> Processing...';
+        
+        // Convert FormData to object
+        const data = {};
+        formData.forEach((value, key) => {
+            if (key !== 'csrfmiddlewaretoken') {
+                data[key] = value;
+            }
+        });
+
+        // Add tickets from sessionStorage
+        const selectedTickets = sessionStorage.getItem('selectedTickets');
+        if (selectedTickets) {
+            try {
+                data['tickets'] = JSON.parse(selectedTickets);
+            } catch (e) {
+                console.error('Error parsing selected tickets:', e);
+            }
+        }
+        
+        // Submit via fetch
+        fetch('/api/v1/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            },
+            credentials: 'include',
+            body: JSON.stringify(data)
+        })
+        .then(async response => {
+            const isJson = response.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await response.json() : null;
+            
+            if (!response.ok) {
+                throw new Error(data?.error || data?.message || `Server error: ${response.status}`);
+            }
+            return data;
+        })
+        .then(data => {
+            if (data && data.id && data.registration_number) {
+                // Success - clear tickets and redirect to success page
+                sessionStorage.removeItem('selectedTickets');
+                const successUrl = data.success_url || `/registration/success/${data.id}/`;
+                window.location.href = successUrl;
+            } else {
+                throw new Error('Invalid response from server');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Show error in UI instead of raw alert
+            const alertHtml = `
+            <div id="errorAlert" class="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3 animate-[fadeInUp_0.3s_ease-out]">
+                <i class="bi bi-exclamation-circle text-red-500 mt-0.5"></i>
+                <div>
+                    <p class="font-medium text-red-800 text-sm">Registration Failed</p>
+                    <p class="text-red-600 text-sm mt-0.5">${error.message}</p>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="ml-auto text-red-400 hover:text-red-600">
+                    <i class="bi bi-x-lg text-xs"></i>
+                </button>
+            </div>`;
+            
+            const existingAlert = document.getElementById('errorAlert');
+            if (existingAlert) existingAlert.remove();
+            
+            form.insertAdjacentHTML('beforebegin', alertHtml);
+            
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Complete Registration';
+        });
+        
+        return false;
+    }
+</script>
+{% endblock %}

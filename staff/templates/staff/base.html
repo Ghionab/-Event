@@ -174,7 +174,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'usher_manual_checkin' %}active{% endif %}" href="{% url 'staff:usher_manual_checkin' %}">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'usher_manual_checkin' or request.resolver_match.url_name == 'usher_validation' %}active{% endif %}" href="{% url 'staff:usher_validation' %}">
                                 <i class="bi bi-list-check me-1"></i> Manual Check-in
                             </a>
                         </li>

@@ -6,8 +6,8 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    # Allow override via environment variable or --settings flag
-    if '--settings' not in sys.argv:
+    has_settings = any(arg.startswith('--settings=') or arg == '--settings' for arg in sys.argv)
+    if not has_settings:
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'event_project.settings')
     try:
         from django.core.management import execute_from_command_line

@@ -345,8 +345,23 @@ def usher_validation(request):
             'assignment': None,
         })
 
+    # Convert assignment to dict for JSON serialization
+    assignment_dict = {
+        'id': assignment.id,
+        'venue_name': assignment.venue_name,
+        'is_active': assignment.is_active,
+        'assigned_at': assignment.assigned_at.isoformat() if assignment.assigned_at else None,
+        'event': {
+            'id': assignment.event.id,
+            'title': assignment.event.title,
+            'venue_name': assignment.event.venue_name,
+            'start_date': assignment.event.start_date.isoformat() if assignment.event.start_date else None,
+            'end_date': assignment.event.end_date.isoformat() if assignment.event.end_date else None,
+        } if assignment.event else None
+    }
+
     return render(request, 'staff/usher_validation.html', {
-        'assignment': assignment,
+        'assignment': assignment_dict,
     })
 
 

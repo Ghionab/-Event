@@ -74,22 +74,26 @@
             justify-content: center;
             flex-shrink: 0;
         }
+        
+        /* Animation keyframes */
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-surface min-h-screen">
     <div class="min-h-screen flex">
-        <!-- Left Brand Panel -->
-        <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col justify-between p-12 xl:p-16 text-white">
-            <div class="relative z-10">
-                <!-- Logo -->
-                <div class="flex items-center gap-3 mb-16">
-                    <div class="bg-white rounded-lg px-3 py-2 shadow-sm">
-                        <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" class="ea-logo" style="height: 48px; width: auto; object-fit: contain;">
-                    </div>
-                </div>
-                
-                <!-- Headline -->
-                <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-6">
+        <!-- Left Brand Panel (Logo Removed) -->
+        <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col p-12 xl:p-16 text-white">
+            <div class="relative z-10 mb-12">
+                <!-- Headline Only -->
+                <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-4">
                     Organize<br>
                     <span class="text-accent">amazing events</span>
                 </h1>
@@ -98,7 +102,7 @@
                 </p>
             </div>
             
-            <div class="relative z-10 space-y-6">
+            <div class="relative z-10 space-y-5">
                 <div class="flex items-start gap-4">
                     <div class="auth-feature-icon bg-white/10">
                         <i class="bi bi-calendar-check text-accent"></i>
@@ -129,20 +133,30 @@
             </div>
         </div>
         
-        <!-- Right Login Form -->
+        <!-- Right Login Form with Logo as Visual Anchor -->
         <div class="flex-1 flex items-center justify-center py-12 px-4 sm:px-8">
             <div class="max-w-md w-full">
                 <!-- Mobile Logo -->
                 <div class="lg:hidden text-center mb-8">
-                    <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" class="ea-logo mx-auto mb-3" style="height: 48px; width: auto; object-fit: contain;">
-                    <h2 class="text-xl font-heading font-bold text-gray-900">EventAxis</h2>
+                    <div style="position: relative; display: inline-block;">
+                        <div style="position: absolute; inset: -20px; background: radial-gradient(circle, rgba(31, 58, 95, 0.08) 0%, transparent 70%); border-radius: 50%; z-index: -1;"></div>
+                        <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" style="height: 56px; width: auto; object-fit: contain;">
+                    </div>
+                    <h2 class="text-xl font-heading font-bold text-gray-900 mt-4">EventAxis</h2>
                 </div>
                 
-                <div class="ea-card p-8 shadow-lg">
-                    <div class="mb-8 text-center">
-                        <h2 class="text-2xl font-heading font-bold text-gray-900">Organizer Login</h2>
-                        <p class="text-gray-500 mt-1 text-sm">Sign in to access your dashboard</p>
+                <div style="background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04); padding: 48px; animation: fadeInUp 0.6s ease-out;">
+                    <!-- Logo: Primary Brand Anchor -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                        <div style="position: relative; display: inline-block;">
+                            <div style="position: absolute; inset: -20px; background: radial-gradient(circle, rgba(31, 58, 95, 0.08) 0%, transparent 70%); border-radius: 50%; z-index: -1; animation: logoPulse 3s ease-in-out infinite;"></div>
+                            <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" style="height: 64px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(200,162,74,0.25));">
+                        </div>
                     </div>
+                    
+                    <!-- Title Hierarchy -->
+                    <h2 style="font-size: 1.75rem; font-weight: 700; color: #111827; text-align: center; margin-bottom: 4px; letter-spacing: -0.025em;">Organizer Login</h2>
+                    <p style="font-size: 1rem; color: #6B7280; text-align: center; margin-bottom: 24px;">Sign in to access your dashboard</p>
 
                     {% if messages %}
                         {% for message in messages %}
@@ -154,11 +168,11 @@
                     {% endif %}
 
                     {% if form.errors %}
-                        <div class="ea-alert ea-alert-error mb-6">
-                            <i class="bi bi-exclamation-circle"></i>
+                        <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
+                            <i class="bi bi-exclamation-circle text-red-500 mt-0.5"></i>
                             <div>
-                                <p class="font-medium">Invalid email or password</p>
-                                <p class="text-sm mt-1">Please check your credentials and try again.</p>
+                                <p class="font-medium text-red-800 text-sm">Invalid email or password</p>
+                                <p class="text-red-600 text-sm mt-0.5">Please check your credentials and try again.</p>
                             </div>
                         </div>
                     {% endif %}
@@ -166,51 +180,47 @@
                     <form method="post" class="space-y-5">
                         {% csrf_token %}
 
-                        <div class="ea-form-group mb-0">
-                            <label for="id_email" class="ea-form-label">
-                                <i class="bi bi-envelope mr-2 text-primary"></i>Email Address
-                            </label>
+                        <div>
+                            <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <input type="email" name="username" id="id_email" required
-                                   class="ea-input"
+                                   class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200"
+                                   style="focus: box-shadow 0 0 0 3px rgba(31,58,95,0.1);"
                                    placeholder="you@example.com">
                         </div>
 
-                        <div class="ea-form-group mb-0">
-                            <label for="id_password" class="ea-form-label">
-                                <i class="bi bi-lock mr-2 text-primary"></i>Password
-                            </label>
-                            <input type="password" name="password" id="id_password" required
-                                   class="ea-input"
-                                   placeholder="Enter your password">
+                        <div>
+                            <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <div class="relative">
+                                <input type="password" name="password" id="id_password" required
+                                       class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 pr-12"
+                                       placeholder="Enter your password">
+                                <button type="button" onclick="togglePassword('id_password', this)" 
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-between">
                             <label class="flex items-center cursor-pointer">
-                                <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
                                 <span class="ml-2 text-sm text-gray-600">Remember me</span>
                             </label>
-                            <a href="#" class="text-sm text-primary hover:text-primary-dark transition-colors">Forgot password?</a>
+                            <a href="#" class="text-sm font-medium text-primary hover:text-primary-dark transition-colors">Forgot password?</a>
                         </div>
 
-                        <button type="submit" class="ea-btn ea-btn-accent ea-btn-lg w-full">
-                            <i class="bi bi-box-arrow-in-right mr-2"></i>Sign In
+                        <button type="submit" class="w-full py-3.5 px-5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2" style="box-shadow: 0 4px 12px rgba(31,58,95,0.15);">
+                            <i class="bi bi-box-arrow-in-right"></i>Sign In
                         </button>
                     </form>
 
-                    <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                    <div style="height: 1px; background: linear-gradient(to right, transparent, #E5E7EB, transparent); margin: 28px 0;"></div>
+
+                    <div class="text-center">
                         <p class="text-gray-500 text-sm mb-4">Don't have an account?</p>
-                        <a href="/register/" class="ea-btn ea-btn-outline ea-btn-lg w-full block text-center">
+                        <a href="/register/" class="w-full py-3 px-4 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 block text-center">
                             Create Organizer Account
                         </a>
-                    </div>
-
-                    <!-- Demo Credentials -->
-                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                        <p class="text-xs text-gray-500 text-center mb-2">Demo Credentials</p>
-                        <div class="text-xs text-gray-600 space-y-1">
-                            <p><span class="font-medium">Email:</span> organizer@demo.com</p>
-                            <p><span class="font-medium">Password:</span> demo123</p>
-                        </div>
                     </div>
 
                     <div class="mt-4 text-center">
@@ -222,5 +232,21 @@
             </div>
         </div>
     </div>
+
+    <script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+    </script>
 </body>
 </html>

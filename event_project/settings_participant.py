@@ -91,7 +91,8 @@ CORS_ALLOW_CREDENTIALS = True
 # URL configuration for participant portal
 ROOT_URLCONF = 'event_project.urls_participant'
 
-# Login redirect URL for participant portal
+# Login/Logout redirects for participant portal
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/events/'
 
 # Logout redirect URL

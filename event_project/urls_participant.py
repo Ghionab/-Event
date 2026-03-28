@@ -171,9 +171,10 @@ urlpatterns = [
     path('events/', TemplateView.as_view(template_name='participant/events.html'), name='participant_events'),
 
     # Registration flow - MUST come before event detail
-    path('events/<int:event_id>/register/', participant_register, name='participant_register'),
-    
-    # Registration success page
+    path('events/<int:event_id>/register/', TemplateView.as_view(
+        template_name='participant/register.html'
+    ), name='participant_register'),
+
     path('registration/success/<int:registration_id>/', participant_register_success, name='participant_registration_success'),
 
     # Event detail (public view - no registration)

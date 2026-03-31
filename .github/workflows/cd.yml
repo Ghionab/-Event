@@ -1,0 +1,120 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/ghionab/eventaxis
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update deployment timestamp
+        run: |
+          echo "Deployment initiated at $(date)" >> deployment_log.txt
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to staging server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USERNAME }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            # Create directory structure if not exists (first-time setup)
+            mkdir -p /opt/eventaxis/{app,nginx,redis,celery,logs,services}
+            mkdir -p /opt/eventaxis/app/{media,static,logs}
+            mkdir -p /opt/eventaxis/nginx/{conf.d,ssl}
+            mkdir -p /opt/eventaxis/redis/{data,conf}
+
+            cd /opt/eventaxis
+
+            # Pull latest image
+            docker-compose -f docker-compose.staging.yml pull
+
+            # Restart services
+            docker-compose -f docker-compose.staging.yml up -d
+
+            # Verify deployment
+            docker-compose -f docker-compose.staging.yml ps
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            # Create directory structure if not exists (first-time setup)
+            mkdir -p /opt/eventaxis/{app,nginx,redis,celery,logs,services}
+            mkdir -p /opt/eventaxis/app/{media,static,logs}
+            mkdir -p /opt/eventaxis/nginx/{conf.d,ssl}
+            mkdir -p /opt/eventaxis/redis/{data,conf}
+            mkdir -p /opt/eventaxis/celery/{logs,data}
+
+            cd /opt/eventaxis
+
+            # Pull latest image
+            docker-compose pull
+
+            # Restart services with zero-downtime
+            docker-compose up -d --force-recreate
+
+            # Verify deployment
+            docker-compose ps
+            docker-compose logs --tail=30

@@ -26,6 +26,18 @@ from organizers import views_auth as organizer_auth_views
 from events import views as events_views
 from users import views as users_views
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.http import JsonResponse
+from django.views import View
+import sys
+
+
+class HealthCheckView(View):
+    def get(self, request):
+        return JsonResponse({
+            'status': 'healthy',
+            'python_version': sys.version,
+            'service': 'eventaxis'
+        })
 
 
 def participant_register_view(request, event_id):
@@ -86,6 +98,10 @@ urlpatterns = [
     # API Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    
+    # Health check endpoint
+    path('health/', HealthCheckView.as_view(), name='health'),
+    
     re_path(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
 ]
 

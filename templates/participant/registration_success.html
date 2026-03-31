@@ -145,13 +145,13 @@
     <!-- Action Buttons -->
     <div class="flex flex-wrap gap-4 justify-center no-print">
         {% if registration.status != 'waitlisted' %}
-            <a href="{% url 'attendee:ticket_preview' registration.id %}" 
+            <a href="{% url 'attendee:ticket_preview_secure' signed_token %}" target="_blank"
                     class="ea-btn ea-btn-primary px-8">
                 <i class="bi bi-printer mr-2"></i>
                 Print Ticket
             </a>
             
-            <a href="{% url 'attendee:ticket_preview' registration.id %}" 
+            <a href="{% url 'attendee:ticket_download_secure' signed_token %}" 
             class="ea-btn ea-btn-outline px-8">
                 <i class="bi bi-file-earmark-pdf mr-2"></i>
                 Download PDF

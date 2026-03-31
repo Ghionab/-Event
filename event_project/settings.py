@@ -37,13 +37,22 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:14929',
     'http://localhost:8000',
     'http://localhost:8001',
+    # Live server domains
+    'http://test.hidasegebeyaexpo.com',
+    'https://test.hidasegebeyaexpo.com',
+    'http://hidasegebeyaexpo.com',
+    'https://hidasegebeyaexpo.com',
+    'http://www.hidasegebeyaexpo.com',
+    'https://www.hidasegebeyaexpo.com',
 ]
 
 # For development - disable CSRF on all local origins
 CSRF_COOKIE_SECURE = False
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+# Store CSRF token in the session instead of a cookie.
+# This fixes "CSRF cookie not set" errors on cPanel/Passenger deployments
+# where the reverse proxy may strip or block the CSRF cookie.
+CSRF_USE_SESSIONS = True
 
 
 # Application definition
@@ -70,11 +79,13 @@ INSTALLED_APPS = [
     'events_api',
     'theming',
     'coordinators',
+    'staff',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files on cPanel/Passenger
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -181,6 +192,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (Uploads)
 MEDIA_URL = '/media/'
@@ -247,10 +259,10 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY not needed — CSRF is stored in sessions (CSRF_USE_SESSIONS = True)
 
-# Allow CORS for development (set False in production)
-CORS_ALLOW_ALL_ORIGINS = DEBUG
+# Allow CORS for all origins (needed for cPanel deployment)
+CORS_ALLOW_ALL_ORIGINS = True
 
 # drf-spectacular settings
 SPECTACULAR_SETTINGS = {

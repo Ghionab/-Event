@@ -32,6 +32,7 @@ class UserRole(models.TextChoices):
     ORGANIZER = 'organizer', 'Event Organizer'
     STAFF = 'staff', 'Gate Staff'
     USHER = 'usher', 'Usher'
+    COORDINATOR = 'coordinator', 'Coordinator'
     SPEAKER = 'speaker', 'Speaker'
     SPONSOR = 'sponsor', 'Sponsor'
     ATTENDEE = 'attendee', 'Attendee'

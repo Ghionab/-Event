@@ -154,6 +154,7 @@ class TeamMemberCreateForm(forms.Form):
             password=self.cleaned_data['password'],
             first_name=self.cleaned_data['full_name'].split()[0] if ' ' in self.cleaned_data['full_name'] else self.cleaned_data['full_name'],
             last_name=' '.join(self.cleaned_data['full_name'].split()[1:]) if ' ' in self.cleaned_data['full_name'] else '',
+            role=self.cleaned_data['role']
         )
         
         # Get event from request or use provided event

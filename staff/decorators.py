@@ -18,5 +18,5 @@ def staff_required(view_func):
             return view_func(request, *args, **kwargs)
         else:
             messages.error(request, 'You do not have permission to access the staff portal.')
-            return redirect('staff:staff_login')
+            return redirect('login')
     return wrapper

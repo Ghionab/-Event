@@ -33,6 +33,10 @@ urlpatterns = [
     # Tickets (accessible to purchaser and attendee)
     path('tickets/', views_attendee.my_tickets, name='my_tickets'),
     path('tickets/<int:registration_id>/preview/', views_attendee.ticket_preview, name='ticket_preview'),
+    
+    # Secure Guest Ticket Access
+    path('tickets/secure/<str:token>/preview/', views_attendee.ticket_preview_secure, name='ticket_preview_secure'),
+    path('tickets/secure/<str:token>/download/', views_attendee.ticket_download_secure, name='ticket_download_secure'),
 
     # Certificates & Post-Event
     path('certificates/', views_attendee.certificates_list, name='certificates'),

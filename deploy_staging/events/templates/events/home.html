@@ -1,0 +1,453 @@
+{% extends 'events/base.html' %}
+
+{% block title %}EventAxis — Discover, Organize & Experience Events{% endblock %}
+{% block body_class %}landing-page bg-[#FAFAFA] selection:bg-[#1E3A8A] selection:text-white{% endblock %}
+
+{% block extra_css %}
+/* ═══════════════════════════════════════════════════════════
+   LANDING PAGE OVERRIDES
+   Override the dark base.html nav/footer for a light, calm feel
+   ═══════════════════════════════════════════════════════════ */
+
+/* Nav — light transparent glassmorphism */
+.landing-page nav {
+    background: rgba(250, 250, 250, 0.82) !important;
+    backdrop-filter: blur(14px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.4) !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.04) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+}
+.landing-page nav .text-white\/70,
+.landing-page nav .text-white\/80 { color: #475569 !important; }
+.landing-page nav .text-white\/70:hover,
+.landing-page nav .text-white\/80:hover {
+    color: #0F172A !important;
+    background-color: rgba(15, 23, 42, 0.04) !important;
+}
+.landing-page nav img.ea-logo { filter: none !important; }
+.landing-page nav i { color: #64748b !important; }
+.landing-page nav a.bg-gradient-to-r {
+    background: #0F172A !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12) !important;
+}
+.landing-page nav a.bg-gradient-to-r i { color: #F8FAFC !important; }
+
+/* Footer — light version */
+.landing-page footer {
+    background: #FFFFFF !important;
+    border-top: 1px solid #F1F5F9 !important;
+    color: #64748B !important;
+}
+.landing-page footer .text-white,
+.landing-page footer h4 { color: #0F172A !important; }
+.landing-page footer .text-white\/60 { color: #64748B !important; }
+.landing-page footer .bg-accent,
+.landing-page footer .bg-primary-light { display: none !important; }
+.landing-page footer a:hover { color: #2563EB !important; }
+.landing-page footer img.ea-logo { filter: grayscale(100%) opacity(0.5) !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS & UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+    opacity: 0;
+    animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.fade-up-d1 { animation-delay: 80ms; }
+.fade-up-d2 { animation-delay: 160ms; }
+.fade-up-d3 { animation-delay: 240ms; }
+.fade-up-d4 { animation-delay: 320ms; }
+.fade-up-d5 { animation-delay: 400ms; }
+
+.ease-out-expo {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Role card accent lines */
+.role-card-attendee  { border-top: 3px solid #3B82F6; }
+.role-card-organizer { border-top: 3px solid #0F172A; }
+.role-card-team      { border-top: 3px solid #10B981; }
+{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 1: HERO — DUAL-PERSONA
+     Speaks to both attendees and organizers simultaneously
+     ═══════════════════════════════════════════════════════════ -->
+<section class="relative pt-28 pb-20 md:pt-40 md:pb-28 px-4 sm:px-6 lg:px-8">
+    <!-- Subtle ambient glow -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-blue-50/60 via-blue-50/20 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <div class="max-w-5xl mx-auto text-center">
+        <!-- Kicker -->
+        <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm ring-1 ring-slate-900/[0.04] text-[13px] font-medium text-slate-500 mb-10 fade-up">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            For attendees &amp; organizers
+        </div>
+
+        <!-- Headline -->
+        <h1 class="font-heading text-[2.75rem] md:text-7xl lg:text-[5.5rem] leading-[1.04] tracking-tight text-[#0F172A] font-semibold mb-7 fade-up fade-up-d1">
+            Events, <br class="hidden sm:block"/>beautifully managed.
+        </h1>
+
+        <!-- Subtitle — crystal clear for first-time visitors -->
+        <p class="text-lg md:text-[1.4rem] text-slate-500 leading-relaxed max-w-2xl mx-auto mb-12 fade-up fade-up-d2 font-light">
+            Looking for events to attend? Browse and register instantly.<br class="hidden md:block"/>
+            Need to host one? Create, ticket, and manage — all in one place.
+        </p>
+
+        <!-- DUAL CTA — dead simple for first-time users -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 fade-up fade-up-d3">
+            <!-- Attendee path -->
+            <a href="{% url 'event_list' %}" id="cta-find-events" class="ease-out-expo group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-white text-[#0F172A] ring-1 ring-slate-900/[0.08] font-medium text-[1.05rem] hover:ring-slate-900/[0.15] hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-0.5 w-full sm:w-auto">
+                <i class="bi bi-compass text-blue-500"></i>
+                I want to attend
+            </a>
+            <!-- Organizer path -->
+            <a href="/users/register/?role=organizer" id="cta-start-organizing" class="ease-out-expo group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-[#0F172A] text-white font-medium text-[1.05rem] shadow-[0_8px_30px_rgb(15,23,42,0.12)] hover:shadow-[0_12px_40px_rgb(15,23,42,0.18)] hover:-translate-y-0.5 w-full sm:w-auto">
+                I want to organize
+                <i class="bi bi-arrow-right text-sm opacity-60 group-hover:translate-x-0.5 ease-out-expo"></i>
+            </a>
+        </div>
+
+        <!-- Trust signals -->
+        <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-10 text-[13px] text-slate-400 font-medium fade-up fade-up-d4">
+            <span class="inline-flex items-center gap-1.5"><i class="bi bi-shield-check text-slate-300"></i> Free forever for free events</span>
+            <span class="inline-flex items-center gap-1.5"><i class="bi bi-lightning-charge text-slate-300"></i> No credit card needed</span>
+            <span class="inline-flex items-center gap-1.5"><i class="bi bi-phone text-slate-300"></i> Mobile-ready tickets</span>
+        </div>
+    </div>
+
+    <!-- Abstract Dashboard Mockup -->
+    <div class="mt-20 md:mt-24 max-w-[960px] mx-auto fade-up fade-up-d5 relative">
+        <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#FAFAFA] to-transparent z-10 pointer-events-none rounded-b-[2rem]"></div>
+        <div class="p-2.5 rounded-[1.75rem] bg-white/60 backdrop-blur-md ring-1 ring-slate-900/[0.04] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)]">
+            <div class="bg-white rounded-[1.25rem] overflow-hidden ring-1 ring-slate-100 aspect-[16/9] md:aspect-[2.2/1] flex">
+                <!-- Sidebar skeleton -->
+                <div class="w-16 md:w-48 shrink-0 border-r border-slate-100/70 bg-slate-50/40 p-3 md:p-4 flex flex-col gap-2.5 opacity-[0.35]">
+                    <div class="w-6 h-6 md:w-20 md:h-5 rounded bg-slate-200 mb-4"></div>
+                    <div class="w-full h-7 rounded-lg bg-slate-200/70"></div>
+                    <div class="w-full h-7 rounded-lg bg-slate-100"></div>
+                    <div class="w-full h-7 rounded-lg bg-slate-100"></div>
+                </div>
+                <!-- Content skeleton -->
+                <div class="flex-1 p-5 md:p-7 flex flex-col gap-5 opacity-[0.35]">
+                    <div class="flex justify-between items-center">
+                        <div class="w-36 h-7 rounded-lg bg-slate-200"></div>
+                        <div class="w-20 h-7 rounded-full bg-[#0F172A]"></div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="h-20 md:h-28 rounded-2xl bg-white ring-1 ring-slate-100 shadow-sm p-3 flex flex-col justify-end">
+                            <div class="w-7 h-7 rounded-full bg-blue-50 mb-auto"></div>
+                            <div class="w-12 h-2.5 bg-slate-100 rounded-full mb-1.5"></div>
+                            <div class="w-20 h-5 bg-slate-200 rounded-full"></div>
+                        </div>
+                        <div class="h-20 md:h-28 rounded-2xl bg-white ring-1 ring-slate-100 shadow-sm p-3 flex flex-col justify-end">
+                            <div class="w-7 h-7 rounded-full bg-emerald-50 mb-auto"></div>
+                            <div class="w-12 h-2.5 bg-slate-100 rounded-full mb-1.5"></div>
+                            <div class="w-20 h-5 bg-slate-200 rounded-full"></div>
+                        </div>
+                        <div class="h-20 md:h-28 rounded-2xl bg-white ring-1 ring-slate-100 shadow-sm p-3 flex-col justify-end hidden md:flex">
+                            <div class="w-7 h-7 rounded-full bg-amber-50 mb-auto"></div>
+                            <div class="w-12 h-2.5 bg-slate-100 rounded-full mb-1.5"></div>
+                            <div class="w-20 h-5 bg-slate-200 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="flex-1 rounded-xl bg-slate-50/60 ring-1 ring-slate-100 flex items-end p-4 gap-1.5">
+                        <div class="w-full h-[25%] bg-blue-50 rounded-t-sm"></div>
+                        <div class="w-full h-[45%] bg-blue-100/60 rounded-t-sm"></div>
+                        <div class="w-full h-[35%] bg-blue-50 rounded-t-sm"></div>
+                        <div class="w-full h-[65%] bg-blue-100 rounded-t-sm"></div>
+                        <div class="w-full h-[55%] bg-blue-100/80 rounded-t-sm"></div>
+                        <div class="w-full h-[80%] bg-blue-200/70 rounded-t-sm"></div>
+                        <div class="w-full h-[70%] bg-blue-100 rounded-t-sm hidden md:block"></div>
+                        <div class="w-full h-[90%] bg-blue-200 rounded-t-sm hidden md:block"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 2: LIVE EVENTS — ATTENDEE VALUE (ELEVATED)
+     Moved up from position 3 to position 2.
+     Attendees are the majority of traffic — serve them first.
+     ═══════════════════════════════════════════════════════════ -->
+<section class="py-20 md:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" id="events-section">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-14 fade-up">
+        <div class="max-w-xl">
+            <h2 class="text-3xl md:text-5xl font-heading text-[#0F172A] tracking-tight font-semibold mb-4">Happening now.</h2>
+            <p class="text-lg text-slate-500 font-light leading-relaxed">Explore events crafted by organizers who care about the details.</p>
+        </div>
+        <a href="{% url 'event_list' %}" class="text-[#0F172A] font-medium hover:text-slate-500 ease-out-expo flex items-center gap-2 group text-[15px] shrink-0">
+            Browse all events <i class="bi bi-arrow-right group-hover:translate-x-1 ease-out-expo text-sm"></i>
+        </a>
+    </div>
+
+    {% if events %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for event in events|slice:":3" %}
+        <a href="{% url 'event_detail' event.id %}" class="group block bg-white rounded-2xl p-7 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 fade-up fade-up-d{{ forloop.counter }}">
+            <div class="flex justify-between items-start mb-5">
+                <span class="text-slate-400 text-xs font-semibold tracking-[0.12em] uppercase">{{ event.start_date|date:"M d, Y" }}</span>
+                <span class="bg-slate-50 text-slate-500 text-[11px] px-2.5 py-1 rounded-full ring-1 ring-slate-900/[0.04] font-medium">{{ event.get_event_type_display|default:"Event" }}</span>
+            </div>
+
+            <h3 class="font-heading text-xl text-[#0F172A] font-semibold mb-2.5 leading-snug group-hover:text-blue-700 ease-out-expo">{{ event.title }}</h3>
+
+            <p class="text-slate-500 font-light text-sm line-clamp-2 mb-7 leading-relaxed">
+                {{ event.description|default:"Discover a beautifully managed event experience."|truncatewords:20 }}
+            </p>
+
+            <div class="flex items-center gap-2.5 text-sm text-slate-400 font-medium pt-5 border-t border-slate-50">
+                <div class="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-500 ease-out-expo">
+                    <i class="bi bi-geo-alt-fill text-[10px]"></i>
+                </div>
+                <span class="truncate">{{ event.venue_name|default:"Virtual Experience" }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-3xl py-16 px-6 text-center ring-1 ring-slate-900/[0.04] max-w-3xl mx-auto fade-up">
+        <div class="w-16 h-16 mx-auto bg-slate-50 rounded-2xl flex items-center justify-center mb-5 text-slate-300 ring-1 ring-slate-900/[0.04]">
+            <i class="bi bi-calendar-heart text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-heading text-[#0F172A] font-semibold mb-3">No events published yet.</h3>
+        <p class="text-slate-500 font-light mb-7 max-w-md mx-auto">Be the first to publish a beautiful event on EventAxis. The stage is set.</p>
+        <a href="/users/register/?role=organizer" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0F172A] text-white font-medium hover:bg-[#1E293B] shadow-md hover:shadow-lg hover:-translate-y-0.5 ease-out-expo text-sm">
+            Create your first event <i class="bi bi-arrow-right text-xs opacity-60"></i>
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 3: ROLE SEGMENTATION
+     "Built for every side of the event"
+     Three clear paths for three user types
+     ═══════════════════════════════════════════════════════════ -->
+<section class="py-20 md:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-16 fade-up">
+        <h2 class="text-3xl md:text-5xl font-heading text-[#0F172A] tracking-tight font-semibold mb-5">Which one are you?</h2>
+        <p class="text-lg text-slate-500 font-light leading-relaxed">EventAxis gives every person involved in an event their own dedicated portal — from discovery to on-site operations.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+        <!-- FOR ATTENDEES -->
+        <a href="{% url 'event_list' %}" class="role-card-attendee bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 fade-up fade-up-d1 group block">
+            <div class="flex items-center gap-4 mb-5">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100/50 shrink-0">
+                    <i class="bi bi-person-heart text-xl text-blue-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-heading text-[#0F172A] font-semibold">I'm an Attendee</h3>
+                    <p class="text-slate-400 text-sm">I want to find and attend events</p>
+                </div>
+            </div>
+
+            <ul class="space-y-2.5 mb-6">
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-blue-500 mt-0.5 shrink-0"></i>
+                    <span>Browse events &amp; register in one click</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-blue-500 mt-0.5 shrink-0"></i>
+                    <span>Get digital tickets on your phone</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-blue-500 mt-0.5 shrink-0"></i>
+                    <span>Track your schedule &amp; network with attendees</span>
+                </li>
+            </ul>
+
+            <span class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 group-hover:gap-3 ease-out-expo">
+                Browse events <i class="bi bi-arrow-right text-xs"></i>
+            </span>
+        </a>
+
+        <!-- FOR ORGANIZERS -->
+        <a href="/users/register/?role=organizer" class="role-card-organizer bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 fade-up fade-up-d2 group block">
+            <div class="flex items-center gap-4 mb-5">
+                <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center ring-1 ring-slate-200/50 shrink-0">
+                    <i class="bi bi-calendar-check text-xl text-[#0F172A]"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-heading text-[#0F172A] font-semibold">I'm an Organizer</h3>
+                    <p class="text-slate-400 text-sm">I want to host and manage events</p>
+                </div>
+            </div>
+
+            <ul class="space-y-2.5 mb-6">
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-[#0F172A] mt-0.5 shrink-0"></i>
+                    <span>Create events &amp; sell tickets in minutes</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-[#0F172A] mt-0.5 shrink-0"></i>
+                    <span>Real-time revenue, check-in &amp; analytics</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-[#0F172A] mt-0.5 shrink-0"></i>
+                    <span>Manage sponsors, speakers &amp; communications</span>
+                </li>
+            </ul>
+
+            <span class="inline-flex items-center gap-2 text-sm font-medium text-[#0F172A] group-hover:gap-3 ease-out-expo">
+                Start for free <i class="bi bi-arrow-right text-xs"></i>
+            </span>
+        </a>
+
+        <!-- FOR YOUR TEAM -->
+        <div class="role-card-team bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-lg hover:shadow-slate-200/30 fade-up fade-up-d3 group">
+            <div class="flex items-center gap-4 mb-5">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100/50 shrink-0">
+                    <i class="bi bi-people text-xl text-emerald-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-heading text-[#0F172A] font-semibold">I'm on the Team</h3>
+                    <p class="text-slate-400 text-sm">Coordinator, usher, or gate staff</p>
+                </div>
+            </div>
+
+            <ul class="space-y-2.5 mb-6">
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-emerald-600 mt-0.5 shrink-0"></i>
+                    <span>Dedicated coordinator portal for event ops</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-emerald-600 mt-0.5 shrink-0"></i>
+                    <span>Fast QR-based gate check-in tools</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-sm text-slate-600">
+                    <i class="bi bi-check2 text-emerald-600 mt-0.5 shrink-0"></i>
+                    <span>You only see what&rsquo;s relevant to your role</span>
+                </li>
+            </ul>
+
+            <span class="inline-flex items-center gap-2 text-sm font-medium text-emerald-600">
+                <i class="bi bi-info-circle text-xs"></i> Your organizer will send you an invite
+            </span>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 4: HOW IT WORKS
+     Simple 3-step flow applicable to both personas
+     ═══════════════════════════════════════════════════════════ -->
+<section class="py-20 md:py-28 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center max-w-2xl mx-auto mb-16 fade-up">
+            <h2 class="text-3xl md:text-5xl font-heading text-[#0F172A] tracking-tight font-semibold mb-5">How it works.</h2>
+            <p class="text-lg text-slate-500 font-light leading-relaxed">Three steps. Whether you're attending or organizing.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 md:gap-6">
+            <!-- Step 1 -->
+            <div class="text-center fade-up fade-up-d1">
+                <div class="w-14 h-14 mx-auto rounded-full bg-white ring-1 ring-slate-900/[0.06] shadow-sm flex items-center justify-center mb-6">
+                    <span class="text-lg font-heading font-bold text-[#0F172A]">1</span>
+                </div>
+                <h3 class="text-lg font-heading text-[#0F172A] font-semibold mb-2">Create your account</h3>
+                <p class="text-slate-500 font-light text-[15px] leading-relaxed">Sign up in seconds. Choose whether you're here to attend or organize.</p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="text-center fade-up fade-up-d2">
+                <div class="w-14 h-14 mx-auto rounded-full bg-white ring-1 ring-slate-900/[0.06] shadow-sm flex items-center justify-center mb-6">
+                    <span class="text-lg font-heading font-bold text-[#0F172A]">2</span>
+                </div>
+                <h3 class="text-lg font-heading text-[#0F172A] font-semibold mb-2">Get your dedicated portal</h3>
+                <p class="text-slate-500 font-light text-[15px] leading-relaxed">Attendees get a personal dashboard. Organizers get a full management suite.</p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="text-center fade-up fade-up-d3">
+                <div class="w-14 h-14 mx-auto rounded-full bg-white ring-1 ring-slate-900/[0.06] shadow-sm flex items-center justify-center mb-6">
+                    <span class="text-lg font-heading font-bold text-[#0F172A]">3</span>
+                </div>
+                <h3 class="text-lg font-heading text-[#0F172A] font-semibold mb-2">Experience events, your way</h3>
+                <p class="text-slate-500 font-light text-[15px] leading-relaxed">Discover and register for events — or create, ticket, and grow your own.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 5: TRUST / SOCIAL PROOF
+     Key differentiators and platform strengths
+     ═══════════════════════════════════════════════════════════ -->
+<section class="py-20 md:py-28 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="bg-white rounded-3xl ring-1 ring-slate-900/[0.04] p-10 md:p-16 fade-up">
+            <div class="text-center mb-14">
+                <h2 class="text-3xl md:text-5xl font-heading text-[#0F172A] tracking-tight font-semibold mb-5">Why EventAxis?</h2>
+                <p class="text-lg text-slate-500 font-light max-w-xl mx-auto leading-relaxed">A few reasons organizers and attendees choose us.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-heading font-bold text-[#0F172A] tracking-tight mb-2">100%</div>
+                    <p class="text-slate-500 text-sm font-light">Free for free events. No hidden fees, ever.</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-heading font-bold text-[#0F172A] tracking-tight mb-2">5min</div>
+                    <p class="text-slate-500 text-sm font-light">Average time to create and publish an event.</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-heading font-bold text-[#0F172A] tracking-tight mb-2">4+</div>
+                    <p class="text-slate-500 text-sm font-light">Dedicated role portals for your entire team.</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-heading font-bold text-[#0F172A] tracking-tight mb-2">24/7</div>
+                    <p class="text-slate-500 text-sm font-light">Self-service ticketing & check-in. Always on.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 6: FINAL CTA — DUAL PATH (Mirrors Hero)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center fade-up">
+        <div class="bg-white rounded-[2.5rem] py-20 px-8 md:px-16 ring-1 ring-slate-900/[0.04] shadow-[0_8px_40px_rgb(0,0,0,0.03)] relative overflow-hidden">
+            <h2 class="text-4xl md:text-6xl font-heading text-[#0F172A] tracking-tight font-semibold mb-6">Ready to begin?</h2>
+            <p class="text-lg md:text-xl text-slate-500 font-light leading-relaxed mb-12 max-w-lg mx-auto">Pick your path. Both are free to get started.</p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
+                <a href="{% url 'event_list' %}" class="ease-out-expo inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-white text-[#0F172A] ring-1 ring-slate-900/[0.08] font-medium text-[1.05rem] hover:ring-slate-900/[0.15] hover:shadow-lg hover:shadow-slate-200/60 hover:-translate-y-0.5 w-full sm:w-auto">
+                    <i class="bi bi-compass text-blue-500"></i>
+                    I want to attend
+                </a>
+                <a href="/users/register/?role=organizer" class="ease-out-expo inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-[#0F172A] text-white font-medium text-[1.05rem] shadow-[0_8px_30px_rgb(15,23,42,0.12)] hover:shadow-[0_12px_40px_rgb(15,23,42,0.18)] hover:-translate-y-0.5 w-full sm:w-auto">
+                    I want to organize
+                    <i class="bi bi-arrow-right text-sm opacity-60"></i>
+                </a>
+            </div>
+
+            <p class="mt-8 text-sm text-slate-400 font-light">
+                Already have an account? <a href="{% url 'login' %}" class="text-[#0F172A] font-medium hover:underline">Sign in</a>
+            </p>
+
+            <!-- Subtle ambient accent -->
+            <div class="absolute -top-1/3 -right-1/3 w-2/3 h-2/3 bg-blue-50/30 blur-3xl rounded-full pointer-events-none"></div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

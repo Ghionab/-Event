@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}?v=2.0">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Event Coordinator - EventAxis{% endblock %}</title>
@@ -243,12 +244,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'participant_list' %}active{% endif %}" href="{% url 'coordinators:participant_list' %}">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'participant_list' %}active{% endif %}" href="#">
                         <i class="bi bi-people"></i> Manage Participants
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" href="{% url 'coordinators:reports' %}">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" href="#">
                         <i class="bi bi-file-earmark-text"></i> Reports & Insights
                     </a>
                 </li>

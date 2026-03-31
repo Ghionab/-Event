@@ -1,244 +1,247 @@
-{% extends 'participant/base.html' %}
 {% load static %}
-
-{% block title %}Sign In — EventAxis{% endblock %}
-
-{% block extra_css %}
-.auth-hero {
-    background: linear-gradient(145deg, #1F3A5F 0%, #162C48 50%, #1F3A5F 100%);
-    position: relative;
-    overflow: hidden;
-}
-.auth-hero::before {
-    content: '';
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(200,162,74,0.18) 0%, transparent 70%);
-    border-radius: 50%;
-    top: -100px;
-    right: -100px;
-    pointer-events: none;
-}
-.auth-hero::after {
-    content: '';
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(42,79,122,0.25) 0%, transparent 70%);
-    border-radius: 50%;
-    bottom: -80px;
-    left: -60px;
-    pointer-events: none;
-}
-.auth-feature-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-/* Animation keyframes */
-@keyframes logoPulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.05); opacity: 0.8; }
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Premium SaaS styling */
-.login-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-    padding: 48px;
-}
-
-.logo-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 32px;
-}
-
-.logo-glow {
-    position: relative;
-    display: inline-block;
-}
-
-.logo-glow::before {
-    content: '';
-    position: absolute;
-    inset: -20px;
-    background: radial-gradient(circle, rgba(31, 58, 95, 0.08) 0%, transparent 70%);
-    border-radius: 50%;
-    z-index: -1;
-    animation: logoPulse 3s ease-in-out infinite;
-}
-
-@keyframes logoPulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.05); opacity: 0.8; }
-}
-
-.logo-fade-in {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-{% endblock %}
-
-{% block content %}
-<div class="min-h-screen flex bg-surface">
-    <!-- Left Brand Panel (Logo Removed) -->
-    <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col p-12 xl:p-16 text-white">
-        <div class="relative z-10 mb-12">
-            <!-- Headline Only -->
-            <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-4">
-                Discover, register &<br>
-                <span class="text-accent">experience events</span>
-            </h1>
-            <p class="text-white/50 text-lg leading-relaxed max-w-sm">
-                Your all-in-one platform for managing event registrations, tickets, and networking.
-            </p>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EventAxis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/eventaxis-design-system.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}?v=3.0">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary:     { DEFAULT: '#1F3A5F', dark: '#162C48', light: '#2A4F7A' },
+                        accent:      { DEFAULT: '#C8A24A', dark: '#B08E3A', light: '#D4B56A' },
+                        surface:     { DEFAULT: '#F5F6F7', white: '#FFFFFF' },
+                    },
+                    fontFamily: {
+                        heading: ['Poppins', 'Montserrat', 'system-ui', 'sans-serif'],
+                        body:    ['Inter', 'Open Sans', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: '0.5rem',
+                        lg:      '0.75rem',
+                        xl:      '1rem',
+                    },
+                    boxShadow: {
+                        card:    '0 1px 3px rgba(0,0,0,0.08)',
+                        hover:   '0 4px 12px rgba(0,0,0,0.08)',
+                        overlay: '0 10px 25px rgba(0,0,0,0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .auth-hero {
+            background: linear-gradient(145deg, #1F3A5F 0%, #162C48 50%, #1F3A5F 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-hero::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(200,162,74,0.18) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+            pointer-events: none;
+        }
+        .auth-hero::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(42,79,122,0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -80px;
+            left: -60px;
+            pointer-events: none;
+        }
+        .auth-feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
         
-        <div class="relative z-10 space-y-5">
-            <div class="flex items-start gap-4">
-                <div class="auth-feature-icon bg-white/10">
-                    <i class="bi bi-shield-check text-accent"></i>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-sm">Secure & Instant</h4>
-                    <p class="text-white/40 text-sm mt-0.5">Lightning-fast registration with enterprise-grade security</p>
-                </div>
-            </div>
-            <div class="flex items-start gap-4">
-                <div class="auth-feature-icon bg-white/10">
-                    <i class="bi bi-qr-code text-accent"></i>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-sm">QR Code Check-in</h4>
-                    <p class="text-white/40 text-sm mt-0.5">Seamless venue entry with digital tickets</p>
-                </div>
-            </div>
-            <div class="flex items-start gap-4">
-                <div class="auth-feature-icon bg-white/10">
-                    <i class="bi bi-people text-accent"></i>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-sm">Networking Hub</h4>
-                    <p class="text-white/40 text-sm mt-0.5">Connect with attendees and grow your network</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Right Form Panel with Logo as Visual Anchor -->
-    <div class="flex-1 flex items-center justify-center py-12 px-4 sm:px-8">
-        <div class="max-w-md w-full">
-            <!-- Mobile Logo -->
-            <div class="lg:hidden text-center mb-8">
-                <div style="position: relative; display: inline-block;">
-                    <div style="position: absolute; inset: -20px; background: radial-gradient(circle, rgba(31, 58, 95, 0.08) 0%, transparent 70%); border-radius: 50%; z-index: -1;"></div>
-                    <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" style="height: 56px; width: auto; object-fit: contain;">
-                </div>
-                <h2 class="text-xl font-heading font-bold text-gray-900 mt-4">EventAxis</h2>
+        /* Animation keyframes */
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-surface min-h-screen">
+    <div class="min-h-screen flex">
+        <!-- Left Brand Panel -->
+        <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col p-12 xl:p-16 text-white justify-center">
+            <div class="relative z-10 mb-12">
+                <!-- Headline -->
+                <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-4">
+                    The platform for<br>
+                    <span class="text-accent">every side</span> of the event.
+                </h1>
+                <p class="text-white/60 text-lg leading-relaxed max-w-sm mt-4">
+                    Whether you are discovering experiences, checking in attendees, or scaling a flagship conference, EventAxis dynamically adapts to your role.
+                </p>
             </div>
             
-            <div class="login-card" style="animation: fadeInUp 0.6s ease-out; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04); padding: 48px;">
-                <!-- Logo: Primary Brand Anchor -->
-                <div style="display: flex; justify-content: center; margin-bottom: 20px;">
-                    <div style="position: relative; display: inline-block;">
-                        <div style="position: absolute; inset: -20px; background: radial-gradient(circle, rgba(31, 58, 95, 0.08) 0%, transparent 70%); border-radius: 50%; z-index: -1; animation: logoPulse 3s ease-in-out infinite;"></div>
-                        <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" style="height: 64px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(200,162,74,0.25));">
+            <div class="relative z-10 space-y-6 mt-8">
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-ticket-perforated text-accent"></i>
                     </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">For Attendees</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Discover events, secure tickets, and manage your schedule effortlessly.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-calendar-check text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">For Organizers</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Create, manage, and scale extraordinary live experiences from a powerful dashboard.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Login Form -->
+        <div class="flex-1 flex items-center justify-center py-12 px-4 sm:px-8">
+            <div class="max-w-md w-full">
+                <!-- Mobile Logo -->
+                <div class="lg:hidden text-center mb-8">
+                    <div style="position: relative; display: inline-block;">
+                        <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" style="height: 56px; width: auto; object-fit: contain;">
+                    </div>
+                    <h2 class="text-xl font-heading font-bold text-gray-900 mt-4">EventAxis</h2>
                 </div>
                 
-                <!-- Title Hierarchy -->
-                <h2 style="font-size: 1.75rem; font-weight: 700; color: #111827; text-align: center; margin-bottom: 4px; letter-spacing: -0.025em;">Participant Login</h2>
-                <p style="font-size: 1rem; color: #6B7280; text-align: center; margin-bottom: 24px;">Sign in to access your dashboard</p>
-
-                {% if form.errors %}
-                <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-                    <i class="bi bi-exclamation-circle text-red-500 mt-0.5"></i>
-                    <div>
-                        <p class="font-medium text-red-800 text-sm">Invalid email or password</p>
-                        <p class="text-red-600 text-sm mt-0.5">Please check your credentials and try again.</p>
-                    </div>
-                </div>
-                {% endif %}
-
-                <form method="post" class="space-y-5">
-                    {% csrf_token %}
-
-                    <div>
-                        <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                        <input type="email" name="username" id="id_email" required
-                               class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200"
-                               style="--tw-ring-offset-width: 0px; --tw-ring-color: rgba(31,58,95,0.1);"
-                               placeholder="you@example.com">
-                    </div>
-
-                    <div>
-                        <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                        <div class="relative">
-                            <input type="password" name="password" id="id_password" required
-                                   class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200 pr-12"
-                                   style="--tw-ring-offset-width: 0px; --tw-ring-color: rgba(31,58,95,0.1);"
-                                   placeholder="Enter your password">
-                            <button type="button" onclick="togglePassword('id_password', this)" 
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                <div style="background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04); padding: 48px; animation: fadeInUp 0.6s ease-out;">
+                    <!-- Logo: Primary Brand Anchor -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 20px;" class="hidden lg:flex">
+                        <div style="position: relative; display: inline-block;">
+                            <div style="position: absolute; inset: -20px; background: radial-gradient(circle, rgba(31, 58, 95, 0.08) 0%, transparent 70%); border-radius: 50%; z-index: -1; animation: logoPulse 3s ease-in-out infinite;"></div>
+                            <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" style="height: 64px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(200,162,74,0.25));">
                         </div>
                     </div>
+                    
+                    <!-- Title Hierarchy -->
+                    <h2 style="font-size: 1.75rem; font-weight: 700; color: #111827; text-align: center; margin-bottom: 4px; letter-spacing: -0.025em;">Welcome Back</h2>
+                    <p style="font-size: 1rem; color: #6B7280; text-align: center; margin-bottom: 24px;">Sign in to your account</p>
 
-                    <div class="flex items-center justify-between">
-                        <label class="flex items-center cursor-pointer">
-                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
-                            <span class="ml-2 text-sm text-gray-600">Remember me</span>
-                        </label>
-                        <a href="/password-reset/" class="text-sm font-medium text-primary hover:text-primary-dark transition-colors">Forgot password?</a>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="ea-alert {% if message.tags == 'success' %}ea-alert-success{% elif message.tags == 'error' %}ea-alert-error{% else %}ea-alert-info{% endif %} mb-6 rounded-lg p-4 bg-blue-50 text-blue-800 border-l-4 border-blue-500">
+                                <i class="bi {% if message.tags == 'success' %}bi-check-circle{% elif message.tags == 'error' %}bi-exclamation-circle{% else %}bi-info-circle{% endif %}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if form.errors %}
+                        <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
+                            <i class="bi bi-exclamation-circle text-red-500 mt-0.5"></i>
+                            <div>
+                                <p class="font-medium text-red-800 text-sm">Invalid email or password</p>
+                                <p class="text-red-600 text-sm mt-0.5">Please check your credentials and try again.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" class="space-y-5">
+                        {% csrf_token %}
+
+                        <div>
+                            <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input type="email" name="email" id="id_email" required
+                                   class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200"
+                                   placeholder="you@example.com">
+                        </div>
+
+                        <div>
+                            <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <div class="relative">
+                                <input type="password" name="password" id="id_password" required
+                                       class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 pr-12"
+                                       placeholder="Enter your password">
+                                <button type="button" onclick="togglePassword('id_password', this)" 
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
+                                <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                            </label>
+                            <a href="{% url 'participant_password_reset' %}" class="text-sm font-medium text-primary hover:text-primary-dark transition-colors">Forgot password?</a>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 px-5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2" style="box-shadow: 0 4px 12px rgba(31,58,95,0.15);">
+                            <i class="bi bi-box-arrow-in-right"></i>Sign In
+                        </button>
+                        
+                        <!-- Hidden field to handle ?next= parameter if any -->
+                        {% if request.GET.next %}
+                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+                        {% endif %}
+                    </form>
+
+                    <div style="height: 1px; background: linear-gradient(to right, transparent, #E5E7EB, transparent); margin: 28px 0;"></div>
+
+                    <div class="text-center">
+                        <p class="text-gray-500 text-sm mb-4">Don't have an account?</p>
+                        <a href="{% url 'participant_signup' %}" class="w-full py-3 px-4 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 block text-center">
+                            Create an Account
+                        </a>
                     </div>
-
-                    <button type="submit" class="w-full py-3.5 px-5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2" style="box-shadow: 0 4px 12px rgba(31,58,95,0.15);">
-                        <i class="bi bi-box-arrow-in-right"></i> Sign In
-                    </button>
-                </form>
-
-                <div style="height: 1px; background: linear-gradient(to right, transparent, #E5E7EB, transparent); margin: 28px 0;"></div>
-
-                <div class="text-center">
-                    <p class="text-gray-500 text-sm">Don't have an account? <a href="/register/" class="font-medium text-primary hover:text-primary-dark transition-colors">Sign up free</a></p>
+                    
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'participant_home' %}" class="text-sm text-primary hover:text-primary-dark transition-colors inline-flex items-center">
+                            <i class="bi bi-arrow-left mr-1"></i> Back to Homepage
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
-{% block extra_js %}
-<script>
-function togglePassword(inputId, btn) {
-    const input = document.getElementById(inputId);
-    const icon = btn.querySelector('i');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('bi-eye');
-        icon.classList.add('bi-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('bi-eye-slash');
-        icon.classList.add('bi-eye');
+
+    <script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
     }
-}
-</script>
-{% endblock %}
+    </script>
+</body>
+</html>

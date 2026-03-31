@@ -75,6 +75,7 @@ def participant_signup(request):
         last_name = request.POST.get('last_name', '').strip()
         password1 = request.POST.get('password1', '')
         password2 = request.POST.get('password2', '')
+        role = request.POST.get('role', 'attendee')
 
         errors = []
 
@@ -105,14 +106,25 @@ def participant_signup(request):
                 'last_name': last_name,
             })
 
+        # Determine role
+        from users.models import UserRole
+        user_role = UserRole.ORGANIZER if role == 'organizer' else UserRole.ATTENDEE
+
         # Create user
         user = User.objects.create_user(
             email=email,
             password=password1,
             first_name=first_name,
             last_name=last_name,
-            role='attendee',  # Set role to attendee
+            role=user_role,
         )
+        
+        if user_role == UserRole.ORGANIZER:
+            from organizers.models import OrganizerProfile
+            OrganizerProfile.objects.get_or_create(
+                user=user,
+                defaults={'company_name': f"{first_name} {last_name}'s Events" if first_name else "My Events"}
+            )
 
         # Log the user in
         from django.contrib.auth import authenticate, login

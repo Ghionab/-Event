@@ -46,9 +46,15 @@
                             </div>
                         </div>
 
-                        <a href="{% url 'event_landing' slug=event.slug %}" class="ea-btn ea-btn-primary w-full block text-center">
-                            View Details
-                        </a>
+                        {% if event.slug %}
+                            <a href="{% url 'event_landing' slug=event.slug %}" class="ea-btn ea-btn-primary w-full block text-center">
+                                View Details
+                            </a>
+                        {% else %}
+                            <a href="{% url 'event_detail' event_id=event.id %}" class="ea-btn ea-btn-primary w-full block text-center">
+                                View Details
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}

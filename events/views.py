@@ -15,6 +15,15 @@ from datetime import datetime
 # Create your views here.
 
 def home(request):
+    if request.user.is_authenticated:
+        role = getattr(request.user, 'role', 'attendee')
+        if role == 'organizer':
+            return redirect('organizers:organizer_dashboard')
+        elif role in ['admin', 'staff', 'usher']:
+            return redirect('coordinators:dashboard')
+        else:
+            return redirect('attendee:dashboard')
+            
     # Get only public published events
     events = Event.objects.filter(is_public=True, status='published').order_by('-start_date')
     return render(request, 'events/home.html', {'events': events})
@@ -100,126 +109,26 @@ Best regards,
     return sent_count
 
 def event_detail(request, event_id):
-    from registration.forms import RegistrationForm
-    from registration.models import Registration
+    """Redirect to participant portal event detail for all users.
+    The participant portal is the single event experience — for everyone.
+    """
     event = get_object_or_404(Event, id=event_id, is_public=True)
-    
-    # Increment view count
-    Event.objects.filter(id=event.id).update(views_count=F('views_count') + 1)
-    event.refresh_from_db()
-
-    # Get organizer profile for branding
-    organizer_profile = None
-    try:
-        organizer_profile = event.organizer.organizer_profile
-    except Exception:
-        pass
-    ticket_types = TicketType.objects.filter(event=event, is_active=True)
-    sessions = event.dynamic_sessions.all().prefetch_related('session_speakers')
-    registration_success = False
-    registration_errors = None
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        form.fields['ticket_type'].queryset = ticket_types
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    registration = form.save(commit=False)
-                    registration.event = event
-                    registration.user = request.user if request.user.is_authenticated else None
-                    
-                    # Lock and decrement inventory
-                    ticket_type = TicketType.objects.select_for_update().get(id=registration.ticket_type.id)
-                    if ticket_type.quantity_available <= 0:
-                        messages.error(request, 'Ticket finished')
-                        registration_errors = {'ticket_type': ['This ticket is sold out.']}
-                    else:
-                        ticket_type.quantity_available -= 1
-                        ticket_type.quantity_sold += 1
-                        ticket_type.save()
-                        registration.save()
-                        registration.confirm()
-                        registration_success = True
-            except Exception as e:
-                registration_errors = {'__all__': [f"Registration failed: {str(e)}"]}
-        else:
-            registration_errors = form.errors
-    else:
-        form = RegistrationForm()
-        form.fields['ticket_type'].queryset = ticket_types
-    return render(request, 'events/event_detail.html', {
-        'event': event,
-        'ticket_types': ticket_types,
-        'form': form,
-        'registration_success': registration_success,
-        'registration_errors': registration_errors,
-        'organizer_profile': organizer_profile,
-        'sessions': sessions,
-    })
+    return redirect('attendee:event_detail', event_id=event.id)
 
 def event_landing(request, slug):
-    """Public event landing page with SEO-friendly URL"""
-    from registration.forms import RegistrationForm
-    from django.db.models import F
+    """Public SEO-friendly event URL.
+    Everyone — anonymous and logged in — is sent directly to the
+    participant portal event detail page. The portal handles both
+    anonymous and authenticated registration identically.
+    """
     event = get_object_or_404(Event, slug=slug, is_public=True, status='published')
 
     # Increment view count
+    from django.db.models import F
     Event.objects.filter(id=event.id).update(views_count=F('views_count') + 1)
-    event.refresh_from_db()
 
-    # Get organizer profile for branding
-    organizer_profile = None
-    try:
-        organizer_profile = event.organizer.organizer_profile
-    except Exception:
-        pass
-    ticket_types = TicketType.objects.filter(event=event, is_active=True)
-    registration_success = False
-    registration_errors = None
-    sessions = event.dynamic_sessions.all().prefetch_related('session_speakers')
-    speakers = event.speakers.filter(is_confirmed=True).order_by('display_order')
-    sponsors = event.sponsors.filter(is_featured=True).order_by('display_order')
-    
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        form.fields['ticket_type'].queryset = ticket_types
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    registration = form.save(commit=False)
-                    registration.event = event
-                    registration.user = request.user if request.user.is_authenticated else None
-                    
-                    # Lock and decrement inventory
-                    ticket_type = TicketType.objects.select_for_update().get(id=registration.ticket_type.id)
-                    if ticket_type.quantity_available <= 0:
-                        messages.error(request, 'Ticket finished')
-                        registration_errors = {'ticket_type': ['This ticket is sold out.']}
-                    else:
-                        ticket_type.quantity_available -= 1
-                        ticket_type.quantity_sold += 1
-                        ticket_type.save()
-                        registration.save()
-                        registration.confirm()
-                        registration_success = True
-            except Exception as e:
-                registration_errors = {'__all__': [f"Registration failed: {str(e)}"]}
-        else:
-            registration_errors = form.errors
-    else:
-        form = RegistrationForm()
-        form.fields['ticket_type'].queryset = ticket_types
-    return render(request, 'events/event_landing.html', {
-        'event': event,
-        'ticket_types': ticket_types,
-        'form': form,
-        'registration_success': registration_success,
-        'registration_errors': registration_errors,
-        'organizer_profile': organizer_profile,
-        'sessions': sessions,
-        'speakers': speakers,
-        'sponsors': sponsors,
-    })
+    # Hard redirect — everyone goes to the participant portal
+    return redirect('attendee:event_detail', event_id=event.id)
 
 def event_edit(request, event_id):
     """Edit an existing event"""

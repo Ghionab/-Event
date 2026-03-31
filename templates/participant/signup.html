@@ -1,212 +1,294 @@
-{% extends 'participant/base.html' %}
-
-{% block title %}Sign Up — EventAxis{% endblock %}
-
-{% block extra_css %}
-.auth-hero {
-    background: linear-gradient(145deg, #1F3A5F 0%, #162C48 50%, #1F3A5F 100%);
-    position: relative;
-    overflow: hidden;
-}
-.auth-hero::before {
-    content: '';
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(200,162,74,0.18) 0%, transparent 70%);
-    border-radius: 50%;
-    top: -100px;
-    right: -100px;
-    pointer-events: none;
-}
-.auth-hero::after {
-    content: '';
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(42,79,122,0.25) 0%, transparent 70%);
-    border-radius: 50%;
-    bottom: -80px;
-    left: -60px;
-    pointer-events: none;
-}
-.auth-feature-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-.password-strength { height: 4px; border-radius: 2px; transition: width 0.3s, background 0.3s; }
-{% endblock %}
-
-{% block content %}
-<div class="min-h-[90vh] flex bg-surface">
-    <!-- Left Brand Panel -->
-    <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col justify-between p-12 xl:p-16 text-white">
-        <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-16">
-                <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                    <i class="bi bi-calendar-event text-accent text-lg"></i>
-                </div>
-                <span class="text-xl font-heading font-bold tracking-tight">EventAxis</span>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Registration - EventAxis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary:     { DEFAULT: '#1F3A5F', dark: '#162C48', light: '#2A4F7A' },
+                        accent:      { DEFAULT: '#C8A24A', dark: '#B08E3A', light: '#D4B56A' },
+                        surface:     { DEFAULT: '#F5F6F7', white: '#FFFFFF' },
+                    },
+                    fontFamily: {
+                        heading: ['Poppins', 'Montserrat', 'system-ui', 'sans-serif'],
+                        body:    ['Inter', 'Open Sans', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: '0.5rem',
+                        lg:      '0.75rem',
+                        xl:      '1rem',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .auth-hero {
+            background: linear-gradient(145deg, #1F3A5F 0%, #162C48 50%, #1F3A5F 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-hero::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(200,162,74,0.18) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+            pointer-events: none;
+        }
+        .auth-hero::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(42,79,122,0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -80px;
+            left: -60px;
+            pointer-events: none;
+        }
+        .auth-feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .password-strength { height: 4px; border-radius: 2px; transition: width 0.3s, background 0.3s; }
+        
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-surface min-h-screen">
+    <div class="min-h-screen flex">
+        <!-- Left Brand Panel -->
+        <div class="auth-hero hidden lg:flex lg:w-[45%] xl:w-[42%] flex-col p-12 xl:p-16 text-white">
+            <div class="relative z-10 mb-12">
+                <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-4">
+                    The platform for<br>
+                    <span class="text-accent">every side</span> of the event.
+                </h1>
+                <p class="text-white/50 text-lg leading-relaxed max-w-sm mt-4">
+                    Create your free account to either manage extraordinary live events, or discover and attend them.
+                </p>
             </div>
             
-            <h1 class="text-4xl xl:text-5xl font-heading font-bold leading-tight mb-6">
-                Join the<br>
-                <span class="text-accent">EventAxis</span> community
-            </h1>
-            <p class="text-white/50 text-lg leading-relaxed max-w-sm">
-                Create your free account to discover events, purchase tickets, and connect with attendees.
-            </p>
+            <div class="relative z-10 space-y-5">
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-calendar-check text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Event Management</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Create and manage all your events in one place</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-people text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Attendee Tracking</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Monitor registrations, tickets, and attendance</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="auth-feature-icon bg-white/10">
+                        <i class="bi bi-graph-up text-accent"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-sm">Revenue Analytics</h4>
+                        <p class="text-white/40 text-sm mt-0.5">Track ticket sales and financial performance</p>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div class="relative z-10 space-y-6">
-            <div class="flex items-start gap-4">
-                <div class="auth-feature-icon bg-white/10">
-                    <i class="bi bi-lightning-charge text-accent"></i>
+        <!-- Right Registration Form -->
+        <div class="flex-1 flex items-center justify-center py-12 px-4 sm:px-8">
+            <div class="max-w-md w-full">
+                <!-- Mobile Logo -->
+                <div class="lg:hidden text-center mb-8">
+                    <div style="position: relative; display: inline-block;">
+                        <div style="position: absolute; inset: -20px; background: radial-gradient(circle, rgba(31, 58, 95, 0.08) 0%, transparent 70%); border-radius: 50%; z-index: -1;"></div>
+                        <img src="{% static 'img/eventaxis-logo.png' %}" alt="EventAxis" style="height: 56px; width: auto; object-fit: contain;">
+                    </div>
+                    <h2 class="text-xl font-heading font-bold text-gray-900 mt-4">EventAxis</h2>
                 </div>
-                <div>
-                    <h4 class="font-semibold text-sm">Set up in 30 seconds</h4>
-                    <p class="text-white/40 text-sm mt-0.5">Quick registration — start exploring immediately</p>
-                </div>
-            </div>
-            <div class="flex items-start gap-4">
-                <div class="auth-feature-icon bg-white/10">
-                    <i class="bi bi-ticket-perforated text-accent"></i>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-sm">Digital Tickets</h4>
-                    <p class="text-white/40 text-sm mt-0.5">Manage all your event tickets in one place</p>
-                </div>
-            </div>
-            <div class="flex items-start gap-4">
-                <div class="auth-feature-icon bg-white/10">
-                    <i class="bi bi-graph-up text-accent"></i>
-                </div>
-                <div>
-                    <h4 class="font-semibold text-sm">Track Your Activity</h4>
-                    <p class="text-white/40 text-sm mt-0.5">Personal dashboard with all your event stats</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Right Form Panel -->
-    <div class="flex-1 flex items-center justify-center py-12 px-4 sm:px-8">
-        <div class="max-w-md w-full">
-            <!-- Mobile Logo -->
-            <div class="lg:hidden text-center mb-8">
-                <div class="w-14 h-14 ea-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <i class="bi bi-calendar-event text-white text-xl"></i>
-                </div>
-                <h2 class="text-xl font-heading font-bold text-gray-900">EventAxis</h2>
-            </div>
-            
-            <div class="ea-card p-8 shadow-lg">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-heading font-bold text-gray-900">Create your account</h2>
-                    <p class="text-gray-500 mt-1 text-sm">Start discovering and attending amazing events</p>
-                </div>
-
-                <form method="post" class="space-y-5">
-                    {% csrf_token %}
+                
+                <div style="background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04); padding: 48px; animation: fadeInUp 0.6s ease-out;">
+                    <!-- Title Hierarchy -->
+                    <h2 style="font-size: 1.75rem; font-weight: 700; color: #111827; text-align: center; margin-bottom: 4px; letter-spacing: -0.025em;">Create an Account</h2>
+                    <p style="font-size: 1rem; color: #6B7280; text-align: center; margin-bottom: 24px;">Join EventAxis today</p>
 
                     {% if form_errors %}
-                    <div class="ea-alert ea-alert-error">
-                        <i class="bi bi-exclamation-circle mr-2"></i>
-                        <ul class="list-disc list-inside">
-                            {% for error in form_errors %}
-                            <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                        <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
+                            <i class="bi bi-exclamation-circle text-red-500 mt-0.5"></i>
+                            <div>
+                                <ul class="list-disc list-inside text-red-700 text-sm">
+                                    {% for error in form_errors %}
+                                    <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
                     {% endif %}
 
-                    {% if form.errors %}
-                    <div class="ea-alert ea-alert-error">
-                        <i class="bi bi-exclamation-circle mr-2"></i>
-                        <span>{{ form.errors }}</span>
-                    </div>
-                    {% endif %}
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="ea-form-group mb-0">
-                            <label for="id_first_name" class="ea-form-label">First Name</label>
-                            <input type="text" name="first_name" id="id_first_name" required value="{{ first_name|default:'' }}"
-                                   class="ea-input">
+                        <!-- Role Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">I want to...</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="relative flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer transition-all duration-200 group hover:border-blue-400">
+                                    <input type="radio" name="role" value="attendee" class="peer sr-only" checked>
+                                    <div class="absolute inset-0 rounded-xl border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 transition-all"></div>
+                                    <i class="bi bi-ticket-perforated text-2xl text-gray-400 group-hover:text-primary mb-1 transition-colors relative z-10 peer-checked:text-primary"></i>
+                                    <span class="font-medium text-sm text-gray-700 relative z-10 peer-checked:text-primary">Attend Events</span>
+                                </label>
+                                
+                                <label class="relative flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer transition-all duration-200 group hover:border-blue-400">
+                                    <input type="radio" name="role" value="organizer" class="peer sr-only">
+                                    <div class="absolute inset-0 rounded-xl border-2 border-transparent peer-checked:border-primary peer-checked:bg-primary/5 transition-all"></div>
+                                    <i class="bi bi-calendar-check text-2xl text-gray-400 group-hover:text-primary mb-1 transition-colors relative z-10 peer-checked:text-primary"></i>
+                                    <span class="font-medium text-sm text-gray-700 relative z-10 peer-checked:text-primary">Organize</span>
+                                </label>
+                            </div>
                         </div>
-                        <div class="ea-form-group mb-0">
-                            <label for="id_last_name" class="ea-form-label">Last Name</label>
-                            <input type="text" name="last_name" id="id_last_name" required value="{{ last_name|default:'' }}"
-                                   class="ea-input">
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="id_first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" name="first_name" id="id_first_name" required value="{{ first_name|default:'' }}"
+                                       class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200">
+                            </div>
+                            <div>
+                                <label for="id_last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" name="last_name" id="id_last_name" required value="{{ last_name|default:'' }}"
+                                       class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="ea-form-group mb-0">
-                        <label for="id_email" class="ea-form-label">Email Address</label>
-                        <input type="email" name="email" id="id_email" required value="{{ email|default:'' }}"
-                               class="ea-input"
-                               placeholder="you@example.com">
-                    </div>
-
-                    <div class="ea-form-group mb-0">
-                        <label for="id_password1" class="ea-form-label">Password</label>
-                        <input type="password" name="password1" id="id_password1" required
-                               class="ea-input" oninput="checkPasswordStrength(this.value)"
-                               placeholder="At least 8 characters">
-                        <div class="mt-2 flex gap-1">
-                            <div id="str-1" class="flex-1 password-strength bg-gray-200"></div>
-                            <div id="str-2" class="flex-1 password-strength bg-gray-200"></div>
-                            <div id="str-3" class="flex-1 password-strength bg-gray-200"></div>
-                            <div id="str-4" class="flex-1 password-strength bg-gray-200"></div>
+                        <div>
+                            <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input type="email" name="email" id="id_email" required value="{{ email|default:'' }}"
+                                   class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200"
+                                   placeholder="you@example.com">
                         </div>
-                        <p id="str-text" class="text-xs text-gray-400 mt-1"></p>
+
+                        <div>
+                            <label for="id_password1" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <div class="relative">
+                                <input type="password" name="password1" id="id_password1" required
+                                       class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200 pr-12"
+                                       oninput="checkPasswordStrength(this.value)"
+                                       placeholder="At least 8 characters">
+                                <button type="button" onclick="togglePassword('id_password1', this)" 
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="mt-2 flex gap-1">
+                                <div id="str-1" class="flex-1 password-strength bg-gray-200"></div>
+                                <div id="str-2" class="flex-1 password-strength bg-gray-200"></div>
+                                <div id="str-3" class="flex-1 password-strength bg-gray-200"></div>
+                                <div id="str-4" class="flex-1 password-strength bg-gray-200"></div>
+                            </div>
+                            <p id="str-text" class="text-xs text-gray-400 mt-1"></p>
+                        </div>
+
+                        <div>
+                            <label for="id_password2" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                            <input type="password" name="password2" id="id_password2" required
+                                   class="w-full px-4 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:outline-none transition-all duration-200"
+                                   placeholder="Confirm your password">
+                        </div>
+
+                        <div class="flex items-start pt-2">
+                            <input type="checkbox" required class="w-4 h-4 mt-0.5 text-primary border-gray-300 rounded focus:ring-primary">
+                            <span class="ml-2 text-sm text-gray-600">I agree to the <a href="#" class="text-primary hover:text-primary-dark font-medium">Terms of Service</a></span>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 px-5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center gap-2 mt-4" style="box-shadow: 0 4px 12px rgba(31,58,95,0.15);">
+                            <i class="bi bi-person-plus mr-2"></i> Create Account
+                        </button>
+                    </form>
+
+                    <div style="height: 1px; background: linear-gradient(to right, transparent, #E5E7EB, transparent); margin: 28px 0;"></div>
+
+                    <div class="text-center">
+                        <p class="text-gray-500 text-sm mb-4">Already have an account?</p>
+                        <a href="/login/" class="w-full py-3 px-4 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 block text-center">
+                            Sign In
+                        </a>
                     </div>
 
-                    <div class="ea-form-group mb-0">
-                        <label for="id_password2" class="ea-form-label">Confirm Password</label>
-                        <input type="password" name="password2" id="id_password2" required
-                               class="ea-input"
-                               placeholder="Confirm your password">
+                    <div class="mt-4 text-center">
+                        <a href="/" class="text-sm text-primary hover:text-primary-dark transition-colors inline-flex items-center">
+                            <i class="bi bi-arrow-left mr-1"></i> Back to Home
+                        </a>
                     </div>
-
-                    <div class="flex items-start">
-                        <input type="checkbox" required class="w-4 h-4 mt-0.5 text-primary border-gray-300 rounded focus:ring-primary">
-                        <span class="ml-2 text-sm text-gray-600">I agree to the <a href="#" class="text-primary hover:text-primary-dark font-medium">Terms of Service</a> and <a href="#" class="text-primary hover:text-primary-dark font-medium">Privacy Policy</a></span>
-                    </div>
-
-                    <button type="submit" class="ea-btn ea-btn-accent ea-btn-lg w-full">
-                        <i class="bi bi-person-plus mr-2"></i> Create Account
-                    </button>
-                </form>
-
-                <div class="mt-6 text-center">
-                    <p class="text-gray-500 text-sm">Already have an account? <a href="/login/" class="text-primary hover:text-primary-dark font-semibold">Sign in</a></p>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-function checkPasswordStrength(pwd) {
-    let score = 0;
-    if (pwd.length >= 8) score++;
-    if (/[A-Z]/.test(pwd)) score++;
-    if (/[0-9]/.test(pwd)) score++;
-    if (/[^A-Za-z0-9]/.test(pwd)) score++;
-    
-    const colors = ['#EF4444', '#F59E0B', '#10B981', '#059669'];
-    const labels = ['Weak', 'Fair', 'Good', 'Strong'];
-    
-    for (let i = 1; i <= 4; i++) {
-        const el = document.getElementById('str-' + i);
-        el.style.background = i <= score ? colors[Math.min(score - 1, 3)] : '#E5E7EB';
+    <script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
     }
-    document.getElementById('str-text').textContent = pwd.length > 0 ? labels[Math.min(score - 1, 3)] || 'Too short' : '';
-}
-</script>
-{% endblock %}
+    
+    function checkPasswordStrength(pwd) {
+        let score = 0;
+        if (pwd.length >= 8) score++;
+        if (/[A-Z]/.test(pwd)) score++;
+        if (/[0-9]/.test(pwd)) score++;
+        if (/[^A-Za-z0-9]/.test(pwd)) score++;
+        
+        const colors = ['#EF4444', '#F59E0B', '#10B981', '#059669'];
+        const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+        
+        for (let i = 1; i <= 4; i++) {
+            const el = document.getElementById('str-' + i);
+            el.style.background = i <= score ? colors[Math.min(score - 1, 3)] : '#E5E7EB';
+        }
+        document.getElementById('str-text').textContent = pwd.length > 0 ? labels[Math.min(score - 1, 3)] || 'Too short' : '';
+    }
+    </script>
+</body>
+</html>

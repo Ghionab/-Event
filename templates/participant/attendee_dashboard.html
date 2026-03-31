@@ -71,8 +71,8 @@
                 <p class="mt-2 text-white/60 text-base max-w-lg">Your personal hub for discovering events, managing tickets, and connecting with the community.</p>
             </div>
             <div class="flex items-center gap-3">
-                {% url 'participant_events' as p_events_url %}
-                <a href="{{ p_events_url|default:'/events/' }}" class="ea-btn ea-btn-accent ea-btn-lg shadow-lg">
+                {% url 'attendee:event_search' as p_events_url %}
+                <a href="{{ p_events_url }}" class="ea-btn ea-btn-accent ea-btn-lg shadow-lg">
                     <i class="bi bi-compass mr-2"></i> Explore Events
                 </a>
             </div>
@@ -144,7 +144,7 @@
                 </h2>
                 <p class="ea-page-header-subtitle text-sm mt-1">Top picks based on community activity</p>
             </div>
-            <a href="{% url 'participant_events' %}" class="ea-btn ea-btn-ghost ea-btn-sm group">
+            <a href="{% url 'attendee:event_search' %}" class="ea-btn ea-btn-ghost ea-btn-sm group">
                 Browse All <i class="bi bi-arrow-right ml-1 group-hover:translate-x-1 transition-transform inline-block"></i>
             </a>
         </div>
@@ -183,14 +183,14 @@
                         <span>{{ event.start_date|date:"M d" }}</span>
                     </div>
                     <h3 class="text-lg font-heading font-bold text-gray-900 line-clamp-1 mb-3 group-hover:text-primary transition-colors">
-                        <a href="{% url 'participant_event_detail' event.id %}">{{ event.title }}</a>
+                        <a href="{% url 'attendee:event_detail' event.id %}">{{ event.title }}</a>
                     </h3>
                     
                     <div class="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">
                         <div class="flex -space-x-2">
                             <div class="w-8 h-8 rounded-full border-2 border-white bg-surface flex items-center justify-center text-[10px] font-bold text-primary">+{{ event.tickets_sold }}</div>
                         </div>
-                        <a href="{% url 'participant_event_detail' event.id %}" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-surface text-gray-600 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                        <a href="{% url 'attendee:event_detail' event.id %}" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-surface text-gray-600 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                             <i class="bi bi-arrow-up-right"></i>
                         </a>
                     </div>
@@ -289,7 +289,7 @@
                             </div>
                             <h3 class="ea-empty-state-title">No upcoming events yet</h3>
                             <p class="ea-empty-state-text">Start exploring and join amazing events happening around you.</p>
-                            <a href="{% url 'participant_events' %}" class="ea-btn ea-btn-accent ea-btn-lg mt-4">
+                            <a href="{% url 'attendee:event_search' %}" class="ea-btn ea-btn-accent ea-btn-lg mt-4">
                                 <i class="bi bi-compass mr-2"></i> Browse Events
                             </a>
                         </div>

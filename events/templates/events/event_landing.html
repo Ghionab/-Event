@@ -1,209 +1,639 @@
 {% extends 'events/base.html' %}
+{% load static %}
 
-{% block title %}{{ event.title }} - {{ event.start_date|date:"F d, Y" }}{% endblock %}
+{% block title %}{{ event.title }} — EventAxis{% endblock %}
 
 {% block extra_css %}
-<style>
-    .landing-hero { padding: 4rem 2rem; text-align: center; color: white; }
-    .landing-hero-content { max-width: 800px; margin: 0 auto; }
-    .landing-logo { height: 80px; background: white; padding: 10px; border-radius: 8px; margin-bottom: 1rem; }
-    .landing-badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.875rem; margin-bottom: 1rem; }
-    .landing-hero h1 { font-size: 2.5rem; font-family: var(--font-heading); margin-bottom: 1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-    .landing-meta { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
-    .landing-meta span { font-size: 1.1rem; }
-    .landing-section { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .landing-section h2 { font-family: var(--font-heading); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #eee; }
-    .event-description { line-height: 1.8; color: #444; }
-    .location-card { display: flex; gap: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; margin-bottom: 0.5rem; }
-    .location-icon { font-size: 1.5rem; }
-    .location-details strong { display: block; margin-bottom: 0.25rem; }
-    .location-details p { margin: 0; color: #666; }
-    .organizer-card { display: flex; gap: 1rem; align-items: flex-start; }
-    .organizer-logo { width: 80px; height: 80px; object-fit: contain; border-radius: 8px; border: 1px solid #eee; }
-    .organizer-info h3 { margin-bottom: 0.5rem; }
-    .organizer-info p { color: #666; margin-bottom: 0.5rem; }
-    .registration-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 2rem; }
-    .ea-card { /* add ea-card styles here */ }
-    .landing-footer { text-align: center; padding: 2rem; background: #333; color: white; margin-top: 2rem; }
-    .landing-footer a { color: #fff; }
-</style>
+/* ════════════════════════════════════════════════════════════════
+   EVENT LANDING — Premium Public Preview
+   Discovery only. All actions require the Participant Portal.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Hero ───────────────────────────────────────────────────── */
+.el-hero {
+    position: relative;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+}
+.el-hero-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 8s ease;
+}
+.el-hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0,0,0,0.15) 0%,
+        rgba(0,0,0,0.55) 60%,
+        rgba(0,0,0,0.80) 100%
+    );
+}
+.el-hero:hover .el-hero-bg { transform: scale(1.03); }
+.el-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 3rem 2rem 2.5rem;
+    max-width: 56rem;
+    margin: 0 auto;
+    width: 100%;
+}
+.el-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.28);
+    color: white;
+    padding: 0.3rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.el-hero h1 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    color: white;
+    line-height: 1.15;
+    margin: 0.75rem 0 1rem;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.el-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    color: rgba(255,255,255,0.80);
+    font-size: 0.9rem;
+}
+.el-hero-meta span { display: flex; align-items: center; gap: 0.4rem; }
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.el-layout {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+@media (min-width: 1024px) {
+    .el-layout { grid-template-columns: 1fr 22rem; }
+}
+
+/* ── Section cards ──────────────────────────────────────────── */
+.el-section {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid #F0F0F2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+.el-section:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+.el-section-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.1rem 1.5rem;
+    border-bottom: 1px solid #F3F4F6;
+}
+.el-section-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.5rem;
+    background: rgba(31,58,95,0.09);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #1F3A5F;
+}
+.el-section-head h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    font-family: var(--ea-font-heading, 'Poppins', sans-serif);
+}
+.el-section-body { padding: 1.5rem; }
+
+/* ── Info grid ──────────────────────────────────────────────── */
+.el-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+.el-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    background: #F9FAFB;
+    border-radius: 0.75rem;
+}
+.el-info-item-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.95rem;
+}
+.el-info-item-text p:first-child {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #111827;
+}
+.el-info-item-text p:last-child {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    margin-top: 0.1rem;
+}
+
+/* ── Session cards ──────────────────────────────────────────── */
+.el-session {
+    border-radius: 0.75rem;
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+}
+.el-session-head {
+    background: #1F3A5F;
+    color: white;
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.el-session-num {
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.18);
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+.el-session-title { font-size: 0.95rem; font-weight: 600; }
+.el-session-time  { font-size: 0.8rem; color: rgba(255,255,255,0.65); white-space: nowrap; }
+.el-session-body  { padding: 1.25rem; background: #FAFAFA; }
+
+/* ── Speaker card ───────────────────────────────────────────── */
+.el-speaker {
+    background: white;
+    border-radius: 0.75rem;
+    border: 1px solid #E5E7EB;
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.el-speaker:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+.el-speaker-avatar {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 0.75rem;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.el-speaker-avatar-placeholder {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 0.75rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(31,58,95,0.08), rgba(31,58,95,0.14));
+    font-size: 2rem;
+    color: #1F3A5F;
+}
+.el-speaker-name { font-weight: 700; font-size: 1rem; color: #111827; }
+.el-speaker-time { font-size: 0.8rem; color: #1F3A5F; font-weight: 500; margin-top: 0.3rem; display: flex; align-items: center; gap: 0.3rem; }
+.el-speaker-bio  { font-size: 0.82rem; color: #6B7280; line-height: 1.55; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #F3F4F6; }
+
+/* ── CTA Sidebar ────────────────────────────────────────────── */
+.el-cta {
+    background: white;
+    border: 1px solid #F0F0F2;
+    border-radius: 1rem;
+    position: sticky;
+    top: 5.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+}
+.el-cta-head {
+    background: linear-gradient(135deg, #1F3A5F 0%, #2A4F7A 100%);
+    padding: 1.5rem;
+    text-align: center;
+    color: white;
+}
+.el-cta-head h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.el-cta-head p { font-size: 0.82rem; color: rgba(255,255,255,0.7); }
+.el-cta-body { padding: 1.5rem; }
+
+/* Ticket preview in sidebar */
+.el-ticket-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0.9rem;
+    border-radius: 0.6rem;
+    background: #F9FAFB;
+    border: 1px solid #F0F0F2;
+    margin-bottom: 0.6rem;
+    font-size: 0.85rem;
+}
+.el-ticket-row .name  { font-weight: 600; color: #111827; }
+.el-ticket-row .price { font-weight: 700; color: #1F3A5F; }
+.el-ticket-row .free  { font-weight: 700; color: #10B981; }
+.el-ticket-row .sold  { font-size: 0.75rem; color: #EF4444; font-weight: 600; }
+
+/* Login CTA button */
+.el-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.9rem 1.25rem;
+    border-radius: 0.75rem;
+    background: #1F3A5F;
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(31,58,95,0.25);
+    margin-top: 1.25rem;
+}
+.el-login-btn:hover {
+    background: #162C48;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(31,58,95,0.3);
+    color: white;
+    text-decoration: none;
+}
+.el-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    color: #D1D5DB;
+    font-size: 0.75rem;
+}
+.el-divider::before, .el-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #F3F4F6;
+}
+.el-register-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    border: 1.5px solid #E5E7EB;
+    color: #6B7280;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+.el-register-link:hover { border-color: #1F3A5F; color: #1F3A5F; text-decoration: none; }
+.el-cta-note { text-align: center; font-size: 0.72rem; color: #9CA3AF; margin-top: 0.75rem; }
+
+/* ── Organizer bar ──────────────────────────────────────────── */
+.el-organizer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #F9FAFB;
+    border-radius: 0.75rem;
+}
+.el-organizer img {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    object-fit: contain;
+    border: 1px solid #E5E7EB;
+    background: white;
+    padding: 2px;
+}
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="landing-hero" style="background: linear-gradient(135deg, {{ event.primary_color }}dd 0%, {{ event.secondary_color }}dd 100%), url('{% if event.banner_image %}{{ event.banner_image.url }}{% endif %}'); background-size: cover; background-position: center;">
-    <div class="landing-hero-content">
-        {% if organizer_profile and organizer_profile.logo %}
-            <img src="{{ organizer_profile.logo.url }}" alt="{{ organizer_profile.company_name }}" class="landing-logo">
+
+{# ══════════════════════════════════════════════════════════════
+   HERO — Full width banner with gradient overlay
+   ═══════════════════════════════════════════════════════════ #}
+<div class="el-hero">
+    <div class="el-hero-bg" style="
+        {% if event.banner_image %}
+            background-image: url('{{ event.banner_image.url }}');
+        {% else %}
+            background: linear-gradient(135deg,
+                {{ event.primary_color|default:'#1F3A5F' }} 0%,
+                {{ event.secondary_color|default:'#2A4F7A' }} 100%);
         {% endif %}
-        <span class="landing-badge">{{ event.get_event_type_display }}</span>
+    "></div>
+
+    <div class="el-hero-content">
+        {# Event type badge #}
+        <span class="el-badge">
+            {% if event.event_type == 'in_person' %}<i class="bi bi-geo-alt-fill"></i>
+            {% elif event.event_type == 'virtual' %}<i class="bi bi-camera-video-fill"></i>
+            {% else %}<i class="bi bi-arrows-angle-expand"></i>{% endif %}
+            {{ event.get_event_type_display }}
+        </span>
+
         <h1>{{ event.title }}</h1>
-        <div class="landing-meta">
-            <span><i class="bi bi-calendar3 mr-2"></i>{{ event.start_date|date:"l, F d, Y" }}</span>
-            <span><i class="bi bi-clock mr-2"></i>{{ event.start_date|time:"g:i A" }} - {{ event.end_date|time:"g:i A" }}</span>
-            <span><i class="bi bi-geo-alt mr-2"></i>{{ event.venue_name|default:"Virtual Event" }}</span>
+
+        <div class="el-hero-meta">
+            <span><i class="bi bi-calendar3"></i> {{ event.start_date|date:"l, F d, Y" }}</span>
+            <span><i class="bi bi-clock"></i> {{ event.start_date|time:"g:i A" }} — {{ event.end_date|time:"g:i A" }}</span>
+            <span><i class="bi bi-geo-alt"></i> {{ event.venue_name|default:"Virtual Event" }}</span>
+            {% if attendee_count > 0 %}
+            <span><i class="bi bi-people-fill"></i> {{ attendee_count }} attending</span>
+            {% endif %}
         </div>
-        <a href="#register" class="inline-block px-8 py-3 bg-white text-primary rounded-lg font-bold hover:bg-gray-100 transition shadow-lg">
-            Register Now
-        </a>
     </div>
 </div>
 
-<!-- Main Content -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Left Column - Event Details -->
-        <div class="lg:col-span-2">
-            <!-- About -->
-            <section class="landing-section">
-                <h2 class="text-xl font-heading font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4">About This Event</h2>
-                <div class="event-description">
+{# ══════════════════════════════════════════════════════════════
+   MAIN GRID — Content (left) + CTA sidebar (right)
+   ═══════════════════════════════════════════════════════════ #}
+<div class="el-layout">
+
+    {# ─── LEFT COLUMN ───────────────────────────────────────── #}
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+        {# About #}
+        <div class="el-section">
+            <div class="el-section-head">
+                <div class="el-section-icon"><i class="bi bi-info-circle"></i></div>
+                <h2>About This Event</h2>
+            </div>
+            <div class="el-section-body">
+                <div style="color: #4B5563; line-height: 1.75; font-size: 0.95rem;">
                     {{ event.description|linebreaks }}
                 </div>
-            </section>
-
-            <!-- Location -->
-            <section class="landing-section">
-                <h2 class="text-xl font-heading font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4">Location</h2>
-                <div class="location-card">
-                    <div class="location-icon"><i class="bi bi-geo-alt text-2xl text-primary"></i></div>
-                    <div class="location-details">
-                        <strong class="text-gray-800">{{ event.venue_name }}</strong>
-                        <p>{{ event.address }}</p>
-                        <p>{{ event.city }}, {{ event.country }}</p>
-                    </div>
-                </div>
-                {% if event.virtual_meeting_url %}
-                    <div class="location-card">
-                        <div class="location-icon"><i class="bi bi-camera-video text-2xl text-green-600"></i></div>
-                        <div class="location-details">
-                            <strong class="text-gray-800">Virtual Event</strong>
-                            <p><a href="{{ event.virtual_meeting_url }}" target="_blank" class="text-primary hover:underline">Join Meeting</a></p>
-                        </div>
-                    </div>
-                {% endif %}
-            </section>
-
-            <!-- Organizer -->
-            {% if organizer_profile %}
-            <section class="landing-section">
-                <h2 class="text-xl font-heading font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4">Organized By</h2>
-                <div class="organizer-card">
-                    {% if organizer_profile.logo %}
-                        <img src="{{ organizer_profile.logo.url }}" alt="{{ organizer_profile.company_name }}" class="organizer-logo">
-                    {% endif %}
-                    <div class="organizer-info">
-                        <h3 class="text-gray-800 font-heading font-semibold">{{ organizer_profile.company_name }}</h3>
-                        {% if organizer_profile.company_description %}
-                            <p>{{ organizer_profile.company_description }}</p>
-                        {% endif %}
-                        {% if organizer_profile.website %}
-                            <a href="{{ organizer_profile.website }}" target="_blank" class="text-primary hover:underline"><i class="bi bi-globe mr-1"></i> Visit Website</a>
-                        {% endif %}
-                    </div>
-                </div>
-            </section>
-            {% endif %}
-
-            <!-- Agenda/Sessions -->
-            {% if sessions %}
-            <section class="landing-section">
-                <h2 class="text-xl font-bold text-gray-800 border-b border-gray-200 pb-3 mb-4">Agenda & Sessions</h2>
-                <div class="space-y-4">
-                    {% for session in sessions %}
-                    <div class="p-4 border border-gray-200 rounded-lg bg-white">
-                        <h4 class="font-semibold text-gray-800 mb-2">{{ session.title }}</h4>
-                        <div class="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
-                            {% if session.session_start_time and session.session_end_time %}
-                                <span><i class="bi bi-clock mr-1"></i>{{ session.session_start_time|date:"g:i A" }} - {{ session.session_end_time|date:"g:i A" }}</span>
-                            {% elif session.session_start_time %}
-                                <span><i class="bi bi-clock mr-1"></i>Starts {{ session.session_start_time|date:"g:i A" }}</span>
-                            {% endif %}
-                        </div>
-
-                        {% if session.all_speakers %}
-                            <div class="mt-3">
-                                <strong class="text-xs text-gray-400 uppercase tracking-wider block mb-2">Speakers</strong>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {% for speaker in session.all_speakers %}
-                                        <div class="flex items-center gap-3">
-                                            {% if speaker.speaker_profile_picture %}
-                                                <img src="{{ speaker.speaker_profile_picture.url }}" alt="{{ speaker.speaker_name }}" class="w-8 h-8 rounded-full object-cover">
-                                            {% else %}
-                                                <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                                                    {{ speaker.speaker_name|make_list|first|upper }}
-                                                </div>
-                                            {% endif %}
-                                            <div class="text-sm">
-                                                <div class="font-medium text-gray-800">{{ speaker.speaker_name }}</div>
-                                                {% if speaker.speaker_bio %}
-                                                    <div class="text-xs text-gray-500 truncate w-32" title="{{ speaker.speaker_bio }}">{{ speaker.speaker_bio }}</div>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endif %}
-                    </div>
-                    {% empty %}
-                    <p class="text-gray-500 text-center py-4">No sessions scheduled yet.</p>
-                    {% endfor %}
-                </div>
-            </section>
-            {% endif %}
-        </div>
-
-        <!-- Right Column - Registration -->
-        <div class="lg:col-span-1">
-            <div class="registration-card ea-card" id="register">
-                <h3 class="mb-6 text-center font-heading font-semibold text-xl">Register for This Event</h3>
-
-                {% if registration_success %}
-                    <div class="p-4 rounded-lg bg-green-50 border border-green-200 text-green-700 text-center">
-                        <i class="bi bi-check-circle text-4xl mb-2 block"></i>
-                        <p class="font-semibold">Registration successful!</p>
-                        <p class="text-sm">Check your email for confirmation.</p>
-                    </div>
-                {% else %}
-                    {% if registration_errors %}
-                        <div class="p-4 mb-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
-                            <ul class="list-disc list-inside text-sm">
-                            {% for field, errors in registration_errors.items %}
-                                {% for error in errors %}
-                                    <li>{{ field|capfirst }}: {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-
-                    {% if ticket_types %}
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="space-y-4">
-                                {{ form.as_p }}
-                            </div>
-                            <button type="submit" class="w-full mt-6 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-medium shadow-md">
-                                Complete Registration
-                            </button>
-                        </form>
-                    {% else %}
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="bi bi-ticket text-5xl mb-3 block text-gray-300"></i>
-                            <p>No tickets available yet.</p>
-                            <p class="text-sm">Check back soon!</p>
-                        </div>
-                    {% endif %}
-                {% endif %}
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Footer -->
-<footer class="landing-footer">
-    <p>&copy; {{ event.start_date|date:"Y" }} {{ organizer_profile.company_name|default:"EventAxis" }}. All rights reserved.</p>
-    <p class="mt-2">Powered by <a href="{% url 'home' %}" class="underline">EventAxis</a></p>
-</footer>
+        {# Date & Location #}
+        <div class="el-section">
+            <div class="el-section-head">
+                <div class="el-section-icon"><i class="bi bi-geo-alt"></i></div>
+                <h2>Date & Location</h2>
+            </div>
+            <div class="el-section-body">
+                <div class="el-info-grid">
+                    <div class="el-info-item">
+                        <div class="el-info-item-icon" style="background:#EFF6FF;">
+                            <i class="bi bi-calendar-event" style="color:#3B82F6;"></i>
+                        </div>
+                        <div class="el-info-item-text">
+                            <p>Date & Time</p>
+                            <p>{{ event.start_date|date:"F d, Y" }}<br>{{ event.start_date|time:"g:i A" }} — {{ event.end_date|time:"g:i A" }}</p>
+                        </div>
+                    </div>
+                    <div class="el-info-item">
+                        <div class="el-info-item-icon" style="background:#F5F3FF;">
+                            <i class="bi bi-geo-alt-fill" style="color:#7C3AED;"></i>
+                        </div>
+                        <div class="el-info-item-text">
+                            <p>Venue</p>
+                            <p>{{ event.venue_name|default:"Virtual Event" }}
+                            {% if event.city %}<br>{{ event.city }}{% if event.country %}, {{ event.country }}{% endif %}{% endif %}</p>
+                        </div>
+                    </div>
+                    {% if has_capacity and available_spots is not None %}
+                    <div class="el-info-item">
+                        <div class="el-info-item-icon" style="background:#F0FDF4;">
+                            <i class="bi bi-people" style="color:#10B981;"></i>
+                        </div>
+                        <div class="el-info-item-text">
+                            <p>Capacity</p>
+                            <p>{{ available_spots }} spots left</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if event.contact_email %}
+                    <div class="el-info-item">
+                        <div class="el-info-item-icon" style="background:#FFF7ED;">
+                            <i class="bi bi-envelope" style="color:#F59E0B;"></i>
+                        </div>
+                        <div class="el-info-item-text">
+                            <p>Contact</p>
+                            <p>{{ event.contact_email }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# Event Schedule — Sessions & Speakers (PREMIUM) #}
+        {% if dynamic_sessions %}
+        <div class="el-section">
+            <div class="el-section-head">
+                <div class="el-section-icon"><i class="bi bi-calendar-event"></i></div>
+                <h2>Event Schedule</h2>
+            </div>
+            <div class="el-section-body" style="display:flex;flex-direction:column;gap:1rem;">
+                {% for session in dynamic_sessions %}
+                <div class="el-session">
+                    {# Session header #}
+                    <div class="el-session-head">
+                        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;flex:1;">
+                            <span class="el-session-num">Session {{ forloop.counter }}</span>
+                            <span class="el-session-title">{{ session.title }}</span>
+                        </div>
+                        {% if session.session_start_time %}
+                        <span class="el-session-time">
+                            <i class="bi bi-clock"></i>
+                            {{ session.session_start_time|time:"g:i A" }}{% if session.session_end_time %} — {{ session.session_end_time|time:"g:i A" }}{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {# Speakers inside session #}
+                    <div class="el-session-body">
+                        {% with all_speakers=session.all_speakers %}
+                        {% if all_speakers %}
+                        <p style="font-size:0.72rem;font-weight:700;color:#1F3A5F;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.75rem;">
+                            <i class="bi bi-people-fill" style="margin-right:0.3rem;"></i>Speakers
+                        </p>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.75rem;">
+                            {% for speaker in all_speakers %}
+                            <div class="el-speaker">
+                                {% if speaker.speaker_profile_picture %}
+                                    <img src="{{ speaker.speaker_profile_picture.url }}" alt="{{ speaker.speaker_name }}" class="el-speaker-avatar">
+                                {% else %}
+                                    <div class="el-speaker-avatar-placeholder">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                {% endif %}
+                                <div style="flex:1;min-width:0;">
+                                    <div class="el-speaker-name">{{ speaker.speaker_name|default:"Speaker" }}</div>
+                                    {% if speaker.speaker_start_time %}
+                                    <div class="el-speaker-time">
+                                        <i class="bi bi-clock"></i>
+                                        {{ speaker.speaker_start_time|time:"g:i A" }}{% if speaker.speaker_end_time %} — {{ speaker.speaker_end_time|time:"g:i A" }}{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% if speaker.speaker_bio %}
+                                    <div class="el-speaker-bio">{{ speaker.speaker_bio }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p style="color:#9CA3AF;font-size:0.875rem;text-align:center;padding:0.5rem 0;">No speakers scheduled yet.</p>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Organizer #}
+        {% if organizer_profile %}
+        <div class="el-section">
+            <div class="el-section-head">
+                <div class="el-section-icon"><i class="bi bi-building"></i></div>
+                <h2>Organized By</h2>
+            </div>
+            <div class="el-section-body">
+                <div class="el-organizer">
+                    {% if organizer_profile.logo %}
+                    <img src="{{ organizer_profile.logo.url }}" alt="{{ organizer_profile.company_name }}">
+                    {% endif %}
+                    <div>
+                        <p style="font-weight:700;color:#111827;">{{ organizer_profile.company_name }}</p>
+                        {% if organizer_profile.company_description %}
+                        <p style="font-size:0.82rem;color:#6B7280;margin-top:0.25rem;">{{ organizer_profile.company_description|truncatewords:20 }}</p>
+                        {% endif %}
+                        {% if organizer_profile.website %}
+                        <a href="{{ organizer_profile.website }}" target="_blank" rel="noopener"
+                           style="font-size:0.8rem;color:#1F3A5F;font-weight:500;display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.4rem;">
+                            <i class="bi bi-globe"></i> Visit Website
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>{# /left column #}
+
+
+    {# ─── RIGHT COLUMN — Sticky CTA Sidebar ─────────────────── #}
+    <div>
+        <div class="el-cta">
+            {# Sidebar header #}
+            <div class="el-cta-head">
+                <div style="width:3rem;height:3rem;background:rgba(255,255,255,0.15);border-radius:0.75rem;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
+                    <i class="bi bi-ticket-perforated" style="font-size:1.4rem;"></i>
+                </div>
+                <h3>Get Your Tickets</h3>
+                <p>Sign in to register for this event</p>
+            </div>
+
+            <div class="el-cta-body">
+
+                {# Ticket types preview #}
+                {% if ticket_types %}
+                <div style="margin-bottom:0.25rem;">
+                    {% for ticket in ticket_types %}
+                    <div class="el-ticket-row {% if ticket.is_sold_out %}opacity-50{% endif %}">
+                        <div>
+                            <div class="name">{{ ticket.name }}</div>
+                            {% if ticket.is_sold_out %}
+                            <div class="sold">Sold Out</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if ticket.price > 0 %}
+                            <span class="price">${{ ticket.price }}</span>
+                            {% else %}
+                            <span class="free">FREE</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {# Primary CTA: Login to register #}
+                <a href="{{ login_url }}" class="el-login-btn">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Sign In to Register
+                </a>
+
+                <div class="el-divider">or</div>
+
+                {# Secondary CTA: Sign up #}
+                <a href="/users/register/?next=/attendee/events/{{ event.id }}/" class="el-register-link">
+                    <i class="bi bi-person-plus"></i>
+                    Create free account
+                </a>
+
+                <p class="el-cta-note">
+                    <i class="bi bi-shield-check" style="color:#10B981;"></i>
+                    Free account &middot; Instant digital tickets &middot; Secure
+                </p>
+
+                <hr style="border:none;border-top:1px solid #F3F4F6;margin:1.25rem 0;">
+
+                {# Event quick stats #}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;text-align:center;">
+                    <div style="background:#F9FAFB;border-radius:0.6rem;padding:0.75rem 0.5rem;">
+                        <div style="font-weight:700;font-size:1rem;color:#1F3A5F;">{{ attendee_count }}</div>
+                        <div style="font-size:0.7rem;color:#9CA3AF;margin-top:0.1rem;">Attending</div>
+                    </div>
+                    <div style="background:#F9FAFB;border-radius:0.6rem;padding:0.75rem 0.5rem;">
+                        <div style="font-weight:700;font-size:1rem;color:#1F3A5F;">{{ dynamic_sessions|length }}</div>
+                        <div style="font-size:0.7rem;color:#9CA3AF;margin-top:0.1rem;">Sessions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>{# /right (sidebar) #}
+
+</div>{# /layout #}
+
 {% endblock %}

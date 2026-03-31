@@ -305,10 +305,15 @@ def registration_success(request, registration_id):
     
     # No permission check needed - this is a public success page for the registrant
     
+    # Generate signed token for secure guest access to tickets
+    from django.core.signing import Signer
+    signed_token = Signer().sign(registration.id)
+    
     return render(request, 'participant/registration_success.html', {
         'registration': registration,
         'event': event,
         'qr_code_image': qr_code_image,
+        'signed_token': signed_token,
     })
 
 def cancel_registration(request, registration_id):

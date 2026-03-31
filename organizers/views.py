@@ -469,7 +469,8 @@ def event_setup(request, event_id):
                                 email=user_identifier,
                                 password=temp_password,
                                 first_name=name.split()[0] if name else '',
-                                last_name=' '.join(name.split()[1:]) if name and len(name.split()) > 1 else ''
+                                last_name=' '.join(name.split()[1:]) if name and len(name.split()) > 1 else '',
+                                role=role
                             )
                             
                             # TODO: Send invitation email with password reset link
@@ -636,7 +637,8 @@ def import_team_csv(request, event_id):
                         email=email,
                         password=temp_password,
                         first_name=name.split()[0] if name else '',
-                        last_name=' '.join(name.split()[1:]) if name and len(name.split()) > 1 else ''
+                        last_name=' '.join(name.split()[1:]) if name and len(name.split()) > 1 else '',
+                        role=role
                     )
                 
                 # Check if team member already exists for this organizer
@@ -1163,7 +1165,8 @@ def team_members(request):
                     email=email,
                     password=password,
                     first_name='',
-                    last_name=''
+                    last_name='',
+                    role=role
                 )
             except Exception as e:
                 messages.error(request, f'Error creating user: {str(e)}')

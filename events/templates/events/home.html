@@ -48,12 +48,219 @@
 .landing-page footer img.ea-logo { filter: grayscale(100%) opacity(0.5) !important; }
 
 /* ═══════════════════════════════════════════════════════════
-   ANIMATIONS & UTILITIES
+   ENHANCED ANIMATIONS & EFFECTS
    ═══════════════════════════════════════════════════════════ */
+
+/* Base fade up animation */
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
+    from { opacity: 0; transform: translateY(30px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    25% { transform: translateY(-15px) rotate(2deg); }
+    50% { transform: translateY(-8px) rotate(-1deg); }
+    75% { transform: translateY(-20px) rotate(1deg); }
+}
+
+@keyframes floatSlow {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    33% { transform: translateY(-20px) translateX(10px); }
+    66% { transform: translateY(-10px) translateX(-5px); }
+}
+
+/* Pulse ring animation */
+@keyframes pulseRing {
+    0% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.1); opacity: 0.3; }
+    100% { transform: scale(1); opacity: 0.6; }
+}
+
+/* Gradient shift animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Marquee animation for stats */
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Counter animation helper */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card hover lift animation */
+@keyframes cardLift {
+    from { transform: translateY(0) scale(1); }
+    to { transform: translateY(-8px) scale(1.02); }
+}
+
+/* Breathe animation for ambient glows */
+@keyframes breathe {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* Scroll-triggered animation classes */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.animate-on-scroll.slide-left {
+    transform: translateX(-40px);
+}
+
+.animate-on-scroll.slide-left.is-visible {
+    transform: translateX(0);
+}
+
+.animate-on-scroll.slide-right {
+    transform: translateX(40px);
+}
+
+.animate-on-scroll.slide-right.is-visible {
+    transform: translateX(0);
+}
+
+.animate-on-scroll.scale-in {
+    transform: scale(0.9);
+}
+
+.animate-on-scroll.scale-in.is-visible {
+    transform: scale(1);
+}
+
+/* Stagger delays for children */
+.stagger-children > *:nth-child(1) { transition-delay: 0ms; }
+.stagger-children > *:nth-child(2) { transition-delay: 100ms; }
+.stagger-children > *:nth-child(3) { transition-delay: 200ms; }
+.stagger-children > *:nth-child(4) { transition-delay: 300ms; }
+.stagger-children > *:nth-child(5) { transition-delay: 400ms; }
+.stagger-children > *:nth-child(6) { transition-delay: 500ms; }
+
+/* Floating elements */
+.float-element {
+    animation: float 6s ease-in-out infinite;
+}
+
+.float-element-slow {
+    animation: floatSlow 8s ease-in-out infinite;
+}
+
+.float-element-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+/* Pulse ring for indicators */
+.pulse-ring {
+    position: relative;
+}
+
+.pulse-ring::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: inherit;
+    opacity: 0.4;
+    animation: pulseRing 2s ease-in-out infinite;
+    z-index: -1;
+}
+
+/* Gradient text animation */
+.gradient-text {
+    background: linear-gradient(90deg, #0F172A 0%, #3B82F6 25%, #0F172A 50%, #3B82F6 75%, #0F172A 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease infinite;
+}
+
+/* Shimmer effect for skeleton/mockup */
+.shimmer {
+    background: linear-gradient(90deg, 
+        rgba(226, 232, 240, 0.4) 25%, 
+        rgba(241, 245, 249, 0.8) 50%, 
+        rgba(226, 232, 240, 0.4) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Ambient glow with breathe */
+.ambient-glow {
+    animation: breathe 4s ease-in-out infinite;
+}
+
+/* Card 3D tilt effect on hover */
+.tilt-card {
+    transform-style: preserve-3d;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tilt-card:hover {
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
+}
+
+/* Magnetic button effect */
+.magnetic-btn {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Parallax container */
+.parallax-container {
+    overflow: hidden;
+    position: relative;
+}
+
+.parallax-layer {
+    will-change: transform;
+}
+
+/* Original fade-up classes preserved */
 .fade-up {
     opacity: 0;
     animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -72,6 +279,80 @@
 .role-card-attendee  { border-top: 3px solid #3B82F6; }
 .role-card-organizer { border-top: 3px solid #0F172A; }
 .role-card-team      { border-top: 3px solid #10B981; }
+
+/* Event card enhanced hover */
+.event-card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.event-card:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.15);
+}
+
+.event-card:hover .event-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.event-icon {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Counter animation class */
+.counter-animate {
+    display: inline-block;
+    animation: countUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Mockup inner animated elements */
+.mockup-bar {
+    animation: shimmer 3s infinite;
+    background: linear-gradient(90deg, 
+        rgba(59, 130, 246, 0.3) 0%, 
+        rgba(59, 130, 246, 0.6) 50%, 
+        rgba(59, 130, 246, 0.3) 100%);
+    background-size: 200% 100%;
+}
+
+/* Step connector line animation */
+.step-connector {
+    position: relative;
+    overflow: hidden;
+}
+
+.step-connector::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #E2E8F0, transparent);
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite;
+}
+
+/* CTA glow pulse */
+.cta-glow {
+    position: relative;
+}
+
+.cta-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #3B82F6, #0F172A, #3B82F6);
+    background-size: 200% 200%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: gradientShift 3s ease infinite;
+}
+
+.cta-glow:hover::before {
+    opacity: 0.5;
+}
 {% endblock %}
 
 {% block content %}
@@ -80,11 +361,18 @@
      SECTION 1: HERO — DUAL-PERSONA
      Speaks to both attendees and organizers simultaneously
      ═══════════════════════════════════════════════════════════ -->
-<section class="relative pt-28 pb-20 md:pt-40 md:pb-28 px-4 sm:px-6 lg:px-8">
-    <!-- Subtle ambient glow -->
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-blue-50/60 via-blue-50/20 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
+<section class="relative pt-28 pb-20 md:pt-40 md:pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <!-- Animated ambient glows -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-blue-50/60 via-blue-50/20 to-transparent rounded-full blur-3xl pointer-events-none -z-10 ambient-glow"></div>
+    <div class="absolute top-20 right-0 w-[400px] h-[400px] bg-gradient-to-br from-blue-100/30 to-transparent rounded-full blur-3xl pointer-events-none -z-10 float-element-slow"></div>
+    <div class="absolute bottom-40 left-0 w-[300px] h-[300px] bg-gradient-to-tr from-slate-100/50 to-transparent rounded-full blur-3xl pointer-events-none -z-10 float-element-delayed"></div>
 
-    <div class="max-w-5xl mx-auto text-center">
+    <!-- Floating decorative orbs -->
+    <div class="absolute top-32 left-[10%] w-3 h-3 rounded-full bg-blue-400/40 float-element"></div>
+    <div class="absolute top-48 right-[15%] w-2 h-2 rounded-full bg-emerald-400/40 float-element-delayed"></div>
+    <div class="absolute bottom-32 left-[20%] w-4 h-4 rounded-full bg-amber-400/30 float-element-slow"></div>
+
+    <div class="max-w-5xl mx-auto text-center relative z-10">
         <!-- Kicker -->
         <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm ring-1 ring-slate-900/[0.04] text-[13px] font-medium text-slate-500 mb-10 fade-up">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -193,9 +481,9 @@
     </div>
 
     {% if events %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
         {% for event in events|slice:":3" %}
-        <a href="{% if event.slug %}{% url 'event_landing' slug=event.slug %}{% else %}{% url 'event_detail' event_id=event.id %}{% endif %}" class="group block bg-white rounded-2xl p-7 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 fade-up fade-up-d{{ forloop.counter }}">
+        <a href="{% if event.slug %}{% url 'event_landing' slug=event.slug %}{% else %}{% url 'event_detail' event_id=event.id %}{% endif %}" class="event-card group block bg-white rounded-2xl p-7 ring-1 ring-slate-900/[0.04] animate-on-scroll">
             <div class="flex justify-between items-start mb-5">
                 <span class="text-slate-400 text-xs font-semibold tracking-[0.12em] uppercase">{{ event.start_date|date:"M d, Y" }}</span>
                 <span class="bg-slate-50 text-slate-500 text-[11px] px-2.5 py-1 rounded-full ring-1 ring-slate-900/[0.04] font-medium">{{ event.get_event_type_display|default:"Event" }}</span>
@@ -244,7 +532,7 @@
 
     <div class="grid md:grid-cols-3 gap-6">
         <!-- FOR ATTENDEES -->
-        <a href="{% url 'event_list' %}" class="role-card-attendee bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 fade-up fade-up-d1 group block">
+        <a href="{% url 'event_list' %}" class="tilt-card role-card-attendee bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-xl hover:shadow-slate-200/40 fade-up fade-up-d1 group block">
             <div class="flex items-center gap-4 mb-5">
                 <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100/50 shrink-0">
                     <i class="bi bi-person-heart text-xl text-blue-600"></i>
@@ -276,7 +564,7 @@
         </a>
 
         <!-- FOR ORGANIZERS -->
-        <a href="/users/register/?role=organizer" class="role-card-organizer bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 fade-up fade-up-d2 group block">
+        <a href="/users/register/?role=organizer" class="tilt-card role-card-organizer bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-xl hover:shadow-slate-200/40 fade-up fade-up-d2 group block">
             <div class="flex items-center gap-4 mb-5">
                 <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center ring-1 ring-slate-200/50 shrink-0">
                     <i class="bi bi-calendar-check text-xl text-[#0F172A]"></i>
@@ -308,7 +596,7 @@
         </a>
 
         <!-- FOR YOUR TEAM -->
-        <div class="role-card-team bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-lg hover:shadow-slate-200/30 fade-up fade-up-d3 group">
+        <div class="tilt-card role-card-team bg-white rounded-2xl p-8 ring-1 ring-slate-900/[0.04] ease-out-expo hover:shadow-lg hover:shadow-slate-200/30 fade-up fade-up-d3 group">
             <div class="flex items-center gap-4 mb-5">
                 <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100/50 shrink-0">
                     <i class="bi bi-people text-xl text-emerald-600"></i>
@@ -449,5 +737,133 @@
         </div>
     </div>
 </section>
+
+{% block extra_js %}
+<script>
+// ═══════════════════════════════════════════════════════════
+// SCROLL-TRIGGERED ANIMATIONS
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -50px 0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                // Optionally unobserve after animation
+                // observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    // Observe all elements with animate-on-scroll class
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // MAGNETIC BUTTON EFFECT
+    // ═══════════════════════════════════════════════════════════
+    const magneticElements = document.querySelectorAll('.magnetic-btn, .ease-out-expo');
+    
+    magneticElements.forEach(el => {
+        el.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            // Subtle magnetic pull (max 8px)
+            const magneticStrength = 0.15;
+            const moveX = x * magneticStrength;
+            const moveY = y * magneticStrength;
+            
+            this.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        });
+
+        el.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // PARALLAX EFFECT FOR HERO ELEMENTS
+    // ═══════════════════════════════════════════════════════════
+    const parallaxElements = document.querySelectorAll('.float-element, .float-element-slow, .float-element-delayed');
+    
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(function() {
+                const scrolled = window.pageYOffset;
+                
+                parallaxElements.forEach((el, index) => {
+                    const speed = 0.05 + (index * 0.02);
+                    const yPos = -(scrolled * speed);
+                    el.style.transform = `translateY(${yPos}px)`;
+                });
+                
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
+
+    // ═══════════════════════════════════════════════════════════
+    // CTA BUTTON TRACKING (for analytics/debugging)
+    // ═══════════════════════════════════════════════════════════
+    const ctaFindEvents = document.getElementById('cta-find-events');
+    const ctaStartOrganizing = document.getElementById('cta-start-organizing');
+    
+    if (ctaFindEvents) {
+        ctaFindEvents.addEventListener('click', function() {
+            console.log('CTA clicked: Find Events');
+        });
+    }
+    
+    if (ctaStartOrganizing) {
+        ctaStartOrganizing.addEventListener('click', function() {
+            console.log('CTA clicked: Start Organizing');
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // SMOOTH SCROLL FOR ANCHOR LINKS
+    // ═══════════════════════════════════════════════════════════
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                e.preventDefault();
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // REVEAL ANIMATIONS ON LOAD
+    // ═══════════════════════════════════════════════════════════
+    // Trigger initial animations immediately
+    setTimeout(() => {
+        document.querySelectorAll('.fade-up').forEach((el, index) => {
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    }, 100);
+});
+</script>
+{% endblock %}
 
 {% endblock %}
